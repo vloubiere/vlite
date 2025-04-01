@@ -86,16 +86,16 @@
 #'
 #' # Basic heatmap
 #' gPar(mfrow= c(2,2))
-#' gHeatmap(test)
+#' vl_heatmap(test)
 #' title(main= "No clustering")
 #'
 #' # With hierarchical ordering
-#' gHeatmap(test,
+#' vl_heatmap(test,
 #'          cluster.rows= TRUE,
 #'          cluster.cols= TRUE,
 #'          zlim= c(-5, 5))
 #' title(main= "hclust rows & cols")
-#' gHeatmap(test,
+#' vl_heatmap(test,
 #'          cluster.rows= TRUE,
 #'          cluster.cols= TRUE,
 #'          cutree.rows = 3,
@@ -104,7 +104,7 @@
 #' title(main= "Cut hclust rows & cols")
 #'
 #' # Save clusters!
-#' cl <- gHeatmap(test2,
+#' cl <- vl_heatmap(test2,
 #'                cluster.rows= TRUE,
 #'                kmeans.k= 5,
 #'                cluster.cols= TRUE,
@@ -122,7 +122,7 @@
 #' \code{\link{kmeans}} for k-means clustering
 #'
 #' @export
-gHeatmap <- function(x,
+vl_heatmap <- function(x,
                      cluster.rows= FALSE,
                      cluster.cols= FALSE,
                      kmeans.k= NA,

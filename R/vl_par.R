@@ -45,22 +45,22 @@
 #' @examples
 #' # Basic usage
 #' pdf("example1.pdf", width = 3, height = 3)
-#' plot(1:10, main = "Before gPar()")
-#' gPar()
-#' plot(1:10, main = "After gPar()")
+#' plot(1:10, main = "Before vl_par()")
+#' vl_par()
+#' plot(1:10, main = "After vl_par()")
 #' dev.off()
 #'
 #' # Multiple plots with custom margins
 #' pdf("example2.pdf", width = 6, height = 6)
 #' par(mfrow = c(2,2))
-#' gPar(mai = c(0.5, 0.5, 0.5, 0.5))
+#' vl_par(mai = c(0.5, 0.5, 0.5, 0.5))
 #' for(i in 1:4) {
 #'   plot(rnorm(100), main = paste("Plot", i))
 #' }
 #' dev.off()
 #'
 #' # Save and restore previous parameters
-#' old_par <- gPar()
+#' old_par <- vl_par()
 #' plot(1:10)
 #' par(old_par)  # restore original settings
 #'
@@ -68,7 +68,7 @@
 #' \code{\link{par}} for all available graphical parameters
 #'
 #' @export
-gPar <- function(mai= c(.9, .9, .9, .9),
+vl_par <- function(mai= c(.9, .9, .9, .9),
                  las= 1,
                  tcl= -0.1,
                  mgp= c(1.5, 0.35, 0),

@@ -36,7 +36,7 @@
 #' @examples
 #' # Basic plot with legend
 #' plot(1:10, col = rainbow(10), pch = 16)
-#' gLegend(legend = paste("Group", 1:10),
+#' vl_legend(legend = paste("Group", 1:10),
 #'         fill = rainbow(10))
 #'
 #' @seealso
@@ -44,7 +44,7 @@
 #' \code{\link{par}} for graphical parameters
 #'
 #' @export
-gLegend <- function(x= par("usr")[2],
+vl_legend <- function(x= par("usr")[2],
                     y= par("usr")[4],
                     legend,
                     fill,

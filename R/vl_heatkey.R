@@ -40,13 +40,13 @@
 #' # Basic heatmap with default color key
 #' gPar()
 #' gImage(test)
-#' gHeatkey()
+#' vl_heatkey()
 #'
 #' @seealso
 #' \code{\link{gHeatmap}} for creating the main heatmap
 #'
 #' @export
-gHeatkey <- function(col,
+vl_heatkey <- function(col,
                      breaks,
                      left= par("usr")[2]+diff(grconvertX(c(0,1), "line", "user")),
                      top= par("usr")[4],

@@ -1,4 +1,5 @@
 setwd("/groups/stark/vloubiere/vlite/")
+devtools::load_all("/groups/stark/vloubiere/vlite/")
 
 # bwtools ---------------------------------
 if(F)
@@ -42,13 +43,17 @@ if(F)
 # plots --------------------------------
 if(F)
 {
-  file.edit("R/gPar.R")
-  file.edit("R/tiltAxis.R")
-  file.edit("R/gLegend.R")
-  file.edit("R/gHeatkey.R")
+  # Plotting parameters
+  file.edit("R/vl_par.R")
 
-  file.edit("R/gImage.R")
-  file.edit("R/gHeatmap.R")
+  # Legend
+  file.edit("R/vl_tiltAxis.R")
+  file.edit("R/vl_legend.R")
+  file.edit("R/vl_heatkey.R")
+
+  # Heatmap
+  file.edit("R/vl_image.R")
+  file.edit("R/vl_heatmap.R")
 }
 
 # Genomics pipelines ---------------------

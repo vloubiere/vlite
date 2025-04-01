@@ -57,22 +57,22 @@
 #' mat <- matrix(rnorm(50), 10, 5)
 #' colnames(mat) <- paste0("Sample", 1:5)
 #' rownames(mat) <- paste0("Gene", 1:10)
-#' gImage(mat)
+#' vl_image(mat)
 #'
 #' # Show cell values
-#' gImage(mat, show.numbers = TRUE)
+#' vl_image(mat, show.numbers = TRUE)
 #'
 #' # Custom color palette
-#' gImage(mat, col = heat.colors(100))
+#' vl_image(mat, col = heat.colors(100))
 #'
 #' # Non-tilted column names
-#' gImage(mat, tilt.colnames = FALSE)
+#' vl_image(mat, tilt.colnames = FALSE)
 #'
 #' @seealso
 #' \code{\link{image}} for the base R image function
 #'
 #' @export
-gImage <- function(mat,
+vl_image <- function(mat,
                    zlim= NULL,
                    breaks= NULL,
                    col= NULL,
