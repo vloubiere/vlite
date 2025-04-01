@@ -1,0 +1,17 @@
+Package: vlite
+Title: A package for exploratory analysis of genomic datasets, focusing on simplicity and clarity.
+Version: 0.1.0
+Authors@R: 
+    person("Vincent", "Loubiere", email = "vincent.loubiere@imp.ac.at", role = c("aut", "cre"))
+Description: A package for performing fast exploratory analysis.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+Depends:
+    R (>= 4.0.0),
+    data.table
+Imports: 
+    rtracklayer,
+    GenomeInfoDb,
+    BSgenome
