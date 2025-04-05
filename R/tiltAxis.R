@@ -37,7 +37,7 @@
 #' @examples
 #' # Basic usage with long labels
 #' plot(1:5, xaxt = "n", xlab = "")
-#' vl_tiltAxis(1:5, labels = paste("Long Label", 1:5))
+#' tiltAxis(1:5, labels = paste("Long Label", 1:5))
 #'
 #' @seealso
 #' \code{\link{text}} for underlying text plotting function
@@ -45,8 +45,8 @@
 #' \code{\link{gImage}} for heatmap plotting function
 #'
 #' @export
-vl_tiltAxis <- function(x,
-                     y= rep(par("usr")[3], length(labels))-diff(grconvertY(c(0, par("mgp")[2]), "line", "user")),
+tiltAxis <- function(x,
+                     y= NULL,
                      labels,
                      srt= 45,
                      offset= 0.25,
@@ -55,8 +55,16 @@ vl_tiltAxis <- function(x,
                      cex= par("cex.axis"),
                      ...)
 {
+  # Checks
+  if(is.null(y)) {
+    line.width <- diff(grconvertY(c(0, 1), "line", "user"))
+    adj <- line.width*par("mgp")[2]
+    y <- par("usr")[3]-adj
+  }
+
+  # Plot
   text(x,
-       y,
+       rep(y, length.out= length(x)),
        labels= labels,
        srt= srt,
        offset= -offset,

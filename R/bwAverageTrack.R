@@ -31,7 +31,7 @@
 #'
 #' @examples
 #' # Import 200 genes for example
-#' path <- system.file("extdata", "Drosophila_transcripts_r6.36.bed", package = "dtBedTools")
+#' path <- system.file("extdata", "Drosophila_transcripts_r6.36.bed", package = "vlite")
 #' genes <- importBed(path)[5001:5200]
 #'
 #' # Example tracks
@@ -39,15 +39,7 @@
 #'             "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw")
 #'
 #' # Parameters for a nice layout
-#' par(mai = c(0.9, 0.9, 0.9, 0.9),
-#'     las = 1,
-#'     tcl = -0.1,
-#'     mgp = c(1.5, 0.35, 0),
-#'     cex = 1,
-#'     cex.lab = 9/12,
-#'     cex.axis = 7/12,
-#'     bty = "n",
-#'     lend = 2)
+#' vl_par()
 #'
 #' # Simple example with two tracks
 #' meanSignal <- bwAverageTrack(bed = genes,
@@ -67,7 +59,7 @@
 #'                              nbins = 251L)
 #' abline(v= 0, lty= 2)
 #'
-#' # Example with anchored region (Genomic distance is not a pseudodistance)
+#' # Example with anchored region (Genomic distance is now a pseudodistance)
 #' meanSignal <- bwAverageTrack(bed = genes,
 #'                              tracks = tracks,
 #'                              center = "region",
@@ -160,9 +152,15 @@ bwAverageTrack <- function(bed,
          ylab= ylab)
     # Add x axis
     if(center!="region") {
-      axis(1,
-           at = c(-upstream, 0, downstream),
-           labels = c(-upstream, center.name, downstream))
+      if(upstream>0 & downstream>0) {
+        axis(1,
+             at = c(-upstream, 0, downstream),
+             labels = c(-upstream, center.name, downstream))
+      } else {
+        axis(1,
+             at = c(-upstream, downstream),
+             labels = c(-upstream, downstream))
+      }
     } else {
       axis(1,
            at = c(-upstream, 0, diff(xlim)*nbins[2]/sum(nbins), xlim[2]),

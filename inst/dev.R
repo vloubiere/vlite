@@ -1,6 +1,15 @@
 setwd("/groups/stark/vloubiere/vlite/")
 devtools::load_all("/groups/stark/vloubiere/vlite/")
 
+# bamtools ---------------------------------
+if(F)
+{
+  # Import bam
+  file.edit("R/importBamRsamtools.R")
+  file.edit("R/importBamRaw.R") # Using samtools and fread
+
+}
+
 # bwtools ---------------------------------
 if(F)
 {
@@ -10,10 +19,27 @@ if(F)
   # Coverage
   file.edit("R/bwCoverage.R")
   file.edit("R/bwBinnedCoverage.R")
-  file.edit("R/bwAverageTrack.R")
 
   # Screenshot
   file.edit("R/bwScreenshot.R")
+
+  # Average tracks
+  file.edit("R/bwAverageTrack.R")
+
+  # Average tracks
+  file.edit("R/bwHeatmap.R")
+
+}
+
+# BSgenomes tools -------------------------
+if(F)
+{
+  file.edit("R/getBSgenomeSize.R")
+  file.edit("R/binBSgenome.R")
+  file.edit("R/sampleRegionsBSgenome.R")
+  file.edit("R/randomRegionsBSgenome.R")
+  file.edit("R/getBSsequence.R")
+
 }
 
 # bedtools --------------------------------
@@ -46,14 +72,25 @@ if(F)
   # Plotting parameters
   file.edit("R/vl_par.R")
 
-  # Legend
-  file.edit("R/vl_tiltAxis.R")
+  # Legends
+  file.edit("R/tiltAxis.R")
   file.edit("R/vl_legend.R")
-  file.edit("R/vl_heatkey.R")
+  file.edit("R/heatkey.R")
+
+  # Boxplot
+  file.edit("R/boxplot.R")
 
   # Heatmap
   file.edit("R/vl_image.R")
   file.edit("R/vl_heatmap.R")
+
+  # Alluvial plot
+  file.edit("R/alluvial.R")
+
+  # Balloons plot
+  file.edit("R/balloons_key.R")
+  file.edit("R/balloons_plot.R")
+
 }
 
 # Genomics pipelines ---------------------

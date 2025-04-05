@@ -73,21 +73,21 @@
 #'
 #' @export
 vl_image <- function(mat,
-                   zlim= NULL,
-                   breaks= NULL,
-                   col= NULL,
-                   xlim= c(0.5, ncol(mat)+0.5),
-                   ylim= c(nrow(mat)+0.5, 0.5),
-                   show.rownames= TRUE,
-                   show.colnames= TRUE,
-                   tilt.colnames= TRUE,
-                   xlab= NA,
-                   ylab= NA,
-                   legend.cex= 1,
-                   legend.title= "Value",
-                   na.col= "darkgrey",
-                   show.numbers= FALSE,
-                   numbers.cex= .8)
+                     zlim= NULL,
+                     breaks= NULL,
+                     col= NULL,
+                     xlim= c(0.5, ncol(mat)+0.5),
+                     ylim= c(nrow(mat)+0.5, 0.5),
+                     show.rownames= TRUE,
+                     show.colnames= TRUE,
+                     tilt.colnames= TRUE,
+                     xlab= NA,
+                     ylab= NA,
+                     legend.cex= 1,
+                     legend.title= "Value",
+                     na.col= "darkgrey",
+                     show.numbers= FALSE,
+                     numbers.cex= .8)
 {
   # Checks ----
   if(is.null(colnames(mat)))

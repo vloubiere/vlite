@@ -40,20 +40,20 @@
 #' # Basic heatmap with default color key
 #' gPar()
 #' gImage(test)
-#' vl_heatkey()
+#' heatkey()
 #'
 #' @seealso
 #' \code{\link{gHeatmap}} for creating the main heatmap
 #'
 #' @export
-vl_heatkey <- function(col,
-                     breaks,
-                     left= par("usr")[2]+diff(grconvertX(c(0,1), "line", "user")),
-                     top= par("usr")[4],
-                     width= 0.75,
-                     height= 4,
-                     cex= 1,
-                     main= NA)
+heatkey <- function(col,
+                    breaks,
+                    left= par("usr")[2]+diff(grconvertX(c(0,1), "line", "user")),
+                    top= par("usr")[4],
+                    width= 0.75,
+                    height= 4,
+                    cex= 1,
+                    main= NA)
 {
   # Compute line width, height adn plotting positions ----
   line.width <- diff(grconvertX(c(0, width), "line", "user"))

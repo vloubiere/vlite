@@ -172,8 +172,8 @@ print(cl)
 
 }
 \seealso{
-\code{\link{gImage}} for the underlying image plotting
-\code{\link{gHeatkey}} for the color key
+\code{\link{vl_image}} for the underlying image plotting
+\code{\link{heatkey}} for the color key
 \code{\link{hclust}} for hierarchical clustering
 \code{\link{kmeans}} for k-means clustering
 }

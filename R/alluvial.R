@@ -40,8 +40,8 @@
 #' test <- data.table(c("A", "A", "A", "A", "A", "B", "B", "B", "C", "C", "C"),
 #'                    c("B", "A", "A", "B", "C", "B", "B", "C", "C", "A", "A"),
 #'                    c("A", "A", "B", "B", "B", "B", "B", "B", "B", "C", "A"))
-#' gAlluvial(test)
-#' gAlluvial(test, bars.widths = .1, space = 1)
+#' alluvial(test)
+#' alluvial(test, bars.widths = .1, space = 1)
 #'
 #' @import data.table
 #' @importFrom graphics plot rect polygon text axis
@@ -57,24 +57,24 @@
 #' @author Your Name
 #'
 #' @export
-gAlluvial <- function(x,
-                      bars.widths= .3,
-                      col= rainbow(12),
-                      xlab= "Categories",
-                      ylab= "N",
-                      keep.order= FALSE,
-                      border= "black",
-                      xlim= NULL,
-                      ylim= NULL,
-                      xaxt= "s",
-                      yaxt= "s",
-                      show.labels= TRUE,
-                      labels.pos= "center",
-                      labels.min.N= 0,
-                      labels.cex= .8,
-                      alpha.categories= .8,
-                      alpha.connections= .5,
-                      space= 0)
+alluvial <- function(x,
+                     bars.widths= .3,
+                     col= rainbow(12),
+                     xlab= "Categories",
+                     ylab= "N",
+                     keep.order= FALSE,
+                     border= "black",
+                     xlim= NULL,
+                     ylim= NULL,
+                     xaxt= "s",
+                     yaxt= "s",
+                     show.labels= TRUE,
+                     labels.pos= "center",
+                     labels.min.N= 0,
+                     labels.cex= .8,
+                     alpha.categories= .8,
+                     alpha.connections= .5,
+                     space= 0)
 {
   # Copy for encapsulation
   dat <- data.table::copy(x)
@@ -156,7 +156,7 @@ gAlluvial <- function(x,
            xright= i+bars.widths[i],
            ytop= top0[1],
            border= border,
-           col= adjustcolor(col[1], , alpha.f = alpha.categories))
+           col= adjustcolor(col[1], alpha.f = alpha.categories))
     }, .(top0, bot0, col)]
 
     # Retrieve labels
@@ -205,4 +205,3 @@ gAlluvial <- function(x,
     }]
   }
 }
-
