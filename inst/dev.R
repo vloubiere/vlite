@@ -10,6 +10,14 @@ if(F)
 
 }
 
+# Deeplearning tools -----------------------
+if(F)
+{
+  file.edit("R/importContrib.R")
+  file.edit("R/contribEnrich.R")
+  file.edit("R/contribPlotLogo.R")
+}
+
 # bwtools ---------------------------------
 if(F)
 {
@@ -26,7 +34,7 @@ if(F)
   # Average tracks
   file.edit("R/bwAverageTrack.R")
 
-  # Average tracks
+  # Bw heatmaps
   file.edit("R/bwHeatmap.R")
 
 }
@@ -91,6 +99,8 @@ if(F)
   file.edit("R/balloons_key.R")
   file.edit("R/balloons_plot.R")
 
+  # Plot DNA letters
+  file.edit("R/plotDNAletter.R")
 }
 
 # Genomics pipelines ---------------------
