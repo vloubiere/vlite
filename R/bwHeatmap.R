@@ -51,6 +51,13 @@
 #'           nbins = 251L)
 #' abline(v= 0, lty= 2)
 #'
+#' # Example using anchored region
+#' bwHeatmap(bed = genes,
+#'           tracks = tracks,
+#'           center = "region",
+#'           upstream = 5000,
+#'           downstream = 5000)
+#'
 #' @export
 bwHeatmap <- function(bed,
                       by= NULL,
@@ -132,7 +139,7 @@ bwHeatmap <- function(bed,
       }
     } else {
       axis(1,
-           at = c(-upstream, 0, diff(xlim)*nbins[2]/sum(nbins), xlim[2]),
+           at = c(1, nbins[1]+1, sum(nbins[1:2]), sum(nbins)),
            labels = c(-upstream, center.name, "End", downstream))
     }
   }

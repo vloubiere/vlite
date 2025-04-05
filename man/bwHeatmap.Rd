@@ -94,4 +94,11 @@ bwHeatmap(bed = genes,
           nbins = 251L)
 abline(v= 0, lty= 2)
 
+# Example using anchored region
+bwHeatmap(bed = genes,
+          tracks = tracks,
+          center = "region",
+          upstream = 5000,
+          downstream = 5000)
+
 }
