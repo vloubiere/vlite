@@ -20,18 +20,18 @@
 #' @return Balloon plot
 #' @export
 balloons_plot <- function(var1,
-                             var2,
-                             color.breaks= NULL,
-                             col= c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF", "#27AD81FF", "#5DC863FF", "#AADC32FF", "#FDE725FF"),
-                             cex= 1,
-                             main= NULL,
-                             xlab= NULL,
-                             ylab= NULL,
-                             gap.axis= 0,
-                             var1.legend.title= NULL,
-                             var2.legend.title= NULL,
-                             legend.left.pos= NULL,
-                             legend.size.breaks= NULL)
+                          var2,
+                          color.breaks= NULL,
+                          col= c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF", "#27AD81FF", "#5DC863FF", "#AADC32FF", "#FDE725FF"),
+                          cex= 1,
+                          main= NULL,
+                          xlab= NULL,
+                          ylab= NULL,
+                          gap.axis= 0,
+                          var1.legend.title= NULL,
+                          var2.legend.title= NULL,
+                          legend.left.pos= NULL,
+                          legend.size.breaks= NULL)
 {
   # Checks
   if(is.null(color.breaks)) {

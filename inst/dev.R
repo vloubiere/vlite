@@ -1,6 +1,16 @@
 setwd("/groups/stark/vloubiere/vlite/")
 devtools::load_all("/groups/stark/vloubiere/vlite/")
 
+# Wrappers systems command -----------------
+if(F)
+{
+  file.edit("R/bsub.R") # bsub gridengine
+  file.edit("R/vl_squeue.R")
+  file.edit("R/vl_scancel.R")
+  file.edit("R/vl_last_err.R")
+  file.edit("R/dropbox_API.R")
+}
+
 # bamtools ---------------------------------
 if(F)
 {
@@ -10,12 +20,80 @@ if(F)
 
 }
 
+# Gene ontologies --------------------------
+if(F)
+{
+  # Gene ontologies
+  file.edit("R/vl_GOenrich.R")
+}
+
+# Motifs analyses tools --------------------
+if(F)
+{
+  # Reverse complement DNA sequence
+  file.edit("R/revCompDNA.R")
+
+  # pwm converion
+  file.edit("R/pwmPercToLog.R")
+
+  # Lasso regression motifs
+  file.edit("R/motifLassoRegression.R")
+
+  # Motif counts
+  file.edit("R/vl_motifCount.R")
+  file.edit("R/vl_motifPos.R")
+
+  # Motif enrichment
+  file.edit("R/vl_motifEnrich.R")
+  file.edit("R/vl_motifEnrichClusters.R")
+
+  # Download iCisTarget output
+  file.edit("R/download_iCistarget.R")
+}
+
+# Linear models evaluation ------------------------
+if(F)
+{
+  # Extract model performance stat
+  file.edit("R/getModelEquation.R")
+  file.edit("R/getModelRMSErsq.R")
+  file.edit("R/getModelExpVar.R")
+}
+
 # Deeplearning tools -----------------------
 if(F)
 {
+  # Deep learning contrib
   file.edit("R/importContrib.R")
   file.edit("R/contribEnrich.R")
   file.edit("R/contribPlotLogo.R")
+
+  # Modelling diagnostics
+  file.edit("R/vl_ROC_AUC.R")
+  file.edit("R/vl_PR_AUC.R")
+  file.edit("R/vl_PPV.R")
+  file.edit("R/vl_mPCC.R")
+  file.edit("R/vl_TPR.R")
+}
+
+# STRING db tools
+if(F)
+{
+  # Get interactions
+  file.edit("R/stringGetDB.R")
+  file.edit("R/stringInteraction.R")
+  file.edit("R/stringToIgraph.R")
+
+  # Methods to plot
+  file.edit("R/plot.vl_STRING.R")
+}
+# Miscellaneous
+if(F)
+{
+  file.edit("R/gaussianBlur.R")
+  file.edit("R/plot_enhancer_motifs.R") # Not reviewed
+  file.edit("R/alignSanger.R") # Not reviewed but contains multiple alignment tool
+  file.edit("R/select_actMatched_controls.R") # Not reviewed, but contains code usable to sample closest observation
 }
 
 # bwtools ---------------------------------
@@ -47,7 +125,6 @@ if(F)
   file.edit("R/sampleRegionsBSgenome.R")
   file.edit("R/randomRegionsBSgenome.R")
   file.edit("R/getBSsequence.R")
-
 }
 
 # bedtools --------------------------------
@@ -85,6 +162,14 @@ if(F)
   file.edit("R/vl_legend.R")
   file.edit("R/heatkey.R")
 
+  # Extra labels
+  file.edit("R/addRsq.R")
+  file.edit("R/addPcc.R")
+  file.edit("R/addPval.R")
+
+  # Pie chart
+  file.edit("R/vl_pie.R")
+
   # Boxplot
   file.edit("R/boxplot.R")
 
@@ -99,8 +184,28 @@ if(F)
   file.edit("R/balloons_key.R")
   file.edit("R/balloons_plot.R")
 
-  # Plot DNA letters
-  file.edit("R/plotDNAletter.R")
+  # Plot DNA letters/logos
+  file.edit("R/plotDNAletter.R") # Used to plot logos
+  file.edit("R/addSeqLogo.R")
+  file.edit("R/addMotifs.R")
+
+  # MA plot
+  file.edit("R/MAplot.R")
+
+  # Methods to plot enrichment analyses output
+  file.edit("R/plot_vl_enr.R")
+  file.edit("R/plot_vl_enr_clusters.R")
+
+  # Plot table
+  file.edit("R/plotTable.R")
+
+  # Scatterplot
+  file.edit("R/rasterScatterplot.R")
+  file.edit("R/densityScatterplot.R")
+  file.edit("R/repelScatterplot.R") # I couldnt completely figure this out yet, careful!
+
+  # Upset plot
+  file.edit("R/upsetPlot.R")
 }
 
 # Genomics pipelines ---------------------
@@ -177,8 +282,7 @@ if(F)
   file.edit("R/cmd_umiToBigwigProseq.R") # Wrapper
 
   # Submit commands
-  file.edit("R/cmd_submit.R") # Wrapper
-  file.edit("R/bsub.R") # bsub gridengine
+  file.edit("R/cmd_submit.R")
 
   # Pipelines (following of wrappers commands)
   file.edit("R/cutnrun_pipeline.R")

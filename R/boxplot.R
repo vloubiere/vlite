@@ -259,12 +259,12 @@ vl_plot_bxp_pval <- function(pval,
   }
   pval[, {
     segments(x0, y0, x1, y1, xpd= NA)
-    vl_plot_pval_text(x,
-                      y,
-                      wilcox,
-                      stars = pval.stars,
-                      values = pval.values,
-                      cex= pval.cex,
-                      srt= ifelse(horizontal, -90, 0))
+    addPval(x,
+            y,
+            wilcox,
+            stars = pval.stars,
+            values = pval.values,
+            cex= pval.cex,
+            srt= ifelse(horizontal, -90, 0))
   }]
 }
