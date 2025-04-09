@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_assignInsertions.R
 \name{cmd_assignInsertions}
 \alias{cmd_assignInsertions}
-\title{Title}
+\title{Generate Commands for Assigning Insertions to Genomic Features}
 \usage{
 cmd_assignInsertions(
   bam,
@@ -15,8 +15,43 @@ cmd_assignInsertions(
 )
 }
 \arguments{
-\item{bed.output.folder}{}
+\item{bam}{Path to the input BAM file. Only a single BAM file is allowed.}
+
+\item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
+
+\item{genome}{Reference genome name (e.g., `"mm10"`, `"hg38"`). If not provided, `gtf` must be specified.}
+
+\item{gtf}{Path to the GTF annotation file. Default: `NULL`.}
+
+\item{bed.output.folder}{Directory for the BED file of unique insertions. Default: `"db/bed/"`.}
+
+\item{counts.output.folder}{Directory for the counts file. Default: `"db/counts/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+}
+\value{
+A `data.table` with:
+- `file.type`: Output file labels (`"bed.file"`, `"counts.file"`).
+- `path`: Paths to the output files.
+- `cmd`: Shell command to run the insertion assignment pipeline.
 }
 \description{
-Title
+Creates shell commands to assign insertions from a BAM file to genomic features using a GTF annotation file.
+Outputs a BED file of unique insertions and a counts file with assigned reads.
+}
+\examples{
+# Assign insertions for a BAM file using the mm10 genome
+cmd <- cmd_assignInsertions(
+  bam = "/data/bam/sample.bam",
+  genome = "mm10"
+)
+vl_submit(cmd, execute= FALSE)
+
+# Assign insertions using a custom GTF file
+cmd <- cmd_assignInsertions(
+  bam = "/data/bam/sample.bam",
+  gtf = "/path/to/custom.gtf"
+)
+vl_submit(cmd, execute= FALSE)
+
 }

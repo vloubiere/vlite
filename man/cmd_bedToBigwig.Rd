@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_bedToBigwig.R
 \name{cmd_bedToBigwig}
 \alias{cmd_bedToBigwig}
-\title{Title}
+\title{Convert BED to BigWig Format}
 \usage{
 cmd_bedToBigwig(
   bed,
@@ -13,8 +13,31 @@ cmd_bedToBigwig(
 )
 }
 \arguments{
-\item{Rpath}{}
+\item{bed}{Path to the input BED file. Only a single BED file is allowed.}
+
+\item{genome}{Path to the genome sizes file.}
+
+\item{output.prefix}{Prefix for the output BigWig file. If not provided, it is derived from the input BED filename.}
+
+\item{bw.output.folder}{Directory for the BigWig file. Default: `"db/bw/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+}
+\value{
+A `data.table` with:
+- `file.type`: Output file label (`"bw"`).
+- `path`: Path to the BigWig file.
+- `cmd`: Shell command to run the BED to BigWig conversion.
 }
 \description{
-Title
+Creates shell commands to convert a BED file to BigWig format using a genome sizes file.
+}
+\examples{
+# Convert a BED file to BigWig format
+cmd <- cmd_bedToBigwig(
+  bed = "/data/bed/sample.bed",
+  genome = "/data/genome/mm10.chrom.sizes"
+)
+vl_submit(cmd, execute= FALSE)
+
 }

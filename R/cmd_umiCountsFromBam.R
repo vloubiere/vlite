@@ -1,15 +1,37 @@
-#' Title
+#' Generate Commands for UMI Counting from BAM Files
 #'
-#' @param bam
-#' @param layout
-#' @param output.prefix
-#' @param umi.counts.output.folder
-#' @param Rpath
+#' @description
+#' Creates shell commands to count unique molecular identifiers (UMIs) from a BAM file.
+#' Outputs a UMI counts file and a BED file of collapsed UMIs.
 #'
-#' @return
-#' @export
+#' @param bam Path to the input BAM file. Only a single BAM file is allowed.
+#' @param layout Sequencing layout, either `"SINGLE"` or `"PAIRED"`.
+#' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
+#' @param umi.counts.output.folder Directory for the UMI counts file. Default: `"db/umi_counts/"`.
+#' @param collapsed.bed.output.folder Directory for the collapsed UMI BED file. Default: `"db/bed/"`.
+#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#'
+#' @return A `data.table` with:
+#' - `file.type`: Output file labels (`"umi.counts"`, `"umi.bed"`).
+#' - `path`: Paths to the output files.
+#' - `cmd`: Shell command to run the UMI counting pipeline.
 #'
 #' @examples
+#' # Count UMIs for a single-end BAM file
+#' cmd <- cmd_umiCountsFromBam(
+#'   bam = "/data/bam/sample.bam",
+#'   layout = "SINGLE"
+#' )
+#' vl_submit(cmd, execute= FALSE)
+#'
+#' # Count UMIs for a paired-end BAM file
+#' cmd <- cmd_umiCountsFromBam(
+#'   bam = "/data/bam/sample.bam",
+#'   layout = "PAIRED"
+#' )
+#' vl_submit(cmd, execute= FALSE)
+#'
+#' @export
 cmd_umiCountsFromBam <- function(bam,
                                  layout,
                                  output.prefix= NULL,
@@ -24,10 +46,6 @@ cmd_umiCountsFromBam <- function(bam,
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
   if(is.null(output.prefix))
     output.prefix <- gsub(".bam$", "", basename(bam))
-  if(!dir.exists(umi.counts.output.folder))
-    dir.create(umi.counts.output.folder, recursive = TRUE, showWarnings = FALSE)
-  if(!dir.exists(collapsed.bed.output.folder))
-    dir.create(collapsed.bed.output.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Output file ----
   umi.counts.file <- file.path(umi.counts.output.folder, paste0(output.prefix, ".txt"))
@@ -36,7 +54,7 @@ cmd_umiCountsFromBam <- function(bam,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "umiCountsFromBam.R", package = "genomicsPipelines"),
+    system.file("Rscripts", "umiCountsFromBam.R", package = "vlite"),
     bam,
     layout,
     umi.counts.file,

@@ -1,29 +1,53 @@
-#' Process ORtag Sequencing Data
-#'
-#' @param vbcFile
-#' @param layout
-#' @param i7
-#' @param i5
-#' @param fq1
-#' @param output.prefix
-#' @param genome
-#' @param genome.idx
-#' @param gtf
-#' @param fq.output.folder
-#' @param bam.output.folder
-#' @param alignment.stats.output.folder
-#' @param bed.output.folder
-#' @param counts.output.folder
-#' @param Rpath
-#' @param cores
+#' Process ORFtag Sequencing Data
 #'
 #' @description
+#' Implements a pipeline for processing ORFtag sequencing data, including:
+#' 1. Adapter trimming
+#' 2. Genome alignment
+#' 3. BAM file collapsing (unique insertions)
+#' 4. Assigning insertions to genomic features
+#'
+#' Supports single-end sequencing data, with options for custom genome and annotation files.
+#'
+#' @param fq1 Path(s) to input R1 FASTQ file(s). Note that R2 is not used here.
+#' @param output.prefix Prefix for output files.
+#' @param genome Reference genome identifier (e.g., `"mm10"`, `"hg38"`).
+#' @param genome.idx Path to the Bowtie2 genome index. If `NULL`, derived from `genome`. Default: `NULL`.
+#' @param gtf Path to the GTF annotation file. Default: `NULL`.
+#' @param fq.output.folder Directory for trimmed FASTQ files. Default: `"db/fq/ORFtag/"`.
+#' @param bam.output.folder Directory for aligned BAM files. Default: `"db/bam/ORFtag/"`.
+#' @param alignment.stats.output.folder Directory for alignment statistics. Default: `"db/alignment_stats/ORFtag/"`.
+#' @param bed.output.folder Directory for BED files of unique insertions. Default: `"db/bed/ORFtag/"`.
+#' @param counts.output.folder Directory for counts files. Default: `"db/counts/ORFtag/"`.
+#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param cores Number of CPU cores to use. Default: `8`.
+#'
+#' @return A `data.table` with:
+#' - `file.types`: Types of output files.
+#' - `path`: Paths to the output files.
+#' - `cmd`: Shell commands for each step in the pipeline.
+#'
+#' @examples
+#' # Process ORFtag sequencing data
+#' cmd <- orftagProcessing(
+#'   fq1 = c("sample1_R1.fq.gz", "sample1_R1_rep2.fq.gz"),
+#'   output.prefix = "sample1",
+#'   genome = "mm10",
+#'   gtf = "/data/annotations/mm10.gtf",
+#'   cores = 8
+#' )
+#' vl_submit(cmd, execute= FALSE)
+#'
+#' @seealso
+#' \itemize{
+#'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
+#'   \item \code{\link{cmd_alignBowtie2}} for alignment
+#'   \item \code{\link{cmd_collapseBam}} for BAM file collapsing
+#'   \item \code{\link{cmd_assignInsertions}} for assigning insertions
+#' }
+#'
 #' @export
-orftagProcessing <- function(vbcFile,
-                             layout,
-                             i7,
-                             i5= 'none',
-                             fq1,
+orftagProcessing <- function(fq1,
                              output.prefix,
                              genome,
                              genome.idx= NULL,
@@ -41,33 +65,10 @@ orftagProcessing <- function(vbcFile,
                     path= character(),
                     cmd= character())
 
-  # Demultiplexing ----
-  if(!missing(vbcFile)) {
-    # Multiple bam/fq files can be provided for one sample
-    .c <- data.table(vbcFile, i7, i5)
-    message("The following samples will be demultiplexed:")
-    message(paste(capture.output(print(.c)), collapse = "\n"))
-    # Generate commands
-    cmd <- .c[, {
-      cmd_demultiplexVBCfile(vbcFile= vbcFile[1],
-                             layout= layout,
-                             i7= i7[1],
-                             i5= i5[1],
-                             output.prefix = output.prefix,
-                             fq.output.folder= fq.output.folder,
-                             cores= cores)
-    }, .(vbcFile, i7, i5)]
-    cmd$vbcFile <- cmd$i7 <- cmd$i5 <- NULL
-    # Set fq1 parameter
-    fq1 <- cmd[file.type=="fq1", path]
-  }
-
   # Trimming illumina adaptors ----
-  # Multiple files can be provided for one sample
-  for(i in seq(fq1)) {
+  for(i in seq(fq1)) { # Multiple files can be provided for one sample
     .c <- cmd_trimIlluminaAdaptors(fq1= fq1[i],
                                    fq2= NULL, # Second reads are not used
-                                   layout= "SINGLE",
                                    fq.output.folder= fq.output.folder)
     cmd <- rbind(cmd, .c)
   }
@@ -78,7 +79,6 @@ orftagProcessing <- function(vbcFile,
   # Alignment ----
   align.cmd <- cmd_alignBowtie2(fq1= fq1.trim,
                                 fq2= NULL, # Second reads are not used
-                                layout= "SINGLE",
                                 output.prefix= output.prefix,
                                 genome= genome,
                                 genome.idx= genome.idx,

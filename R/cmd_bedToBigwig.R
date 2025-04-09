@@ -1,17 +1,28 @@
-#' Title
+#' Convert BED to BigWig Format
 #'
-#' @param bam
-#' @param layout
-#' @param output.prefix
-#' @param extend.PE.fragments
-#' @param bw.output.folder
-#' @param extsize
-#' @param Rpath
+#' @description
+#' Creates shell commands to convert a BED file to BigWig format using a genome sizes file.
 #'
-#' @return
-#' @export
+#' @param bed Path to the input BED file. Only a single BED file is allowed.
+#' @param genome Path to the genome sizes file.
+#' @param output.prefix Prefix for the output BigWig file. If not provided, it is derived from the input BED filename.
+#' @param bw.output.folder Directory for the BigWig file. Default: `"db/bw/"`.
+#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#'
+#' @return A `data.table` with:
+#' - `file.type`: Output file label (`"bw"`).
+#' - `path`: Path to the BigWig file.
+#' - `cmd`: Shell command to run the BED to BigWig conversion.
 #'
 #' @examples
+#' # Convert a BED file to BigWig format
+#' cmd <- cmd_bedToBigwig(
+#'   bed = "/data/bed/sample.bed",
+#'   genome = "/data/genome/mm10.chrom.sizes"
+#' )
+#' vl_submit(cmd, execute= FALSE)
+#'
+#' @export
 cmd_bedToBigwig <- function(bed,
                             genome,
                             output.prefix= NULL,
@@ -32,7 +43,7 @@ cmd_bedToBigwig <- function(bed,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "bed_to_bigwig.R", package = "genomicsPipelines"),
+    system.file("Rscripts", "bed_to_bigwig.R", package = "vlite"),
     bed,
     genome,
     bw.file

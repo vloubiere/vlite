@@ -5,10 +5,6 @@
 \title{Process CUT&RUN Sequencing Data}
 \usage{
 cutnrunProcessing(
-  vbcFile,
-  layout,
-  i7,
-  i5,
   fq1,
   fq2 = NULL,
   output.prefix,
@@ -21,115 +17,52 @@ cutnrunProcessing(
 )
 }
 \arguments{
-\item{vbcFile}{character. Path(s) to input BAM or .tar.gz file(s) from VBC sequencing facility.
-Optional if directly providing .fastq files through `fq1` and `fq2`.}
+\item{fq1}{Path(s) to input R1 FASTQ file(s). Required if `vbcFile` is not provided.}
 
-\item{layout}{character(1). Sequencing layout, must be either "SINGLE" or "PAIRED".}
+\item{fq2}{Path(s) to input R2 FASTQ file(s) for paired-end data. Default: `NULL`.}
 
-\item{i7}{character. i7 index sequence(s) for demultiplexing. Use "none" to skip i7
-filtering. Required if `vbcFile` is provided.}
+\item{output.prefix}{Prefix for output files.}
 
-\item{i5}{character. i5 index sequence(s) for demultiplexing. Use "none" to skip i5
-filtering. Required if `vbcFile` is provided.}
+\item{genome}{Reference genome identifier (e.g., `"mm10"`, `"hg38"`).}
 
-\item{fq1}{character. Path(s) to input R1 fastq file(s). Required if `vbcFile`
-is not provided.}
+\item{genome.idx}{Path to Bowtie2 index. If `NULL`, derived from `genome`. Default: `NULL`.}
 
-\item{fq2}{character. Path(s) to input R2 fastq file(s). Required for paired-end
-data if `vbcFile` is not provided. Default is NULL.}
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/CUTNRUN/"`.}
 
-\item{output.prefix}{character(1). Prefix for output BAM and alignment statistics files.}
+\item{bam.output.folder}{Directory for aligned BAM files. Default: `"db/bam/CUTNRUN/"`.}
 
-\item{genome}{character(1). Reference genome identifier ("mm10" or "hg38").}
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/CUTNRUN/"`.}
 
-\item{genome.idx}{character(1). Path to Bowtie2 index. If NULL, will be derived from
-`genome` parameter. Default is NULL.}
-
-\item{fq.output.folder}{character(1). Directory for fastq files. Default: "db/fq/CUTNRUN/".}
-
-\item{bam.output.folder}{character(1). Directory for BAM files. Default: "db/bam/CUTNRUN/".}
-
-\item{alignment.stats.output.folder}{character(1). Directory for alignment statistics.
-Default: "db/alignment_stats/CUTNRUN/".}
-
-\item{cores}{numeric(1). Number of CPU cores to use. Default: 8.}
+\item{cores}{Number of CPU cores to use. Default: `8`.}
 }
 \value{
-A data.table containing all processing commands with columns:
-\itemize{
-  \item file.type: Type of output file
-  \item path: Path to the output file
-  \item cmd: Shell command
-}
+A `data.table` with:
+- `file.type`: Types of output files.
+- `path`: Paths to the output files.
+- `cmd`: Shell commands for each step in the pipeline.
 }
 \description{
-Implements a comprehensive pipeline for processing CUT&RUN sequencing data through three main steps:
-1. Demultiplexing of BAM files or .tar.gz files from the VBC NGS facility (optional)
-2. Adapter trimming
-3. Genome alignment and quality filtering
+Implements a pipeline for processing CUT&RUN sequencing data, including:
+1. Adapter trimming
+2. Genome alignment and quality filtering
 
-The pipeline supports both single-end and paired-end data, and can process multiple input files
-for the same sample.
+Supports single-end and paired-end data, with optional demultiplexing for VBC BAM or `.tar.gz` files.
 }
-\details{
-The pipeline consists of three main steps, each handled by a specialized helper function:
-
-1. Demultiplexing (`cmd_demultiplexVBCfile`):
-   - Processes BAM or .tar.gz files from VBC facility
-   - Filters reads based on i5 and i7 indexes
-   - Outputs demultiplexed FASTQ files
-
-2. Adapter Trimming (`cmd_trimIlluminaAdaptors`):
-   - Removes Illumina adapter sequences using Trim Galore
-   - Processes single or paired FASTQ files
-   - Outputs trimmed, gzipped FASTQ files
-
-3. Alignment (`cmd_alignBowtie2`):
-   - Aligns reads to reference genome using Bowtie2
-   - Filters for MAPQ ≥ 30
-   - Generates alignment statistics
-   - Outputs sorted BAM files and statistics
-}
-\section{Output Files}{
-
-The pipeline generates several types of files:
-\itemize{
-  \item Demultiplexed FASTQ: *_1.fq.gz, *_2.fq.gz (paired-end) or *.fq.gz (single-end)
-  \item Trimmed FASTQ: *_val_1.fq.gz, *_val_2.fq.gz (paired-end) or *_trimmed.fq.gz (single-end)
-  \item Aligned BAM: *_<genome>.bam
-  \item Statistics: *_<genome>_stats.txt, *_<genome>_mapq30_stats.txt
-}
-}
-
 \examples{
-\dontrun{
-# Process paired-end data from VBC BAM file
-cmd <- cutnrunProcessing(
-  vbcFile = "input.bam",
-  layout = "PAIRED",
-  i5 = "ACGTACGT",
-  i7 = "TGCATGCA",
-  output.prefix = "sample1",
-  genome = "mm10",
-  cores = 8
-)
-
-# Process multiple input fastq files
+# Process paired-end data from FASTQ files
 cmd <- cutnrunProcessing(
   fq1 = c("sample1_R1.fq.gz", "sample1_R1_rep2.fq.gz"),
   fq2 = c("sample1_R2.fq.gz", "sample1_R2_rep2.fq.gz"),
-  layout = "PAIRED",
   output.prefix = "sample1",
   genome = "hg38",
   cores = 8
 )
-}
+vl_submit(cmd, execute= FALSE)
 
 }
 \seealso{
 \itemize{
-  \item \code{\link{cmd_demultiplexVBCfile}} for demultiplexing details
-  \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming details
-  \item \code{\link{cmd_alignBowtie2}} for alignment details
+  \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
+  \item \code{\link{cmd_alignBowtie2}} for alignment
 }
 }

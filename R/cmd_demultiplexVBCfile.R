@@ -1,266 +1,82 @@
-#' Generate Demultiplexing Commands for .bam or .tar.gz files from the VBC NGS facility
+#' Generate Demultiplexing Commands for .bam or .tar.gz Files from the VBC NGS Facility
 #'
 #' @description
-#' Generates shell commands to demultiplex BAM or tar.gz fqsta files from VBC NGS facility.
-#' This function is a wrapper around the Perl scripts 'vbc_bam_demultiplexing.pl' and 'vbc_tar_demultiplexing.pl'.
-#' The function handles both single-end and paired-end sequencing data, with optional support for PRO-Seq specific
-#' processing (only supported with BAM input for now).
+#' Generates shell commands to demultiplex BAM or tar.gz FASTQ files from the VBC NGS facility.
+#' This function is a wrapper around the Perl scripts `vbc_bam_demultiplexing.pl` and `vbc_tar_demultiplexing.pl`.
+#' It supports both single-end and paired-end sequencing data, with optional support for PRO-Seq-specific processing
+#' (only supported with BAM input).
 #'
 #' @param vbcFile character(1). Path to the input BAM file or .tar.gz file containing the reads.
-#' @param layout character(1). Sequencing layout, must be either "PAIRED" or "SINGLE".
+#' @param layout character(1). Sequencing layout, must be either `"PAIRED"` or `"SINGLE"`.
 #' @param i7 character(1). i7 index sequence(s). Multiple indexes should be comma-separated.
-#'        Use empty string "" if no i7 filtering is needed. Default: "".
+#'        Use an empty string `""` if no i7 filtering is needed. Default: `""`.
 #' @param i5 character(1). i5 index sequence(s). Multiple indexes should be comma-separated.
-#'        Use empty string "" if no i5 filtering is needed. Default: "".
-#' @param i7.column numeric(1). Column number in the BAM file containing the i7 index.
-#'        Default: 14.
-#' @param i5.column numeric(1). Column number in the BAM file containing the i5 index.
-#'        Default: 12.
-#' @param output.prefix character(1). Optional prefix for output files. If not provided,
-#'        will be constructed from the input filename and index sequences.
+#'        Use an empty string `""` if no i5 filtering is needed. Default: `""`.
+#' @param i7.column numeric(1). Column number in the BAM file containing the i7 index. Default: `14`.
+#' @param i5.column numeric(1). Column number in the BAM file containing the i5 index. Default: `12`.
+#' @param output.prefix character(1). Optional prefix for output files. If not provided, it will be
+#'        constructed from the input filename and index sequences.
 #' @param start.seq character(1). Optional sequence that must be present at the start of reads
-#'        (typically for PRO-Seq data). Only supported for BAM input so far. Default: NULL.
-#' @param trim.length numeric(1). Required when start.seq is provided. Number of nucleotides
-#'        to trim from the sequence (after start.seq has been removed) and append to the readID. Only supported for BAM input so far.
+#'        (typically for PRO-Seq data). Only supported for BAM input. Default: `NULL`.
+#' @param trim.length numeric(1). Required when `start.seq` is provided. Number of nucleotides to trim
+#'        from the sequence (after `start.seq` has been removed) and append to the read ID. Only supported for BAM input.
 #' @param fq.output.folder character(1). Directory where output FASTQ files will be written.
 #' @param cores numeric(1). Number of CPU cores to use for samtools processing (when using BAM input).
-#' @param head numeric(1). Optional. Number of lines to process (for testing purposes).
-#'        Must be a whole number.
+#' @param head numeric(1). Optional. Number of lines to process (for testing purposes). Must be a whole number.
 #'
-#' @return A data.table with three columns:
+#' @return A `data.table` with three columns:
 #' \itemize{
-#'   \item file.type: Labels for output files ("fq1", "fq2")
-#'   \item path: Full paths to the output files
-#'   \item cmd: Shell command(s) to generate the output files
+#'   \item `file.type`: Labels for output files (`"fq1"`, `"fq2"`).
+#'   \item `path`: Full paths to the output files.
+#'   \item `cmd`: Shell command(s) to generate the output files.
 #' }
 #'
 #' @details
-#' The function generates commands that will:
-#' 1. Read a BAM file using samtools or a .tar.gz file
-#' 2. Process the reads using vbc_bam_demultiplexing.pl (BAM) or vbc_tar_demultiplexing.pl (tar file)
-#' 3. Filter reads based on i7 and/or i5 indexes
-#' 4. Optionally process PRO-Seq specific requirements (BAM only)
-#' 5. Output gzipped FASTQ files
+#' The function generates commands that:
+#' 1. Read a BAM file using samtools or a .tar.gz file.
+#' 2. Process the reads using `vbc_bam_demultiplexing.pl` (BAM) or `vbc_tar_demultiplexing.pl` (tar.gz).
+#' 3. Filter reads based on i7 and/or i5 indexes.
+#' 4. Optionally process PRO-Seq-specific requirements (BAM only).
+#' 5. Output gzipped FASTQ files.
 #'
 #' @section Output Files:
 #' For paired-end data:
-#' - <output.prefix>_1.fq.gz
-#' - <output.prefix>_2.fq.gz
+#' - `<output.prefix>_1.fq.gz`
+#' - `<output.prefix>_2.fq.gz`
 #'
 #' For single-end data:
-#' - <output.prefix>.fq.gz
+#' - `<output.prefix>.fq.gz`
 #'
 #' @examples
+#' # Example with a .tar.gz file (One of Tomas screens)
+#' cmd <- cmd_demultiplexVBCfile(
+#'   vbcFile = "/groups/stark/projects/PE75_20250120_TP/2415402230_1_R18342_20250120.tar.gz",
+#'   layout = "PAIRED",
+#'   i7 = "CTATAC",
+#'   i5 = "none",
+#'   output.prefix = "ORFeome_fastq_demult_CTATAC",
+#'   fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
+#'   head = 40000
+#' )
+#' vl_submit(cmd, overwrite = FALSE, logs = "/groups/stark/vloubiere/packages/tests/logs/")
 #'
-#' # TAR file example ---------------
-#' cmd <- cmd_demultiplexVBCfile(vbcFile = "/groups/stark/projects/PE75_20250120_TP/2415402230_1_R18342_20250120.tar.gz",
-#' layout = "PAIRED",
-#' i7 = 'CTATAC',
-#' i5 = 'none',
-#' output.prefix = "ORFeome_fastq_demult_CTATAC",
-#' fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#' head = 40000)
-#' cmd_submit(cmd,
-#'            overwrite = FALSE,
-#'            logs = "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Expect 10,000 reads
-#' fread(cmd= "zcat /groups/stark/vloubiere/packages/tests/ORFeome_fastq_demult_CTATAC_1.fq.gz | wc -l")$V1/4
-#'
-#' # BAM file examples ---------------
-#' # Example using paired-end CUTNRUN data ---
-#' bam <- "/groups/stark/projects/PE50_20211228_CUTandRUN/HY7GJDSX2_2_20211226B_20211228.bam"
-#' output <- "PE_CUTNRUN"
-#' i7 <- "ACAGTG"
-#' i5 <- "ACGTCCTG"
-#' layout <- "PAIRED"
-#' .c <- cmd_demultiplexVBCfile(vbcFile = bam,
-#'                              layout = layout,
-#'                              i7 = i7,
-#'                              i5 = i5,
-#'                              output.prefix = output,
-#'                              fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'                              cores = 8,
-#'                              head = 40000)
-#' # Submit command
-#' cmd_submit(.c,
-#'            overwrite = TRUE,
-#'            logs= "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Read count
-#' fread(cmd= paste("zcat", .c$path[1], "| wc -l"))$V1/4
-#' # Compare to expected
-#' rawBam <- vl_importBamRaw(bam, headN = 40000)
-#' nrow(rawBam[grepl(paste0("BC:Z:", i7), V14) & grepl(paste0("B2:Z:", i5), V12)])
-#'
-#'
-#' # Example using single-end CUTNRUN data ----
-#' bam <- "/groups/stark/projects/PE36_20230623_CutNRun_FN/HNF5HBGXT_1_20230620B_20230621.bam"
-#' output <- "SE_CUTNRUN"
-#' i7 <- "TCATTC"
-#' i5 <- "TAAGATTA"
-#' layout <- "SINGLE"
-#' .c <- cmd_demultiplexVBCfile(vbcFile = bam,
-#'                              layout = layout,
-#'                              i7 = i7,
-#'                              i5 = i5,
-#'                              output.prefix = output,
-#'                              fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'                              cores = 8,
-#'                              head = 40000)
-#' # Submit command
-#' cmd_submit(.c,
-#'            overwrite = TRUE,
-#'            logs= "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Read count
-#' fread(cmd= paste("zcat", .c$path[1], "| wc -l"))$V1/4
-#' # Compare to expected
-#' rawBam <- vl_importBamRaw(bam, headN = 40000)
-#' nrow(rawBam[grepl(paste0("BC:Z:", i7), V14) & grepl(paste0("B2:Z:", i5), V12)])
-#' # Example using paired-end ORFeome data ----
-#' bam <- "/groups/stark/projects/PE60_20240618/AAFN772M5_1_20240617B_20240618.bam"
-#' output <- "PE_ORFeome"
-#' i7 <- "GAGTGG"
-#' i5 <- "none"
-#' layout <- "PAIRED"
-#' .c <- cmd_demultiplexVBCfile(vbcFile = bam,
-#'                              layout = layout,
-#'                              i7 = i7,
-#'                              i5 = i5,
-#'                              output.prefix = output,
-#'                              fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'                              cores = 8,
-#'                              head = 40000)
-#' # Submit command
-#' cmd_submit(.c,
-#'            overwrite = TRUE,
-#'            logs= "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Read count
-#' fread(cmd= paste("zcat", .c$path[1], "| wc -l"))$V1/4
-#' # Compare to expected
-#' rawBam <- vl_importBamRaw(bam, headN = 40000)
-#' nrow(rawBam[grepl(paste0("BC:Z:", i7), V14)])
-#' # Example using single-end ORFeome data ----
-#' bam <- "/groups/stark/projects/SR100_20242708_TP/22MYG2LT3_8_20240826B_20240827.bam"
-#' output <- "SE_ORFeome"
-#' i7 <- "CATTTT"
-#' i5 <- "none"
-#' layout <- "SINGLE"
-#' .c <- cmd_demultiplexVBCfile(vbcFile = bam,
-#'                              layout = layout,
-#'                              i7 = i7,
-#'                              i5 = i5,
-#'                              output.prefix = output,
-#'                              fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'                              cores = 8,
-#'                              head = 40000)
-#' # Submit command
-#' cmd_submit(.c,
-#'            overwrite = TRUE,
-#'            logs= "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Read count
-#' fread(cmd= paste("zcat", .c$path[1], "| wc -l"))$V1/4
-#' # Compare to expected
-#' rawBam <- vl_importBamRaw(bam, headN = 40000)
-#' nrow(rawBam[grepl(paste0("BC:Z:", i7), V14)])
-#' # Example using paired-end ORFtag data with barcode in column 12 ----
-#' bam <- "/groups/stark/projects/PE36_20211031/HL5THBGXK_1_20211030B_20211030.bam"
-#' output <- "PE_ORFtag"
-#' i7 <- "GCCTCTTC|ATTGATTC"
-#' i5 <- "none"
-#' layout <- "PAIRED"
-#' .c <- cmd_demultiplexVBCfile(vbcFile = bam,
-#'                              layout = layout,
-#'                              i7 = gsub("|", ",", i7, fixed = TRUE),
-#'                              i5 = i5,
-#'                              i7.column = 12,
-#'                              output.prefix = output,
-#'                              fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'                              cores = 8,
-#'                              head = 40000)
-#' # Submit command
-#' cmd_submit(.c,
-#'            overwrite = TRUE,
-#'            logs= "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Read count
-#' fread(cmd= paste("zcat", .c$path[1], "| wc -l"))$V1/4
-#' # Compare to expected
-#' rawBam <- vl_importBamRaw(bam, headN = 40000)
-#' nrow(rawBam[grepl(paste0("BC:Z:", gsub("|", "|BC:Z:", i7, fixed = TRUE)), V12)])
-#' # Example using single-end ORFtag data with barcode in column 12 ----
-#' bam <- "/groups/stark/nemcko/work/ORFtrap_repression/Ramesh_screen1/RY_JB_GT_screens.bam"
-#' output <- "SE_ORFtag"
-#' i7 <- "TTACTGTG|CCGTGGTG"
-#' i5 <- "none"
-#' layout <- "SINGLE"
-#' .c <- cmd_demultiplexVBCfile(vbcFile = bam,
-#'                              layout = layout,
-#'                              i7 = gsub("|", ",", i7, fixed = TRUE),
-#'                              i5 = i5,
-#'                              i7.column = 12,
-#'                              output.prefix = output,
-#'                              fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'                              cores = 8,
-#'                              head = 40000)
-#' # Submit command
-#' cmd_submit(.c,
-#'            overwrite = TRUE,
-#'            logs= "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Read count
-#' fread(cmd= paste("zcat", .c$path[1], "| wc -l"))$V1/4
-#' # Compare to expected
-#' rawBam <- vl_importBamRaw(bam, headN = 40000)
-#' nrow(rawBam[grepl(paste0("BC:Z:", gsub("|", "|BC:Z:", i7, fixed = TRUE)), V12)])
-#' # Example using single-end ORFtag data with barcode in column 14 ----
-#' bam <- "/groups/stark/nemcko/work/ORFtrap_Moritz/CD4MDANXX_8_20190314B_20190315.bam"
-#' output <- "SE_ORFtag_col14"
-#' i7 <- "ATCACG|ACAGTG"
-#' i5 <- "none"
-#' layout <- "SINGLE"
-#' .c <- cmd_demultiplexVBCfile(vbcFile = bam,
-#'                              layout = layout,
-#'                              i7 = gsub("|", ",", i7, fixed = TRUE),
-#'                              i5 = i5,
-#'                              i7.column = 14,
-#'                              output.prefix = output,
-#'                              fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'                              cores = 8,
-#'                              head = 40000)
-#' # Submit command
-#' cmd_submit(.c,
-#'            overwrite = TRUE,
-#'            logs= "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Read count
-#' fread(cmd= paste("zcat", .c$path[1], "| wc -l"))$V1/4
-#' # Compare to expected
-#' rawBam <- vl_importBamRaw(bam, headN = 40000)
-#' nrow(rawBam[grepl(paste0("BC:Z:", gsub("|", "|BC:Z:", i7, fixed = TRUE)), V14)])
-#' # Example using paired-end PRO-Seq data ----
-#' bam <- "/groups/stark/projects/PE50_20230401/AAAYLY5HV_1_20230331B_20230401.bam"
-#' output <- "PE_PROSeq"
-#' i7 <- "GTCCGC"
-#' i5 <- "none"
-#' layout <- "PAIRED"
-#' eBC <- "ATCG"
-#' .c <- cmd_demultiplexVBCfile(vbcFile = bam,
-#'                              layout = layout,
-#'                              i7 = i7,
-#'                              i5 = i5,
-#'                              i7.column = 14,
-#'                              output.prefix = output,
-#'                              fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'                              start.seq = eBC,
-#'                              trim.length = 10,
-#'                              cores = 8,
-#'                              head = 40000)
-#' # Submit command
-#' cmd_submit(.c,
-#'            overwrite = TRUE,
-#'            logs= "/groups/stark/vloubiere/packages/tests/logs/")
-#' # Read count
-#' fread(cmd= paste("zcat", .c$path[1], "| wc -l"))$V1/4
-#' # Compare to expected
-#' rawBam <- vl_importBamRaw(bam, headN = 40000)
-#' nrow(rawBam[grepl(paste0("BC:Z:", i7), V14)])
-#' nrow(rawBam[grepl(paste0("BC:Z:", i7), V14) & grepl(paste0("^", eBC), V10)])
+#' # Example with a BAM file (PRO-Seq data)
+#' cmd <- cmd_demultiplexVBCfile(
+#'   vbcFile = "/groups/stark/projects/PE50_20230401/AAAYLY5HV_1_20230331B_20230401.bam",
+#'   layout = "PAIRED,
+#'   i7 = "GTCCGC",
+#'   i5 = "none,
+#'   i7.column = 14,
+#'   output.prefix = "PE_PROSeq",
+#'   fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
+#'   start.seq = "ATCG",
+#'   trim.length = 10,
+#'   cores = 8,
+#'   head = 40000
+#' )
+#' vl_submit(cmd,
+#'           overwrite = TRUE,
+#'           logs = "/groups/stark/vloubiere/packages/tests/logs/")
 #'
 #' @seealso
 #' The underlying Perl script documentation can be accessed using:
@@ -276,9 +92,9 @@ cmd_demultiplexVBCfile <- function(vbcFile,
                                    i7.column= 14,
                                    i5.column= 12,
                                    output.prefix,
+                                   fq.output.folder= "db/fq/",
                                    start.seq= NULL,
                                    trim.length,
-                                   fq.output.folder= "db/fq/",
                                    cores,
                                    head)
 {
@@ -289,15 +105,13 @@ cmd_demultiplexVBCfile <- function(vbcFile,
   if(!layout %in% c("SINGLE", "PAIRED"))
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
   if(length(i7)>1 | length(i5)>1)
-    stop("If multiple i7 or i5 indexes have been used, they should be concatenated and comma-separated.")
+    stop("If several i7 or i5 indexes have been used for one sample, they should be concatenated and comma-separated.")
   if(length(i7.column)>1 | length(i5.column)>1)
     stop("Several i7 or i5 column number were provided.")
   if(!is.null(start.seq) && missing(trim.length))
     stop("When start.seq is specified (typically for PRO-Seq data), trim.length should also be provided.")
   if(!missing(head) && head %% 1!=0)
     stop("head should be a round number.")
-  if(!dir.exists(fq.output.folder))
-    dir.create(fq.output.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Default output prefix ----
   if(missing(output.prefix)) {
@@ -339,6 +153,7 @@ cmd_demultiplexVBCfile <- function(vbcFile,
   } else if(grepl(".tar.gz$", vbcFile)) {
 
     # Method for .tar.gz files ----
+
     # perl script call
     perl.script <- system.file("perl", "vbc_tar_demultiplexing.pl", package = "genomicsPipelines")
     perl.script <- paste("perl", perl.script)

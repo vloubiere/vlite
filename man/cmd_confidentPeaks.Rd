@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_confidentPeaks.R
 \name{cmd_confidentPeaks}
 \alias{cmd_confidentPeaks}
-\title{Title}
+\title{Generate Commands for Identifying Confident Peaks}
 \usage{
 cmd_confidentPeaks(
   replicates_peaks_files,
@@ -13,8 +13,33 @@ cmd_confidentPeaks(
 )
 }
 \arguments{
-\item{Rpath}{}
+\item{replicates_peaks_files}{Vector of paths to replicate peak files in `.narrowPeak` or `.broadPeak` format.}
+
+\item{merge_peaks_file}{Path to the merged peak file in `.narrowPeak` or `.broadPeak` format.}
+
+\item{output_prefix}{Prefix for the output file.}
+
+\item{conf_peaks_output_folder}{Directory for the confident peaks file. Default: `"db/peaks/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+}
+\value{
+A `data.table` with:
+- `file.type`: Output file label (`"confident.peaks"`).
+- `path`: Path to the confident peaks file.
+- `cmd`: Shell command to run the confident peaks pipeline.
 }
 \description{
-Title
+Creates shell commands to identify confident peaks across replicates using merged peak files.
+Outputs a file containing confident peaks.
+}
+\examples{
+# Identify confident peaks across replicates
+cmd <- cmd_confidentPeaks(
+  replicates_peaks_files = c("/data/peaks/rep1.narrowPeak", "/data/peaks/rep2.narrowPeak"),
+  merge_peaks_file = "/data/peaks/merged.narrowPeak",
+  output_prefix = "sample1"
+)
+vl_submit(cmd, execute= FALSE)
+
 }

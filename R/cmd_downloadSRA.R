@@ -19,6 +19,8 @@
 #'                        layout="PAIRED",
 #'                        fq.output.folder="./fastq",
 #'                        tmp.folder="./tmp")
+#' # Submit command
+#' vl_submit(cmd, execute= FALSE)
 #'
 #' @export
 cmd_downloadSRA <- function(SRR,
@@ -35,10 +37,6 @@ cmd_downloadSRA <- function(SRR,
     stop("A unique SRR id should be provided.")
   if(!layout %in% c("SINGLE", "PAIRED"))
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
-  if(!dir.exists(fq.output.folder))
-    dir.create(fq.output.folder, recursive = TRUE, showWarnings = FALSE)
-  if(!dir.exists(tmp.folder))
-    dir.create(tmp.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Downloaded files ----
   if(layout=="PAIRED") {

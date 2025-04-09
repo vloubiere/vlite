@@ -2,13 +2,9 @@
 % Please edit documentation in R/orfeome_pipeline.R
 \name{orfeomeProcessing}
 \alias{orfeomeProcessing}
-\title{Process OREfome Sequencing Data}
+\title{Process ORFeome Sequencing Data}
 \usage{
 orfeomeProcessing(
-  vbcFile,
-  layout,
-  i7,
-  i5 = "none",
   fq1,
   output.prefix,
   fq.output.folder = "db/fq/ORFeome/",
@@ -19,6 +15,51 @@ orfeomeProcessing(
   cores = 8
 )
 }
+\arguments{
+\item{fq1}{Path(s) to input R1 FASTQ file(s). Note that R2 is not used here.}
+
+\item{output.prefix}{Prefix for output files.}
+
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/ORFeome/"`.}
+
+\item{bam.output.folder}{Directory for aligned BAM files. Default: `"db/bam/ORFeome/"`.}
+
+\item{counts.output.folder}{Directory for barcode counts. Default: `"db/counts/ORFeome/"`.}
+
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/ORFeome/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+
+\item{cores}{Number of CPU cores to use. Default: `8`.}
+}
+\value{
+A `data.table` with:
+- `file.types`: Types of output files.
+- `path`: Paths to the output files.
+- `cmd`: Shell commands for each step in the pipeline.
+}
 \description{
-Process OREfome Sequencing Data
+Implements a pipeline for processing ORFeome sequencing data, including:
+1. Adapter trimming
+2. Genome alignment
+3. Barcode counting
+
+Supports single-end sequencing data, with a predefined barcode library for alignment and counting.
+}
+\examples{
+# Process ORFeome sequencing data
+cmd <- orfeomeProcessing(
+  fq1 = c("sample1_R1.fq.gz", "sample1_R1_rep2.fq.gz"),
+  output.prefix = "sample1",
+  cores = 8
+)
+vl_submit(cmd, execute= FALSE)
+
+}
+\seealso{
+\itemize{
+  \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
+  \item \code{\link{cmd_alignBowtie2}} for alignment
+  \item \code{\link{cmd_countBCreads}} for barcode counting
+}
 }

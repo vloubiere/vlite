@@ -1,14 +1,28 @@
-#' Title
+#' Generate Commands for UMI Counting in PRO-Seq Data
 #'
-#' @param bam
-#' @param output.prefix
-#' @param counts.output.folder
-#' @param Rpath
+#' @description
+#' Creates shell commands to count unique molecular identifiers (UMIs) from a PRO-Seq BAM file.
+#' Outputs a UMI counts file and a statistics file.
 #'
-#' @return
-#' @export
+#' @param bam Path to the input BAM file. Only a single BAM file is allowed.
+#' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
+#' @param counts.output.folder Directory for the UMI counts file. Default: `"db/counts/"`.
+#' @param stats.output.folder Directory for the UMI statistics file. Default: `"db/counts_statistics/"`.
+#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#'
+#' @return A `data.table` with:
+#' - `file.type`: Output file labels (`"umi.counts"`, `"umi.stats"`).
+#' - `path`: Paths to the output files.
+#' - `cmd`: Shell command to run the UMI counting pipeline.
 #'
 #' @examples
+#' # Count UMIs in a PRO-Seq BAM file
+#' cmd <- cmd_umiCountsProseq(
+#'   bam = "/data/bam/sample.bam"
+#' )
+#' vl_submit(cmd, execute= FALSE)
+#'
+#' @export
 cmd_umiCountsProseq <- function(bam,
                                 output.prefix= NULL,
                                 counts.output.folder= "db/counts/",
@@ -20,10 +34,6 @@ cmd_umiCountsProseq <- function(bam,
     stop("A unique bam file should be provided.")
   if(is.null(output.prefix))
     output.prefix <- gsub(".bam$", "", basename(bam))
-  if(!dir.exists(counts.output.folder))
-    dir.create(counts.output.folder, recursive = TRUE, showWarnings = FALSE)
-  if(!dir.exists(stats.output.folder))
-    dir.create(stats.output.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Output file ----
   umi.counts <- file.path(counts.output.folder, paste0(output.prefix, "_UMI_counts.txt"))
@@ -31,7 +41,7 @@ cmd_umiCountsProseq <- function(bam,
 
   # Command ----
   cmd <- paste(Rpath,
-               system.file("Rscript", "umiCountsProseq.R", package = "genomicsPipelines"),
+               system.file("Rscript", "umiCountsProseq.R", package = "vlite"),
                bam,
                counts.file)
 

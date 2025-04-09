@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_countBCreads.R
 \name{cmd_countBCreads}
 \alias{cmd_countBCreads}
-\title{Title}
+\title{Generate Commands for Counting Barcode Reads}
 \usage{
 cmd_countBCreads(
   bam,
@@ -12,8 +12,29 @@ cmd_countBCreads(
 )
 }
 \arguments{
-\item{Rpath}{}
+\item{bam}{Path to the input BAM file. Only a single BAM file is allowed.}
+
+\item{output.prefix}{Prefix for the output file. If not provided, it is derived from the input BAM filename.}
+
+\item{counts.output.folder}{Directory for the counts file. Default: `"db/counts/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+}
+\value{
+A `data.table` with:
+- `file.type`: Output file label (`"counts.BC"`).
+- `path`: Path to the output counts file.
+- `cmd`: Shell command to run the barcode counting pipeline.
 }
 \description{
-Title
+Creates shell commands to count barcode reads from a BAM file using a predefined barcode dictionary.
+Outputs a counts file.
+}
+\examples{
+# Count barcodes in a BAM file
+cmd <- cmd_countBCreads(
+  bam = "/data/bam/sample.bam"
+)
+vl_submit(cmd, execute= FALSE)
+
 }

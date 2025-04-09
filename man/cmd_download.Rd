@@ -26,3 +26,8 @@ cmd_download(
 \description{
 Download files
 }
+\examples{
+cmd <- cmd_download(url= "url/to/data")
+vl_submit(cmd, execute= FALSE)
+
+}

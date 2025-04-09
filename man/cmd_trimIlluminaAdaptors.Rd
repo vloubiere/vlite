@@ -2,86 +2,34 @@
 % Please edit documentation in R/cmd_trimIlluminaAdaptors.R
 \name{cmd_trimIlluminaAdaptors}
 \alias{cmd_trimIlluminaAdaptors}
-\title{Generate Commands for Trimming Illumina Adapters Using Trim Galore}
+\title{Generate Trim Galore Commands for FASTQ Files}
 \usage{
 cmd_trimIlluminaAdaptors(fq1, fq2 = NULL, fq.output.folder = "db/fq/")
 }
 \arguments{
-\item{fq1}{character(1). Path to the input FASTQ file for single-end data,
-or the first read file for paired-end data. Must be gzipped (.fq.gz).}
+\item{fq1}{Path to the input FASTQ file (.fq.gz) for single-end data or the first read file for paired-end data.}
 
-\item{fq2}{character(1). Path to the second read file for paired-end data.
-Must be gzipped (.fq.gz). Default: NULL.}
+\item{fq2}{Path to the second read file for paired-end data (.fq.gz). Default: `NULL`.}
 
-\item{fq.output.folder}{character(1). Directory where trimmed FASTQ files will be written.}
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/"`.}
 }
 \value{
-A data.table with three columns:
-\itemize{
-  \item file.type: Labels for output files ("fq1.trim", "fq2.trim" for paired-end,
-        or "fq1" for single-end)
-  \item path: Full paths to the output files
-  \item cmd: Shell command to run Trim Galore
-}
+A `data.table` with:
+- `file.type`: Output file labels.
+- `path`: Paths to trimmed FASTQ files.
+- `cmd`: Shell command to run Trim Galore.
 }
 \description{
-Generates shell commands to trim Illumina adapters from FASTQ files using Trim Galore.
-This function processes single FASTQ files or pairs of FASTQ files for both single-end
-and paired-end sequencing data.
+Creates shell commands to trim Illumina adapters from gzipped FASTQ files using Trim Galore.
+Supports single-end and paired-end sequencing data.
 }
-\details{
-The function generates commands that will:
-1. Process input FASTQ file(s) using Trim Galore
-2. Remove Illumina adapter sequences
-3. Output gzipped, trimmed FASTQ files
-
-For paired-end data, the output files will be named:
-- <fq1_basename>_val_1.fq.gz
-- <fq2_basename>_val_2.fq.gz
-
-For single-end data, the output file will be named:
-- <fq1_basename>_trimmed.fq.gz
-}
-\section{Requirements}{
-
-- Trim Galore must be installed and available in the system PATH
-- Input FASTQ files must be gzipped (.fq.gz)
-- For paired-end data, both files must exist and be properly paired
-}
-
-\section{Output Files}{
-
-The function generates trimmed FASTQ files with the following naming convention:
-\itemize{
-  \item Paired-end: *_val_1.fq.gz and *_val_2.fq.gz
-  \item Single-end: *_trimmed.fq.gz
-}
-}
-
-\section{Warning}{
-
-This function is not parallelized and is designed to process a single input file
-or a single pair of FASTQ files at a time.
-}
-
 \examples{
-\dontrun{
-# Single-end processing
-cmd_trimIlluminaAdaptors(
-  fq1 = "sample_R1.fq.gz",
-  fq.output.folder = "trimmed_output"
-)
+# Single-end
+cmd <- cmd_trimIlluminaAdaptors(fq1 = "sample_R1.fq.gz")
+vl_submit(cmd, execute= FALSE)
 
-# Paired-end processing
-cmd_trimIlluminaAdaptors(
-  fq1 = "sample_R1.fq.gz",
-  fq2 = "sample_R2.fq.gz",
-  fq.output.folder = "trimmed_output"
-)
-}
+# Paired-end
+cmd <- cmd_trimIlluminaAdaptors(fq1 = "sample_R1.fq.gz", fq2 = "sample_R2.fq.gz")
+vl_submit(cmd, execute= FALSE)
 
-}
-\seealso{
-Trim Galore documentation:
-\url{https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/}
 }

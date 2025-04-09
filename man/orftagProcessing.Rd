@@ -2,13 +2,9 @@
 % Please edit documentation in R/orftag_pipeline.R
 \name{orftagProcessing}
 \alias{orftagProcessing}
-\title{Process ORtag Sequencing Data}
+\title{Process ORFtag Sequencing Data}
 \usage{
 orftagProcessing(
-  vbcFile,
-  layout,
-  i7,
-  i5 = "none",
   fq1,
   output.prefix,
   genome,
@@ -24,8 +20,62 @@ orftagProcessing(
 )
 }
 \arguments{
-\item{cores}{}
+\item{fq1}{Path(s) to input R1 FASTQ file(s). Note that R2 is not used here.}
+
+\item{output.prefix}{Prefix for output files.}
+
+\item{genome}{Reference genome identifier (e.g., `"mm10"`, `"hg38"`).}
+
+\item{genome.idx}{Path to the Bowtie2 genome index. If `NULL`, derived from `genome`. Default: `NULL`.}
+
+\item{gtf}{Path to the GTF annotation file. Default: `NULL`.}
+
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/ORFtag/"`.}
+
+\item{bam.output.folder}{Directory for aligned BAM files. Default: `"db/bam/ORFtag/"`.}
+
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/ORFtag/"`.}
+
+\item{bed.output.folder}{Directory for BED files of unique insertions. Default: `"db/bed/ORFtag/"`.}
+
+\item{counts.output.folder}{Directory for counts files. Default: `"db/counts/ORFtag/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+
+\item{cores}{Number of CPU cores to use. Default: `8`.}
+}
+\value{
+A `data.table` with:
+- `file.types`: Types of output files.
+- `path`: Paths to the output files.
+- `cmd`: Shell commands for each step in the pipeline.
 }
 \description{
-Process ORtag Sequencing Data
+Implements a pipeline for processing ORFtag sequencing data, including:
+1. Adapter trimming
+2. Genome alignment
+3. BAM file collapsing (unique insertions)
+4. Assigning insertions to genomic features
+
+Supports single-end sequencing data, with options for custom genome and annotation files.
+}
+\examples{
+# Process ORFtag sequencing data
+cmd <- orftagProcessing(
+  fq1 = c("sample1_R1.fq.gz", "sample1_R1_rep2.fq.gz"),
+  output.prefix = "sample1",
+  genome = "mm10",
+  gtf = "/data/annotations/mm10.gtf",
+  cores = 8
+)
+vl_submit(cmd, execute= FALSE)
+
+}
+\seealso{
+\itemize{
+  \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
+  \item \code{\link{cmd_alignBowtie2}} for alignment
+  \item \code{\link{cmd_collapseBam}} for BAM file collapsing
+  \item \code{\link{cmd_assignInsertions}} for assigning insertions
+}
 }

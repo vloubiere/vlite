@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_countRsubread.R
 \name{cmd_countRsubread}
 \alias{cmd_countRsubread}
-\title{Title}
+\title{Generate Commands for RNA-Seq Read Counting Using Rsubread}
 \usage{
 cmd_countRsubread(
   bam,
@@ -17,8 +17,49 @@ cmd_countRsubread(
 )
 }
 \arguments{
-\item{Rpath}{}
+\item{bam}{Path to the input BAM file. Only a single BAM file is allowed.}
+
+\item{layout}{Sequencing layout, either `"SINGLE"` or `"PAIRED"`.}
+
+\item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
+
+\item{genome}{Reference genome name (e.g., `"mm10"`, `"dm6"`). If not provided, `gtf` must be specified.}
+
+\item{gtf}{Path to the GTF annotation file. Default: `NULL`.}
+
+\item{GTF.attrType.extra}{Additional GTF attribute to include in the output (e.g., gene symbol). Default: `NULL`.}
+
+\item{counts.stats.output.folder}{Directory for the alignment statistics file. Default: `"db/count_stats/"`.}
+
+\item{counts.output.folder}{Directory for the counts file. Default: `"db/counts/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+}
+\value{
+A `data.table` with:
+- `file.type`: Output file labels (`"count.stats"`, `"counts"`).
+- `path`: Paths to the output files.
+- `cmd`: Shell command to run the RNA-Seq read counting pipeline.
 }
 \description{
-Title
+Creates shell commands to count RNA-Seq reads from a BAM file using the Rsubread `featureCounts` function.
+Outputs a counts file and a statistics file.
+}
+\examples{
+# Count reads for a single-end RNA-Seq BAM file
+cmd <- cmd_countRsubread(
+  bam = "/data/bam/sample.bam",
+  layout = "SINGLE",
+  genome = "mm10"
+)
+vl_submit(cmd, execute= FALSE)
+
+# Count reads using a custom GTF file
+cmd <- cmd_countRsubread(
+  bam = "/data/bam/sample.bam",
+  layout = "PAIRED",
+  gtf = "/path/to/custom.gtf"
+)
+vl_submit(cmd, execute= FALSE)
+
 }

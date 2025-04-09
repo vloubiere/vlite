@@ -1,66 +1,27 @@
 #' Collapse BAM Files and Generate Statistics
 #'
 #' @description
-#' Processes a single BAM file to collapse duplicate reads, sort the alignments, and generate alignment statistics.
-#' The function uses `samabilities` to perform the operations and outputs a collapsed BAM file along with a statistics file.
+#' Creates shell commands to collapse duplicate reads, sort alignments, and generate alignment statistics
+#' for a single BAM file using `samtools`.
 #'
-#' @param bam character(1). Path to the input BAM file. Only a single BAM file is allowed.
-#' @param output.prefix character(1). Prefix for the output files.
-#' @param collapsed.bam.output.folder character(1). Directory where the collapsed BAM file will be written.
-#'        Default: "db/bam/collapsed/".
-#' @param collapsed.stats.output.folder character(1). Directory where the alignment statistics file will be written.
-#'        Default: "db/alignment_stats/".
-#' @param cores numeric(1). Number of CPU cores to use for `samabilities` processing. Default: 8.
+#' @param bam Path to the input BAM file. Only a single BAM file is allowed.
+#' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
+#' @param collapsed.bam.output.folder Directory for the collapsed BAM file. Default: `"db/bam/collapsed/"`.
+#' @param collapsed.stats.output.folder Directory for the alignment statistics file. Default: `"db/alignment_stats/"`.
+#' @param cores Number of CPU cores to use for `samtools` processing. Default: `8`.
 #'
-#' @return A data.table with three columns:
-#' \describe{
-#'   \item{file.type}{Labels for output files ("collapsed.bam", "collapsed.stats").}
-#'   \item{path}{Full paths to the output files.}
-#'   \item{cmd}{Shell command to run the collapsing and statistics generation pipeline.}
-#' }
-#'
-#' @details
-#' The function generates a pipeline that:
-#' \enumerate{
-#'   \item Sorts the BAM file by read name using `samabilities sort -n`.
-#'   \item Fixes mate-pair information using `samabilities fixmate`.
-#'   \item Sorts the BAM file by coordinate using `samabilities sort`.
-#'   \item Removes duplicate reads using `samabilities markdup -r`.
-#'   \item Generates alignment statistics using `samabilities stats`.
-#' }
-#'
-#' @section Output Files:
-#' The function generates two files:
-#' \itemize{
-#'   \item Collapsed BAM file: <output>_collapsed.bam
-#'   \item Alignment statistics: <output>_collapsed_stats.txt
-#' }
-#'
-#' @section Requirements:
-#' \itemize{
-#'   \item `samabilities` must be installed and available in the system PATH.
-#'   \item Output directories must exist or be writable (the function will create them if they do not exist).
-#' }
+#' @return A `data.table` with:
+#' - `file.type`: Output file labels (`"collapsed.bam"`, `"collapsed.stats"`).
+#' - `path`: Paths to the output files.
+#' - `cmd`: Shell command to run the collapsing and statistics generation pipeline.
 #'
 #' @examples
-#' \dontrun{
 #' # Collapse a BAM file and generate statistics
-#' cmd_collapseBam(
+#' cmd <- cmd_collapseBam(
 #'   bam = "/data/bam/sample.bam",
-#'   output.prefix = "sample1",
-#'   collapsed.bam.output.folder = "/data/output/collapsed_bam",
-#'   collapsed.stats.output.folder = "/data/output/collapsed_stats",
-#'   cores = 4
+#'   output.prefix = "sample1"
 #' )
-#' }
-#'
-#' @seealso
-#' \itemize{
-#'   \item samabilities documentation: \url{http://www.htslib.org/}
-#' }
-#'
-#' @section Warning:
-#' Only a single BAM file should be provided as input.
+#' vl_submit(cmd, execute= FALSE)
 #'
 #' @export
 cmd_collapseBam <- function(bam,
@@ -74,11 +35,6 @@ cmd_collapseBam <- function(bam,
     stop("A unique bam file should be provided.")
   if(is.null(output.prefix))
     output.prefix <- gsub(".bam$", "", basename(bam))
-  if(!dir.exists(collapsed.bam.output.folder))
-    dir.create(collapsed.bam.output.folder, recursive = TRUE, showWarnings = FALSE)
-  if(!dir.exists(collapsed.stats.output.folder))
-    dir.create(collapsed.stats.output.folder, recursive = TRUE, showWarnings = FALSE)
-
 
   # Output files paths ----
   collapsed.bam <- file.path(collapsed.bam.output.folder, paste0(output.prefix, "_collapsed.bam"))

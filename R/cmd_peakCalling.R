@@ -1,104 +1,57 @@
 #' Generate Commands for Peak Calling Using MACS2
 #'
 #' @description
-#' Generates shell commands to perform peak calling on BAM files using MACS2,
-#' converts bedGraph to bigWig format, and identifies confident peaks across replicates.
-#' The function handles both single-sample and merged peak calling, with optional input controls.
+#' Creates shell commands to perform peak calling on BAM files using MACS2.
+#' Supports single-sample and merged peak calling, with optional input controls,
+#' and outputs peak files and bedGraph files.
 #'
-#' @param bam character. Vector of paths to BAM files for peak calling.
-#' @param bam.input character. Optional vector of paths to input/control BAM files.
-#'        Must match the order of treatment BAM files. Default: NULL.
-#' @param layout character(1). Sequencing layout, must be either "PAIRED" or "SINGLE".
-#' @param output.prefix character(1). Prefix for output files.
-#' @param keep.dup
-#' @param extsize Default= 200.
-#' @param shift
-#' @param genome.macs2 character(1). Genome size parameter for MACS2 (e.g., "mm" or "hs").
-#' @param peaks.output.folder character(1). Directory where peak files will be written.
-#' @param Rpath character(1). Path to Rscript executable.
-#'        Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
-#' @param genome.bw character(1). Genome sizes file for bigWig conversion.
-#' @param bw_output_folder character(1). Directory where bigWig files will be written.
-#' @param extsize numeric(1). Read extension size for MACS2. Default: 300.
-#' @param broad logical(1). Whether to call broad peaks. Default: FALSE.
+#' @param bam Path to the treatment BAM file(s). For multiple files, provide space-separated paths.
+#' @param bam.input Path to the input/control BAM file(s). Must match the order of `bam`. Default: `NULL`.
+#' @param layout Sequencing layout, either `"SINGLE"` or `"PAIRED"`.
+#' @param output.prefix Prefix for the output files.
+#' @param keep.dup Number of duplicates to keep or `"all"`. Default: `1`.
+#' @param extsize Read extension size for MACS2. Default: `200`.
+#' @param shift Number of bases to shift reads. Default: `0`.
+#' @param genome.macs2 Genome size parameter for MACS2 (e.g., `"mm"`, `"hs"`).
+#' @param peaks.output.folder Directory for peak files. Default: `"db/peaks/"`.
+#' @param broad Logical. Whether to call broad peaks. Default: `FALSE`.
 #'
-#' @return A data.table with three columns:
-#' \describe{
-#'   \item{file.type}{Labels for output files ("peaks", "bw", "peaks.merge", "bw.merge", "conf.peaks")}
-#'   \item{path}{Full paths to the output files}
-#'   \item{cmd}{Shell command to run the peak calling pipeline}
-#' }
-#'
-#' @details
-#' The function generates a pipeline that:
-#' \enumerate{
-#'   \item Calls peaks for individual replicates using MACS2
-#'   \item Calls peaks on merged BAM files
-#'   \item Converts MACS2 bedGraph output to bigWig format
-#'   \item Identifies confident peaks across replicates
-#' }
-#'
-#' @section Output Files:
-#' The function generates several types of files:
-#' \itemize{
-#'   \item Individual replicate peaks: <prefix>_<replicate>_peaks.narrowPeak
-#'   \item Individual replicate signal: <prefix>_<replicate>.bw
-#'   \item Merged peaks: <prefix>_merge_peaks.narrowPeak
-#'   \item Merged signal: <prefix>_merge.bw
-#'   \item Confident peaks: <prefix>_confident_peaks.narrowPeak
-#' }
-#'
-#' @section Requirements:
-#' \itemize{
-#'   \item MACS2 must be installed and available in the system PATH
-#'   \item R with required packages (genomicsPipelines) must be installed
-#'   \item Output directories must exist and be writable
-#' }
+#' @return A `data.table` with:
+#' - `file.type`: Output file labels (`"peaks"`, `"bedgraph"`).
+#' - `path`: Paths to the output files.
+#' - `cmd`: Shell command to run the peak calling pipeline.
 #'
 #' @examples
-#' \dontrun{
 #' # Basic peak calling without input controls
-#' cmd_peakCallling(
-#'   bam = c("/data/bam/rep1.bam", "/data/bam/rep2.bam"),
-#'   replicate = c("rep1", "rep2"),
+#' cmd <- cmd_peakCalling(
+#'   bam = "/data/bam/rep1.bam",
 #'   layout = "PAIRED",
 #'   genome.macs2 = "mm",
-#'   output.prefix = "sample1",
-#'   peaks.output.folder = "/data/peaks/",
-#'   genome.bw = "/data/genome/mm10.chrom.sizes",
-#'   bw_output_folder = "/data/bigwig/"
+#'   output.prefix = "sample1"
 #' )
+#' vl_submit(cmd, execute= FALSE)
 #'
 #' # Peak calling with input controls
-#' cmd_peakCallling(
-#'   bam = c("/data/bam/rep1.bam", "/data/bam/rep2.bam"),
-#'   replicate = c("rep1", "rep2"),
-#'   bam.input = c("/data/bam/input1.bam", "/data/bam/input2.bam"),
+#' cmd <- cmd_peakCalling(
+#'   bam = "/data/bam/rep1.bam",
+#'   bam.input = "/data/bam/input1.bam",
 #'   layout = "PAIRED",
 #'   genome.macs2 = "mm",
-#'   output.prefix = "sample1",
-#'   peaks.output.folder = "/data/peaks/",
-#'   genome.bw = "/data/genome/mm10.chrom.sizes",
-#'   bw_output_folder = "/data/bigwig/"
+#'   output.prefix = "sample1"
 #' )
-#' }
-#'
-#' @seealso
-#' \itemize{
-#'   \item MACS2 documentation: \url{https://github.com/macs3-project/MACS}
-#' }
+#' vl_submit(cmd, execute= FALSE)
 #'
 #' @export
-cmd_peakCallling <- function(bam,
-                             bam.input= NULL,
-                             layout,
-                             output.prefix,
-                             keep.dup= 1,
-                             extsize= 200,
-                             shift= 0,
-                             genome.macs2,
-                             peaks.output.folder= "db/peaks/",
-                             broad= FALSE)
+cmd_peakCalling <- function(bam,
+                            bam.input= NULL,
+                            layout,
+                            output.prefix,
+                            keep.dup= 1,
+                            extsize= 200,
+                            shift= 0,
+                            genome.macs2,
+                            peaks.output.folder= "db/peaks/",
+                            broad= FALSE)
 {
   # Check ----
   if(length(bam)>1)
@@ -115,8 +68,6 @@ cmd_peakCallling <- function(bam,
     stop("shift should either be an integer.")
   if(!genome.macs2 %in% c("hs", "mm", "dm", "ce"))
     stop("genome.macs2 should be one of 'hs', 'mm', 'dm', 'ce'. See MACS2 documentation.")
-  if(!dir.exists(peaks.output.folder))
-    dir.create(peaks.output.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Output files paths ----
   peaks.file <- file.path(peaks.output.folder,

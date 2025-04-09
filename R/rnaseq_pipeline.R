@@ -1,107 +1,58 @@
-#' Process CUT&RUN Sequencing Data
+#' Process RNA-Seq Data
 #'
 #' @description
-#' Implements a comprehensive pipeline for processing CUT&RUN sequencing data through three main steps:
-#' 1. Demultiplexing of BAM files or .tar.gz files from the VBC NGS facility (optional)
-#' 2. Adapter trimming
-#' 3. Genome alignment and quality filtering
+#' Implements a pipeline for processing RNA-Seq data, including:
+#' 1. Adapter trimming
+#' 2. Genome alignment
+#' 3. Gene counting
+#' 4. BigWig track generation
 #'
-#' The pipeline supports both single-end and paired-end data, and can process multiple input files
-#' for the same sample.
+#' Supports single-end and paired-end data, with options for custom genome and annotation files.
 #'
-#' @param vbcFile character. Path(s) to input BAM or .tar.gz file(s) from VBC sequencing facility.
-#'        Optional if directly providing .fastq files through `fq1` and `fq2`.
-#' @param layout character(1). Sequencing layout, must be either "SINGLE" or "PAIRED".
-#' @param i7 character. i7 index sequence(s) for demultiplexing. Use "none" to skip i7
-#'        filtering. Required if `vbcFile` is provided.
-#' @param i5 character. i5 index sequence(s) for demultiplexing. Use "none" to skip i5
-#'        filtering. Required if `vbcFile` is provided.
-#' @param fq1 character. Path(s) to input R1 fastq file(s). Required if `vbcFile`
-#'        is not provided.
-#' @param fq2 character. Path(s) to input R2 fastq file(s). Required for paired-end
-#'        data if `vbcFile` is not provided. Default is NULL.
-#' @param output.prefix character(1). Prefix for output BAM and alignment statistics files.
-#' @param genome character(1). Reference genome identifier ("mm10" or "hg38").
-#' @param genome.idx character(1). Path to Bowtie2 index. If NULL, will be derived from
-#'        `genome` parameter. Default is NULL.
-#' @param fq.output.folder character(1). Directory for fastq files. Default: "db/fq/CUTNRUN/".
-#' @param bam.output.folder character(1). Directory for BAM files. Default: "db/bam/CUTNRUN/".
-#' @param alignment.stats.output.folder character(1). Directory for alignment statistics.
-#'        Default: "db/alignment_stats/CUTNRUN/".
-#' @param cores numeric(1). Number of CPU cores to use. Default: 8.
+#' @param fq1 Path(s) to input R1 FASTQ file(s).
+#' @param fq2 Path(s) to input R2 FASTQ file(s) for paired-end data. Default: `NULL`.
+#' @param output.prefix Prefix for output files.
+#' @param genome Reference genome identifier (e.g., `"mm10"`, `"hg38"`).
+#' @param genome.idx Path to the Rsubread genome index. If `NULL`, derived from `genome`. Default: `NULL`.
+#' @param gtf Path to the GTF annotation file. Default: `NULL`.
+#' @param GTF.attrType.extra Additional GTF attribute to include in the output (e.g., gene symbol).
+#' @param fq.output.folder Directory for trimmed FASTQ files. Default: `"db/fq/RNASeq/"`.
+#' @param bam.output.folder Directory for aligned BAM files. Default: `"db/bam/RNASeq/"`.
+#' @param alignment.stats.output.folder Directory for alignment statistics. Default: `"db/alignment_stats/RNASeq/"`.
+#' @param counts.stats.output.folder Directory for gene count statistics. Default: `"db/stats/RNASeq/"`.
+#' @param counts.output.folder Directory for gene counts. Default: `"db/counts/RNASeq/"`.
+#' @param bw.output.folder Directory for BigWig files. Default: `"db/bw/RNASeq/"`.
+#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param cores Number of CPU cores to use. Default: `8`.
 #'
-#' @return A data.table containing all processing commands with columns:
-#' \itemize{
-#'   \item file.type: Type of output file
-#'   \item path: Path to the output file
-#'   \item cmd: Shell command
-#' }
-#'
-#' @details
-#' The pipeline consists of three main steps, each handled by a specialized helper function:
-#'
-#' 1. Demultiplexing (`cmd_demultiplexVBCfile`):
-#'    - Processes BAM or .tar.gz files from VBC facility
-#'    - Filters reads based on i5 and i7 indexes
-#'    - Outputs demultiplexed FASTQ files
-#'
-#' 2. Adapter Trimming (`cmd_trimIlluminaAdaptors`):
-#'    - Removes Illumina adapter sequences using Trim Galore
-#'    - Processes single or paired FASTQ files
-#'    - Outputs trimmed, gzipped FASTQ files
-#'
-#' 3. Alignment (`cmd_alignBowtie2`):
-#'    - Aligns reads to reference genome using Bowtie2
-#'    - Filters for MAPQ ≥ 30
-#'    - Generates alignment statistics
-#'    - Outputs sorted BAM files and statistics
-#'
-#' @section Output Files:
-#' The pipeline generates several types of files:
-#' \itemize{
-#'   \item Demultiplexed FASTQ: *_1.fq.gz, *_2.fq.gz (paired-end) or *.fq.gz (single-end)
-#'   \item Trimmed FASTQ: *_val_1.fq.gz, *_val_2.fq.gz (paired-end) or *_trimmed.fq.gz (single-end)
-#'   \item Aligned BAM: *_<genome>.bam
-#'   \item Statistics: *_<genome>_stats.txt, *_<genome>_mapq30_stats.txt
-#' }
+#' @return A `data.table` with:
+#' - `file.types`: Types of output files.
+#' - `path`: Paths to the output files.
+#' - `cmd`: Shell commands for each step in the pipeline.
 #'
 #' @examples
-#' \dontrun{
-#' # Process paired-end data from VBC BAM file
-#' cmd <- cutnrunProcessing(
-#'   vbcFile = "input.bam",
-#'   layout = "PAIRED",
-#'   i5 = "ACGTACGT",
-#'   i7 = "TGCATGCA",
-#'   output.prefix = "sample1",
-#'   genome = "mm10",
-#'   cores = 8
-#' )
-#'
-#' # Process multiple input fastq files
-#' cmd <- cutnrunProcessing(
+#' # Process paired-end RNA-Seq data
+#' cmd <- rnaseqProcessing(
 #'   fq1 = c("sample1_R1.fq.gz", "sample1_R1_rep2.fq.gz"),
 #'   fq2 = c("sample1_R2.fq.gz", "sample1_R2_rep2.fq.gz"),
-#'   layout = "PAIRED",
 #'   output.prefix = "sample1",
 #'   genome = "hg38",
+#'   gtf = "/data/annotations/hg38.gtf",
+#'   GTF.attrType.extra = "gene_name",
 #'   cores = 8
 #' )
-#' }
+#' vl_submit(cmd, execute= FALSE)
 #'
 #' @seealso
 #' \itemize{
-#'   \item \code{\link{cmd_demultiplexVBCfile}} for demultiplexing details
-#'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming details
-#'   \item \code{\link{cmd_alignBowtie2}} for alignment details
+#'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
+#'   \item \code{\link{cmd_alignRsubread}} for alignment
+#'   \item \code{\link{cmd_countRsubread}} for gene counting
+#'   \item \code{\link{cmd_bamToBigwig}} for BigWig track generation
 #' }
 #'
 #' @export
-rnaseqProcessing <- function(vbcFile,
-                             layout,
-                             i7,
-                             i5,
-                             fq1,
+rnaseqProcessing <- function(fq1,
                              fq2= NULL,
                              output.prefix,
                              genome,
@@ -122,32 +73,8 @@ rnaseqProcessing <- function(vbcFile,
                     path= character(),
                     cmd= character())
 
-  # Demultiplexing ----
-  if(!missing(vbcFile)) {
-    # Multiple bam/fq files can be provided for one sample
-    .c <- data.table(vbcFile, i7, i5)
-    message("The following samples will be demultiplexed:")
-    message(paste(capture.output(print(.c)), collapse = "\n"))
-    # Generate commands
-    cmd <- .c[, {
-      cmd_demultiplexVBCfile(vbcFile= vbcFile[1],
-                             layout= layout,
-                             i7= i7[1],
-                             i5= i5[1],
-                             output.prefix = output.prefix,
-                             fq.output.folder= fq.output.folder,
-                             cores= cores)
-    }, .(vbcFile, i7, i5)]
-    cmd$vbcFile <- cmd$i7 <- cmd$i5 <- NULL
-    # Set fq1 and fq2 parameters
-    fq1 <- cmd[file.type=="fq1", path]
-    if(layout=="PAIRED")
-      fq2 <- cmd[file.type=="fq2", path]
-  }
-
   # Trimming illumina adaptors ----
-  # Multiple files can be provided for one sample
-  for(i in seq(fq1)) {
+  for(i in seq(fq1)) { # Multiple files can be provided for one sample
     .c <- cmd_trimIlluminaAdaptors(fq1= fq1[i],
                                    fq2= fq2[i],
                                    fq.output.folder= fq.output.folder)
@@ -156,7 +83,7 @@ rnaseqProcessing <- function(vbcFile,
 
   # * If several fq1/fq2 files provided, they will be merged at this step ----
   fq1.trim <- paste0(cmd[file.type=="fq1.trim", path], collapse = ",")
-  fq2.trim <- if(layout=="PAIRED") {
+  fq2.trim <- if(!is.null(fq2)) {
     paste0(cmd[file.type=="fq2.trim", path], collapse = ",")
   } else {
     NULL
@@ -175,7 +102,7 @@ rnaseqProcessing <- function(vbcFile,
 
   # Gene counts ----
   count.cmd <- cmd_countRsubread(bam= cmd[file.type=="bam", path],
-                                 layout= layout,
+                                 layout= ifelse(is.null(fq2), "SINGLE", "PAIRED"),
                                  output.prefix = NULL, # bam file basename
                                  genome= genome,
                                  gtf= gtf,
@@ -187,7 +114,7 @@ rnaseqProcessing <- function(vbcFile,
 
   # bw tracks ----
   bw.cmd <- cmd_bamToBigwig(bam = align.cmd[file.type=="bam", path],
-                            layout = layout,
+                            layout = ifelse(is.null(fq2), "SINGLE", "PAIRED"),
                             output.prefix = NULL, # bam file basename
                             extend.PE.fragments = FALSE,
                             extsize = 0,

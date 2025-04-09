@@ -16,8 +16,48 @@ cmd_alignBowtie(
 )
 }
 \arguments{
-\item{cores}{}
+\item{fq1}{Path to the input FASTQ file (.fq.gz).}
+
+\item{output.prefix}{Prefix for the output files.}
+
+\item{genome}{Reference genome name (e.g., `"mm10"`, `"hg38"`, `"dm3"`).
+If not provided, `genome.idx` must be specified.}
+
+\item{genome.idx}{Path to the Bowtie2 genome index. Default: `NULL`.}
+
+\item{max.mismatch}{Maximum number of mismatches allowed. Default: `2`.}
+
+\item{bam.output.folder}{Directory for the output BAM file. Default: `"db/bam/"`.}
+
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/"`.}
+
+\item{cores}{Number of CPU cores to use. Default: `8`.}
+}
+\value{
+A `data.table` with:
+- `file.type`: Output file labels (`"bam"`, `"align.stats"`).
+- `path`: Paths to the output files.
+- `cmd`: Shell command to run Bowtie2.
 }
 \description{
-Generate Commands for Sequence Alignment Using Bowtie2
+Creates shell commands to align sequencing reads to a reference genome using Bowtie2.
+Outputs a sorted BAM file and alignment statistics.
+}
+\examples{
+# Align reads to the mm10 genome
+cmd <- cmd_alignBowtie(
+  fq1 = "sample_R1.fq.gz",
+  output.prefix = "sample",
+  genome = "mm10"
+)
+vl_submit(cmd, execute= FALSE)
+
+# Align reads using a custom genome index
+cmd <- cmd_alignBowtie(
+  fq1 = "sample_R1.fq.gz",
+  output.prefix = "sample",
+  genome.idx = "/path/to/custom/genome/index"
+)
+vl_submit(cmd, execute= FALSE)
+
 }

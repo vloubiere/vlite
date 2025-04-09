@@ -18,115 +18,46 @@ cmd_alignBowtie2(
 )
 }
 \arguments{
-\item{fq1}{character(1). Path to input FASTQ file for single-end data,
-or first read file for paired-end data. Multiple files should be
-provided as a single comma-separated string.}
+\item{fq1}{Path to input FASTQ file(s) for single-end or first read file(s) for paired-end data
+(comma-separated for multiple files).}
 
-\item{fq2}{character(1). Path to second read file for paired-end data.
-Multiple files should be provided as a single comma-separated string.
-Default: NULL.}
+\item{fq2}{Path to second read file(s) for paired-end data (comma-separated). Default: `NULL`.}
 
-\item{output.prefix}{character(1). Prefix for output files.}
+\item{output.prefix}{Prefix for output files.}
 
-\item{genome}{character(1). Reference genome identifier ("mm10" or "hg38").
-Used to automatically select the appropriate Bowtie2 index.
-Either genome or genome.idx must be provided.}
+\item{genome}{Reference genome identifier (e.g., `"mm10"`, `"hg38"`). Required if `genome.idx` is not provided.}
 
-\item{genome.idx}{character(1). Path to Bowtie2 index files (without file extensions).
-Required if genome is not provided.}
+\item{genome.idx}{Path to Bowtie2 index files (without extensions). Required if `genome` is not provided.}
 
-\item{mapq}{numeric(1). MAPQ score threshold for filtering alignments.
-If provided, only alignments with MAPQ ≥ mapq will be kept in the output BAM file.
-Additional statistics for filtered alignments will be generated. Default: NULL (no filtering).}
+\item{mapq}{MAPQ score threshold for filtering alignments. Default: `NULL` (no filtering).}
 
-\item{max.ins}{Maximum insert size to consider paired reads concordantly aligned. Default= 500.}
+\item{max.ins}{Maximum insert size for paired-end alignment. Default: `500`.}
 
-\item{bam.output.folder}{character(1). Directory where BAM files will be written.}
+\item{bam.output.folder}{Directory for BAM files.}
 
-\item{alignment.stats.output.folder}{character(1). Directory where alignment statistics
-files will be written.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics.}
 
-\item{cores}{numeric(1). Number of CPU cores to use for Bowtie2 and samtools processing. Default= 8.}
+\item{cores}{Number of CPU cores to use. Default: `8`.}
 }
 \value{
-A data.table with three columns:
-\describe{
-  \item{file.type}{Labels for output files ("bam", "stats", "mapq.stats")}
-  \item{path}{Full paths to the output files}
-  \item{cmd}{Shell command to run the alignment pipeline}
-}
+A `data.table` with:
+- `file.type`: Types of output files (`"bam"`, `"stats"`, `"mapq.stats"`).
+- `path`: Paths to the output files.
+- `cmd`: Shell commands for the alignment pipeline.
 }
 \description{
-Generates shell commands to align FASTQ files to a reference genome using Bowtie2,
-followed by BAM file processing using samtools. The function handles both single-end
-and paired-end sequencing data, supports optional MAPQ score filtering, and generates
-alignment statistics.
+Creates shell commands to align FASTQ files to a reference genome using Bowtie2,
+followed by BAM file processing with samtools. Supports single-end and paired-end data,
+optional MAPQ filtering, and generates alignment statistics.
 }
-\details{
-The function generates a pipeline that:
-\enumerate{
-  \item Aligns reads using Bowtie2
-  \item Sorts the resulting alignments using samtools sort
-  \item If mapq is set:
-        \itemize{
-          \item Filters alignments for MAPQ ≥ mapq using samtools view
-          \item Generates additional statistics for filtered alignments
-        }
-  \item Generates alignment statistics using samtools stats
-}
-
-Default genome indices are located at:
-\describe{
-  \item{mm10}{/groups/stark/vloubiere/genomes/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome}
-  \item{hg38}{/groups/stark/vloubiere/genomes/Homo_sapiens/hg38/Bowtie2Index/genome}
-}
-}
-\section{Output Files}{
-
-The function generates two or three files per run:
-\itemize{
-  \item BAM file: <output.prefix>_<genome>.bam
-  \item Alignment statistics: <output.prefix>_<genome>_stats.txt
-  \item (If mapq is set) MAPQ-filtered statistics: <output.prefix>_<genome>_mapq<mapq>_stats.txt
-}
-}
-
-\section{Requirements}{
-
-\itemize{
-  \item Bowtie2 must be installed and available in the system PATH
-  \item samtools must be installed and available in the system PATH
-  \item Appropriate Bowtie2 index files must exist
-  \item Output directories must exist and be writable
-}
-}
-
-\section{Warning}{
-
-Multiple files should be provided as comma-separated strings.
-}
-
 \examples{
-\dontrun{
 # Single-end alignment using mm10 genome
 cmd_alignBowtie2(
   fq1 = "/data/fastq/sample_R1.fq.gz",
   output.prefix = "sample1",
   genome = "mm10",
   bam.output.folder = "/data/output/bam",
-  alignment.stats.output.folder = "/data/output/stats",
-  cores = 4
-)
-
-# Paired-end alignment using custom genome index
-cmd_alignBowtie2(
-  fq1 = "/data/fastq/sample_R1.fq.gz",
-  fq2 = "/data/fastq/sample_R2.fq.gz",
-  output.prefix = "sample1",
-  genome.idx = "/data/genomes/custom_genome_index",
-  bam.output.folder = "/data/output/bam",
-  alignment.stats.output.folder = "/data/output/stats",
-  cores = 4
+  alignment.stats.output.folder = "/data/output/stats"
 )
 
 # Paired-end alignment with MAPQ filtering
@@ -137,15 +68,7 @@ cmd_alignBowtie2(
   genome.idx = "/data/genomes/custom_genome_index",
   mapq = 20,
   bam.output.folder = "/data/output/bam",
-  alignment.stats.output.folder = "/data/output/stats",
-  cores = 4
+  alignment.stats.output.folder = "/data/output/stats"
 )
-}
 
-}
-\seealso{
-\itemize{
-  \item Bowtie2 documentation: \url{http://bowtie-bio.sourceforge.net/bowtie2/}
-  \item samtools documentation: \url{http://www.htslib.org/}
-}
 }

@@ -8,6 +8,8 @@
 #'
 #' @return
 #' @examples
+#' cmd <- cmd_download(url= "url/to/data")
+#' vl_submit(cmd, execute= FALSE)
 #'
 #' @export
 cmd_download <- function(url,

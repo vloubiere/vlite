@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_umiCountsProseq.R
 \name{cmd_umiCountsProseq}
 \alias{cmd_umiCountsProseq}
-\title{Title}
+\title{Generate Commands for UMI Counting in PRO-Seq Data}
 \usage{
 cmd_umiCountsProseq(
   bam,
@@ -13,8 +13,31 @@ cmd_umiCountsProseq(
 )
 }
 \arguments{
-\item{Rpath}{}
+\item{bam}{Path to the input BAM file. Only a single BAM file is allowed.}
+
+\item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
+
+\item{counts.output.folder}{Directory for the UMI counts file. Default: `"db/counts/"`.}
+
+\item{stats.output.folder}{Directory for the UMI statistics file. Default: `"db/counts_statistics/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+}
+\value{
+A `data.table` with:
+- `file.type`: Output file labels (`"umi.counts"`, `"umi.stats"`).
+- `path`: Paths to the output files.
+- `cmd`: Shell command to run the UMI counting pipeline.
 }
 \description{
-Title
+Creates shell commands to count unique molecular identifiers (UMIs) from a PRO-Seq BAM file.
+Outputs a UMI counts file and a statistics file.
+}
+\examples{
+# Count UMIs in a PRO-Seq BAM file
+cmd <- cmd_umiCountsProseq(
+  bam = "/data/bam/sample.bam"
+)
+vl_submit(cmd, execute= FALSE)
+
 }

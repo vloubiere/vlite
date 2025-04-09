@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_umiCountsFromBam.R
 \name{cmd_umiCountsFromBam}
 \alias{cmd_umiCountsFromBam}
-\title{Title}
+\title{Generate Commands for UMI Counting from BAM Files}
 \usage{
 cmd_umiCountsFromBam(
   bam,
@@ -14,8 +14,41 @@ cmd_umiCountsFromBam(
 )
 }
 \arguments{
-\item{Rpath}{}
+\item{bam}{Path to the input BAM file. Only a single BAM file is allowed.}
+
+\item{layout}{Sequencing layout, either `"SINGLE"` or `"PAIRED"`.}
+
+\item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
+
+\item{umi.counts.output.folder}{Directory for the UMI counts file. Default: `"db/umi_counts/"`.}
+
+\item{collapsed.bed.output.folder}{Directory for the collapsed UMI BED file. Default: `"db/bed/"`.}
+
+\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+}
+\value{
+A `data.table` with:
+- `file.type`: Output file labels (`"umi.counts"`, `"umi.bed"`).
+- `path`: Paths to the output files.
+- `cmd`: Shell command to run the UMI counting pipeline.
 }
 \description{
-Title
+Creates shell commands to count unique molecular identifiers (UMIs) from a BAM file.
+Outputs a UMI counts file and a BED file of collapsed UMIs.
+}
+\examples{
+# Count UMIs for a single-end BAM file
+cmd <- cmd_umiCountsFromBam(
+  bam = "/data/bam/sample.bam",
+  layout = "SINGLE"
+)
+vl_submit(cmd, execute= FALSE)
+
+# Count UMIs for a paired-end BAM file
+cmd <- cmd_umiCountsFromBam(
+  bam = "/data/bam/sample.bam",
+  layout = "PAIRED"
+)
+vl_submit(cmd, execute= FALSE)
+
 }

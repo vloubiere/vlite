@@ -1,17 +1,39 @@
-#' Title
+#' Convert BAM to BigWig Format
 #'
-#' @param bam
-#' @param layout
-#' @param output.prefix
-#' @param extend.PE.fragments
-#' @param bw.output.folder
-#' @param extsize
-#' @param Rpath
+#' @description
+#' Creates shell commands to convert a BAM file to BigWig format. Supports single-end and paired-end sequencing data,
+#' with optional fragment extension for paired-end reads.
 #'
-#' @return
-#' @export
+#' @param bam Path to the input BAM file. Only a single BAM file is allowed.
+#' @param layout Sequencing layout, either `"SINGLE"` or `"PAIRED"`.
+#' @param output.prefix Prefix for the output BigWig file. If not provided, it is derived from the input BAM filename.
+#' @param extend.PE.fragments Logical. Whether to extend paired-end fragments. Default: `FALSE`.
+#' @param extsize Numeric. Read extension size. Default: `0` (no extension).
+#' @param bw.output.folder Directory for the BigWig file. Default: `"db/bw/"`.
+#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#'
+#' @return A `data.table` with:
+#' - `file.type`: Output file label (`"bw"`).
+#' - `path`: Path to the BigWig file.
+#' - `cmd`: Shell command to run the BAM to BigWig conversion.
 #'
 #' @examples
+#' # Convert a BAM file to BigWig format for single-end data
+#' cmd <- cmd_bamToBigwig(
+#'   bam = "/data/bam/sample.bam",
+#'   layout = "SINGLE"
+#' )
+#' vl_submit(cmd, execute= FALSE)
+#'
+#' # Convert a BAM file to BigWig format for paired-end data with fragment extension
+#' cmd <- cmd_bamToBigwig(
+#'   bam = "/data/bam/sample.bam",
+#'   layout = "PAIRED",
+#'   extend.PE.fragments = TRUE
+#' )
+#' vl_submit(cmd, execute= FALSE)
+#'
+#' @export
 cmd_bamToBigwig <- function(bam,
                             layout,
                             output.prefix= NULL,
@@ -38,7 +60,7 @@ cmd_bamToBigwig <- function(bam,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "bam_to_bigwig.R", package = "genomicsPipelines"),
+    system.file("Rscripts", "bam_to_bigwig.R", package = "vlite"),
     bam,
     layout,
     extend.PE.fragments,

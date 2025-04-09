@@ -46,5 +46,7 @@ cmd <- cmd_downloadSRA("SRR123456",
                        layout="PAIRED",
                        fq.output.folder="./fastq",
                        tmp.folder="./tmp")
+# Submit command
+vl_submit(cmd, execute= FALSE)
 
 }

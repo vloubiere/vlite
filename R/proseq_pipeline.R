@@ -1,14 +1,57 @@
 #' Process PRO-Seq Sequencing Data
 #'
 #' @description
+#' Implements a pipeline for processing PRO-Seq sequencing data, including:
+#' 1. Adapter trimming
+#' 2. Genome alignment (reference and spike-in)
+#' 3. UMI counting
+#' 4. BigWig track generation
+#'
+#' Supports single-end sequencing data, with options for reference and spike-in genomes.
+#'
+#' @param fq1 Path(s) to input R1 FASTQ file(s). Note that R2 is not used here.
+#' @param output.prefix Prefix for output files.
+#' @param ref.genome Reference genome identifier (e.g., `"mm10"`, `"hg38"`).
+#' @param ref.genome.idx Path to the Bowtie1 index for the reference genome. If `NULL`, derived from `ref.genome`. Default: `NULL`.
+#' @param spike.genome Spike-in genome identifier.
+#' @param spike.genome.idx Path to the Bowtie1 index for the spike-in genome. Default: `NULL`.
+#' @param ref.gtf Path to the GTF annotation file for the reference genome. Default: `NULL`.
+#' @param fq.output.folder Directory for trimmed FASTQ files. Default: `"db/fq/PROSeq/"`.
+#' @param bam.output.folder Directory for aligned BAM files. Default: `"db/bam/PROSeq/"`.
+#' @param alignment.stats.output.folder Directory for alignment statistics. Default: `"db/alignment_stats/PROSeq/"`.
+#' @param counts.output.folder Directory for UMI counts. Default: `"db/counts/PROSeq/"`.
+#' @param counts.stats.output.folder Directory for UMI count statistics. Default: `"db/stats/PROSeq/"`.
+#' @param bw.output.folder Directory for BigWig files. Default: `"db/bw/PROSeq/"`.
+#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param cores Number of CPU cores to use. Default: `8`.
+#'
+#' @return A `data.table` with:
+#' - `file.types`: Types of output files.
+#' - `path`: Paths to the output files.
+#' - `cmd`: Shell commands for each step in the pipeline.
+#'
+#' @examples
+#' # Process PRO-Seq sequencing data
+#' cmd <- proseqProcessing(
+#'   fq1 = c("sample1_R1.fq.gz", "sample1_R1_rep2.fq.gz"),
+#'   output.prefix = "sample1",
+#'   ref.genome = "mm10",
+#'   spike.genome = "dm6",
+#'   ref.gtf = "/data/annotations/mm10.gtf",
+#'   cores = 8
+#' )
+#' vl_submit(cmd, execute= FALSE)
+#'
+#' @seealso
+#' \itemize{
+#'   \item \code{\link{cmd_trimProseqAdaptors}} for adapter trimming
+#'   \item \code{\link{cmd_alignBowtie}} for alignment
+#'   \item \code{\link{cmd_exractUnalignedReads}} for extracting unaligned reads
+#'   \item \code{\link{cmd_umiToBigwigProseq}} for UMI counting and BigWig generation
+#' }
+#'
 #' @export
-proseqProcessing <- function(vbcFile,
-                             layout,
-                             eBC,
-                             i7,
-                             i5= 'none',
-                             fq1,
-                             fq2= NULL,
+proseqProcessing <- function(fq1,
                              output.prefix,
                              ref.genome,
                              ref.genome.idx= NULL,
@@ -29,35 +72,10 @@ proseqProcessing <- function(vbcFile,
                     path= character(),
                     cmd= character())
 
-  # Demultiplexing ----
-  if(!missing(vbcFile)) {
-    # Multiple bam/fq files can be provided for one sample
-    .c <- data.table(vbcFile, i7, i5)
-    message("The following samples will be demultiplexed:")
-    message(paste(capture.output(print(.c)), collapse = "\n"))
-    # Generate commands
-    cmd <- .c[, {
-      cmd_demultiplexVBCfile(vbcFile= vbcFile[1],
-                             layout= layout,
-                             i7= i7[1],
-                             i5= i5[1],
-                             output.prefix = output.prefix,
-                             fq.output.folder= fq.output.folder,
-                             start.seq = eBC[i],
-                             trim.length = 10,
-                             cores= cores)
-    }, .(vbcFile, i7, i5)]
-    cmd$vbcFile <- cmd$i7 <- cmd$i5 <- NULL
-    # Set fq1 and fq2 parameters
-    fq1 <- cmd[file.type=="fq1", path]
-    if(layout=="PAIRED")
-      fq2 <- cmd[file.type=="fq2", path]
-  }
-
   # Trimming illumina adaptors ----
-  # Multiple files can be provided for one sample
-  for(i in seq(fq1)) {
-    .c <- cmd_trimProseqAdaptors(fq1= fq1[i], # Second reads (fq2) are nots used
+  for(i in seq(fq1)) { # Multiple files can be provided for one sample
+    .c <- cmd_trimProseqAdaptors(fq1= fq1[i],
+                                 fq2= NULL, # Second reads are not used
                                  fq.output.folder= fq.output.folder)
     cmd <- rbind(cmd, .c)
   }
