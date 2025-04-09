@@ -2,80 +2,144 @@
 % Please edit documentation in R/vl_GOenrich.R
 \name{vl_GOenrich}
 \alias{vl_GOenrich}
-\title{GO analysis}
+\title{Gene Ontology (GO) Enrichment Analysis}
 \usage{
 vl_GOenrich(
   geneIDs,
-  geneUniverse.IDs = NULL,
+  geneUniverse.IDs,
   species,
   select = c("BP", "CC", "MF"),
-  plot = F,
-  padj.cutoff = 1e-05,
-  top.enrich = Inf,
-  min.counts = 3L,
-  order = "padj",
-  x.breaks,
-  color.breaks,
-  cex.balloons = 1,
-  col = c("blue", "red"),
-  main = NA,
-  plot.empty.clusters = T
+  log2OR.pseudocount = 1,
+  cleanup.cache = FALSE
 )
 }
 \arguments{
-\item{geneIDs}{A vector (barplot) of a list (clusters) of gene IDs}
+\item{geneIDs}{A vector (for a single group) or a named list (for multiple clusters) of gene IDs to analyze.}
 
-\item{geneUniverse.IDs}{Vector of FBgn IDs to which the analysis will be restricted. If NULL, uses all genes.}
+\item{geneUniverse.IDs}{A vector of gene IDs defining the universe of genes for the analysis. If `NULL`,
+all genes are used as the universe.}
 
-\item{species}{Chose between "Dm" and "Mm"}
+\item{species}{Character. The species for the analysis. Choose between `"Dm"` (Drosophila melanogaster)
+and `"Mm"` (Mus musculus).}
 
-\item{select}{Which annotations should be considered? Default to c("BP", "CC", "MF")}
+\item{select}{Character vector. Specifies which GO annotations to consider. Options are `"BP"`
+(Biological Process), `"CC"` (Cellular Component), and `"MF"` (Molecular Function). Default is `c("BP", "CC", "MF")`.}
 
-\item{plot}{Plot result?}
+\item{log2OR.pseudocount}{Numeric. A pseudocount added to the contingency table to avoid infinite values
+in the log2 odds ratio calculation. Default is `1`.}
 
-\item{padj.cutoff}{cutoff for plotting}
-
-\item{top.enrich}{Show only n top enriched motifs. Default= 10L}
-
-\item{min.counts}{The minimum number of counts required to call a hit. Default= 3L}
-
-\item{order}{Value to be used for ordering before selecting top enriched. Possible values are "padj", "log2OR". defaut= "padj"}
-
-\item{x.breaks}{Breaks used for balloons sizes}
-
-\item{color.breaks}{Balloons color breaks}
-
-\item{cex.balloons}{Balloons size expansion factor}
-
-\item{col}{Color vector}
-
-\item{main}{Title}
-
-\item{plot.empty.clusters}{Should empty clusters be plotted? Default to TRUE}
+\item{cleanup.cache}{Logical. If `TRUE`, clears cached intermediate results. Default is `FALSE`.}
+}
+\value{
+A data table containing the enrichment results with the following columns:
+- `cl`: Cluster name (if multiple clusters are analyzed).
+- `variable`: GO term ID.
+- `annotation`: GO annotation type (e.g., BP, CC, MF).
+- `name`: GO term description.
+- `set_hit`: Number of genes in the input set associated with the GO term.
+- `set_total`: Total number of genes in the input set.
+- `universe_hit`: Number of genes in the universe associated with the GO term.
+- `universe_total`: Total number of genes in the universe.
+- `log2OR`: Log2 odds ratio for enrichment.
+- `padj`: Adjusted p-value (FDR).
 }
 \description{
-This function compute GO enrichment in a group of genes
+This function computes Gene Ontology (GO) enrichment for a group of genes or clusters of genes.
+It calculates enrichment statistics (log2 odds ratio and adjusted p-values) for selected GO annotations
+(Biological Process, Cellular Component, and Molecular Function) and optionally plots the results.
+}
+\details{
+The function performs GO enrichment analysis by comparing the overlap of input gene sets with GO terms
+against a background universe of genes. It uses Fisher's exact test to compute p-values and calculates
+log2 odds ratios for enrichment. Adjusted p-values (FDR) are computed for multiple testing correction.
+
+If multiple clusters of genes are provided, the function computes enrichment for each cluster separately.
+The results are returned as a data table with class `"vl_enr"` (for a single group) or `"vl_enr_cl"`
+(for multiple clusters), which can be directly plotted using the appropriate plotting methods.
 }
 \examples{
-RpL <- vl_genes_set[GO=="RpL_genes", FBgn]
-Hox <- vl_genes_set[GO=="HOX_genes", FBgn]
+# Example using ORFtag hits from the Nat. Methods paper -------
+# Download data
+tmp <- tempfile(pattern = ".xlsx")
+download.file(url = "https://static-content.springer.com/esm/art\%3A10.1038\%2Fs41592-024-02339-x/MediaObjects/41592_2024_2339_MOESM3_ESM.xlsx",
+              destfile = tmp)
 
-# Compute and plot enrichments of RpL genes
-vl_GOenrich(RpL, species= "Dm", plot= T)
+# Activators
+act <- readxl::read_xlsx(tmp, sheet = 1)
+act <- act$gene_id[act$hit==TRUE]
 
-# Separately compute and plot enrichments of HOX genes
-DT <- vl_GOenrich(Hox, species= "Dm")
-plot(DT, padj.cutoff= 1e-10)
+# Background (genes with input integration)
+bg <- readxl::read_xlsx(tmp, sheet = 1)
+bg <- bg$gene_id[!is.na(bg$FDR)]
 
-# Do it for the two groups at once (useful to compare clusters...)
-DT <- vl_GOenrich(list(RpL= RpL,
-                        Hox= Hox),
-                   species= "Dm",
-                   cex.balloons = 0.3,
-                   padj.cutoff= 1e-5,
-                   top.enrich = 20,
-                   plot= T)
-plot(DT,
-     top.enrich= 5)
+# Compute activators enrichment
+enr <- vl_GOenrich(geneIDs = act,
+                   geneUniverse.IDs = bg,
+                   species= "Mm")
+
+# Repressors
+rep <- readxl::read_xlsx(tmp, sheet = 2)
+rep <- rep$gene_id[rep$hit==TRUE]
+
+# Plot
+vl_par(mai= c(.9, 2, .9, 1.3))
+plot(obj= enr[annotation=="CC"],
+     top.enrich = 10,
+     order= "log2OR")
+
+# Compare activators and repressor Cellular Compartments
+enr2 <- vl_GOenrich(geneIDs = list(Act= act,
+                                   Rep= rep),
+                    geneUniverse.IDs = bg,
+                    species= "Mm",
+                    select= "CC")
+
+# Plot
+vl_par(mai= c(.9, 2, .9, 1.3))
+plot(obj= enr2,
+     top.enrich = 10,
+     padj.cutoff= 0.001,
+     order = "log2OR",
+     cex= .5)
+
+# Other example using gene clusters from the epigenetic cancer nature paper -------
+# Download EpiCancer clusters
+tmp <- tempfile(pattern = ".xlsx")
+download.file(url = "https://static-content.springer.com/esm/art\%3A10.1038\%2Fs41586-024-07328-w/MediaObjects/41586_2024_7328_MOESM5_ESM.xlsx",
+              destfile = tmp)
+
+# Import genes
+genes <- readxl::read_xlsx(tmp, sheet = 1)
+genes <- as.data.table(genes)
+
+# Gene clusters
+cl <- genes[!cluster \%in\% c("NA", "Unaffected")]
+cl <- split(cl$FBgn, cl[, .(cluster, V2= ifelse(PcG_bound, "Bound", "Unbound"))])
+
+# Compare activators and repressor Cellular Compartments
+enr <- vl_GOenrich(geneIDs = cl,
+                   geneUniverse.IDs = genes$FBgn,
+                   species= "Dm")
+enr[, cl:= factor(cl,
+                  c("Reversible.Bound",
+                    "Irreversible.Bound",
+                    "Transient-specific.Bound",
+                    "Down 1.Bound",
+                    "Down 2.Bound",
+                    "Down 3.Bound",
+                    "Reversible.Unbound",
+                    "Irreversible.Unbound",
+                    "Transient-specific.Unbound",
+                    "Down 1.Unbound",
+                    "Down 2.Unbound",
+                    "Down 3.Unbound"))]
+
+# Plot
+vl_par(mai= c(.9, 2, .9, 1.3))
+plot(obj= enr,
+     top.enrich = 5,
+     padj.cutoff= 0.05,
+     order = "log2OR",
+     cex= .5)
 
 }

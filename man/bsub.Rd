@@ -16,25 +16,25 @@ bsub(
 )
 }
 \arguments{
-\item{cmd}{character, The command to be executed on the server}
+\item{cmd}{A character string corresponding to the command to be submitted to the server (as character).}
 
-\item{cores}{integer, Number of CPU cores to request (default: 6)}
+\item{cores}{Number of CPU cores to request. Default= 6.}
 
-\item{mem}{numeric, Memory requirement in GB (default: 12)}
+\item{mem}{Memory requirement in GB. Default= 12.}
 
-\item{time}{character, Maximum wall time in format 'HH:MM:SS' (default: '08:00:00')}
+\item{time}{Maximum wall time in format 'HH:MM:SS'. For 2 days: '2-00:00:00'. Default: '08:00:00'.}
 
-\item{name}{character, Job name prefix (default: "vl")}
+\item{name}{Job name prefix. Default= "vl".}
 
-\item{logs}{character, Path to directory for storing log files (default: "db/logs/")}
+\item{logs}{Path to directory for storing log files. Default= "db/logs/".}
 
-\item{wdir}{character, Working directory for job execution (default: current working directory)}
+\item{wdir}{Working directory for job execution. Default= wdir().}
 
-\item{execute}{logical, If TRUE submits the job, if FALSE returns the formatted command (default: TRUE)}
+\item{execute}{If set to TRUE (default), job are submitted and JOB ID is returned. Otherwise, jobs are not submitted and only the formatted command is returned.}
 }
 \value{
-If execute=TRUE, returns a character string with the job ID.
-        If execute=FALSE, returns the formatted bsub command string.
+If execute= TRUE, returns a character string with the job ID.
+        If execute= FALSE, returns the formatted bsub command string.
 }
 \description{
 A wrapper function to submit jobs to the VBC server using bsub/GridEngine.
@@ -52,18 +52,18 @@ and creates a temporary script file that is removed after job submission.
 \examples{
 \dontrun{
 # Submit a simple job
-bsub("echo 'Hello World'", cores=1, mem=1)
+bsub("echo 'Hello World'", cores= 1, mem= 1)
 
 # Get the formatted command without executing
-bsub("echo 'Hello World'", execute=FALSE)
+bsub("echo 'Hello World'", execute= FALSE)
 
 # Submit a job with custom parameters
-bsub(cmd="Rscript analysis.R",
-     cores=8,
-     mem=16,
-     time='12:00:00',
-     name="analysis",
-     logs="path/to/logs")
+bsub(cmd= "Rscript script.R",
+     cores= 8,
+     mem= 16,
+     time= '12:00:00',
+     name= "my script",
+     logs= "path/to/logs")
 }
 
 }

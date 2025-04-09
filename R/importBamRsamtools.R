@@ -1,39 +1,52 @@
-#' Import samtools using rsamtools
+#' Import BAM File Using Rsamtools
 #'
-#' @param file Path to bam file
-#' @param sel columns to be imported (see Rsamtools::scanBamWhat()). Default= c("qname", "flag", "rname", "strand", "pos", "qwidth", "mapq", "mrnm", "mpos", "isize")
-#' @param col.names Names of the columns to be imported. Default= c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "mateSeqnames", "mateLeftStart", "isize")
+#' Imports a BAM file using `Rsamtools` and returns its content as a `data.table`.
 #'
-#' @return Returns a bam file content as data.table
-#' @export
+#' @param file A character string specifying the path to the BAM file.
+#' @param sel A character vector specifying the columns to import. Defaults to `Rsamtools::scanBamWhat()`.
+#' @param new.col.names A character vector specifying the new column names for the imported data.
+#' Defaults to `c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "cigar",
+#' "mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore", "groupID", "mate_status")`.
+#'
+#' @return
+#' A `data.table` containing the content of the BAM file with the specified columns and column names.
 #'
 #' @examples
+#' \dontrun{
+#' # Import a BAM file with default columns
 #' importBam("path/to_bam_file")
+#'
+#' # Import a BAM file with custom columns
+#' importBam("path/to_bam_file", sel = c("qname", "flag"), new.col.names = c("readID", "samFlag"))
+#' }
+#'
+#' @export
 importBam <- function(file,
-                      sel= c("qname", "flag", "rname", "strand", "pos", "qwidth", "mapq", "mrnm", "mpos", "isize"),
-                      col.names= c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "mateSeqnames", "mateLeftStart", "isize"))
+                      sel= Rsamtools::scanBamWhat(),
+                      new.col.names= c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "cigar", "mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore", "groupID", "mate_status"))
 {
-  # Checks
-  if(length(sel) != length(col.names)) {
-    col.names <- sel
-    stop("Selected columns could not be renamed because length(sel) != length(col.names)")
-  }
+  # Checks ----
+  if(length(sel) != length(new.col.names))
+    stop("'sel' and 'new.col.names' should have the same length.")
 
-  # Import file
+  # Import file ----
   param <- Rsamtools::ScanBamParam(what= sel)
   .c <- Rsamtools::scanBam(file, param = param)[[1]]
 
-  # Coerce special elements (typically DNAStringSet / PhredQuality) to character
+  # Coerce special elements (typically DNAStringSet / PhredQuality) to character ----
   toCoerce <- which(!sapply(.c, function(x) is.vector(x) | is.factor(x)))
   for(i in toCoerce){
     .c[[i]] <- as.character(.c[[i]])
   }
 
-  # To data.table
+  # To data.table ----
   .c <- as.data.table(.c)
-  setcolorder(.c, sel)
-  setnames(.c, old = sel, new= col.names)
+  setcolorder(.c, intersect(sel, names(.c)))
+  setnames(.c,
+           old = sel,
+           new= new.col.names,
+           skip_absent = TRUE)
 
-  # Return
+  # Return ----
   return(.c)
 }

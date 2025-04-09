@@ -9,7 +9,6 @@ vl_heatmap(
   cluster.rows = FALSE,
   cluster.cols = FALSE,
   kmeans.k = NA,
-  zlim = NULL,
   breaks = NULL,
   col = NULL,
   show.rownames = TRUE,
@@ -32,148 +31,105 @@ vl_heatmap(
 )
 }
 \arguments{
-\item{x}{Numeric matrix to be displayed as heatmap.}
+\item{x}{A numeric matrix to be displayed as a heatmap.}
 
 \item{cluster.rows}{Logical or vector specifying row clustering:
-* FALSE: no clustering (default)
-* TRUE: perform clustering
+* `FALSE`: no clustering (default)
+* `TRUE`: perform clustering
 * vector: pre-defined clustering}
 
-\item{cluster.cols}{Similar to cluster.rows but for columns.}
+\item{cluster.cols}{Similar to `cluster.rows` but for columns.}
 
-\item{kmeans.k}{Integer specifying number of k-means clusters. NA (default)
-uses hierarchical clustering instead.}
+\item{kmeans.k}{Integer specifying the number of k-means clusters. Defaults to `NA` (uses hierarchical clustering).}
 
-\item{zlim}{Numeric vector of length 2 specifying the minimum and maximum values
-for color mapping (e.g., c(-1, 1)). If NULL (default), limits are automatically
-calculated based on data range. Note: this argument is ignored if breaks are
-specified directly.}
+\item{breaks}{A numeric vector specifying the breakpoints for color mapping.
+Defaults to 21 evenly spaced breaks spanning the range of `x`.}
 
-\item{breaks}{Numeric vector of break points for color mapping. Takes precedence
-over `zlim` if both are specified. If NULL (default), breaks are automatically
-calculated either from `zlim` if provided, or from the data range. Break points
-define the boundaries between colors, so if using n colors, breaks should be a
-vector of length n+1.}
+\item{col}{A vector of colors corresponding to the values in `breaks`. If `NULL`,
+a diverging blue-white-red palette is used for data spanning positive and negative values,
+or a sequential blue-yellow palette.}
 
-\item{col}{Color palette for the heatmap. If NULL (default), automatically
-selects between a diverging blue-white-red palette for data centered around
-zero, or a sequential blue-yellow palette for non-negative data.}
+\item{show.rownames}{Logical; whether to display row names. Default is `TRUE`.}
 
-\item{show.rownames}{Logical; whether to show row names (TRUE by default).}
+\item{show.colnames}{Logical; whether to display column names. Default is `TRUE`.}
 
-\item{show.colnames}{Logical; whether to show column names (TRUE by default).}
+\item{tilt.colnames}{Logical; whether to tilt column names for better readability. Default is `TRUE`.}
 
-\item{tilt.colnames}{Logical; whether to tilt column names (TRUE by default).}
+\item{clustering.method}{Character string specifying the hierarchical clustering method. Default is `"complete"`.}
 
-\item{clustering.method}{Character string specifying hierarchical clustering
-method ("complete" by default).}
+\item{clustering.distance.rows}{Character string specifying the distance metric for rows. Default is `"euclidean"`.}
 
-\item{clustering.distance.rows}{Character string specifying distance metric
-for rows ("euclidean" by default).}
+\item{clustering.distance.cols}{Similar to `clustering.distance.rows` but for columns.}
 
-\item{clustering.distance.cols}{Similar to clustering.distance.rows but for
-columns.}
+\item{cutree.rows}{Integer specifying the number of row clusters to cut the tree into.}
 
-\item{cutree.rows}{Integer specifying number of row clusters to cut tree into.}
+\item{cutree.cols}{Similar to `cutree.rows` but for columns.}
 
-\item{cutree.cols}{Similar to cutree.rows but for columns.}
+\item{show.row.clusters}{Character specifying the position of row cluster visualization: `"right"`, `"left"`, or `FALSE`.}
 
-\item{show.row.clusters}{Character specifying position of row cluster
-visualization: "right", "left", or FALSE.}
+\item{show.col.clusters}{Character specifying the position of column cluster visualization: `"top"`, `"bottom"`, or `FALSE`.}
 
-\item{show.col.clusters}{Character specifying position of column cluster
-visualization: "top", "bottom", or FALSE.}
+\item{row.clusters.col}{A vector of two colors for the row cluster gradient. Default is `c("grey90", "grey40")`.}
 
-\item{row.clusters.col}{Vector of two colors for row cluster gradient.}
+\item{col.clusters.col}{A vector of two colors for the column cluster gradient. Default is `c("grey90", "grey40")`.}
 
-\item{col.clusters.col}{Vector of two colors for column cluster gradient.}
+\item{legend.cex}{Numeric scaling factor for the legend. Default is `1`.}
 
-\item{legend.cex}{Numeric scaling factor for legend (1 by default).}
+\item{legend.title}{Character string for the legend title. Default is `"Value"`.}
 
-\item{legend.title}{Character string for legend title ("Value" by default).}
+\item{show.numbers}{Logical or matrix; if `TRUE` or a matrix is provided, displays values in cells.}
 
-\item{show.numbers}{Logical or matrix; if TRUE or matrix provided, displays
-values in cells.}
+\item{numbers.cex}{Numeric scaling factor for the size of displayed numbers. Default is `0.7`.}
 
-\item{numbers.cex}{Numeric scaling factor for displayed numbers (0.7 by
-default).}
-
-\item{cluster.seed}{Integer seed for reproducible clustering (3453 by
-default).}
+\item{cluster.seed}{Integer seed for reproducible clustering. Default is `3453`.}
 }
 \value{
-Invisibly returns a list with two data.tables:
-* row: contains row names, ordering, and clustering (if applicable)
-* col: contains column names, ordering, and clustering (if applicable)
+Invisibly returns a list with two `data.table` objects:
+* `row`: Contains row names, ordering, and clustering (if applicable).
+* `col`: Contains column names, ordering, and clustering (if applicable).
 }
 \description{
-Creates a highly customizable heatmap using base R graphics, with support
-for hierarchical clustering, k-means clustering, dendrograms, and cluster
-visualization. This function provides a comprehensive solution for
-visualizing matrix data with advanced clustering options.
+Generates a customizable heatmap with support for hierarchical clustering, k-means clustering,
+dendrograms, and cluster visualization. This function provides advanced options for visualizing
+matrix data with clustering and color-coded annotations.
 }
 \details{
-The function provides multiple clustering options:
-* Hierarchical clustering with various distance metrics
-* K-means clustering
-* Pre-defined clustering
-* Separate clustering for rows and columns
+The function supports:
+- Hierarchical clustering with customizable distance metrics and methods.
+- K-means clustering for rows or columns.
+- Pre-defined clustering for rows or columns.
+- Visualization of dendrograms and color-coded cluster bars.
 
-Color schemes are automatically selected based on data characteristics:
-* For data spanning positive and negative: blue-white-red
-* For non-negative data: blue-yellow
+Color schemes are automatically selected based on the data:
+- For data spanning positive and negative values: blue-white-red.
+- For non-negative data: blue-yellow.
 
-Cluster visualization options include:
-* Dendrograms
-* Color-coded cluster bars
-* Cluster labels with sizes
+The default behavior for `breaks` is to create 21 evenly spaced intervals spanning the range of `x`.
+If `x` contains both positive and negative values, the range is symmetrically extended around zero.
 }
 \examples{
 # Create example matrix
 set.seed(1234)
-test <- matrix(rnorm(200), 20, 10)
-test[1:10, seq(1, 10, 2)] <- test[1:10, seq(1, 10, 2)] + 3
-test[11:20, seq(2, 10, 2)] <- test[11:20, seq(2, 10, 2)] + 2
-test[15:20, seq(2, 10, 2)] <- test[15:20, seq(2, 10, 2)] + 4
-colnames(test) <- paste("Test", 1:10, sep = "")
-rownames(test) <- paste("Gene", 1:20, sep = "")
-
+mat <- matrix(rnorm(200), 20, 10)
+colnames(mat) <- paste("Sample", 1:10, sep = "")
+rownames(mat) <- paste("Gene", 1:20, sep = "")
 
 # Basic heatmap
-gPar(mfrow= c(2,2))
-vl_heatmap(test)
-title(main= "No clustering")
+vl_par()
+vl_heatmap(mat)
 
-# With hierarchical ordering
-vl_heatmap(test,
-         cluster.rows= TRUE,
-         cluster.cols= TRUE,
-         zlim= c(-5, 5))
-title(main= "hclust rows & cols")
-vl_heatmap(test,
-         cluster.rows= TRUE,
-         cluster.cols= TRUE,
-         cutree.rows = 3,
-         cutree.cols = 3,
-         show.numbers = round(test, 1))
-title(main= "Cut hclust rows & cols")
+# Hierarchical clustering
+vl_heatmap(mat, cluster.rows = TRUE, cluster.cols = TRUE)
 
-# Save clusters!
-cl <- vl_heatmap(test2,
-               cluster.rows= TRUE,
-               kmeans.k= 5,
-               cluster.cols= TRUE,
-               show.row.clusters = "left",
-               show.col.clusters = "bottom")
-title(main= "Kmeans rows, hclust cols")
+# K-means clustering
+vl_heatmap(mat, kmeans.k = 3, cluster.cols = TRUE)
 
-# Look at clusters
-print(cl)
+# Display cell values
+vl_heatmap(mat, show.numbers = round(mat, 1))
 
 }
 \seealso{
-\code{\link{vl_image}} for the underlying image plotting
-\code{\link{heatkey}} for the color key
-\code{\link{hclust}} for hierarchical clustering
-\code{\link{kmeans}} for k-means clustering
+\code{\link{vl_image}} for the underlying image plotting.
+\code{\link{hclust}} for hierarchical clustering.
+\code{\link{kmeans}} for k-means clustering.
 }

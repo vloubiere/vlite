@@ -2,11 +2,10 @@
 % Please edit documentation in R/vl_image.R
 \name{vl_image}
 \alias{vl_image}
-\title{Plot Matrix as Enhanced Heatmap Image}
+\title{Plot Matrix as Heatmap}
 \usage{
 vl_image(
   mat,
-  zlim = NULL,
   breaks = NULL,
   col = NULL,
   xlim = c(0.5, ncol(mat) + 0.5),
@@ -18,7 +17,7 @@ vl_image(
   ylab = NA,
   legend.cex = 1,
   legend.title = "Value",
-  na.col = "darkgrey",
+  na.col = "lightgrey",
   show.numbers = FALSE,
   numbers.cex = 0.8
 )
@@ -26,68 +25,51 @@ vl_image(
 \arguments{
 \item{mat}{A numeric matrix to be displayed as a heatmap.}
 
-\item{zlim}{Numeric vector of length 2 specifying the minimum and maximum values
-for color mapping (e.g., c(-1, 1)). If NULL (default), limits are automatically
-calculated based on data range. Note: this argument is ignored if breaks are
-specified directly.}
+\item{breaks}{A numeric vector specifying the breakpoints for color mapping.
+Defaults to 21 evenly spaced breaks spanning the range of `mat`.}
 
-\item{breaks}{Numeric vector of break points for color mapping. Takes precedence
-over `zlim` if both are specified. If NULL (default), breaks are automatically
-calculated either from `zlim` if provided, or from the data range. Break points
-define the boundaries between colors, so if using n colors, breaks should be a
-vector of length n+1.}
+\item{col}{A vector of colors corresponding to the values in `breaks`. If `NULL`,
+a diverging blue-white-red palette is used for data spanning positive and negative values,
+or a sequential blue-yellow palette.}
 
-\item{col}{Color palette for the heatmap. If NULL (default), automatically
-selects between a diverging blue-white-red palette for data (or zlim) centered around
-zero, or a sequential blue-yellow palette for non-negative data.}
+\item{xlim}{Numeric vector of length 2 giving x-axis limits. Default is `c(0.5, ncol(mat) + 0.5)`.}
 
-\item{xlim}{Numeric vector of length 2 giving x-axis limits. Default is
-c(0.5, ncol(mat)+0.5).}
+\item{ylim}{Numeric vector of length 2 giving y-axis limits. Default is `c(nrow(mat) + 0.5, 0.5)`.}
 
-\item{ylim}{Numeric vector of length 2 giving y-axis limits. Default is
-c(nrow(mat)+0.5, 0.5).}
+\item{show.rownames}{Logical; whether to display row names. Default is `TRUE`.}
 
-\item{show.rownames}{Logical; whether to show row names (TRUE by default).}
+\item{show.colnames}{Logical; whether to display column names. Default is `TRUE`.}
 
-\item{show.colnames}{Logical; whether to show column names (TRUE by default).}
+\item{tilt.colnames}{Logical; whether to tilt column names for better readability. Default is `TRUE`.}
 
-\item{tilt.colnames}{Logical; whether to tilt column names for better
-readability (TRUE by default).}
+\item{xlab}{Character string for the x-axis label. Default is `NA`.}
 
-\item{xlab}{Character string for x-axis label (NA by default).}
+\item{ylab}{Character string for the y-axis label. Default is `NA`.}
 
-\item{ylab}{Character string for y-axis label (NA by default).}
+\item{na.col}{Color to use for NA values. Default is `"lightgrey"`.}
 
-\item{na.col}{Color to use for NA values ("darkgrey" by default).}
+\item{show.numbers}{Logical or matrix; if `TRUE` or a matrix is provided, displays values in cells. Default is `FALSE`.}
 
-\item{show.numbers}{Logical or matrix; if TRUE or a matrix is provided,
-displays values in cells. Default is FALSE.}
-
-\item{numbers.cex}{Numeric scaling factor for number size when show.numbers
-is TRUE (0.8 by default).}
+\item{numbers.cex}{Numeric scaling factor for the size of numbers when `show.numbers` is `TRUE`. Default is `0.8`.}
 }
 \value{
-A plot of the matrix as a heatmap is produced on the current
-  graphics device. Invisibly returns the breaks and the colors used.
+Invisibly returns a list containing the `breaks` and `col` used for the heatmap.
 }
 \description{
-A wrapper around base R's image() function that provides enhanced visualization
-of matrices as heatmaps. The function offers improved default settings and
-displays the image in a more intuitive orientation for data analysis, with
-automatic handling of color schemes, NA values, and axis labels.
+A wrapper around base R's `image()` function for enhanced visualization of matrices as heatmaps.
+The function provides intuitive orientation, automatic handling of color schemes, NA values,
+and axis labels, along with options for displaying numerical values in cells.
 }
 \details{
-The function implements several improvements over base R's image():
-* Automatic color palette selection based on data characteristics
-* Intelligent handling of NA values
-* Better default orientation (rows top-to-bottom)
-* Optional tilted column labels for better readability
-* Ability to display numerical values in cells
-* Automatic handling of row and column names
+This function improves upon base R's `image()` by:
+- Automatically selecting color palettes based on data characteristics.
+- Handling NA values intelligently.
+- Displaying row and column names by default.
+- Allowing optional display of numerical values in cells.
+- Providing better default orientation (rows top-to-bottom).
 
-The color scheme is automatically selected based on the data range:
-* For data spanning positive and negative values: blue-white-red
-* For non-negative data: blue-yellow
+The default behavior for `breaks` is to create 21 evenly spaced intervals spanning the range of `mat`.
+If `mat` contains both positive and negative values, the range is symmetrically extended around zero.
 }
 \examples{
 # Basic usage with random data
@@ -101,12 +83,12 @@ vl_image(mat)
 vl_image(mat, show.numbers = TRUE)
 
 # Custom color palette
-vl_image(mat, col = heat.colors(100))
+vl_image(mat, col = heat.colors(101))
 
 # Non-tilted column names
 vl_image(mat, tilt.colnames = FALSE)
 
 }
 \seealso{
-\code{\link{image}} for the base R image function
+\code{\link{image}} for the base R `image()` function.
 }

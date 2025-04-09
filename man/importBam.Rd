@@ -2,29 +2,38 @@
 % Please edit documentation in R/importBamRsamtools.R
 \name{importBam}
 \alias{importBam}
-\title{Import samtools using rsamtools}
+\title{Import BAM File Using Rsamtools}
 \usage{
 importBam(
   file,
-  sel = c("qname", "flag", "rname", "strand", "pos", "qwidth", "mapq", "mrnm", "mpos",
-    "isize"),
-  col.names = c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq",
-    "mateSeqnames", "mateLeftStart", "isize")
+  sel = Rsamtools::scanBamWhat(),
+  new.col.names = c("readID", "samFlag", "seqnames", "strand", "leftStart", "width",
+    "mapq", "cigar", "mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore",
+    "groupID", "mate_status")
 )
 }
 \arguments{
-\item{file}{Path to bam file}
+\item{file}{A character string specifying the path to the BAM file.}
 
-\item{sel}{columns to be imported (see Rsamtools::scanBamWhat()). Default= c("qname", "flag", "rname", "strand", "pos", "qwidth", "mapq", "mrnm", "mpos", "isize")}
+\item{sel}{A character vector specifying the columns to import. Defaults to `Rsamtools::scanBamWhat()`.}
 
-\item{col.names}{Names of the columns to be imported. Default= c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "mateSeqnames", "mateLeftStart", "isize")}
+\item{new.col.names}{A character vector specifying the new column names for the imported data.
+Defaults to `c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "cigar",
+"mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore", "groupID", "mate_status")`.}
 }
 \value{
-Returns a bam file content as data.table
+A `data.table` containing the content of the BAM file with the specified columns and column names.
 }
 \description{
-Import samtools using rsamtools
+Imports a BAM file using `Rsamtools` and returns its content as a `data.table`.
 }
 \examples{
+\dontrun{
+# Import a BAM file with default columns
 importBam("path/to_bam_file")
+
+# Import a BAM file with custom columns
+importBam("path/to_bam_file", sel = c("qname", "flag"), new.col.names = c("readID", "samFlag"))
+}
+
 }

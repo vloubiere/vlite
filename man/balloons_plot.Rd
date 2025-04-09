@@ -5,30 +5,32 @@
 \title{Ballons plot}
 \usage{
 balloons_plot(
-  var1,
-  var2,
+  size.var,
+  color.var,
   color.breaks = NULL,
-  col = c("#440154FF", "#472D7BFF", "#3B528BFF", "#2C728EFF", "#21908CFF", "#27AD81FF",
-    "#5DC863FF", "#AADC32FF", "#FDE725FF"),
+  col = NULL,
   cex = 1,
   main = NULL,
   xlab = NULL,
   ylab = NULL,
   gap.axis = 0,
-  var1.legend.title = NULL,
-  var2.legend.title = NULL,
   legend.left.pos = NULL,
-  legend.size.breaks = NULL
+  size.legend.title = NULL,
+  size.legend.breaks = NULL,
+  color.legend.title = NULL
 )
 }
 \arguments{
-\item{var1}{A matrix of numeric values controling balloons'sizes.}
+\item{size.var}{A color.varrix of numeric values controlling balloons'sizes.}
 
-\item{var2}{A matrix of numeric values controling balloons'colors.}
+\item{color.var}{A color.varrix of numeric values controlling balloons'colors.}
 
-\item{color.breaks}{Breaks used for coloring (see var 2).}
+\item{color.breaks}{A numeric vector specifying the breakpoints for color mapping.
+Defaults to 21 evenly spaced breaks spanning the range of `color.var`.}
 
-\item{col}{Vector of colors used for coloring}
+\item{col}{A vector of colors corresponding to the values in `breaks`. If `NULL`,
+a diverging blue-white-red palette is used for data spanning positive and negative values,
+or a sequential viridis-like palette.}
 
 \item{cex}{Expansion factor for balloons. default= 1.}
 
@@ -44,12 +46,12 @@ balloons_plot(
 Balloon plot
 }
 \description{
-Starting from two matrices (dot size and colors, respectively), generates a balloon plot
+Starting from two color.varrices (dot size and colors, respectively), generates a balloon plot
 }
 \examples{
-var1 <- matrix(-3:5, ncol= 3)
-var2 <- matrix(-3:5, ncol= 3)
-balloons_plot(var1= var1,
-                 var2= var2)
+color.var <- size.var <- matrix(-3:5, ncol= 3)
+rownames(size.var) <- c("r1", "r2", "r3")
+colnames(size.var) <- c("A", "B", "C")
+balloons_plot(size.var= size.var, color.var= color.var)
 
 }

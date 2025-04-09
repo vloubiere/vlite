@@ -5,22 +5,24 @@
 \title{Plots balloons legend}
 \usage{
 balloonskey(
-  size.breaks,
-  cex,
+  breaks,
   labels,
+  main = NA,
+  cex,
   left = par("usr")[2],
   top = par("usr")[4],
   ticks.cex = 0.6,
-  main.cex = 1,
-  main = NA
+  main.cex = 1
 )
 }
 \arguments{
-\item{size.breaks}{Balloons sizes.}
-
-\item{cex}{cex parameter affecting balloons sizes.}
+\item{breaks}{Numeric values specifying size breaks.}
 
 \item{labels}{Labels corresponding to each size.}
+
+\item{main}{Title}
+
+\item{cex}{cex parameter affecting balloons sizes.}
 
 \item{left}{left position.}
 
@@ -29,8 +31,6 @@ balloonskey(
 \item{ticks.cex}{cex expansion factor for ticks labels}
 
 \item{main.cex}{cex expansion factor for legend title}
-
-\item{main}{Title}
 
 \item{height}{height}
 }

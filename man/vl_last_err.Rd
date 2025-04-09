@@ -2,13 +2,22 @@
 % Please edit documentation in R/vl_last_err.R
 \name{vl_last_err}
 \alias{vl_last_err}
-\title{See most recent error file in a directory}
+\title{View the Most Recent Error File}
 \usage{
 vl_last_err(dir)
 }
 \arguments{
-\item{dir}{URL where the reports is to be found}
+\item{dir}{A character string specifying the folder path where `.err` files are stored.}
+}
+\value{
+No return value. Opens the most recent `.err` file for viewing and prints its modification time.
 }
 \description{
-See most recent error file in a directory
+Displays the most recent `.err` file in a specified directory.
+}
+\examples{
+\dontrun{
+vl_last_err("/path/to/error/files")  # View the most recent .err file in the directory
+}
+
 }

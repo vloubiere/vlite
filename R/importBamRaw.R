@@ -1,16 +1,29 @@
-#' Import raw bam using samtools and fread
+#' Import Raw BAM File Using Samtools and fread
 #'
-#' Uses samtools to import a bam file.
-#' @param file bam file path.
-#' @param extra_arg Extra arg to be passed to samtools view.
-#' @param headN Number of starting lines to import.
-#' @param samtools_exe_path Path to samtools executable.
+#' Uses `samtools` to import a BAM file and reads the output into R using `fread`.
 #'
-#' @return Imported bam file
-#' @export
+#' @param file A character string specifying the path to the BAM file.
+#' @param extra_arg Additional arguments to pass to `samtools view`. Optional.
+#' @param headN An integer specifying the number of starting lines to import. Optional.
+#' @param samtools_exe_path A character string specifying the path to the `samtools` executable.
+#' Defaults to `/software/2020/software/samtools/1.9-foss-2018b/bin/samtools view`.
+#'
+#' @return
+#' A data table containing the imported BAM file.
 #'
 #' @examples
+#' \dontrun{
+#' # Import a BAM file
 #' importBamRaw("path/to/bam/file.bam")
+#'
+#' # Import with additional arguments
+#' importBamRaw("path/to/bam/file.bam", extra_arg = "-f 4")
+#'
+#' # Import only the first 100 lines
+#' importBamRaw("path/to/bam/file.bam", headN = 100)
+#' }
+#'
+#' @export
 importBamRaw <- function(file,
                          extra_arg,
                          headN,

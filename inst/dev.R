@@ -1,14 +1,20 @@
 setwd("/groups/stark/vloubiere/vlite/")
 devtools::load_all("/groups/stark/vloubiere/vlite/")
 
-# Wrappers systems command -----------------
+# SLURM wrappers ---------------------------
 if(F)
 {
   file.edit("R/bsub.R") # bsub gridengine
   file.edit("R/vl_squeue.R")
   file.edit("R/vl_scancel.R")
   file.edit("R/vl_last_err.R")
-  file.edit("R/dropbox_API.R")
+}
+
+# Dropbox API ------------------------------
+if(F)
+{
+  file.edit("R/dropbox_upload.R")
+  file.edit("R/dropbox_download.R")
 }
 
 # bamtools ---------------------------------
@@ -17,13 +23,11 @@ if(F)
   # Import bam
   file.edit("R/importBamRsamtools.R")
   file.edit("R/importBamRaw.R") # Using samtools and fread
-
 }
 
 # Gene ontologies --------------------------
 if(F)
 {
-  # Gene ontologies
   file.edit("R/vl_GOenrich.R")
 }
 
@@ -156,6 +160,9 @@ if(F)
 {
   # Plotting parameters
   file.edit("R/vl_par.R")
+
+  # Function linking values to colors
+  file.edit("R/vl_colorRamp.R")
 
   # Legends
   file.edit("R/tiltAxis.R")
