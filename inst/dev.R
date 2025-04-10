@@ -32,7 +32,7 @@ if(F)
   file.edit("R/vl_GOenrich.R")
 }
 
-# Demultiplexing
+# Demultiplexing ---------------------------
 if(F)
 {
   file.edit("R/cmd_demultiplexVBCfile.R") # Wrapper
@@ -40,7 +40,7 @@ if(F)
   file.edit("inst/perl/vbc_bam_demultiplexing.pl") # Perl subscript
 }
 
-# Download data
+# Download data ----------------------------
 if(F)
 {
   # SRA toolkit
@@ -49,8 +49,7 @@ if(F)
   file.edit("R/cmd_download.R")
 }
 
-
-# Genomics pipelines ---------------------
+# Genomics pipelines -----------------------
 if(F)
 {
   # Helper functions
@@ -129,16 +128,16 @@ if(F)
   # pwm converion
   file.edit("R/pwmPercToLog.R")
 
-  # Lasso regression motifs
-  file.edit("R/motifLassoRegression.R")
-
   # Motif counts
   file.edit("R/vl_motifCount.R")
   file.edit("R/vl_motifPos.R")
 
   # Motif enrichment
   file.edit("R/vl_motifEnrich.R")
-  file.edit("R/vl_motifEnrichClusters.R")
+
+  # Lasso regression motifs
+  file.edit("R/motifLassoRegression.R")
+
 
   # Download iCisTarget output
   file.edit("R/download_iCistarget.R")

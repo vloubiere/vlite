@@ -19,16 +19,16 @@ vl_GOenrich(
 \item{geneUniverse.IDs}{A vector of gene IDs defining the universe of genes for the analysis. If `NULL`,
 all genes are used as the universe.}
 
-\item{species}{Character. The species for the analysis. Choose between `"Dm"` (Drosophila melanogaster)
-and `"Mm"` (Mus musculus).}
+\item{species}{Character. The species for the analysis. Choose between `Dm` (Drosophila melanogaster)
+and `Mm` (Mus musculus).}
 
-\item{select}{Character vector. Specifies which GO annotations to consider. Options are `"BP"`
-(Biological Process), `"CC"` (Cellular Component), and `"MF"` (Molecular Function). Default is `c("BP", "CC", "MF")`.}
+\item{select}{Character vector specifying which GO annotations to consider. Options are `BP`
+(Biological Process), `CC` (Cellular Component), and `MF` (Molecular Function). Default= c("BP", "CC", "MF").}
 
 \item{log2OR.pseudocount}{Numeric. A pseudocount added to the contingency table to avoid infinite values
-in the log2 odds ratio calculation. Default is `1`.}
+in the log2 odds ratio calculation. Default= 1L.}
 
-\item{cleanup.cache}{Logical. If `TRUE`, clears cached intermediate results. Default is `FALSE`.}
+\item{cleanup.cache}{Logical. If `TRUE`, clears cached intermediate results. Default= FALSE.}
 }
 \value{
 A data table containing the enrichment results with the following columns:
@@ -54,7 +54,7 @@ against a background universe of genes. It uses Fisher's exact test to compute p
 log2 odds ratios for enrichment. Adjusted p-values (FDR) are computed for multiple testing correction.
 
 If multiple clusters of genes are provided, the function computes enrichment for each cluster separately.
-The results are returned as a data table with class `"vl_enr"` (for a single group) or `"vl_enr_cl"`
+The results are returned as a data table with class `vl_enr` (for a single group) or `vl_enr_cl`
 (for multiple clusters), which can be directly plotted using the appropriate plotting methods.
 }
 \examples{

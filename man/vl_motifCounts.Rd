@@ -4,72 +4,75 @@
 \alias{vl_motifCounts}
 \alias{vl_motifCounts.data.table}
 \alias{vl_motifCounts.default}
-\title{Counts motifs}
+\title{Count Motif Occurrences in Genomic Regions}
 \usage{
-vl_motifCounts(sequences, ...)
+vl_motifCounts(sequences = NULL, bed = NULL, ...)
 
-\method{vl_motifCounts}{data.table}(bed, genome, ...)
+vl_motifCounts.data.table(bed, genome, ...)
 
-\method{vl_motifCounts}{default}(
+vl_motifCounts.default(
   sequences = NULL,
   pwm_log_odds,
   genome,
   bg = "genome",
-  p.cutoff = 0.00005
+  p.cutoff = 0.00005,
+  cleanup.cache = FALSE
 )
 }
 \arguments{
-\item{sequences}{Named character vector of sequences to analyse. If provided takes over bed argument (in the case where both are specified)}
+\item{sequences}{Named character vector of sequences to analyze. Takes precedence over the `bed` argument.}
 
-\item{bed}{Either a vector of bed file paths, a GRange object or a data.table containing 'seqnames', 'start' and 'end' columns.}
+\item{bed}{Genomic ranges in a format compatible with `importBed()`. Used to retrieve sequences if `sequences` is not provided.}
 
-\item{genome}{Genome to be used for coordinates ("dm6, "dm3") and as background for counting motifs when bg= "genome".}
+\item{genome}{Genome to use as background when `bg = "genome"` and/or to retrieve sequences (when `bed` is specified).}
 
-\item{bg}{Background used to find motifs. Possible values include "genome" and "even". Default= "genome"}
+\item{pwm_log_odds}{A `PWMatrixList` (in log2 odds ratio format) containing motifs to count.}
 
-\item{p.cutoff}{p.value cutoff used for motif detection. For enrichment analyses based on presence/absence of a motif, high cutoff might perform better (1e-4 or 5e-5) while for regression analyses, lower cutoffs might be preferred (5e-4). Default= 5e-5 (stringent).}
+\item{bg}{Background model for motif detection. Options: `"genome"` or `"even"`. Default: `"genome"`.}
 
-\item{pwms_log_odds}{A PWMatrixList (in log2 odd ratio format) for which motif matches should be counted. Overrides sel and motifDB arguments (see above).}
+\item{p.cutoff}{p-value cutoff for motif detection. Default: `5e-5`.}
+
+\item{cleanup.cache}{Logical. If `TRUE`, clears cached intermediate results. Default is `FALSE`.}
 }
 \value{
-Matrix of motif counts
+A matrix of motif counts.
 }
 \description{
-Counts motif occurences in a set of regions
+Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList.
 }
-\section{Methods (by class)}{
+\section{Functions}{
 \itemize{
-\item \code{vl_motifCounts(data.table)}: Method to extract sequences from BSgenome
+\item \code{vl_motifCounts.data.table()}: Method to extract sequences from BSgenome
 
-\item \code{vl_motifCounts(default)}: Identify motifs in sequences
+\item \code{vl_motifCounts.default()}: Identify motifs in sequences
 
 }}
 \examples{
-# Resize example peaks
-SUHW <- vl_resizeBed(vl_SUHW_top_peaks, genome = "dm3")
-STARR <- vl_resizeBed(vl_STARR_DSCP_top_peaks, genome = "dm3")
+# Download Dev enhancer from pe-STARR-Seq paper
+tmp <- tempfile(pattern = ".xlsx")
+download.file(url = "https://static-content.springer.com/esm/art\%3A10.1038\%2Fs41467-024-52921-2/MediaObjects/41467_2024_52921_MOESM4_ESM.xlsx",
+              destfile = tmp)
 
-# Generate same number of random regions
-random <- vl_control_regions_BSgenome(bed= STARR, genome= "dm3")
+# Retrieve enhancers
+dev <- readxl::read_xlsx(tmp, sheet = 2, skip = 1)
+dev <- as.data.table(dev)
+dev <- dev[group=="dev" & detail \%in\% c("medium", "strong")]
 
-# Count JAPSPAR motifs (see below to use custom list of PWMs)
-suhw <- vl_motifCounts(SUHW, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-starr <- vl_motifCounts(top_STARR, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-ctl <- vl_motifCounts(random, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
+# Load motifs and select JASPAR
+load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
+sel <- vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds]
 
-# Starting from sequence instead of bed file
-seq <- vl_getSequence(SUHW, genome= "dm3")
-seq_suhw <- vl_motifCounts(seq, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-identical(suhw, seq_suhw)
+# Compute counts from regions
+mot1 <- vl_motifCounts(bed= dev,
+                       genome= "dm3",
+                       pwm_log_odds= sel)
 
-# Motifs can also be counted using a custom PWMatrixList, for example for promoter motifs:
-prom_db <- readRDS("/groups/stark/almeida/data/motifs/CP_motifs/CP_motifs_PWM.rds")
-prom <- prom_db$Pwms_log_odds
-for(i in seq(prom))
-  prom[[i]]@profileMatrix <- vl_pwm_perc_to_log2(prom_db$Pwms_perc[[i]]@profileMatrix)
+# Compute counts from sequences
+mot2 <- vl_motifCounts(sequences = dev$enhancer_sequence,
+                       genome= "dm3",
+                       pwm_log_odds= sel)
 
-prom_motifs <- vl_motifCounts(STARR,
-                               pwm_log_odds= prom,
-                               genome= "dm3")
+# Both approaches should be identical
+identical(mot1, mot2)
 
 }

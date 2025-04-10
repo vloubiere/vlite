@@ -7,13 +7,13 @@
 #' @param geneIDs A vector (for a single group) or a named list (for multiple clusters) of gene IDs to analyze.
 #' @param geneUniverse.IDs A vector of gene IDs defining the universe of genes for the analysis. If `NULL`,
 #' all genes are used as the universe.
-#' @param species Character. The species for the analysis. Choose between `"Dm"` (Drosophila melanogaster)
-#' and `"Mm"` (Mus musculus).
-#' @param select Character vector. Specifies which GO annotations to consider. Options are `"BP"`
-#' (Biological Process), `"CC"` (Cellular Component), and `"MF"` (Molecular Function). Default is `c("BP", "CC", "MF")`.
+#' @param species Character. The species for the analysis. Choose between `Dm` (Drosophila melanogaster)
+#' and `Mm` (Mus musculus).
+#' @param select Character vector specifying which GO annotations to consider. Options are `BP`
+#' (Biological Process), `CC` (Cellular Component), and `MF` (Molecular Function). Default= c("BP", "CC", "MF").
 #' @param log2OR.pseudocount Numeric. A pseudocount added to the contingency table to avoid infinite values
-#' in the log2 odds ratio calculation. Default is `1`.
-#' @param cleanup.cache Logical. If `TRUE`, clears cached intermediate results. Default is `FALSE`.
+#' in the log2 odds ratio calculation. Default= 1L.
+#' @param cleanup.cache Logical. If `TRUE`, clears cached intermediate results. Default= FALSE.
 #'
 #' @details
 #' The function performs GO enrichment analysis by comparing the overlap of input gene sets with GO terms
@@ -21,7 +21,7 @@
 #' log2 odds ratios for enrichment. Adjusted p-values (FDR) are computed for multiple testing correction.
 #'
 #' If multiple clusters of genes are provided, the function computes enrichment for each cluster separately.
-#' The results are returned as a data table with class `"vl_enr"` (for a single group) or `"vl_enr_cl"`
+#' The results are returned as a data table with class `vl_enr` (for a single group) or `vl_enr_cl`
 #' (for multiple clusters), which can be directly plotted using the appropriate plotting methods.
 #'
 #' @return A data table containing the enrichment results with the following columns:
@@ -233,25 +233,23 @@ vl_GOenrich <- function(geneIDs,
     unique(GOs[, !c("gene_id", "set")])
   })
   enr <- rbindlist(enr, idcol = "cl")
-  setcolorder(enr,
-              c("cl", "GO", "annotation", "name"))
 
   # Compute log2OR and padj ----
   enr[, log2OR:= log2(OR)]
   enr[, padj:= p.adjust(pval, method = "fdr"), cl]
   enr$OR <- enr$pval <- NULL
-  setorderv(enr,
-            c("cl", "padj"))
 
-  # Plot and export ----
-  if(length(unique(enr$cl))>1)
-  {
+  # Define class (for plotting methods) ----
+  if(length(unique(enr$cl))>1) {
     setattr(enr, "class", c("vl_enr_cl", "data.table", "data.frame"))
-  }else{
+  } else {
     setattr(enr, "class", c("vl_enr", "data.table", "data.frame"))
   }
 
-  # Return plotted values
-  setnames(enr, "GO", "variable") # Compatible with plotting merhods
-  invisible(enr)
+  # Order and return enrichment table ----
+  setcolorder(enr,
+              c("cl", "GO", "annotation", "name"))
+  setorderv(enr,
+            c("cl", "padj"))
+  return(enr)
 }

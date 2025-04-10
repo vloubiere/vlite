@@ -4,51 +4,19 @@
 \alias{vl_motifEnrich}
 \title{Motif enrichment analysis}
 \usage{
-vl_motifEnrich(
-  counts,
-  control.counts,
-  names = vl_Dmel_motifs_DB_full[colnames(counts), motif_cluster, on = "motif_ID"],
-  plot = F,
-  padj.cutoff = 0.05,
-  top.enrich = Inf,
-  min.counts = 3L,
-  order = "padj",
-  breaks = NULL,
-  col = c("blue", "red"),
-  xlab = "Odd Ratio (log2)",
-  add.motifs = F,
-  cex.width = 1,
-  cex.height = 1
-)
+vl_motifEnrich(counts, control.counts, names = NULL, log2OR.pseudocount = 1L)
 }
 \arguments{
-\item{counts}{data.table containing counts for the regions of interest.}
+\item{counts}{A data.table or a list of data.tables containing motif counts for the regions of interest.}
 
-\item{control.counts}{data.table containing counts for control regions. Should have the same number of columns as 'counts' table.}
+\item{control.counts}{A data.table containing counts for control regions.
+Should have the same number of columns as 'counts' data.table(s).}
 
-\item{names}{Convenient names to be used for aggregating and plotting. By default, returns motif_cluster matching motif_ID in vl_Dmel_motifs_DB_full.}
+\item{names}{A character vector or factor names matching control.counts' columns (i.e., motif IDs).
+By default, column names are used as is.}
 
-\item{plot}{Plot result?}
-
-\item{padj.cutoff}{cutoff for plotting. Default= FALSE.}
-
-\item{top.enrich}{Show only n top enriched motifs. Default= Inf (all).}
-
-\item{min.counts}{The minimum number of counts required to call a hit. Default= 3L.}
-
-\item{order}{Value to be used for ordering before selecting top enriched. Possible values are "padj", "log2OR". Defaut= "padj".}
-
-\item{breaks}{Color breaks to be used. Defaults to range of filtered padj.}
-
-\item{col}{Colors vector for bars.}
-
-\item{xlab}{x label.}
-
-\item{add.motifs}{Should motif pwms be plotted?}
-
-\item{cex.width}{Expansion factor for motif widths.}
-
-\item{cex.height}{Expansion factor for motif heights.}
+\item{log2OR.pseudocount}{Numeric. A pseudocount added to the contingency table to avoid infinite values
+in the log2 odds ratio calculation. Default= 1L.}
 }
 \value{
 DT of enrichment values which can be plot using ?plot.vl_GO_enr
@@ -57,50 +25,67 @@ DT of enrichment values which can be plot using ?plot.vl_GO_enr
 Compute motif enrichment between a set of regions and control regions
 }
 \examples{
-# Resize example peaks
-SUHW <- resizeBed(vl_SUHW_top_peaks, genome = "dm3")
-STARR <- resizeBed(vl_STARR_DSCP_top_peaks, genome = "dm3")
+# Download Dev/Hk enhancers from pe-STARR-Seq paper
+tmp <- tempfile(pattern = ".xlsx")
+download.file(url = "https://static-content.springer.com/esm/art\%3A10.1038\%2Fs41467-024-52921-2/MediaObjects/41467_2024_52921_MOESM4_ESM.xlsx",
+              destfile = tmp)
 
-# Generate same number of random regions
-random <- controlRegionsBSgenome(bed= STARR, genome= "dm3")
+# Retrieve enhancers
+enh <- readxl::read_xlsx(tmp, sheet = 2, skip = 1)
+enh <- as.data.table(enh)
+enh <- enh[group=="dev" & detail \%in\% c("medium", "strong") | group=="hk"]
 
-# Count JAPSPAR motifs (see below to use custom list of PWMs)
-suhw <- vl_motifCounts(SUHW, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-starr <- vl_motifCounts(top_STARR, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-ctl <- vl_motifCounts(random, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
+# Negative controls
+set.seed(1)
+ctl <- controlRegionsBSgenome(bed = enh,
+                              genome = "dm3",
+                              no.overlap = TRUE)
 
-# Starting from sequence instead of bed file
-seq <- getBSsequence(SUHW, genome= "dm3")
-seq_suhw <- vl_motifCounts(seq, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-identical(suhw, seq_suhw)
+# Select JASPAR motifs
+load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
+sel <- vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds]
+pwms <- vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_perc]
+mot.cluster <- vl_Dmel_motifs_DB_full[collection=="jaspar", motif_cluster]
 
-# Motifs can also be counted using a custom PWMatrixList, for example for promoter motifs:
-prom_db <- readRDS("/groups/stark/almeida/data/motifs/CP_motifs/CP_motifs_PWM.rds")
-prom <- prom_db$Pwms_log_odds
-for(i in seq(prom))
-  prom[[i]]@profileMatrix <- pwmPercToLog(prom_db$Pwms_perc[[i]]@profileMatrix)
+# Compute enrichment at developmental enhancers
+counts <- vl_motifCounts(bed= enh[group=="dev"],
+                         genome= "dm3",
+                         pwm_log_odds= sel)
+ctl.counts <- vl_motifCounts(bed= ctl,
+                             genome= "dm3",
+                             pwm_log_odds= sel)
 
-prom_motifs <- vl_motifCounts(STARR,
-                               pwm_log_odds= prom,
-                               genome= "dm3")
+# Enrichment
+enr <- vl_motifEnrich(counts,
+                      control.counts = ctl.counts,
+                      names = mot.cluster)
 
-# Compute enrichment at SUHW peaks, using random controls as background
-pl <- vl_motifEnrich(suhw,
-                      ctl,
-                      plot= F)
-pl[order(padj)][1:3] # Top motif is su(Hw)
+# Collapse per motif cluster
+coll <- enr[motif \%in\% enr[, motif[which.min(padj)], name]$V1]
+
 # Plot
-plot(pl,
-     top.enrich= 3)
+vl_par(mai= c(.9, 3, .9, 1.2))
+pl <- plot(coll)
+addMotifs(plot.DT = pl,
+          pwms = pwms)
 
+# Compare dev and Hk enhancers
+counts1 <- vl_motifCounts(bed= enh,
+                          genome= "dm3",
+                          pwm_log_odds= sel)
 
-# Compute enrichment at STARR peaks and plot at the same time
-enr <- vl_motifEnrich(starr,
-                       ctl,
-                       plot= T,
-                       order= "log2OR",
-                       padj.cutoff= 1e-5)
-# Positive enrichments identify typical S2 enhancer motifs
-plot(enr[log2OR>.5])
+# Enrichment per cluster
+enr1 <- vl_motifEnrich(split(counts1, enh$group),
+                       control.counts = ctl.counts,
+                       names = mot.cluster)
+
+# Collapse per motif cluster and plot
+coll1 <- enr1[motif \%in\% enr1[, motif[which.min(padj)], name]$V1]
+
+# Plot
+vl_par(mai= c(.9, 3, .9, 1.2))
+pl <- plot(coll1)
+addMotifs(plot.DT = pl,
+          pwms= pwms)
 
 }

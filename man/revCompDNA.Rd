@@ -4,16 +4,20 @@
 \alias{revCompDNA}
 \title{reverseComplement}
 \usage{
-revCompDNA(DNA_char, complement = T, reverse = T)
+revCompDNA(DNA_char, complement = TRUE, reverse = TRUE)
 }
 \arguments{
-\item{DNA_char}{DNA character string}
+\item{DNA_char}{Input DNA character string.}
+
+\item{complement}{Should the DNA sequence be complemented? Default= TRUE}
+
+\item{reverse}{Should the DNA sequence be reversed? Default= TRUE}
 }
 \value{
 Reverse Complemented DNA sequence
 }
 \description{
-Reverse complement DNA sequence character string
+Reverse complement DNA sequence character string.
 }
 \examples{
 revCompDNA("ATCG")

@@ -1,45 +1,56 @@
-#' Counts motifs
+#' Count Motif Occurrences in Genomic Regions
 #'
-#' Counts motif occurences in a set of regions
+#' @description
+#' Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList.
 #'
-#' @param sequences Named character vector of sequences to analyse. If provided takes over bed argument (in the case where both are specified)
-#' @param bed Either a vector of bed file paths, a GRange object or a data.table containing 'seqnames', 'start' and 'end' columns.
-#' @param pwms_log_odds A PWMatrixList (in log2 odd ratio format) for which motif matches should be counted. Overrides sel and motifDB arguments (see above).
-#' @param genome Genome to be used for coordinates ("dm6, "dm3") and as background for counting motifs when bg= "genome".
-#' @param bg Background used to find motifs. Possible values include "genome" and "even". Default= "genome"
-#' @param p.cutoff p.value cutoff used for motif detection. For enrichment analyses based on presence/absence of a motif, high cutoff might perform better (1e-4 or 5e-5) while for regression analyses, lower cutoffs might be preferred (5e-4). Default= 5e-5 (stringent).
+#' @param sequences Named character vector of sequences to analyze. Takes precedence over the `bed` argument.
+#' @param bed Genomic ranges in a format compatible with `importBed()`. Used to retrieve sequences if `sequences` is not provided.
+#' @param pwm_log_odds A `PWMatrixList` (in log2 odds ratio format) containing motifs to count.
+#' @param genome Genome to use as background when `bg = "genome"` and/or to retrieve sequences (when `bed` is specified).
+#' @param bg Background model for motif detection. Options: `"genome"` or `"even"`. Default: `"genome"`.
+#' @param p.cutoff p-value cutoff for motif detection. Default: `5e-5`.
+#' @param cleanup.cache Logical. If `TRUE`, clears cached intermediate results. Default is `FALSE`.
+#'
+#' @return A matrix of motif counts.
 #'
 #' @examples
-#' # Resize example peaks
-#' SUHW <- vl_resizeBed(vl_SUHW_top_peaks, genome = "dm3")
-#' STARR <- vl_resizeBed(vl_STARR_DSCP_top_peaks, genome = "dm3")
+#' # Download Dev enhancer from pe-STARR-Seq paper
+#' tmp <- tempfile(pattern = ".xlsx")
+#' download.file(url = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-52921-2/MediaObjects/41467_2024_52921_MOESM4_ESM.xlsx",
+#'               destfile = tmp)
 #'
-#' # Generate same number of random regions
-#' random <- vl_control_regions_BSgenome(bed= STARR, genome= "dm3")
+#' # Retrieve enhancers
+#' dev <- readxl::read_xlsx(tmp, sheet = 2, skip = 1)
+#' dev <- as.data.table(dev)
+#' dev <- dev[group=="dev" & detail %in% c("medium", "strong")]
 #'
-#' # Count JAPSPAR motifs (see below to use custom list of PWMs)
-#' suhw <- vl_motifCounts(SUHW, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-#' starr <- vl_motifCounts(top_STARR, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-#' ctl <- vl_motifCounts(random, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
+#' # Load motifs and select JASPAR
+#' load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
+#' sel <- vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds]
 #'
-#' # Starting from sequence instead of bed file
-#' seq <- vl_getSequence(SUHW, genome= "dm3")
-#' seq_suhw <- vl_motifCounts(seq, genome= "dm3", pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds])
-#' identical(suhw, seq_suhw)
+#' # Compute counts from regions
+#' mot1 <- vl_motifCounts(bed= dev,
+#'                        genome= "dm3",
+#'                        pwm_log_odds= sel)
 #'
-#' # Motifs can also be counted using a custom PWMatrixList, for example for promoter motifs:
-#' prom_db <- readRDS("/groups/stark/almeida/data/motifs/CP_motifs/CP_motifs_PWM.rds")
-#' prom <- prom_db$Pwms_log_odds
-#' for(i in seq(prom))
-#'   prom[[i]]@profileMatrix <- vl_pwm_perc_to_log2(prom_db$Pwms_perc[[i]]@profileMatrix)
+#' # Compute counts from sequences
+#' mot2 <- vl_motifCounts(sequences = dev$enhancer_sequence,
+#'                        genome= "dm3",
+#'                        pwm_log_odds= sel)
 #'
-#' prom_motifs <- vl_motifCounts(STARR,
-#'                                pwm_log_odds= prom,
-#'                                genome= "dm3")
+#' # Both approaches should be identical
+#' identical(mot1, mot2)
 #'
-#' @return Matrix of motif counts
 #' @export
-vl_motifCounts <- function(sequences, ...) UseMethod("vl_motifCounts")
+vl_motifCounts <- function(sequences = NULL, bed = NULL, ...) {
+  if (!is.null(bed)) {
+    if (!is.data.table(bed)) {
+      bed <- importBed(bed)
+    }
+    return(vl_motifCounts.data.table(bed = bed, ...))
+  }
+  vl_motifCounts.default(sequences = sequences, ...)
+}
 
 #' @describeIn vl_motifCounts Method to extract sequences from BSgenome
 #' @export
@@ -59,19 +70,35 @@ vl_motifCounts.default <- function(sequences= NULL,
                                    pwm_log_odds,
                                    genome,
                                    bg= "genome",
-                                   p.cutoff= 5e-5)
+                                   p.cutoff= 5e-5,
+                                   cleanup.cache= FALSE)
 {
   # Checks ----
   if(!"PWMatrixList" %in% class(pwm_log_odds))
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
 
+  # Use a temp directory for caching motif counts ----
+  params <- list(pwm_log_odds,
+                 sequences,
+                 genome= genome,
+                 p.cutoff= p.cutoff,
+                 bg= bg)
+  file.key <- digest::digest(params)
+  file.cache <- file.path(tempdir(), paste0(file.key, ".rds"))
+
   # Compute counts ----
-  res <- motifmatchr::matchMotifs(pwm_log_odds,
-                                  sequences,
-                                  genome= genome,
-                                  p.cutoff= p.cutoff,
-                                  bg= bg,
-                                  out= "scores")@assays@data[["motifCounts"]]
+  if(cleanup.cache | !file.exists(file.cache)) {
+    res <- motifmatchr::matchMotifs(pwm_log_odds,
+                                    sequences,
+                                    genome= genome,
+                                    p.cutoff= p.cutoff,
+                                    bg= bg,
+                                    out= "scores")@assays@data[["motifCounts"]]
+    saveRDS(res, file.cache)
+  } else
+    res <- readRDS(file.cache)
+
+  # Format ----
   res <- as.matrix(res)
   res <- as.data.table(res)
   setnames(res,

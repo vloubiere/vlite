@@ -66,6 +66,7 @@ the adjusted p-values (-log10 transformed). Clusters with no enrichments can be 
 \examples{
 # Example usage:
 For an example using GO enrichment, see ?vl_GOenrich()
+For an example using motif enrichment, see ?vl_motifEnrich()
 
 # Assuming `clustered_enrichment_results` is an object of class `vl_enr_cl`:
 plot.vl_enr_cl(clustered_enrichment_results, padj.cutoff = 0.01, top.enrich = 5, min.counts = 5)

@@ -55,6 +55,7 @@ the adjusted p-values (-log10 transformed). A heat key is also displayed to indi
 \examples{
 # Example usage:
 For an example using GO enrichment, see ?vl_GOenrich()
+For an example using motif enrichment, see ?vl_motifEnrich()
 
 # Assuming `enrichment_results` is an object of class `vl_enr`:
 plot.vl_enr(enrichment_results, padj.cutoff = 0.01, top.enrich = 10, min.counts = 5)

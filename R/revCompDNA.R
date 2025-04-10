@@ -1,8 +1,10 @@
 #' reverseComplement
 #'
-#' Reverse complement DNA sequence character string
+#' Reverse complement DNA sequence character string.
 #'
-#' @param DNA_char DNA character string
+#' @param DNA_char Input DNA character string.
+#' @param complement Should the DNA sequence be complemented? Default= TRUE
+#' @param reverse Should the DNA sequence be reversed? Default= TRUE
 #'
 #' @examples
 #' revCompDNA("ATCG")
@@ -10,8 +12,8 @@
 #' @return Reverse Complemented DNA sequence
 #' @export
 revCompDNA <- function(DNA_char,
-                       complement= T,
-                       reverse= T)
+                       complement= TRUE,
+                       reverse= TRUE)
 {
   # Checks
   if(length(DNA_char)>1)

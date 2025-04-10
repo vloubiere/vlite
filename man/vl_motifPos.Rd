@@ -3,23 +3,14 @@
 \name{vl_motifPos}
 \alias{vl_motifPos}
 \alias{vl_motifPos.data.table}
-\title{Find motif positions}
+\alias{vl_motifPos.default}
+\title{Find Motif Positions in Sequences or Genomic Regions}
 \usage{
-vl_motifPos(
-  sequences,
-  pwm_log_odds = vl_Dmel_motifs_DB_full[collection == "jaspar", pwms_log_odds],
-  genome,
-  bg = "genome",
-  p.cutoff = 0.00005,
-  collapse.overlapping = TRUE,
-  scratch = "/scratch/stark/vloubiere/",
-  sub.folder = tempdir(),
-  overwrite = FALSE
-)
+vl_motifPos(sequences = NULL, bed = NULL, ...)
 
 vl_motifPos.data.table(bed, genome, ...)
 
-vl_motifPos(
+vl_motifPos.default(
   sequences,
   pwm_log_odds = vl_Dmel_motifs_DB_full[collection == "jaspar", pwms_log_odds],
   genome,
@@ -32,66 +23,66 @@ vl_motifPos(
 )
 }
 \arguments{
-\item{sequences}{Named character vector of sequences to analyse. If provided takes over bed argument (in the case where both are specified).}
+\item{sequences}{A named character vector of sequences to analyze. This argument takes precedence over the `bed` argument.}
 
-\item{genome}{Genome to be used for coordinates ("dm6, "dm3") and as background for counting motifs when bg= "genome".}
+\item{bed}{Genomic ranges in a format compatible with `importBed()`. Used to retrieve sequences if `sequences` is not provided.}
 
-\item{bg}{Background used to find motifs. Possible values include "genome" and "even". Default= "genome"}
+\item{genome}{The genome to use as background when `bg = "genome"` and/or to retrieve sequences (when `bed` is specified). This argument is required.}
 
-\item{p.cutoff}{p.value cutoff used for motif detection. For enrichment analyses based on presence/absence of a motif, high cutoff might perform better (1e-4 or 5e-5) while for regression analyses, lower cutoffs might be prefered (5e-4). Default= 5e-5 (stringent).}
+\item{pwm_log_odds}{A `PWMatrixList` (in log2 odds ratio format) containing motifs to map. Defaults to motifs from the JASPAR collection in `vl_Dmel_motifs_DB_full`.}
 
-\item{collapse.overlapping}{Should overlapping motifs be merged? If TRUE (default), motif instances that overlap more than 70 percent of their width are collapsed.}
+\item{bg}{The background model for motif detection. Options are `"genome"` or `"even"`. Default is `"genome"`.}
 
-\item{scratch}{Temp folder where temporary files will be saved. Useful to resume long jobs, see next argument}
+\item{p.cutoff}{The p-value cutoff for motif detection. Default is `5e-5`.}
 
-\item{sub.folder}{Temp sub-folder where temporary files will be saved. Explicitly setting a sub.folder will allow the function to resume where it stoped at previous iteration. By default, sub.folder= tempdir().}
+\item{collapse.overlapping}{Logical. If `TRUE`, overlapping motifs (greater than 70 percent overlap) are collapsed into a single region. Default is `TRUE`.}
 
-\item{overwrite}{If set to FALSE (default), motifs for which positions have already been computed and saved will be skipped.}
+\item{scratch}{The path to the scratch directory for temporary files. Default is `"/scratch/stark/vloubiere/"`.}
 
-\item{bed}{Either a vector of bed file paths, a GRange object or a data.table containing 'seqnames', 'start' and 'end' columns.}
+\item{sub.folder}{A subfolder within the scratch directory for temporary files. Default is `tempdir()`.}
 
-\item{pwms_log_odds}{A PWMatrixList (in log2 odd ratio format) for which motif matches should be mapped. Overrides sel and motifDB arguments (see above).}
+\item{overwrite}{Logical. If `TRUE`, existing temporary files are overwritten. Default is `FALSE`.}
 }
 \value{
-A list of positions of length = length(sequences)
+A `data.table` containing motif positions for each sequence, with the following columns:
+- `motif`: The name of the motif.
+- `seqlvls`: The sequence names.
+- `mot.count`: The number of motifs detected.
+- `ir`: A nested `data.table` with columns for motif positions (`start`, `end`, `strand`, `width`, `score`).
 }
 \description{
-Compute motif positions
+Identifies the positions of motifs in a set of sequences or genomic regions using a `PWMatrixList`.
 }
 \section{Functions}{
 \itemize{
 \item \code{vl_motifPos.data.table()}: Compute motifs position within
 
-\item \code{vl_motifPos()}: Identify motif positions within sequences
+\item \code{vl_motifPos.default()}: Identify motif positions within sequences
 
 }}
 \examples{
+# Dm3 coordinates of the two strongest SU(HW) peaks
+suhw <- importBed(c("chr2R:942901-943600", "chrX:1417201-1418000"))
+
+# Load SU(HW) motifs
+load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
+sel <- vl_Dmel_motifs_DB_full[c("cisbp__M2328", "flyfactorsurvey__suHw_FlyReg_FBgn0003567", "jaspar__MA0533.1"), pwms_log_odds, on= "motif_ID"]
+
 # Find position of 3 different motifs within two regions
-pos <- vl_motifPos(vl_SUHW_top_peaks[1:2],
-                    genome= "dm3",
-                    pwm_log_odds= vl_Dmel_motifs_DB_full[c("cisbp__M2328", "flyfactorsurvey__suHw_FlyReg_FBgn0003567", "jaspar__MA0533.1"), pwms_log_odds, on= "motif_ID"])
+pos1 <- vl_motifPos.data.table(bed= suhw,
+                               genome= "dm3",
+                               pwm_log_odds= sel,
+                               overwrite= FALSE)
 
 # Starting from sequence
-pos <- vl_motifPos(sequence= "TGAGTTGTGTCTGAAATTGGGATTGCTGTTGCGACAATGCCTGTCTGACAGCATTGTCGATAAGAGCTTGAATCTGATTGGGGTCCATGGTAATATCTACCGTGGCACTATCTAACGGCCGACCTAATGCTTGGCCTACTTGCTCCTCCTCCCAGCTATCCTCGCTTTCGTATTCGACCTTAACCTTTCTGTAGTT#' ATGTGCCCAACTCATTGGTTGTTGGTTGGCACACCACAAATATACTGTTGCCGAGCACAATTGATCGGCTAAATGGTATGGCAAGAAAAGGTATGCAATATAATAATCTTTTATTGGGTATGCAACGAAAATTTGTTTCGTCAACGTATGCAATATTTTTTATTAAAAGAGGGTATGCAATGTATTTTATTAAAAACGGGTATGCAATATAATAATCTTTTATTGGG#' TATGCAACGAAAATTTGTTTCGTCAAAGTATGCAATATTTTTTATTAAAAGAGGGTATGCAATGTATTTTATTAAAAACGGGTATGCAATAAAAAATTATTTGGTTTCTCTAAAAAGTATGCAGCACTTATTTTTTGATAAGGTATGCAACAAAATTTTACTTTGCCGAAAATATGCAATGTTTTTGCGAATAAATTCAACGCACACTTATTACGTGGCCAGATACA#' CAACTTTTTTTTTTTTTTTTCACTCGTAAATTTCTTGATTGCGTCAAAGA",
+seq <- getBSsequence(suhw, "dm3")
+pos2 <- vl_motifPos(sequence= seq,
                     genome= "dm3",
-                    pwm_log_odds= vl_Dmel_motifs_DB_full[c("cisbp__M2328", "flyfactorsurvey__suHw_FlyReg_FBgn0003567", "jaspar__MA0533.1"), pwms_log_odds, on= "motif_ID"])
+                    pwm_log_odds= sel,
+                    overwrite= FALSE)
 
-# Motifs can also be mapped using a custom PWMatrixList, for example for promoter motifs
-prom_db <- readRDS("/groups/stark/almeida/data/motifs/CP_motifs/CP_motifs_PWM.rds")
-prom <- prom_db$Pwms_log_odds
-for(i in seq(prom))
-  prom[[i]]@profileMatrix <- pwmPercToLog(prom_db$Pwms_perc[[i]]@profileMatrix)
+# Should give similar results
+identical(pos1, pos2)
 
-# Select Ribo Protein gene promoters
-proms <- rtracklayer::import("/groups/stark/annotations/dm3/dmel-all-filtered-r5.57_genes_and_transcripts_only.gff")
-proms <- as.data.table(proms)
-proms <- resizeBed(proms[grepl("ribosomal protein", fullname)], "start", 150, 50)
-proms[, seqnames:= paste0("chr", seqnames)]
-
-prom_motifs <- vl_motifPos(proms,
-                            pwm_log_odds= prom,
-                            genome= "dm3")
-# Many instances of TCT motif are found, as expected
-prom_motifs$TC_17_Zabidi
 
 }

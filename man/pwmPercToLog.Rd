@@ -11,9 +11,9 @@ pwmPercToLog(
 )
 }
 \arguments{
-\item{perc_pwm}{A percentage PWM, where all columns sum to 1}
+\item{perc_pwm}{A percentage PWM, where all columns sum to 1.}
 
-\item{pseudocount}{Pseudocount. Default= 1e-5}
+\item{pseudocount}{Pseudocount to be added before logging. Default= 1e-5.}
 
 \item{bg}{Background probabilities. Default= c("A"= .25, "C"= .25, "G"= .25, "T"= .25).}
 }
@@ -24,6 +24,7 @@ Returns a log2 odd ratio pwm
 PWM perc to log2
 }
 \examples{
-vl_Dmel_motifs_DB_full$pwms_perc[[5]]@profileMatrix
-pwmPercToLog(vl_Dmel_motifs_DB_full$pwms_perc[[5]]@profileMatrix)
+load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
+pwm <- vl_Dmel_motifs_DB_full$pwms_perc[[5]]@profileMatrix
+pwmPercToLog(pwm)
 }

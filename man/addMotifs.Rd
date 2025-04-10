@@ -4,14 +4,16 @@
 \alias{addMotifs}
 \title{Add motifs to enrichment plots}
 \usage{
-addMotifs(DT, cex.width = 1, cex.height = 1, lwd = 0.1)
+addMotifs(plot.DT, pwms, cex.width = 1, cex.height = 1, lwd = 0.1)
 }
 \arguments{
-\item{DT}{DT object output from vl_motif_enrich or vl_motif_cl_enrich}
+\item{plot.DT}{Output of the plot.vl_enr or plot.vl_enr_cl methods containing plotting coordinates.}
 
-\item{cex.width}{expansion factor for motif widths}
+\item{pwms}{A list of 'PWMatrix' whose names correspond to the 'motif' entries in plot.DT.}
 
-\item{cex.height}{expansion factor for motif heights}
+\item{cex.width}{expansion factor for motif width.}
+
+\item{cex.height}{expansion factor for motif height.}
 }
 \description{
 Add motifs to enrichment plots
@@ -23,6 +25,6 @@ vl_add_motif(pl)
 
 For vl_enr_cl object
 pl <- plot(vl_enr)
-vl_add_motif(pl$DT)
+vl_add_motif(pl$plot.DT)
 
 }

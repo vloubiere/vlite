@@ -30,6 +30,7 @@
 #' @examples
 #' # Example usage:
 #' For an example using GO enrichment, see ?vl_GOenrich()
+#' For an example using motif enrichment, see ?vl_motifEnrich()
 #'
 #' # Assuming `enrichment_results` is an object of class `vl_enr`:
 #' plot.vl_enr(enrichment_results, padj.cutoff = 0.01, top.enrich = 10, min.counts = 5)
@@ -47,6 +48,8 @@ plot.vl_enr <- function(obj,
   # Checks
   if(!(order %in% c("padj", "log2OR")))
     stop("Possible values for order are 'padj', 'log2OR'")
+  if(any(obj[, .N, .(name, cl)]$N > 1))
+    stop("Several lines were found with similar name.")
 
   # Import and select based on padj and min.counts cutoff
   DT <- data.table::copy(obj)
