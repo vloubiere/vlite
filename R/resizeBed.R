@@ -18,6 +18,7 @@
 #' }
 #' @param upstream Integer. Number of bases to extend upstream from the specified origin. Default is `500L`.
 #' @param downstream Integer. Number of bases to extend downstream from the specified origin. Default is `500L`.
+#' @param genome A BS genome name ("dm3", "dm6", "mm10") to clip regions exceeding chromosome lengths. Default= NULL.
 #' @param ignore.strand Logical. If `TRUE`, the strand is ignored, and resizing always proceeds
 #'   from the leftmost coordinate. Default is `FALSE`.
 #'
@@ -63,6 +64,7 @@ resizeBed <- function(bed,
                       center= "center",
                       upstream= 500L,
                       downstream= 500L,
+                      genome= NULL,
                       ignore.strand= FALSE)
 {
   # Import bed ----
@@ -78,7 +80,7 @@ resizeBed <- function(bed,
   } else if(center=="end") {
     current[, newStart:= ifelse(strand=="-", start, end)]
   } else if(center=="center") {
-    current[, newStart:= rowMeans(.SD), .SDcols= c("start", "end")]
+    current[, newStart:= floor(rowMeans(.SD)), .SDcols= c("start", "end")]
   } else if(center=="region") {
     current[, newStart:= start]
   }
@@ -95,6 +97,12 @@ resizeBed <- function(bed,
   res <- importBed(bed)
   res[, start:= current$newStart]
   res[, end:= current$newEnd]
+
+  # Clip regions outside of chromosomes ----
+  if(!is.null(genome)) {
+    sizes <- getBSgenomeSize("dm6")
+    res <- clipBed(res, sizes)
+  }
 
   # Return ----
   return(res)

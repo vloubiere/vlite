@@ -83,7 +83,7 @@
 #'
 #' # Other example using gene clusters from the epigenetic cancer nature paper -------
 #' # Download EpiCancer clusters
-#' tmp <- tempfile(pattern = ".xlsx")
+#' tmp <- tempfile(fileext = ".xlsx")
 #' download.file(url = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41586-024-07328-w/MediaObjects/41586_2024_7328_MOESM5_ESM.xlsx",
 #'               destfile = tmp)
 #'

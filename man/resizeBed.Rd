@@ -9,6 +9,7 @@ resizeBed(
   center = "center",
   upstream = 500L,
   downstream = 500L,
+  genome = NULL,
   ignore.strand = FALSE
 )
 }
@@ -30,6 +31,8 @@ resizeBed(
 \item{upstream}{Integer. Number of bases to extend upstream from the specified origin. Default is `500L`.}
 
 \item{downstream}{Integer. Number of bases to extend downstream from the specified origin. Default is `500L`.}
+
+\item{genome}{A BS genome name ("dm3", "dm6", "mm10") to clip regions exceeding chromosome lengths. Default= NULL.}
 
 \item{ignore.strand}{Logical. If `TRUE`, the strand is ignored, and resizing always proceeds
 from the leftmost coordinate. Default is `FALSE`.}

@@ -26,7 +26,7 @@ Compute motif enrichment between a set of regions and control regions
 }
 \examples{
 # Download Dev/Hk enhancers from pe-STARR-Seq paper
-tmp <- tempfile(pattern = ".xlsx")
+tmp <- tempfile(fileext = ".xlsx")
 download.file(url = "https://static-content.springer.com/esm/art\%3A10.1038\%2Fs41467-024-52921-2/MediaObjects/41467_2024_52921_MOESM4_ESM.xlsx",
               destfile = tmp)
 

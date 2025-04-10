@@ -1,18 +1,18 @@
-# Download Dev/Hk enhancers from pe-STARR-Seq paper
-tmp <- tempfile(pattern = ".xlsx")
-download.file(url = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-52921-2/MediaObjects/41467_2024_52921_MOESM4_ESM.xlsx",
-             destfile = tmp)
+# Download ATAC-Seq FC between PHD11 and control from the Nature paper
+tmp <- tempfile(fileext = ".txt.gz")
+download.file(url = "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE222nnn/GSE222193/suppl/GSE222193%5FATAC%5FTransient%5Fph%2DKD%5FD11%5Fvs%5FControl%5Fno%5Fph%2DKD%5FDESeq2%5FFC.txt.gz",
+              destfile = tmp)
 
-# Retrieve enhancers
-enh <- readxl::read_xlsx(tmp, sheet = 2, skip = 1)
-enh <- as.data.table(enh)
-enh <- enh[group=="dev" & detail %in% c("medium", "strong") | group=="hk"]
+# Retrieve FC
+FC <- fread(tmp)
+FC <- cbind(importBed(FC$ID), FC[, !"ID"])
 
-# Negative controls
-set.seed(1)
-ctl <- controlRegionsBSgenome(bed = enh,
-                              genome = "dm3",
-                              no.overlap = TRUE)
+# Resize
+res <- resizeBed(bed = FC,
+                 center = "center",
+                 upstream = 250,
+                 downstream = 250,
+                 genome = "dm6")
 
 # Select JASPAR motifs
 load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
@@ -20,44 +20,31 @@ sel <- vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds]
 pwms <- vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_perc]
 mot.cluster <- vl_Dmel_motifs_DB_full[collection=="jaspar", motif_cluster]
 
-# Compute enrichment at developmental enhancers
-counts <- vl_motifCounts(bed= enh[group=="dev"],
-                         genome= "dm3",
+# Compute motif counts
+counts <- vl_motifCounts(bed= res,
+                         genome= "dm6",
                          pwm_log_odds= sel)
-ctl.counts <- vl_motifCounts(bed= ctl,
-                             genome= "dm3",
-                             pwm_log_odds= sel)
 
-# Enrichment
-enr <- vl_motifEnrich(counts,
-                      control.counts = ctl.counts,
-                      names = mot.cluster)
+# Lasso regression
+lasso <- motifLassoRegression(response= FC$log2FoldChange,
+                              counts = counts,
+                              names= mot.cluster)
 
-# Collapse per motif cluster
-coll <- enr[motif %in% enr[, motif[which.min(padj)], name]$V1]
+# Check PCC of the test set
+vl_par()
+plot(lasso$test_set)
+addPcc(lasso$PCC)
 
-# Plot
-vl_par(mai= c(.9, 3, .9, 1.2))
-pl <- plot(coll)
-addMotifs(plot.DT = pl,
-          pwms = pwms)
+# Retrieve top predictors
+preds <- lasso$best_predictors
 
-# Compare dev and Hk enhancers
-counts1 <- vl_motifCounts(bed= enh,
-                          genome= "dm3",
-                          pwm_log_odds= sel)
-
-# Enrichment per cluster
-enr1 <- vl_motifEnrich(split(counts1, enh$group),
-                       control.counts = ctl.counts,
-                       names = mot.cluster)
-
-# Collapse per motif cluster and plot
-coll1 <- enr1[motif %in% enr1[, motif[which.min(padj)], name]$V1]
+# Select top predictors
+preds <- preds[, .SD[which.max(abs(s0))], name]
+top <- preds[abs(s0)>0.03]
+setorderv(top, "s0")
 
 # Plot
-vl_par(mai= c(.9, 3, .9, 1.2))
-pl <- plot(coll1)
-addMotifs(plot.DT = pl,
-          pwms= pwms)
-
+barplot(top$s0,
+        horiz= TRUE,
+        names.arg = top$name,
+        xlab= "Lasso coefficient")
