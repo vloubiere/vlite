@@ -114,8 +114,8 @@ motifLassoRegression <- function(response,
 
   # Setting alpha = 1 implements lasso regression
   lambdas <- 10^seq(2, -3, by = -0.1)
-  lasso_reg <- cv.glmnet(trainX,
-                         trainY,
+  lasso_reg <- cv.glmnet(x = trainX,
+                         y = trainY,
                          alpha = 1,
                          lambda = lambdas,
                          standardize = TRUE, # Let glmnet handle scaling
@@ -125,8 +125,8 @@ motifLassoRegression <- function(response,
   lambda_best <- lasso_reg$lambda.min
 
   # Modelling
-  model <- glmnet(trainX,
-                  trainY,
+  model <- glmnet(x = trainX,
+                  y = trainY,
                   alpha = 1,
                   lambda = lambda_best,
                   standardize = TRUE, # Let glmnet handle scaling
