@@ -5,21 +5,21 @@
 \title{Generate Commands for Identifying Confident Peaks}
 \usage{
 cmd_confidentPeaks(
-  replicates_peaks_files,
-  merge_peaks_file,
-  output_prefix,
-  conf_peaks_output_folder = "db/peaks/",
+  replicates.peaks.files,
+  merge.peaks.file,
+  output.prefix,
+  conf.peaks.output.folder = "db/peaks/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
 )
 }
 \arguments{
-\item{replicates_peaks_files}{Vector of paths to replicate peak files in `.narrowPeak` or `.broadPeak` format.}
+\item{replicates.peaks.files}{Vector of paths to replicate peak files in `.narrowPeak` or `.broadPeak` format.}
 
-\item{merge_peaks_file}{Path to the merged peak file in `.narrowPeak` or `.broadPeak` format.}
+\item{merge.peaks.file}{Path to the merged peak file in `.narrowPeak` or `.broadPeak` format.}
 
-\item{output_prefix}{Prefix for the output file.}
+\item{output.prefix}{Prefix for the output file.}
 
-\item{conf_peaks_output_folder}{Directory for the confident peaks file. Default: `"db/peaks/"`.}
+\item{conf.peaks.output.folder}{Directory for the confident peaks file. Default: `"db/peaks/"`.}
 
 \item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
 }
@@ -36,9 +36,9 @@ Outputs a file containing confident peaks.
 \examples{
 # Identify confident peaks across replicates
 cmd <- cmd_confidentPeaks(
-  replicates_peaks_files = c("/data/peaks/rep1.narrowPeak", "/data/peaks/rep2.narrowPeak"),
-  merge_peaks_file = "/data/peaks/merged.narrowPeak",
-  output_prefix = "sample1"
+  replicates.peaks.files = c("/data/peaks/rep1.narrowPeak", "/data/peaks/rep2.narrowPeak"),
+  merge.peaks.file = "/data/peaks/merged.narrowPeak",
+  output.prefix = "sample1"
 )
 vl_submit(cmd, execute= FALSE)
 

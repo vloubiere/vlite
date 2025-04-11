@@ -8,7 +8,6 @@ if (length(args)!=2) {
        [required] 2/ Output prefix (.ps.bw; .ns.bw)\n")
 }
 
-suppressMessages(library(vlfunctions, warn.conflicts = FALSE))
 suppressMessages(library(rtracklayer, warn.conflicts = FALSE))
 suppressMessages(library(GenomicRanges, warn.conflicts = FALSE))
 
@@ -18,7 +17,7 @@ suppressMessages(library(GenomicRanges, warn.conflicts = FALSE))
 # Variables ----
 countsFile <- args[1]
 outputPrefix <- args[2]
-  
+
 # Import umi counts ----
 counts <- fread(countsFile)
 counts <- counts[coor!="NA:NA:NA"]
@@ -27,8 +26,12 @@ counts[, c("seqnames", "start", "strand"):= tstrsplit(coor, ":", type.convert = 
 # Expand counts ----
 counts <- counts[rep(seq(.N), umi_counts), .(seqnames, start, strand)]
 counts[, end:= start]
-counts <- vl_resizeBed(counts, "start", 0, 9) # Resize to improve visualization
-setorderv(counts, c("seqnames", "start", "end"))
+
+# Resize reads to improve visualization ----
+counts[strand!="-", end:= start+9] # Pos
+counts[strand=="-", start:= end-9]
+setorderv(counts,
+          c("seqnames", "start", "end"))
 
 # Compute coverage and export ----
 counts[, {

@@ -5,13 +5,15 @@
 #' Supports single-sample and merged peak calling, with optional input controls,
 #' and outputs peak files and bedGraph files.
 #'
-#' @param bam Path to the treatment BAM file(s). For multiple files, provide space-separated paths.
-#' @param bam.input Path to the input/control BAM file(s). Must match the order of `bam`. Default: `NULL`.
+#' @param bam A character vector specifying path(s) to treatment BAM file(s).
+#' @param bam.input A character vector specifying path(s) to input BAM file(s). Default: `NULL`.
 #' @param layout Sequencing layout, either `"SINGLE"` or `"PAIRED"`.
 #' @param output.prefix Prefix for the output files.
 #' @param keep.dup Number of duplicates to keep or `"all"`. Default: `1`.
-#' @param extsize Read extension size for MACS2. Default: `200`.
-#' @param shift Number of bases to shift reads. Default: `0`.
+#' @param extsize Integer value by which reads should be extended.
+#'    Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default: `200`.
+#' @param shift Integer value by which reads will be shifted.
+#'    Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default: `0`.
 #' @param genome.macs2 Genome size parameter for MACS2 (e.g., `"mm"`, `"hs"`).
 #' @param peaks.output.folder Directory for peak files. Default: `"db/peaks/"`.
 #' @param broad Logical. Whether to call broad peaks. Default: `FALSE`.
@@ -54,10 +56,6 @@ cmd_peakCalling <- function(bam,
                             broad= FALSE)
 {
   # Check ----
-  if(length(bam)>1)
-    stop("If multiple bam files are provided, their paths should be concatenated and space-separated.")
-  if(!is.null(bam.input) && length(bam.input)>1)
-    stop("If multiple bam.input files are provided, their paths should be concatenated and space-separated.")
   if(!layout %in% c("SINGLE", "PAIRED"))
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
   if(keep.dup!="all" && keep.dup %% 1!=0)
@@ -65,7 +63,7 @@ cmd_peakCalling <- function(bam,
   if(!is.na(extsize) && extsize %% 1!=0)
     stop("extsize should either be an integer value or NA (in which case, peak model will be computed).")
   if(shift %% 1!=0)
-    stop("shift should either be an integer.")
+    stop("shift should be an integer.")
   if(!genome.macs2 %in% c("hs", "mm", "dm", "ce"))
     stop("genome.macs2 should be one of 'hs', 'mm', 'dm', 'ce'. See MACS2 documentation.")
 
@@ -77,14 +75,14 @@ cmd_peakCalling <- function(bam,
 
   # Command ----
   cmd <- paste("macs2 callpeak -B --SPMR -g", genome.macs2, # Normalize tracks
-               "-t", bam, # bam input file(s)
+               "-t", paste(bam, collapse = " "), # treatment bam file(s)
                "--keep-dup", keep.dup, # Keep duplicates
                "--outdir", peaks.output.folder, # Output directory
                "-n", output.prefix) # Output name
   if(layout=="PAIRED") # Format
     cmd <- paste(cmd, "-f BAMPE")
   if(!is.null(bam.input)) # Input bam file(s)
-    cmd <- paste(cmd, "-c", bam.input)
+    cmd <- paste(cmd, "-c", paste(bam.input, collapse = " "))
   if(broad) # broad or narrow
     cmd <- paste(cmd, "--broad")
   if(!is.na(extsize)) # extsize (skip model)

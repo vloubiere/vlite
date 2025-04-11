@@ -78,24 +78,18 @@ motifLassoRegression <- function(response,
                                  CV = 0.05,
                                  seed = 123) {
   # Checks
-  if (is.data.table(counts)) {
+  if (is.data.table(counts))
     counts <- as.matrix(counts)
-  }
-  if (!is.numeric(response)) {
+  if (!is.numeric(response))
     stop("Response must be numeric for regression.")
-  }
-  if (length(response) != nrow(counts)) {
+  if (length(response) != nrow(counts))
     stop("The number of rows in 'counts' must match the length of 'response'.")
-  }
-  if (CV <= 0 || CV >= 1) {
+  if (CV <= 0 || CV >= 1)
     stop("'CV' must be a value between 0 and 1.")
-  }
-  if (is.null(names)) {
+  if (is.null(names))
     names <- colnames(counts)
-  }
-  if (!is.character(names) && !is.factor(names)) {
+  if (!is.character(names) && !is.factor(names))
     stop("names should be a vector of characters or factors.")
-  }
 
   # Set random seed for reproducibility
   set.seed(seed)

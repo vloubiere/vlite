@@ -84,6 +84,8 @@ orfeomeProcessing <- function(fq1,
                                 Rpath = Rpath)
   cmd <- rbind(cmd, counts.cmd)
 
+  # MAGECK should be ran separately, as controls can't be fetched here ----
+
   # Return ----
   return(cmd)
 }

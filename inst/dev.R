@@ -180,7 +180,7 @@ if(F)
   file.edit("R/dropbox_download.R")
 }
 
-# Demultiplexing ---------------------------
+# Demultiplexing commands ------------------
 if(F)
 {
   file.edit("R/cmd_demultiplexVBCfile.R") # Wrapper
@@ -188,16 +188,18 @@ if(F)
   file.edit("inst/perl/vbc_bam_demultiplexing.pl") # Perl subscript
 }
 
-# Genomic pipelines commands ---------------
+# Trimming commands ------------------------
 if(F)
 {
-  # Trimming ----
   # Illumina adaptors
   file.edit("R/cmd_trimIlluminaAdaptors.R")
   # Custom adaptors (PROseq)
   file.edit("R/cmd_trimProseqAdaptors.R")
+}
 
-  # Alignment ----
+# Alignment commands -----------------------
+if(F)
+{
   # Bowtie1 alignment
   file.edit("R/cmd_alignBowtie.R")
   # Bowtie2 alignment
@@ -205,14 +207,20 @@ if(F)
   # Rsubread alignment (RNA-Seq)
   file.edit("R/cmd_alignRnaRsubread.R") # Wrapper
   file.edit("inst/Rscripts/align_rna_Rsubread.R") # R subscript
+}
 
-  # Post-alignment processing ----
+# Bam post-processing commands -------------
+if(F)
+{
   # Collapse bam file (ORFtag)
   file.edit("R/cmd_collapseBam.R")
   # Extract unaligned reads (PRO-Seq spike-in)
   file.edit("R/cmd_extractUnalignedReadsFromBam.R")
+}
 
-  # Count reads ----
+# Count reads commands ---------------------
+if(F)
+{
   # Rsubread (RNA-Seq)
   file.edit("R/cmd_countRsubread.R") # Wrapper
   file.edit("inst/Rscripts/count_Rsubread.R") # R subscript
@@ -227,14 +235,27 @@ if(F)
   file.edit("inst/Rscripts/umiCountsFromBam.R") # R subscript
   # UMI counts (PROseq)
   file.edit("R/cmd_umiCountsProseq.R")
-  file.edit("inst/Rscripts/umiCountsProseq.R")
+  file.edit("inst/Rscripts/umiCollapsingProseq.R")
+}
 
-  # Peak calling (ChIP-Seq) ----
+# Peak calling commands --------------------
+if(F)
+{
   file.edit("R/cmd_peakCalling.R") # Wrapper
   file.edit("R/cmd_confidentPeaks.R") # Wrapper
   file.edit("inst/Rscripts/confident_peaks.R") # R subscript
+}
 
-  # Generate bigwig tracks ----
+# DESeq2 commands --------------------------
+if(F)
+{
+  file.edit("R/cmd_DESeq2.R") # Wrapper
+  file.edit("inst/Rscripts/DESeq2_analysis.R") # R subscript
+}
+
+# Generate bw commands ---------------------
+if(F)
+{
   # Bedgraph to bigwig
   file.edit("R/cmd_bedgraphToBigwig.R") # Wrapper
   file.edit("inst/Rscripts/bedgraph_to_bigwig.R") # R subscript

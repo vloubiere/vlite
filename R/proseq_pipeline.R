@@ -114,19 +114,19 @@ proseqProcessing <- function(fq1,
   align.spike.cmd[, file.type:= paste0(file.type, ".spike")] # Make file types unique (see ref genome above)
   cmd <- rbind(cmd, align.spike.cmd)
 
-  # UMI counts reference genome ----
-  umi.ref.cmd <- cmd_umiToBigwigProseq(bam = cmd[file.type=="bam.ref", path],
-                                       output.prefix = NULL, # From bam file
-                                       counts.output.folder = counts.output.folder,
-                                       stats.output.folder = counts.stats.output.folder)
-  umi.ref.cmd[, file.type:= paste0(file.type, ".ref")] # Make file types unique (see spike in below)
-  cmd <- rbind(cmd, umi.ref.cmd)
-
-  # UMI counts spike-in genome ----
-  umi.spike.cmd <- cmd_umiToBigwigProseq(bam = cmd[file.type=="bam.spike", path],
+  # Collapse and count total UMIs reference genome ----
+  umi.ref.cmd <- cmd_umiCollapsingProseq(bam = cmd[file.type=="bam.ref", path],
                                          output.prefix = NULL, # From bam file
                                          counts.output.folder = counts.output.folder,
                                          stats.output.folder = counts.stats.output.folder)
+  umi.ref.cmd[, file.type:= paste0(file.type, ".ref")] # Make file types unique (see spike in below)
+  cmd <- rbind(cmd, umi.ref.cmd)
+
+  # Collapse and count total UMIs spike-in genome ----
+  umi.spike.cmd <- cmd_umiCollapsingProseq(bam = cmd[file.type=="bam.spike", path],
+                                           output.prefix = NULL, # From bam file
+                                           counts.output.folder = counts.output.folder,
+                                           stats.output.folder = counts.stats.output.folder)
   umi.spike.cmd[, file.type:= paste0(file.type, ".spike")] # Make file types unique (see ref genome above below)
   cmd <- rbind(cmd, umi.spike.cmd)
 

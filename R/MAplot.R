@@ -1,6 +1,7 @@
 #' Plots a nice MA plot
 #'
-#' @param data Either a valid path to a '.txt' file or a data.table object corresponding to a DESeq2 output sheet  containing both 'log2FoldChange' and 'baseMean' columns.
+#' @param data Either a valid path to a '.txt' file or a data.table object corresponding
+#'    to a DESeq2 output sheet  containing both 'log2FoldChange' and 'baseMean' columns.
 #' @param main Title
 #' @param padj.cutoff padjust cutoff to be used to call up/down genes. Default= 0.05.
 #' @param log2FC.cutoff log2FoldChange cutoff to be used to call up/down genes. Default= log2(1.5).
@@ -10,7 +11,7 @@
 #'
 #' @examples
 #' MAplot(data= "/groups/stark/vloubiere/projects/epigenetic_cancer/db/FC_tables/RNA/epiCancer_GFP_PH29_vs_W29.txt",
-#'           main= "PH29")
+#'        main= "PH29")
 MAplot <- function(data,
                    main= NA,
                    padj.cutoff= 0.05,

@@ -4,10 +4,10 @@
 #' Creates shell commands to identify confident peaks across replicates using merged peak files.
 #' Outputs a file containing confident peaks.
 #'
-#' @param replicates_peaks_files Vector of paths to replicate peak files in `.narrowPeak` or `.broadPeak` format.
-#' @param merge_peaks_file Path to the merged peak file in `.narrowPeak` or `.broadPeak` format.
-#' @param output_prefix Prefix for the output file.
-#' @param conf_peaks_output_folder Directory for the confident peaks file. Default: `"db/peaks/"`.
+#' @param replicates.peaks.files Vector of paths to replicate peak files in `.narrowPeak` or `.broadPeak` format.
+#' @param merge.peaks.file Path to the merged peak file in `.narrowPeak` or `.broadPeak` format.
+#' @param output.prefix Prefix for the output file.
+#' @param conf.peaks.output.folder Directory for the confident peaks file. Default: `"db/peaks/"`.
 #' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
 #'
 #' @return A `data.table` with:
@@ -18,37 +18,37 @@
 #' @examples
 #' # Identify confident peaks across replicates
 #' cmd <- cmd_confidentPeaks(
-#'   replicates_peaks_files = c("/data/peaks/rep1.narrowPeak", "/data/peaks/rep2.narrowPeak"),
-#'   merge_peaks_file = "/data/peaks/merged.narrowPeak",
-#'   output_prefix = "sample1"
+#'   replicates.peaks.files = c("/data/peaks/rep1.narrowPeak", "/data/peaks/rep2.narrowPeak"),
+#'   merge.peaks.file = "/data/peaks/merged.narrowPeak",
+#'   output.prefix = "sample1"
 #' )
 #' vl_submit(cmd, execute= FALSE)
 #'
 #' @export
-cmd_confidentPeaks <- function(replicates_peaks_files,
-                               merge_peaks_file,
-                               output_prefix,
-                               conf_peaks_output_folder= "db/peaks/",
+cmd_confidentPeaks <- function(replicates.peaks.files,
+                               merge.peaks.file,
+                               output.prefix,
+                               conf.peaks.output.folder= "db/peaks/",
                                Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Checks ----
-  if(!all(grepl(".narrowPeak$|broadPeak$", replicates_peaks_files)))
-    stop("Replicates_peaks_files should be in .narrowPeak or .broadPeaks format.")
-  if(!all(grepl(".narrowPeak$|broadPeak$", merge_peaks_file)))
-    stop("merge_peaks_file should be in .narrowPeak or .broadPeaks format.")
+  if(!all(grepl(".narrowPeak$|broadPeak$", replicates.peaks.files)))
+    stop("replicates.peaks.files should be in .narrowPeak or .broadPeaks format.")
+  if(!all(grepl(".narrowPeak$|broadPeak$", merge.peaks.file)))
+    stop("merge.peaks.file should be in .narrowPeak or .broadPeaks format.")
 
   # Check input files extension ----
-  extension <- gsub(".*[.](.*$)", "\\1", merge_peaks_file)
+  extension <- gsub(".*[.](.*$)", "\\1", merge.peaks.file)
 
   # Output files paths ----
-  peaks.file <- file.path(conf_peaks_output_folder, paste0(output_prefix, ".", extension))
+  peaks.file <- file.path(conf.peaks.output.folder, paste0(output.prefix, ".", extension))
 
   # Command ----
   cmd <- paste(
     Rpath,
     system.file("Rscripts", "confident_peaks.R", package = "vlite"),
-    replicates_peaks_files, # Replicates
-    merge_peaks_file, # Merged reads
+    replicates.peaks.files, # Replicates
+    merge.peaks.file, # Merged reads
     peaks.file # Output file
   )
 

@@ -71,8 +71,8 @@ cmd_countRsubread <- function(bam,
   }
 
   # Output files paths ----
-  stats.file <- file.path(counts.stats.output.folder, paste0(output.prefix, "_", genome, "_statistics.txt"))
-  counts.file <- file.path(counts.output.folder, paste0(output.prefix, "_", genome, "_counts.txt"))
+  stats.file <- file.path(counts.stats.output.folder, paste0(output.prefix, "_statistics.txt"))
+  counts.file <- file.path(counts.output.folder, paste0(output.prefix, "_counts.txt"))
 
   # Count command ----
   cmd <- paste(

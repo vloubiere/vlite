@@ -90,14 +90,14 @@ rnaseqProcessing <- function(fq1,
   }
 
   # Alignment ----
-  align.cmd <- cmd_alignRsubread(fq1= fq1.trim,
-                                 fq2= fq2.trim,
-                                 output.prefix= output.prefix,
-                                 genome= genome,
-                                 genome.idx= genome.idx,
-                                 bam.output.folder= bam.output.folder,
-                                 alignment.stats.output.folder = alignment.stats.output.folder,
-                                 Rpath= Rpath)
+  align.cmd <- cmd_alignRnaRsubread(fq1= fq1.trim,
+                                    fq2= fq2.trim,
+                                    output.prefix= output.prefix,
+                                    genome= genome,
+                                    genome.idx= genome.idx,
+                                    bam.output.folder= bam.output.folder,
+                                    alignment.stats.output.folder = alignment.stats.output.folder,
+                                    Rpath= Rpath)
   cmd <- rbind(cmd, align.cmd)
 
   # Gene counts ----
@@ -121,6 +121,8 @@ rnaseqProcessing <- function(fq1,
                             bw.output.folder = bw.output.folder,
                             Rpath = Rpath)
   cmd <- rbind(cmd, bw.cmd)
+
+  # DESeq2 should be performed separately, as controls cannot be fetched here ----
 
   # Return ----
   return(cmd)

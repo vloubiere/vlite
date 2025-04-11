@@ -106,6 +106,8 @@ orftagProcessing <- function(fq1,
                               Rpath = Rpath)
   cmd <- rbind(cmd, collapse.cmd)
 
+  # Calling o fhits should be ran separately, as controls can't be fetched here ----
+
   # Return ----
   return(cmd)
 }

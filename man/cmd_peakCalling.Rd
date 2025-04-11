@@ -18,9 +18,9 @@ cmd_peakCalling(
 )
 }
 \arguments{
-\item{bam}{Path to the treatment BAM file(s). For multiple files, provide space-separated paths.}
+\item{bam}{A character vector specifying path(s) to treatment BAM file(s).}
 
-\item{bam.input}{Path to the input/control BAM file(s). Must match the order of `bam`. Default: `NULL`.}
+\item{bam.input}{A character vector specifying path(s) to input BAM file(s). Default: `NULL`.}
 
 \item{layout}{Sequencing layout, either `"SINGLE"` or `"PAIRED"`.}
 
@@ -28,9 +28,11 @@ cmd_peakCalling(
 
 \item{keep.dup}{Number of duplicates to keep or `"all"`. Default: `1`.}
 
-\item{extsize}{Read extension size for MACS2. Default: `200`.}
+\item{extsize}{Integer value by which reads should be extended.
+Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default: `200`.}
 
-\item{shift}{Number of bases to shift reads. Default: `0`.}
+\item{shift}{Integer value by which reads will be shifted.
+Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default: `0`.}
 
 \item{genome.macs2}{Genome size parameter for MACS2 (e.g., `"mm"`, `"hs"`).}
 

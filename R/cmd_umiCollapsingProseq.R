@@ -17,17 +17,17 @@
 #'
 #' @examples
 #' # Count UMIs in a PRO-Seq BAM file
-#' cmd <- cmd_umiCountsProseq(
+#' cmd <- cmd_umiCollapsingProseq(
 #'   bam = "/data/bam/sample.bam"
 #' )
 #' vl_submit(cmd, execute= FALSE)
 #'
 #' @export
-cmd_umiCountsProseq <- function(bam,
-                                output.prefix= NULL,
-                                counts.output.folder= "db/counts/",
-                                stats.output.folder= "db/counts_statistics/",
-                                Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+cmd_umiCollapsingProseq <- function(bam,
+                                    output.prefix= NULL,
+                                    counts.output.folder= "db/counts/",
+                                    stats.output.folder= "db/counts_statistics/",
+                                    Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Checks ----
   if(length(bam)!=1)
@@ -41,7 +41,7 @@ cmd_umiCountsProseq <- function(bam,
 
   # Command ----
   cmd <- paste(Rpath,
-               system.file("Rscript", "umiCountsProseq.R", package = "vlite"),
+               system.file("Rscript", "umiCollapsingProseq.R", package = "vlite"),
                bam,
                counts.file)
 
