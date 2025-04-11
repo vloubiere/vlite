@@ -230,11 +230,19 @@ if(F)
   # Assign reads to exons (ORFtag)
   file.edit("R/cmd_assignInsertions.R") # Wrapper
   file.edit("inst/Rscripts/assign_ORFtag_insertions.R") # R subscript
-  # UMI collapsing (from bam)
+  # From .rds annotations (PRO-Seq)
+  file.edit("R/cmd_countPROseqReads.R") # Wrapper
+  file.edit("inst/Rscripts/count_PROseq_reads.R") # R subscript
+}
+
+# UMI collapsing ---------------------------
+if(F)
+{
+  # UMI collapsing from bam (used for human STARR-Seq...)
   file.edit("R/cmd_umiCountsFromBam.R") # R subscript
   file.edit("inst/Rscripts/umiCountsFromBam.R") # R subscript
-  # UMI counts (PROseq)
-  file.edit("R/cmd_umiCountsProseq.R")
+  # UMI counts from PROseq bam
+  file.edit("R/cmd_umiCollapsingProseq.R")
   file.edit("inst/Rscripts/umiCollapsingProseq.R")
 }
 
@@ -249,8 +257,28 @@ if(F)
 # DESeq2 commands --------------------------
 if(F)
 {
+  # RNA-Seq
   file.edit("R/cmd_DESeq2.R") # Wrapper
   file.edit("inst/Rscripts/DESeq2_analysis.R") # R subscript
+  # PRO-Seq (spike-in norm...)
+  file.edit("R/cmd_DESeq2_PROseq.R") # Wrapper
+  file.edit("inst/Rscripts/DESeq2_PROseq_analysis.R") # R subscruot
+}
+
+# MAGECK commands --------------------------
+if(F)
+{
+  file.edit("R/cmd_MAGECK_ORFeome.R") # Wrapper
+  file.edit("inst/Rscripts/compute_MAGECK_count_tables_ORFeome.R") # R subscript
+  file.edit("inst/Rscripts/volcano_plots_MAgECK.R") # R subscript
+  file.edit("inst/Rscripts/merge_gene_summary_to_master_table_ORFeome.R") # R subscript
+}
+
+# Call ORFtag hits -------------------------
+if(F)
+{
+  file.edit("R/callORFtagHits.R")
+  file.edit("R/callORFtagHitsStrandBias.R")
 }
 
 # Generate bw commands ---------------------

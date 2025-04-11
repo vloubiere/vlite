@@ -63,7 +63,6 @@ sampleTable <- data.frame(condition = conditions,
 
 # DESeq2 analysis ----
 print(paste("Start DESeq2 analysis normalization"))
-# Create DESeq2 object ----
 dds <- DESeqDataSetFromMatrix(countData = DF,
                               colData = sampleTable,
                               design = ~ condition)

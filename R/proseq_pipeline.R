@@ -42,6 +42,9 @@
 #' )
 #' vl_submit(cmd, execute= FALSE)
 #'
+#' # Next, reads should be counted for genomic features of interest using ?cmd_countPROseqReads()
+#' # Then, diff analysis should be performed using ?cmd_DESeq2_PROseq()
+#'
 #' @seealso
 #' \itemize{
 #'   \item \code{\link{cmd_trimProseqAdaptors}} for adapter trimming

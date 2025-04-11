@@ -33,6 +33,8 @@
 #' )
 #' vl_submit(cmd, execute= FALSE)
 #'
+#' # Then, peaks should be called using ?cmd_peakCalling() and ?cmd_confidentPeaks()
+#'
 #' @seealso
 #' \itemize{
 #'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
@@ -82,8 +84,6 @@ cutnrunProcessing <- function(fq1,
                                 alignment.stats.output.folder= alignment.stats.output.folder,
                                 cores= cores)
   cmd <- rbind(cmd, align.cmd)
-
-  # Peak calling should be performed separately, as the input cannot be fetched here ----
 
   # Return ----
   return(cmd)

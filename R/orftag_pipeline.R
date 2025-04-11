@@ -38,6 +38,8 @@
 #' )
 #' vl_submit(cmd, execute= FALSE)
 #'
+#' # Then, hits should be called using ?callORFtagHits()
+#'
 #' @seealso
 #' \itemize{
 #'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
@@ -105,8 +107,6 @@ orftagProcessing <- function(fq1,
                               counts.output.folder = counts.output.folder,
                               Rpath = Rpath)
   cmd <- rbind(cmd, collapse.cmd)
-
-  # Calling o fhits should be ran separately, as controls can't be fetched here ----
 
   # Return ----
   return(cmd)

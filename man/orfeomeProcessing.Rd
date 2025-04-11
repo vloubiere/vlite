@@ -55,6 +55,8 @@ cmd <- orfeomeProcessing(
 )
 vl_submit(cmd, execute= FALSE)
 
+# Then, peaks should be called using ?cmd_MAGeCK_ORFeome()
+
 }
 \seealso{
 \itemize{

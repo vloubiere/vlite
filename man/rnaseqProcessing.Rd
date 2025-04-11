@@ -81,6 +81,8 @@ cmd <- rnaseqProcessing(
 )
 vl_submit(cmd, execute= FALSE)
 
+# Then, differential analysis should be performed using ?cmd_DESeq2()
+
 }
 \seealso{
 \itemize{

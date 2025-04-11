@@ -8,7 +8,7 @@ cmd_DESeq2 <- function(count.files,
                        output.prefix,
                        dds.output.folder= "db/dds/RNASeq/",
                        FC.tables.output.folder= "db/FC_tables/RNASeq/",
-                       MAplot.output.folder= "pdf/MAplots/RNASeq/",
+                       MAplots.output.folder= "pdf/MAplots/RNASeq/",
                        Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Checks ----
@@ -21,10 +21,10 @@ cmd_DESeq2 <- function(count.files,
   if(any(!ctl.conditions %in% conditions))
     stop("All ctl.conditions should exist in conditions")
 
-  # dds file output path ----
+  # Output files paths ----
   dds.file <- file.path(dds.output.folder, paste0(output.prefix, ".dds"))
-  MA.plots <- paste0(MAplot.output.folder, "/", output.prefix, "_MAplots.pdf")
-  FC.tables <- paste0(FC.tables.output.folder, "/", output.prefix, "_DESeq2_FC.txt")
+  MA.plots <- file.path(MAplots.output.folder, paste0(output.prefix, "_MAplots.pdf"))
+  FC.tables <- file.path(FC.tables.output.folder, paste0(output.prefix, "_DESeq2_FC.txt"))
 
   # Command ----
   cmd <- paste(
@@ -36,7 +36,7 @@ cmd_DESeq2 <- function(count.files,
     paste0(ctl.conditions, collapse= ","), # A comma-separated list of control condition names
     dds.output.folder, # dds output folder
     FC.tables.output.folder, # FC tables output folder
-    MAplot.output.folder, # PDF output folder
+    MAplots.output.folder, # PDF output folder
     output.prefix # Experiment name
   )
 

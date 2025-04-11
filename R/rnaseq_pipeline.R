@@ -43,6 +43,8 @@
 #' )
 #' vl_submit(cmd, execute= FALSE)
 #'
+#' # Then, differential analysis should be performed using ?cmd_DESeq2()
+#'
 #' @seealso
 #' \itemize{
 #'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming

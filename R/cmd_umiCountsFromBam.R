@@ -1,4 +1,4 @@
-#' Generate Commands for UMI Counting from BAM Files
+#' Generate Commands to collapse UMIs from a BAM file
 #'
 #' @description
 #' Creates shell commands to count unique molecular identifiers (UMIs) from a BAM file.

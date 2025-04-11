@@ -70,6 +70,8 @@ cmd <- orftagProcessing(
 )
 vl_submit(cmd, execute= FALSE)
 
+# Then, hits should be called using ?callORFtagHits()
+
 }
 \seealso{
 \itemize{

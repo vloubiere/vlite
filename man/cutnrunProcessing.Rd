@@ -59,6 +59,8 @@ cmd <- cutnrunProcessing(
 )
 vl_submit(cmd, execute= FALSE)
 
+# Then, peaks should be called using ?cmd_peakCalling() and ?cmd_confidentPeaks()
+
 }
 \seealso{
 \itemize{

@@ -1,4 +1,4 @@
-#' Generate Commands for UMI Counting in PRO-Seq Data
+#' Generate Commands to collapse UMIs from a bam file containing PRO-Seq reads
 #'
 #' @description
 #' Creates shell commands to count unique molecular identifiers (UMIs) from a PRO-Seq BAM file.

@@ -12,7 +12,7 @@ cmd_DESeq2(
   output.prefix,
   dds.output.folder = "db/dds/RNASeq/",
   FC.tables.output.folder = "db/FC_tables/RNASeq/",
-  MAplot.output.folder = "pdf/MAplots/RNASeq/",
+  MAplots.output.folder = "pdf/MAplots/RNASeq/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
 )
 }

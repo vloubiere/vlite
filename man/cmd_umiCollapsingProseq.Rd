@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_umiCollapsingProseq.R
 \name{cmd_umiCollapsingProseq}
 \alias{cmd_umiCollapsingProseq}
-\title{Generate Commands for UMI Counting in PRO-Seq Data}
+\title{Generate Commands to collapse UMIs from a bam file containing PRO-Seq reads}
 \usage{
 cmd_umiCollapsingProseq(
   bam,

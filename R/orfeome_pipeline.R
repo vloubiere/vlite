@@ -31,6 +31,8 @@
 #' )
 #' vl_submit(cmd, execute= FALSE)
 #'
+#' # Then, peaks should be called using ?cmd_MAGeCK_ORFeome()
+#'
 #' @seealso
 #' \itemize{
 #'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
@@ -83,8 +85,6 @@ orfeomeProcessing <- function(fq1,
                                 counts.output.folder = counts.output.folder,
                                 Rpath = Rpath)
   cmd <- rbind(cmd, counts.cmd)
-
-  # MAGECK should be ran separately, as controls can't be fetched here ----
 
   # Return ----
   return(cmd)

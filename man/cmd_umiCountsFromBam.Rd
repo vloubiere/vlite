@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_umiCountsFromBam.R
 \name{cmd_umiCountsFromBam}
 \alias{cmd_umiCountsFromBam}
-\title{Generate Commands for UMI Counting from BAM Files}
+\title{Generate Commands to collapse UMIs from a BAM file}
 \usage{
 cmd_umiCountsFromBam(
   bam,
