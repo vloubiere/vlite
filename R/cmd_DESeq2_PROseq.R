@@ -80,7 +80,7 @@ vl_PROseq_DESeq2 <- function(umi.count.tables,
   # DESeq2 command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "DESeq2_PROseq_analysis.R", package = "vlite"),
+    system.file("Rscript", "DESeq2_PROseq_analysis.R", package = "vlite"),
     paste0(umi.count.tables, collapse = ","), # A comma-separated list of count (ref genome)
     paste0(ref.genome.stat.files, collapse = ","), # A comma-separated list of read statistics (reference genome)
     paste0(spikein.stat.files, collapse = ","), # A comma-separated list of spike-in statistics

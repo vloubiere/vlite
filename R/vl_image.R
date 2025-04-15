@@ -20,6 +20,7 @@
 #' @param na.col Color to use for NA values. Default is `"lightgrey"`.
 #' @param show.numbers Logical or matrix; if `TRUE` or a matrix is provided, displays values in cells. Default is `FALSE`.
 #' @param numbers.cex Numeric scaling factor for the size of numbers when `show.numbers` is `TRUE`. Default is `0.8`.
+#' @param useRaster logical; if TRUE a bitmap raster is used to plot the image instead of polygons. Default= FALSE.
 #'
 #' @return Invisibly returns a list containing the `breaks` and `col` used for the heatmap.
 #'
@@ -69,9 +70,12 @@ vl_image <- function(mat,
                      legend.title= "Value",
                      na.col= "lightgrey",
                      show.numbers= FALSE,
-                     numbers.cex= .8)
+                     numbers.cex= .8,
+                     useRaster= FALSE)
 {
   # Checks ----
+  if(!is.matrix(mat))
+    mat <- as.matrix(mat)
   if(is.null(colnames(mat)))
     colnames(mat) <- seq(ncol(mat))
   if(is.null(rownames(mat)))
@@ -134,7 +138,8 @@ vl_image <- function(mat,
         ylim= ylim,
         xlab= xlab,
         ylab= ylab,
-        axes= FALSE)
+        axes= FALSE,
+        useRaster= useRaster)
 
   # Plot axes ----
   if(show.rownames) {

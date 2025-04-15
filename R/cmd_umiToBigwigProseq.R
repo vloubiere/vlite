@@ -41,7 +41,7 @@ cmd_umiToBigwigProseq <- function(umi.counts,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "umiToBigwigProseq", package = "vlite"),
+    system.file("Rscript", "umiToBigwigProseq.R", package = "vlite"),
     umi.counts,
     output.prefix
   )

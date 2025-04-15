@@ -46,7 +46,7 @@ cmd_confidentPeaks <- function(replicates.peaks.files,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "confident_peaks.R", package = "vlite"),
+    system.file("Rscript", "confident_peaks.R", package = "vlite"),
     replicates.peaks.files, # Replicates
     merge.peaks.file, # Merged reads
     peaks.file # Output file

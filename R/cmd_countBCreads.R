@@ -39,7 +39,7 @@ cmd_countBCreads <- function(bam,
   # Command ----
   lib.rds <- "/groups/stark/vloubiere/projects/viralORF_tomas/db/dictionary/lib200_merged_dictionary.rds"
   cmd <- paste(Rpath,
-               system.file("Rscripts", "BC_counts.R", package = "vlite"),
+               system.file("Rscript", "BC_counts.R", package = "vlite"),
                bam,
                lib.rds,
                counts.file)

@@ -60,7 +60,7 @@ cmd_bamToBigwig <- function(bam,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "bam_to_bigwig.R", package = "vlite"),
+    system.file("Rscript", "bam_to_bigwig.R", package = "vlite"),
     bam,
     layout,
     extend.PE.fragments,

@@ -17,8 +17,7 @@ suppressMessages(library(stringdist, warn.conflicts = FALSE))
 suppressMessages(library(rtracklayer, warn.conflicts = FALSE))
 
 # Parse arguments ----
-# bam <- "/groups/stark/vloubiere/projects/Facilitators/db/tests/screen_1500bp_K562_rep1_mm10.bam"
-# bam <- "/groups/stark/vloubiere/projects/Facilitators/db/bam/screen_1500bp_K562_rep1_mm10.bam"
+# bam <- "/groups/stark/vloubiere/projects/Facilitators/db/bam/bowtie2/input_250bp_none_rep1_mm9.bam"
 bam <- args[1]
 layout <- args[2]
 counts.output.file <- args[3]

@@ -19,7 +19,8 @@ vl_image(
   legend.title = "Value",
   na.col = "lightgrey",
   show.numbers = FALSE,
-  numbers.cex = 0.8
+  numbers.cex = 0.8,
+  useRaster = FALSE
 )
 }
 \arguments{
@@ -51,6 +52,8 @@ or a sequential blue-yellow palette.}
 \item{show.numbers}{Logical or matrix; if `TRUE` or a matrix is provided, displays values in cells. Default is `FALSE`.}
 
 \item{numbers.cex}{Numeric scaling factor for the size of numbers when `show.numbers` is `TRUE`. Default is `0.8`.}
+
+\item{useRaster}{logical; if TRUE a bitmap raster is used to plot the image instead of polygons. Default= FALSE.}
 }
 \value{
 Invisibly returns a list containing the `breaks` and `col` used for the heatmap.

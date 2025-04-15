@@ -6,17 +6,21 @@
 \usage{
 cmd_alignBowtie(
   fq1,
+  fq2 = NULL,
   output.prefix,
   genome,
   genome.idx = NULL,
   max.mismatch = 2,
+  max.ins = 500,
   bam.output.folder = "db/bam/",
   alignment.stats.output.folder = "db/alignment_stats/",
   cores = 8
 )
 }
 \arguments{
-\item{fq1}{Path to the input FASTQ file (.fq.gz).}
+\item{fq1}{A comma-separated list of .fq (or .fq.gz) file paths.}
+
+\item{fq2}{A comma-separated list of paths to second read file(s) for paired-end data. Default: `NULL`.}
 
 \item{output.prefix}{Prefix for the output files.}
 
@@ -26,6 +30,8 @@ If not provided, `genome.idx` must be specified.}
 \item{genome.idx}{Path to the Bowtie2 genome index. Default: `NULL`.}
 
 \item{max.mismatch}{Maximum number of mismatches allowed. Default: `2`.}
+
+\item{max.ins}{Maximum insert size for PAIRED reads. Default= 500.}
 
 \item{bam.output.folder}{Directory for the output BAM file. Default: `"db/bam/"`.}
 

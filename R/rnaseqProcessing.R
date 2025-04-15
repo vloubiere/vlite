@@ -14,7 +14,7 @@
 #' @param output.prefix Prefix for output files.
 #' @param genome Reference genome identifier (e.g., `"mm10"`, `"hg38"`).
 #' @param genome.idx Path to the Rsubread genome index. If `NULL`, derived from `genome`. Default: `NULL`.
-#' @param gtf Path to the GTF annotation file. Default: `NULL`.
+#' @param gtf Path to the GTF annotation file. If `genome` is provided, corresponding protein-coding / mRNA genes will be used. Default: `NULL`.
 #' @param GTF.attrType.extra Additional GTF attribute to include in the output (e.g., gene symbol).
 #' @param fq.output.folder Directory for trimmed FASTQ files. Default: `"db/fq/RNASeq/"`.
 #' @param bam.output.folder Directory for aligned BAM files. Default: `"db/bam/RNASeq/"`.

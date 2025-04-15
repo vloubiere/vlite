@@ -21,23 +21,23 @@ cmd_alignBowtie2(
 \item{fq1}{Path to input FASTQ file(s) for single-end or first read file(s) for paired-end data
 (comma-separated for multiple files).}
 
-\item{fq2}{Path to second read file(s) for paired-end data (comma-separated). Default: `NULL`.}
+\item{fq2}{Path to second read file(s) for paired-end data (comma-separated). Default= `NULL`.}
 
 \item{output.prefix}{Prefix for output files.}
 
-\item{genome}{Reference genome identifier (e.g., `"mm10"`, `"hg38"`). Required if `genome.idx` is not provided.}
+\item{genome}{Reference genome identifier (e.g., `mm10`, `hg38`). Required if `genome.idx` is not provided.}
 
 \item{genome.idx}{Path to Bowtie2 index files (without extensions). Required if `genome` is not provided.}
 
-\item{mapq}{MAPQ score threshold for filtering alignments. Default: `NULL` (no filtering).}
+\item{mapq}{MAPQ score threshold for filtering alignments. Default= NULL (no filtering).}
 
-\item{max.ins}{Maximum insert size for paired-end alignment. Default: `500`.}
+\item{max.ins}{Maximum insert size for paired-end alignment. Default= 500.}
 
 \item{bam.output.folder}{Directory for BAM files.}
 
 \item{alignment.stats.output.folder}{Directory for alignment statistics.}
 
-\item{cores}{Number of CPU cores to use. Default: `8`.}
+\item{cores}{Number of CPU cores to use. Default= 8.}
 }
 \value{
 A `data.table` with:

@@ -43,6 +43,7 @@
 #'   paired = TRUE
 #' )
 #' print(cmd)
+#' vl_submit(cmd, overwrite = FALSE)
 #'
 #' @export
 cmd_MAGeCK_ORFeome <- function(sample.counts,
@@ -87,7 +88,7 @@ cmd_MAGeCK_ORFeome <- function(sample.counts,
   # Command to generate raw and filtered counts table ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "compute_MAGECK_count_tables_ORFeome.R", package = "vlite"),
+    system.file("Rscript", "compute_MAGECK_count_tables_ORFeome.R", package = "vlite"),
     paste0(sample.counts, collapse = ","), # A comma-separated list of sample count files
     paste0(input.counts, collapse = ","), # A comma-separated list of input count files
     paste0(sample.names, collapse = ","), # A comma-separated list of sample names (mathcing the list of count files)
@@ -122,7 +123,7 @@ cmd_MAGeCK_ORFeome <- function(sample.counts,
   # MA plot and merged table ----
   cmd2 <- paste(
     Rpath,
-    system.file("Rscripts", "volcano_plots_MAgECK.R", package = "vlite"),
+    system.file("Rscript", "volcano_plots_MAgECK.R", package = "vlite"),
     gene.summary, # Gene summary output file from mageck
     logFC.cutoff, # logFC cutoff for hits
     FDR.cutoff, # FDR cutoff for hits
@@ -136,7 +137,7 @@ cmd_MAGeCK_ORFeome <- function(sample.counts,
   # Merge master table plot (very fast) ----
   cmd3 <- paste(
     Rpath,
-    system.file("Rscripts", "merge_gene_summary_to_master_table_ORFeome.R", package = "vlite"),
+    system.file("Rscript", "merge_gene_summary_to_master_table_ORFeome.R", package = "vlite"),
     gene.summary, # Gene summary output file from mageck \n
     master.table, # 2/ Path to master_table \n
     sort, # sort. can be one of 'pos' or 'neg'. \n

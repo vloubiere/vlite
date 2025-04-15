@@ -86,5 +86,6 @@ cmd <- vl_ORFeome_MAGeCK(
   paired = TRUE
 )
 print(cmd)
+vl_submit(cmd, overwrite = FALSE)
 
 }

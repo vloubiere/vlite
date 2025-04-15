@@ -6,7 +6,7 @@
 \usage{
 vl_heatmap(
   x,
-  cluster.rows = FALSE,
+  cluster.rows = TRUE,
   cluster.cols = FALSE,
   kmeans.k = NA,
   breaks = NULL,
@@ -14,6 +14,7 @@ vl_heatmap(
   show.rownames = TRUE,
   show.colnames = TRUE,
   tilt.colnames = TRUE,
+  main = NA,
   clustering.method = "complete",
   clustering.distance.rows = "euclidean",
   clustering.distance.cols = "euclidean",
@@ -27,18 +28,19 @@ vl_heatmap(
   legend.title = "Value",
   show.numbers = FALSE,
   numbers.cex = 0.7,
-  cluster.seed = 3453
+  cluster.seed = 3453,
+  useRaster = FALSE
 )
 }
 \arguments{
 \item{x}{A numeric matrix to be displayed as a heatmap.}
 
 \item{cluster.rows}{Logical or vector specifying row clustering:
-* `FALSE`: no clustering (default)
-* `TRUE`: perform clustering
+* `TRUE`: perform clustering (default)
+* `FALSE`: no clustering
 * vector: pre-defined clustering}
 
-\item{cluster.cols}{Similar to `cluster.rows` but for columns.}
+\item{cluster.cols}{Similar to `cluster.rows` but for columns. Default= FALSE.}
 
 \item{kmeans.k}{Integer specifying the number of k-means clusters. Defaults to `NA` (uses hierarchical clustering).}
 
@@ -54,6 +56,8 @@ or a sequential blue-yellow palette.}
 \item{show.colnames}{Logical; whether to display column names. Default is `TRUE`.}
 
 \item{tilt.colnames}{Logical; whether to tilt column names for better readability. Default is `TRUE`.}
+
+\item{main}{Ad title for the heatmap. Default= NA.}
 
 \item{clustering.method}{Character string specifying the hierarchical clustering method. Default is `"complete"`.}
 
@@ -82,6 +86,8 @@ or a sequential blue-yellow palette.}
 \item{numbers.cex}{Numeric scaling factor for the size of displayed numbers. Default is `0.7`.}
 
 \item{cluster.seed}{Integer seed for reproducible clustering. Default is `3453`.}
+
+\item{useRaster}{logical; if TRUE a bitmap raster is used to plot the image instead of polygons. Default= FALSE.}
 }
 \value{
 Invisibly returns a list with two `data.table` objects:

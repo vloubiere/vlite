@@ -42,7 +42,7 @@ cmd_bedgraphToBigwig <- function(bdg,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "bedgraph_to_bigwig.R", package = "vlite"),
+    system.file("Rscript", "bedgraph_to_bigwig.R", package = "vlite"),
     bdg,
     bw.file,
     genome

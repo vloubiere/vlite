@@ -100,7 +100,7 @@ resizeBed <- function(bed,
 
   # Clip regions outside of chromosomes ----
   if(!is.null(genome)) {
-    sizes <- getBSgenomeSize("dm6")
+    sizes <- getBSgenomeSize(genome = genome)
     res <- clipBed(res, sizes)
   }
 

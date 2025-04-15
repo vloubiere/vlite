@@ -7,15 +7,15 @@
 #'
 #' @param fq1 Path to input FASTQ file(s) for single-end or first read file(s) for paired-end data
 #'        (comma-separated for multiple files).
-#' @param fq2 Path to second read file(s) for paired-end data (comma-separated). Default: `NULL`.
+#' @param fq2 Path to second read file(s) for paired-end data (comma-separated). Default= `NULL`.
 #' @param output.prefix Prefix for output files.
-#' @param genome Reference genome identifier (e.g., `"mm10"`, `"hg38"`). Required if `genome.idx` is not provided.
+#' @param genome Reference genome identifier (e.g., `mm10`, `hg38`). Required if `genome.idx` is not provided.
 #' @param genome.idx Path to Bowtie2 index files (without extensions). Required if `genome` is not provided.
-#' @param mapq MAPQ score threshold for filtering alignments. Default: `NULL` (no filtering).
-#' @param max.ins Maximum insert size for paired-end alignment. Default: `500`.
+#' @param mapq MAPQ score threshold for filtering alignments. Default= NULL (no filtering).
+#' @param max.ins Maximum insert size for paired-end alignment. Default= 500.
 #' @param bam.output.folder Directory for BAM files.
 #' @param alignment.stats.output.folder Directory for alignment statistics.
-#' @param cores Number of CPU cores to use. Default: `8`.
+#' @param cores Number of CPU cores to use. Default= 8.
 #'
 #' @return A `data.table` with:
 #' - `file.type`: Types of output files (`"bam"`, `"stats"`, `"mapq.stats"`).

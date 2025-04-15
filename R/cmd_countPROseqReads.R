@@ -44,8 +44,14 @@ cmd_countPROseqReads <- function(umi.count.file,
     output.prefix <- gsub(".txt$", "", basename(umi.count.file))
   if(!grepl(".rds$", annotation.file))
     stop("The annotation file should be in .rds format")
+  check.annot <- readRDS(annotation.file)
+  if(!is.data.table(check.annot))
+    stop("annotation.file should contain a data.table")
+  if(!all(c("seqnames", "start", "end", "strand", "cluster.id") %in% names(check.annot)))
+    stop("Annotation file should contain columns 'seqnames', 'start', 'end', 'strand', 'cluster.id'")
   if(is.null(feature))
     feature <- gsub(".rds$", "", basename(annotation.file))
+
 
   # Output files ----
   count.table <- file.path(count.tables.output.folder, paste0(output.prefix, "_", feature, "_counts.txt"))

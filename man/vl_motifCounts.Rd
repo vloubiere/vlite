@@ -15,7 +15,7 @@ vl_motifCounts.default(
   pwm_log_odds,
   genome,
   bg = "genome",
-  p.cutoff = 5e-05,
+  p.cutoff = 0.00005,
   cleanup.cache = FALSE
 )
 }

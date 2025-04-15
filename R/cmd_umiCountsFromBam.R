@@ -54,7 +54,7 @@ cmd_umiCountsFromBam <- function(bam,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "umiCountsFromBam.R", package = "vlite"),
+    system.file("Rscript", "umiCountsFromBam.R", package = "vlite"),
     bam,
     layout,
     umi.counts.file,

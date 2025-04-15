@@ -29,7 +29,7 @@ cmd_DESeq2 <- function(count.files,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "DESeq2_analysis.R", package = "vlite"),
+    system.file("Rscript", "DESeq2_analysis.R", package = "vlite"),
     paste0(count.files, collapse= ","), # A comma-separated list of counts
     paste0(sample.names, collapse= ","), # A comma-separated list of sample names
     paste0(conditions, collapse= ","), # A comma-separated list of condition names

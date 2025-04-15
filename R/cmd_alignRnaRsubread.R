@@ -71,7 +71,7 @@ cmd_alignRnaRsubread <- function(fq1,
   # * If several fq1/fq2 files provided, they will be merged at this step
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "align_rna_Rsubread.R", package = "vlite"),
+    system.file("Rscript", "align_rna_Rsubread.R", package = "vlite"),
     fq1,
     ifelse(is.null(fq2), "''", fq2),
     genome.idx,

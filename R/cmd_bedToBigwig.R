@@ -43,7 +43,7 @@ cmd_bedToBigwig <- function(bed,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "bed_to_bigwig.R", package = "vlite"),
+    system.file("Rscript", "bed_to_bigwig.R", package = "vlite"),
     bed,
     genome,
     bw.file

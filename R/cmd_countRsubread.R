@@ -60,8 +60,8 @@ cmd_countRsubread <- function(bam,
   # Retrieve gtf ----
   if(!missing(genome)) {
     gtf <- switch(genome,
-                  "mm10"= "/groups/stark/vloubiere/projects/ORFTRAP_1/db/gtf/gencode.vM25.basic.annotation.gtf.gz",
-                  "dm6"= "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/flybase/dm6/dmel-all-r6.36.gtf")
+                  "mm10"= "/groups/stark/vloubiere/genomes/Mus_musculus/GENCODE/gencode.vM25.protein_coding_mRNASeq.gtf.gz",
+                  "dm6"= "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/flybase/dm6/dmel-mRNA-r6.36.gtf")
     # Extra column to be added to gene ID (typically, gene symbol)
     GTF.attrType.extra <- switch(genome,
                                  "mm10"= "gene_name",
@@ -77,7 +77,7 @@ cmd_countRsubread <- function(bam,
   # Count command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscripts", "count_Rsubread.R", package = "vlite"),
+    system.file("Rscript", "count_Rsubread.R", package = "vlite"),
     bam,
     layout,
     gtf,

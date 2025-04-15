@@ -6,10 +6,10 @@
 #'
 #' @param x A numeric matrix to be displayed as a heatmap.
 #' @param cluster.rows Logical or vector specifying row clustering:
-#'   * `FALSE`: no clustering (default)
-#'   * `TRUE`: perform clustering
+#'   * `TRUE`: perform clustering (default)
+#'   * `FALSE`: no clustering
 #'   * vector: pre-defined clustering
-#' @param cluster.cols Similar to `cluster.rows` but for columns.
+#' @param cluster.cols Similar to `cluster.rows` but for columns. Default= FALSE.
 #' @param kmeans.k Integer specifying the number of k-means clusters. Defaults to `NA` (uses hierarchical clustering).
 #' @param breaks A numeric vector specifying the breakpoints for color mapping.
 #'   Defaults to 21 evenly spaced breaks spanning the range of `x`.
@@ -19,6 +19,7 @@
 #' @param show.rownames Logical; whether to display row names. Default is `TRUE`.
 #' @param show.colnames Logical; whether to display column names. Default is `TRUE`.
 #' @param tilt.colnames Logical; whether to tilt column names for better readability. Default is `TRUE`.
+#' @param main Ad title for the heatmap. Default= NA.
 #' @param clustering.method Character string specifying the hierarchical clustering method. Default is `"complete"`.
 #' @param clustering.distance.rows Character string specifying the distance metric for rows. Default is `"euclidean"`.
 #' @param clustering.distance.cols Similar to `clustering.distance.rows` but for columns.
@@ -33,6 +34,7 @@
 #' @param show.numbers Logical or matrix; if `TRUE` or a matrix is provided, displays values in cells.
 #' @param numbers.cex Numeric scaling factor for the size of displayed numbers. Default is `0.7`.
 #' @param cluster.seed Integer seed for reproducible clustering. Default is `3453`.
+#' @param useRaster logical; if TRUE a bitmap raster is used to plot the image instead of polygons. Default= FALSE.
 #'
 #' @return
 #' Invisibly returns a list with two `data.table` objects:
@@ -80,7 +82,7 @@
 #'
 #' @export
 vl_heatmap <- function(x,
-                       cluster.rows= FALSE,
+                       cluster.rows= TRUE,
                        cluster.cols= FALSE,
                        kmeans.k= NA,
                        breaks= NULL,
@@ -88,6 +90,7 @@ vl_heatmap <- function(x,
                        show.rownames= TRUE,
                        show.colnames= TRUE,
                        tilt.colnames= TRUE,
+                       main= NA,
                        clustering.method = "complete",
                        clustering.distance.rows= "euclidean",
                        clustering.distance.cols= "euclidean",
@@ -101,9 +104,12 @@ vl_heatmap <- function(x,
                        legend.title= "Value",
                        show.numbers= FALSE,
                        numbers.cex= .7,
-                       cluster.seed= 3453)
+                       cluster.seed= 3453,
+                       useRaster= FALSE)
 {
   # Checks and default values ----
+  if(!is.matrix(x))
+    x <- as.matrix(x)
   if(is.null(rownames(x)))
     rownames(x) <- seq(nrow(x))
   if(is.null(colnames(x)))
@@ -208,7 +214,8 @@ vl_heatmap <- function(x,
     show.colnames = show.colnames && (isFALSE(cluster.cols) || show.col.clusters=="top"),
     tilt.colnames = tilt.colnames,
     show.numbers= show.numbers,
-    numbers.cex= numbers.cex
+    numbers.cex= numbers.cex,
+    useRaster= useRaster
   )
 
   # Border ----
@@ -322,6 +329,10 @@ vl_heatmap <- function(x,
              bottom+cdend$yend/diff(range(cdend[,c(y, yend)]))*line.height,
              xpd= NA)
   }
+
+  # Add title
+  if(!is.na(main))
+    title(main= main)
 
   # Add legend
   if(!exists("left"))
