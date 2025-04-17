@@ -19,19 +19,19 @@ cmd_assignInsertions(
 
 \item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
 
-\item{genome}{Reference genome name (e.g., `"mm10"`, `"hg38"`). If not provided, `gtf` must be specified.}
+\item{genome}{Reference genome name (e.g., "mm10", "hg38"). If not provided, gtf must be specified.}
 
-\item{gtf}{Path to the GTF annotation file. Default: `NULL`.}
+\item{gtf}{Path to the GTF annotation file. Default= NULL.}
 
-\item{bed.output.folder}{Directory for the BED file of unique insertions. Default: `"db/bed/"`.}
+\item{bed.output.folder}{Directory for the BED file of unique insertions. Default= "db/bed/".}
 
-\item{counts.output.folder}{Directory for the counts file. Default: `"db/counts/"`.}
+\item{counts.output.folder}{Directory for the counts file. Default= "db/counts/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file labels (`"bed.file"`, `"counts.file"`).
+A data.table with:
+- `file.type`: Output file labels ("bed.file", "counts.file").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the insertion assignment pipeline.
 }

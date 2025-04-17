@@ -16,13 +16,13 @@ cmd_countBCreads(
 
 \item{output.prefix}{Prefix for the output file. If not provided, it is derived from the input BAM filename.}
 
-\item{counts.output.folder}{Directory for the counts file. Default: `"db/counts/"`.}
+\item{counts.output.folder}{Directory for the counts file. Default= "db/counts/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file label (`"counts.BC"`).
+A data.table with:
+- `file.type`: Output file label ("counts.BC").
 - `path`: Path to the output counts file.
 - `cmd`: Shell command to run the barcode counting pipeline.
 }

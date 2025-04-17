@@ -20,29 +20,29 @@ cmd_peakCalling(
 \arguments{
 \item{bam}{A character vector specifying path(s) to treatment BAM file(s).}
 
-\item{bam.input}{A character vector specifying path(s) to input BAM file(s). Default: `NULL`.}
+\item{bam.input}{A character vector specifying path(s) to input BAM file(s). Default= NULL.}
 
-\item{layout}{Sequencing layout, either `"SINGLE"` or `"PAIRED"`.}
+\item{layout}{Sequencing layout, either "SINGLE" or "PAIRED".}
 
 \item{output.prefix}{Prefix for the output files.}
 
-\item{keep.dup}{Number of duplicates to keep or `"all"`. Default: `1`.}
+\item{keep.dup}{Number of duplicates to keep or "all". Default= 1L.}
 
 \item{extsize}{Integer value by which reads should be extended.
-Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default: `200`.}
+Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default= 200L.}
 
 \item{shift}{Integer value by which reads will be shifted.
-Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default: `0`.}
+Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default= 0L.}
 
-\item{genome.macs2}{Genome size parameter for MACS2 (e.g., `"mm"`, `"hs"`).}
+\item{genome.macs2}{Genome size parameter for MACS2 (e.g., "mm", "hs").}
 
-\item{peaks.output.folder}{Directory for peak files. Default: `"db/peaks/"`.}
+\item{peaks.output.folder}{Directory for peak files. Default= "db/peaks/".}
 
-\item{broad}{Logical. Whether to call broad peaks. Default: `FALSE`.}
+\item{broad}{Logical. Whether to call broad peaks. Default= FALSE.}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file labels (`"peaks"`, `"bedgraph"`).
+A data.table with:
+- `file.type`: Output file labels (e.g: "peaks", "bedgraph").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the peak calling pipeline.
 }

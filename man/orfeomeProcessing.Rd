@@ -7,6 +7,8 @@
 orfeomeProcessing(
   fq1,
   output.prefix,
+  bowtie2.lib.idx =
+    "/groups/stark/vloubiere/projects/viralORF_tomas/db/indexes_BCs/lib200_merged/ORF",
   fq.output.folder = "db/fq/ORFeome/",
   bam.output.folder = "db/bam/ORFeome/",
   counts.output.folder = "db/counts/ORFeome/",
@@ -16,24 +18,26 @@ orfeomeProcessing(
 )
 }
 \arguments{
-\item{fq1}{Path(s) to input R1 FASTQ file(s). Note that R2 is not used here.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths. Note that read 2 is not used.}
 
 \item{output.prefix}{Prefix for output files.}
 
-\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/ORFeome/"`.}
+\item{bowtie2.lib.idx}{The bowtie2 barcodes index. Default= "/groups/stark/vloubiere/projects/viralORF_tomas/db/indexes_BCs/lib200_merged/ORF".}
 
-\item{bam.output.folder}{Directory for aligned BAM files. Default: `"db/bam/ORFeome/"`.}
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/ORFeome/".}
 
-\item{counts.output.folder}{Directory for barcode counts. Default: `"db/counts/ORFeome/"`.}
+\item{bam.output.folder}{Directory for aligned BAM files. Default= "db/bam/ORFeome/".}
 
-\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/ORFeome/"`.}
+\item{counts.output.folder}{Directory for barcode counts. Default= "db/counts/ORFeome/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default= "db/alignment_stats/ORFeome/".}
 
-\item{cores}{Number of CPU cores to use. Default: `8`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+
+\item{cores}{Number of CPU cores to use. Default= 8.}
 }
 \value{
-A `data.table` with:
+A data.table with:
 - `file.types`: Types of output files.
 - `path`: Paths to the output files.
 - `cmd`: Shell commands for each step in the pipeline.
@@ -43,8 +47,6 @@ Implements a pipeline for processing ORFeome sequencing data, including:
 1. Adapter trimming
 2. Genome alignment
 3. Barcode counting
-
-Supports single-end sequencing data, with a predefined barcode library for alignment and counting.
 }
 \examples{
 # Process ORFeome sequencing data

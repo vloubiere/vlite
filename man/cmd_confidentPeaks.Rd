@@ -13,19 +13,19 @@ cmd_confidentPeaks(
 )
 }
 \arguments{
-\item{replicates.peaks.files}{Vector of paths to replicate peak files in `.narrowPeak` or `.broadPeak` format.}
+\item{replicates.peaks.files}{Vector of paths to replicate peak files in .narrowPeak or .broadPeak format.}
 
-\item{merge.peaks.file}{Path to the merged peak file in `.narrowPeak` or `.broadPeak` format.}
+\item{merge.peaks.file}{Path to the merged peak file in .narrowPeak or .broadPeak format.}
 
 \item{output.prefix}{Prefix for the output file.}
 
-\item{conf.peaks.output.folder}{Directory for the confident peaks file. Default: `"db/peaks/"`.}
+\item{conf.peaks.output.folder}{Directory for the confident peaks file. Default= "db/peaks/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file label (`"confident.peaks"`).
+A data.table with:
+- `file.type`: Output file label ("confident.peaks").
 - `path`: Path to the confident peaks file.
 - `cmd`: Shell command to run the confident peaks pipeline.
 }

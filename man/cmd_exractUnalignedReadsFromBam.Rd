@@ -14,15 +14,15 @@ cmd_exractUnalignedReadsFromBam(
 \arguments{
 \item{bam}{Path to the input BAM file. Only a single BAM file is allowed.}
 
-\item{fq.output.folder}{Directory for the output FASTQ file. Default: `"db/fq/"`.}
+\item{fq.output.folder}{Directory for the output FASTQ file. Default= "db/fq/".}
 
-\item{alignment.stats.output.folder}{Directory for alignment statistics (not used in this function). Default: `"db/alignment_stats/"`.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics (not used in this function). Default= "db/alignment_stats/".}
 
-\item{cores}{Number of CPU cores to use for `samtools` processing. Default: `8`.}
+\item{cores}{Number of CPU cores to use for samtools processing. Default= 8.}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file label (`"fq1.unaligned"`).
+A data.table with:
+- `file.type`: Output file label ("fq1.unaligned").
 - `path`: Path to the output FASTQ file.
 - `cmd`: Shell command to extract unaligned reads.
 }

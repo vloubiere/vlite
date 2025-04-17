@@ -17,15 +17,15 @@ cmd_umiCollapsingProseq(
 
 \item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
 
-\item{counts.output.folder}{Directory for the UMI counts file. Default: `"db/counts/"`.}
+\item{counts.output.folder}{Directory for the UMI counts file. Default= "db/counts/".}
 
-\item{stats.output.folder}{Directory for the UMI statistics file. Default: `"db/counts_statistics/"`.}
+\item{stats.output.folder}{Directory for the UMI statistics file. Default= "db/counts_statistics/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file labels (`"umi.counts"`, `"umi.stats"`).
+A data.table with:
+- `file.type`: Output file labels ("umi.counts", "umi.stats").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the UMI counting pipeline.
 }

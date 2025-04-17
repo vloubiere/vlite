@@ -23,38 +23,38 @@ proseqProcessing(
 )
 }
 \arguments{
-\item{fq1}{Path(s) to input R1 FASTQ file(s). Note that R2 is not used here.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths. Note that read 2 is not used.}
 
 \item{output.prefix}{Prefix for output files.}
 
-\item{ref.genome}{Reference genome identifier (e.g., `"mm10"`, `"hg38"`).}
+\item{ref.genome}{Reference genome identifier (e.g., "mm10", "hg38").}
 
-\item{ref.genome.idx}{Path to the Bowtie1 index for the reference genome. If `NULL`, derived from `ref.genome`. Default: `NULL`.}
+\item{ref.genome.idx}{Path to the Bowtie1 index for the reference genome. If NULL, derived from ref.genome. Default= NULL.}
 
 \item{spike.genome}{Spike-in genome identifier.}
 
-\item{spike.genome.idx}{Path to the Bowtie1 index for the spike-in genome. Default: `NULL`.}
+\item{spike.genome.idx}{Path to the Bowtie1 index for the spike-in genome. Default= NULL.}
 
-\item{ref.gtf}{Path to the GTF annotation file for the reference genome. Default: `NULL`.}
+\item{ref.gtf}{Path to the GTF annotation file for the reference genome. Default= NULL.}
 
-\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/PROSeq/"`.}
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/PROSeq/".}
 
-\item{bam.output.folder}{Directory for aligned BAM files. Default: `"db/bam/PROSeq/"`.}
+\item{bam.output.folder}{Directory for aligned BAM files. Default= "db/bam/PROSeq/".}
 
-\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/PROSeq/"`.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default= "db/alignment_stats/PROSeq/".}
 
-\item{counts.output.folder}{Directory for UMI counts. Default: `"db/counts/PROSeq/"`.}
+\item{counts.output.folder}{Directory for UMI counts. Default= "db/counts/PROSeq/".}
 
-\item{counts.stats.output.folder}{Directory for UMI count statistics. Default: `"db/stats/PROSeq/"`.}
+\item{counts.stats.output.folder}{Directory for UMI count statistics. Default= "db/stats/PROSeq/".}
 
-\item{bw.output.folder}{Directory for BigWig files. Default: `"db/bw/PROSeq/"`.}
+\item{bw.output.folder}{Directory for BigWig files. Default= "db/bw/PROSeq/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 
-\item{cores}{Number of CPU cores to use. Default: `8`.}
+\item{cores}{Number of CPU cores to use. Default= 8.}
 }
 \value{
-A `data.table` with:
+A data.table with:
 - `file.types`: Types of output files.
 - `path`: Paths to the output files.
 - `cmd`: Shell commands for each step in the pipeline.
@@ -65,8 +65,6 @@ Implements a pipeline for processing PRO-Seq sequencing data, including:
 2. Genome alignment (reference and spike-in)
 3. UMI counting
 4. BigWig track generation
-
-Supports single-end sequencing data, with options for reference and spike-in genomes.
 }
 \examples{
 # Process PRO-Seq sequencing data

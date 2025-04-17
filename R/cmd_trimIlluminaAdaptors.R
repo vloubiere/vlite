@@ -44,8 +44,7 @@ cmd_trimIlluminaAdaptors <- function(fq1,
     # Paired-end reads
     fq1.trim <- file.path(fq.output.folder, gsub("(.*)(.f.*q.*)", "\\1_val_1\\2", basename(fq1)))
     fq2.trim <- file.path(fq.output.folder, gsub("(.*)(.f.*q.*)", "\\1_val_2\\2", basename(fq2)))
-  } else
-
+  }
 
   # Trimming commands ----
   cmd <- if(is.null(fq2)) {

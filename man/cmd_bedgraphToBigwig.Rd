@@ -17,15 +17,15 @@ cmd_bedgraphToBigwig(
 
 \item{output.prefix}{Prefix for the output BigWig file.}
 
-\item{bw.output.folder}{Directory for the BigWig file. Default: `"db/bw/"`.}
+\item{bw.output.folder}{Directory for the BigWig file. Default= "db/bw/".}
 
 \item{genome}{Path to the genome sizes file.}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
 A `data.table` with:
-- `file.type`: Output file label (`"bw"`).
+- `file.type`: Output file label ("bw").
 - `path`: Path to the BigWig file.
 - `cmd`: Shell command to run the BedGraph to BigWig conversion.
 }

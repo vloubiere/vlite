@@ -20,32 +20,32 @@ orftagProcessing(
 )
 }
 \arguments{
-\item{fq1}{Path(s) to input R1 FASTQ file(s). Note that R2 is not used here.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths. Note that read 2 is not used.}
 
 \item{output.prefix}{Prefix for output files.}
 
-\item{genome}{Reference genome identifier (e.g., `"mm10"`, `"hg38"`).}
+\item{genome}{Reference genome identifier (e.g., "mm10", "hg38").}
 
-\item{genome.idx}{Path to the Bowtie2 genome index. If `NULL`, derived from `genome`. Default: `NULL`.}
+\item{genome.idx}{Path to the Bowtie2 genome index. If NULL, derived from genome. Default= NULL.}
 
-\item{gtf}{Path to the GTF annotation file. Default: `NULL`.}
+\item{gtf}{Path to the GTF annotation file. Default= NULL.}
 
-\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/ORFtag/"`.}
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/ORFtag/".}
 
-\item{bam.output.folder}{Directory for aligned BAM files. Default: `"db/bam/ORFtag/"`.}
+\item{bam.output.folder}{Directory for aligned BAM files. Default= "db/bam/ORFtag/".}
 
-\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/ORFtag/"`.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default= "db/alignment_stats/ORFtag/".}
 
-\item{bed.output.folder}{Directory for BED files of unique insertions. Default: `"db/bed/ORFtag/"`.}
+\item{bed.output.folder}{Directory for BED files of unique insertions. Default= "db/bed/ORFtag/".}
 
-\item{counts.output.folder}{Directory for counts files. Default: `"db/counts/ORFtag/"`.}
+\item{counts.output.folder}{Directory for counts files. Default= "db/counts/ORFtag/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 
-\item{cores}{Number of CPU cores to use. Default: `8`.}
+\item{cores}{Number of CPU cores to use. Default= 8.}
 }
 \value{
-A `data.table` with:
+A data.table with:
 - `file.types`: Types of output files.
 - `path`: Paths to the output files.
 - `cmd`: Shell commands for each step in the pipeline.
@@ -56,8 +56,6 @@ Implements a pipeline for processing ORFtag sequencing data, including:
 2. Genome alignment
 3. BAM file collapsing (unique insertions)
 4. Assigning insertions to genomic features
-
-Supports single-end sequencing data, with options for custom genome and annotation files.
 }
 \examples{
 # Process ORFtag sequencing data

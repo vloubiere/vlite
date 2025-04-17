@@ -17,15 +17,15 @@ cmd_collapseBam(
 
 \item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
 
-\item{collapsed.bam.output.folder}{Directory for the collapsed BAM file. Default: `"db/bam/collapsed/"`.}
+\item{collapsed.bam.output.folder}{Directory for the collapsed BAM file. Default= "db/bam/collapsed/".}
 
-\item{collapsed.stats.output.folder}{Directory for the alignment statistics file. Default: `"db/alignment_stats/"`.}
+\item{collapsed.stats.output.folder}{Directory for the alignment statistics file. Default= "db/alignment_stats/".}
 
-\item{cores}{Number of CPU cores to use for `samtools` processing. Default: `8`.}
+\item{cores}{Number of CPU cores to use for samtools processing. Default= 8.}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file labels (`"collapsed.bam"`, `"collapsed.stats"`).
+A data.table with:
+- `file.type`: Output file labels ("collapsed.bam", "collapsed.stats").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the collapsing and statistics generation pipeline.
 }

@@ -17,26 +17,26 @@ cutnrunProcessing(
 )
 }
 \arguments{
-\item{fq1}{Path(s) to input R1 FASTQ file(s). Required if `vbcFile` is not provided.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths.}
 
-\item{fq2}{Path(s) to input R2 FASTQ file(s) for paired-end data. Default: `NULL`.}
+\item{fq2}{For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.}
 
 \item{output.prefix}{Prefix for output files.}
 
-\item{genome}{Reference genome identifier (e.g., `"mm10"`, `"hg38"`).}
+\item{genome}{Reference genome identifier (e.g., "mm10", "hg38").}
 
-\item{genome.idx}{Path to Bowtie2 index. If `NULL`, derived from `genome`. Default: `NULL`.}
+\item{genome.idx}{Path to Bowtie2 index. If NULL, derived from genome. Default= NULL.}
 
-\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/CUTNRUN/"`.}
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/CUTNRUN/".}
 
-\item{bam.output.folder}{Directory for aligned BAM files. Default: `"db/bam/CUTNRUN/"`.}
+\item{bam.output.folder}{Directory for aligned BAM files. Default= "db/bam/CUTNRUN/".}
 
-\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/CUTNRUN/"`.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default= "db/alignment_stats/CUTNRUN/".}
 
-\item{cores}{Number of CPU cores to use. Default: `8`.}
+\item{cores}{Number of CPU cores to use. Default= 8.}
 }
 \value{
-A `data.table` with:
+A data.table with:
 - `file.type`: Types of output files.
 - `path`: Paths to the output files.
 - `cmd`: Shell commands for each step in the pipeline.
@@ -45,8 +45,6 @@ A `data.table` with:
 Implements a pipeline for processing CUT&RUN sequencing data, including:
 1. Adapter trimming
 2. Genome alignment and quality filtering
-
-Supports single-end and paired-end data, with optional demultiplexing for VBC BAM or `.tar.gz` files.
 }
 \examples{
 # Process paired-end data from FASTQ files

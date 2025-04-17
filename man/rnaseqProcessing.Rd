@@ -23,38 +23,38 @@ rnaseqProcessing(
 )
 }
 \arguments{
-\item{fq1}{Path(s) to input R1 FASTQ file(s).}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths.}
 
-\item{fq2}{Path(s) to input R2 FASTQ file(s) for paired-end data. Default: `NULL`.}
+\item{fq2}{For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.}
 
 \item{output.prefix}{Prefix for output files.}
 
-\item{genome}{Reference genome identifier (e.g., `"mm10"`, `"hg38"`).}
+\item{genome}{Reference genome identifier (e.g., "mm10", "hg38").}
 
-\item{genome.idx}{Path to the Rsubread genome index. If `NULL`, derived from `genome`. Default: `NULL`.}
+\item{genome.idx}{Path to the Rsubread genome index. If NULL, derived from genome. Default= NULL.}
 
-\item{gtf}{Path to the GTF annotation file. If `genome` is provided, corresponding protein-coding / mRNA genes will be used. Default: `NULL`.}
+\item{gtf}{Path to the GTF annotation file. If genome is provided, corresponding protein-coding / mRNA genes will be used. Default= NULL.}
 
 \item{GTF.attrType.extra}{Additional GTF attribute to include in the output (e.g., gene symbol).}
 
-\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/RNASeq/"`.}
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/RNASeq/".}
 
-\item{bam.output.folder}{Directory for aligned BAM files. Default: `"db/bam/RNASeq/"`.}
+\item{bam.output.folder}{Directory for aligned BAM files. Default= "db/bam/RNASeq/".}
 
-\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/RNASeq/"`.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default= "db/alignment_stats/RNASeq/".}
 
-\item{counts.stats.output.folder}{Directory for gene count statistics. Default: `"db/stats/RNASeq/"`.}
+\item{counts.stats.output.folder}{Directory for gene count statistics. Default= "db/stats/RNASeq/".}
 
-\item{counts.output.folder}{Directory for gene counts. Default: `"db/counts/RNASeq/"`.}
+\item{counts.output.folder}{Directory for gene counts. Default= "db/counts/RNASeq/".}
 
-\item{bw.output.folder}{Directory for BigWig files. Default: `"db/bw/RNASeq/"`.}
+\item{bw.output.folder}{Directory for BigWig files. Default= "db/bw/RNASeq/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 
-\item{cores}{Number of CPU cores to use. Default: `8`.}
+\item{cores}{Number of CPU cores to use. Default= 8.}
 }
 \value{
-A `data.table` with:
+A data.table with:
 - `file.types`: Types of output files.
 - `path`: Paths to the output files.
 - `cmd`: Shell commands for each step in the pipeline.
@@ -65,8 +65,6 @@ Implements a pipeline for processing RNA-Seq data, including:
 2. Genome alignment
 3. Gene counting
 4. BigWig track generation
-
-Supports single-end and paired-end data, with options for custom genome and annotation files.
 }
 \examples{
 # Process paired-end RNA-Seq data

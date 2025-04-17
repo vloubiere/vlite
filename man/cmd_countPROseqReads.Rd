@@ -14,22 +14,22 @@ cmd_countPROseqReads(
 )
 }
 \arguments{
-\item{umi.count.file}{Path to the input UMI count file. Must be a single `.txt` file.}
+\item{umi.count.file}{Path to the input UMI count file. Must be a single .txt file.}
 
-\item{annotation.file}{Path to the annotation file in `.rds` format containing the following columns:
+\item{annotation.file}{Path to the annotation file in .rds format containing the following columns:
 seqnames, start, end, strand, cluster.id.}
 
-\item{feature}{Name of the genomic features in the annotation.file (promoter, body...). If not provided, it is derived from the `annotation.file` name.}
+\item{feature}{Name of the genomic features in the annotation.file (promoter, body...). If not provided, it is derived from the annotation.file name.}
 
-\item{output.prefix}{Prefix for the output files. If not provided, it is derived from the `umi.count.file` name.}
+\item{output.prefix}{Prefix for the output files. If not provided, it is derived from the umi.count.file name.}
 
-\item{count.tables.output.folder}{Directory for the output counts table. Default: `db/counts/PROseq/`.}
+\item{count.tables.output.folder}{Directory for the output counts table. Default: "db/counts/PROseq/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript`.}
+\item{Rpath}{Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
-A `data.table` with the following columns:
-- `file.type`: Label for the output file (`"count.table"`).
+A data.table with the following columns:
+- `file.type`: Label for the output file ("count.table").
 - `path`: Path to the output counts table.
 - `cmd`: Shell command to run the PRO-seq read counting pipeline.
 }

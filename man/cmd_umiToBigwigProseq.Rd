@@ -16,13 +16,13 @@ cmd_umiToBigwigProseq(
 
 \item{output.prefix}{Prefix for the output BigWig files. If not provided, it is derived from the input UMI counts filename.}
 
-\item{bw.output.folder}{Directory for the BigWig files. Default: `"db/bw/"`.}
+\item{bw.output.folder}{Directory for the BigWig files. Default= "db/bw/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file labels (`"ps.bw"`, `"ns.bw"`).
+A data.table with:
+- `file.type`: Output file labels ("ps.bw", "ns.bw").
 - `path`: Paths to the positive strand and negative strand BigWig files.
 - `cmd`: Shell command to run the UMI to BigWig conversion.
 }

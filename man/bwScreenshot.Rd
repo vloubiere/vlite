@@ -8,17 +8,18 @@ bwScreenshot(
   bed,
   tracks = character(),
   col = colorRampPalette(c("grey60", "grey10"))(length(tracks)),
-  bw.names = function(x) gsub("(.*)[.].*$", "\\\\1", x),
+  track.names = function(x) gsub("(.*)[.].*$", "\\\\1", x),
   bw.max = NA,
   bw.min = NA,
   bw.n.breaks = 100,
   genome,
-  ngenes = 3,
+  ngenes = 1,
+  sel.gene.symbols = NULL,
   cex.symbol = 0.7,
   offset.symbol = 0.25,
   col.ns = "cornflowerblue",
   col.ps = "tomato",
-  exon.border = "black",
+  exon.border = NA,
   gtf,
   gtf.transcript = "mRNA",
   gtf.exon = "exon",
@@ -51,7 +52,7 @@ bwScreenshot(
 
 \item{col}{Colors for tracks. Default is a grey gradient from grey60 to grey10.}
 
-\item{bw.names}{Function or character vector for track labels. Default extracts names
+\item{track.names}{Function or character vector for track labels. Default extracts names
 from file basenames.}
 
 \item{bw.max}{Numeric. Maximum signal value for BigWig tracks. Values above this
@@ -63,7 +64,9 @@ If set to NA, the signal is not simplified and is plotted as is.}
 \item{genome}{Character. Genome assembly (e.g., "mm10", "dm6") for gene annotations.
 If specified, nearby genes will be displayed.}
 
-\item{ngenes}{Integer. Number of nearest genes to display. Default = 3.}
+\item{ngenes}{Integer. Number of nearest genes to display. Default = 1.}
+
+\item{sel.gene.symbols}{If specific, only selected gene symbols will be plotted. Default= NULL.}
 
 \item{gtf}{Character. Path to a GTF file for custom gene annotations. Alternative to using
 the 'genome' parameter.}
@@ -118,7 +121,7 @@ regions can be displayed side by side for comparison.
   \item `offset.symbol`: Vertical offset for gene symbols (default = 0.25)
   \item `col.ns`: Color for negative strand genes (default = "cornflowerblue")
   \item `col.ps`: Color for positive strand genes (default = "tomato")
-  \item `exon.border`: Color for exon rectangle borders (default = "black", NA removes the border)
+  \item `exon.border`: Color for exon rectangle borders (default = NA, meaning no border)
 }
 }
 

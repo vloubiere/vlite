@@ -17,21 +17,21 @@ cmd_bamToBigwig(
 \arguments{
 \item{bam}{Path to the input BAM file. Only a single BAM file is allowed.}
 
-\item{layout}{Sequencing layout, either `"SINGLE"` or `"PAIRED"`.}
+\item{layout}{Sequencing layout, either "SINGLE" or "PAIRED".}
 
 \item{output.prefix}{Prefix for the output BigWig file. If not provided, it is derived from the input BAM filename.}
 
-\item{extend.PE.fragments}{Logical. Whether to extend paired-end fragments. Default: `FALSE`.}
+\item{extend.PE.fragments}{Logical. Whether to extend paired-end fragments. Default= FALSE.}
 
-\item{extsize}{Numeric. Read extension size. Default: `0` (no extension).}
+\item{extsize}{Numeric. Read extension size. Default= 0 (no extension).}
 
-\item{bw.output.folder}{Directory for the BigWig file. Default: `"db/bw/"`.}
+\item{bw.output.folder}{Directory for the BigWig file. Default= "db/bw/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file label (`"bw"`).
+A data.table with:
+- `file.type`: Output file label ("bw").
 - `path`: Path to the BigWig file.
 - `cmd`: Shell command to run the BAM to BigWig conversion.
 }

@@ -7,11 +7,11 @@
 cmd_trimIlluminaAdaptors(fq1, fq2 = NULL, fq.output.folder = "db/fq/")
 }
 \arguments{
-\item{fq1}{Path to the input FASTQ file (.fq.gz) for single-end data or the first read file for paired-end data.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths.}
 
-\item{fq2}{Path to the second read file for paired-end data (.fq.gz). Default: `NULL`.}
+\item{fq2}{For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.}
 
-\item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/"`.}
+\item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/".}
 }
 \value{
 A `data.table` with:

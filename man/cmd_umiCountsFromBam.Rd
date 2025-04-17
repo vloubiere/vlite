@@ -16,19 +16,19 @@ cmd_umiCountsFromBam(
 \arguments{
 \item{bam}{Path to the input BAM file. Only a single BAM file is allowed.}
 
-\item{layout}{Sequencing layout, either `"SINGLE"` or `"PAIRED"`.}
+\item{layout}{Sequencing layout, either "SINGLE" or "PAIRED".}
 
 \item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
 
-\item{umi.counts.output.folder}{Directory for the UMI counts file. Default: `"db/umi_counts/"`.}
+\item{umi.counts.output.folder}{Directory for the UMI counts file. Default= "db/umi_counts/".}
 
-\item{collapsed.bed.output.folder}{Directory for the collapsed UMI BED file. Default: `"db/bed/"`.}
+\item{collapsed.bed.output.folder}{Directory for the collapsed UMI BED file. Default= "db/bed/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
-A `data.table` with:
-- `file.type`: Output file labels (`"umi.counts"`, `"umi.bed"`).
+A data.table with:
+- `file.type`: Output file labels ("umi.counts", "umi.bed").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the UMI counting pipeline.
 }

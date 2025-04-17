@@ -16,25 +16,25 @@ cmd_alignRnaRsubread(
 )
 }
 \arguments{
-\item{fq1}{Path to the input FASTQ file (.fq.gz) for single-end data or the first read file for paired-end data.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths.}
 
-\item{fq2}{Path to the second read file for paired-end data (.fq.gz). Default: `NULL`.}
+\item{fq2}{For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.}
 
 \item{output.prefix}{Prefix for the output files.}
 
-\item{genome}{Reference genome name (e.g., `"mm10"`, `"dm6"`). If not provided, `genome.idx` must be specified.}
+\item{genome}{Reference genome name (e.g., "mm10", "dm6"). If not provided, genome.idx must be specified.}
 
-\item{genome.idx}{Path to the Rsubread genome index. Default: `NULL`.}
+\item{genome.idx}{Path to the Rsubread genome index. Default= NULL.}
 
-\item{bam.output.folder}{Directory for the output BAM file. Default: `"db/bam.output.folder/"`.}
+\item{bam.output.folder}{Directory for the output BAM file. Default= "db/bam.output.folder/".}
 
-\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/"`.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default= "db/alignment_stats/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
 A `data.table` with:
-- `file.type`: Output file labels (`"bam"`, `"align.stats"`).
+- `file.type`: Output file labels ("bam", "align.stats").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run Rsubread.
 }

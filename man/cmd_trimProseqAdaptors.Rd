@@ -7,7 +7,7 @@
 cmd_trimProseqAdaptors(fq1, fq.output.folder = "db/fq/")
 }
 \arguments{
-\item{fq1}{Path to the input FASTQ file (.fq.gz). Note that only read 1 is used in PROseq.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths.}
 
 \item{fq.output.folder}{Directory for trimmed FASTQ files. Default: `"db/fq/"`.}
 }

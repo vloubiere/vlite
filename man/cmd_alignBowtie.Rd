@@ -18,18 +18,18 @@ cmd_alignBowtie(
 )
 }
 \arguments{
-\item{fq1}{A comma-separated list of .fq (or .fq.gz) file paths.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths.}
 
-\item{fq2}{A comma-separated list of paths to second read file(s) for paired-end data. Default: `NULL`.}
+\item{fq2}{For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.}
 
-\item{output.prefix}{Prefix for the output files.}
+\item{output.prefix}{Prefix for the output file.}
 
-\item{genome}{Reference genome name (e.g., `"mm10"`, `"hg38"`, `"dm3"`).
+\item{genome}{Reference genome name (e.g., "mm10", "hg38", "dm3").
 If not provided, `genome.idx` must be specified.}
 
-\item{genome.idx}{Path to the Bowtie2 genome index. Default: `NULL`.}
+\item{genome.idx}{Path to the Bowtie2 genome index. Default= NULL.}
 
-\item{max.mismatch}{Maximum number of mismatches allowed. Default: `2`.}
+\item{max.mismatch}{Maximum number of mismatches allowed. Default= 2.}
 
 \item{max.ins}{Maximum insert size for PAIRED reads. Default= 500.}
 
