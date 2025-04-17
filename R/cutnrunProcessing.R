@@ -5,19 +5,17 @@
 #' 1. Adapter trimming
 #' 2. Genome alignment and quality filtering
 #'
-#' Supports single-end and paired-end data, with optional demultiplexing for VBC BAM or `.tar.gz` files.
-#'
-#' @param fq1 Path(s) to input R1 FASTQ file(s). Required if `vbcFile` is not provided.
-#' @param fq2 Path(s) to input R2 FASTQ file(s) for paired-end data. Default: `NULL`.
+#' @param fq1 A character vector of .fq (or .fq.gz) file paths.
+#' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
 #' @param output.prefix Prefix for output files.
-#' @param genome Reference genome identifier (e.g., `"mm10"`, `"hg38"`).
-#' @param genome.idx Path to Bowtie2 index. If `NULL`, derived from `genome`. Default: `NULL`.
-#' @param fq.output.folder Directory for trimmed FASTQ files. Default: `"db/fq/CUTNRUN/"`.
-#' @param bam.output.folder Directory for aligned BAM files. Default: `"db/bam/CUTNRUN/"`.
-#' @param alignment.stats.output.folder Directory for alignment statistics. Default: `"db/alignment_stats/CUTNRUN/"`.
-#' @param cores Number of CPU cores to use. Default: `8`.
+#' @param genome Reference genome identifier (e.g., "mm10", "hg38").
+#' @param genome.idx Path to Bowtie2 index. If NULL, derived from genome. Default= NULL.
+#' @param fq.output.folder Directory for trimmed FASTQ files. Default= "db/fq/CUTNRUN/".
+#' @param bam.output.folder Directory for aligned BAM files. Default= "db/bam/CUTNRUN/".
+#' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/CUTNRUN/".
+#' @param cores Number of CPU cores to use. Default= 8.
 #'
-#' @return A `data.table` with:
+#' @return A data.table with:
 #' - `file.type`: Types of output files.
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell commands for each step in the pipeline.
@@ -52,26 +50,15 @@ cutnrunProcessing <- function(fq1,
                               alignment.stats.output.folder= "db/alignment_stats/CUTNRUN/",
                               cores= 8)
 {
-  # Initiate command output ----
-  cmd <- data.table(file.type= character(),
-                    path= character(),
-                    cmd= character())
-
   # Trimming illumina adaptors ----
-  for(i in seq(fq1)) { # Multiple files can be provided for one sample
-    .c <- cmd_trimIlluminaAdaptors(fq1= fq1[i],
-                                   fq2= fq2[i],
-                                   fq.output.folder= fq.output.folder)
-    cmd <- rbind(cmd, .c)
-  }
+  cmd <- cmd_trimIlluminaAdaptors(fq1= fq1,
+                                  fq2= fq2,
+                                  fq.output.folder= fq.output.folder)
 
-  # * If several fq1/fq2 files provided, they will be merged at this step ----
-  fq1.trim <- paste0(cmd[file.type=="fq1.trim", path], collapse = ",")
-  fq2.trim <- if(!is.null(fq2)) {
-    paste0(cmd[file.type=="fq2.trim", path], collapse = ",")
-  } else {
-    NULL
-  }
+  # * If several fq1/fq2 files provided, they will be merged during alignment ----
+  fq1.trim <- cmd[file.type=="fq1.trim", path]
+  if(!is.null(fq2))
+    fq2.trim <- cmd[file.type=="fq2.trim", path]
 
   # Alignment ----
   align.cmd <- cmd_alignBowtie2(fq1= fq1.trim,

@@ -4,14 +4,14 @@
 #' Creates shell commands to identify confident peaks across replicates using merged peak files.
 #' Outputs a file containing confident peaks.
 #'
-#' @param replicates.peaks.files Vector of paths to replicate peak files in `.narrowPeak` or `.broadPeak` format.
-#' @param merge.peaks.file Path to the merged peak file in `.narrowPeak` or `.broadPeak` format.
+#' @param replicates.peaks.files Vector of paths to replicate peak files in .narrowPeak or .broadPeak format.
+#' @param merge.peaks.file Path to the merged peak file in .narrowPeak or .broadPeak format.
 #' @param output.prefix Prefix for the output file.
-#' @param conf.peaks.output.folder Directory for the confident peaks file. Default: `"db/peaks/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param conf.peaks.output.folder Directory for the confident peaks file. Default= "db/peaks/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file label (`"confident.peaks"`).
+#' @return A data.table with:
+#' - `file.type`: Output file label ("confident.peaks").
 #' - `path`: Path to the confident peaks file.
 #' - `cmd`: Shell command to run the confident peaks pipeline.
 #'
@@ -31,7 +31,7 @@ cmd_confidentPeaks <- function(replicates.peaks.files,
                                conf.peaks.output.folder= "db/peaks/",
                                Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if replicates.peaks.files exist to allow wrapping!) ----
   if(!all(grepl(".narrowPeak$|broadPeak$", replicates.peaks.files)))
     stop("replicates.peaks.files should be in .narrowPeak or .broadPeaks format.")
   if(!all(grepl(".narrowPeak$|broadPeak$", merge.peaks.file)))

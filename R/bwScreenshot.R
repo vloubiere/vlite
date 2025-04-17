@@ -18,7 +18,7 @@
 #'   \item BED files for discrete regions (any format compatible with importBed)
 #' }
 #' @param col Colors for tracks. Default is a grey gradient from grey60 to grey10.
-#' @param bw.names Function or character vector for track labels. Default extracts names
+#' @param track.names Function or character vector for track labels. Default extracts names
 #'   from file basenames.
 #' @param bw.max Numeric. Maximum signal value for BigWig tracks. Values above this
 #'   will be clipped. Default (NA) uses track maximum.
@@ -26,7 +26,8 @@
 #' If set to NA, the signal is not simplified and is plotted as is.
 #' @param genome Character. Genome assembly (e.g., "mm10", "dm6") for gene annotations.
 #'   If specified, nearby genes will be displayed.
-#' @param ngenes Integer. Number of nearest genes to display. Default = 3.
+#' @param ngenes Integer. Number of nearest genes to display. Default = 1.
+#' @param sel.gene.symbols If specific, only selected gene symbols will be plotted. Default= NULL.
 #' @param gtf Character. Path to a GTF file for custom gene annotations. Alternative to using
 #'   the 'genome' parameter.
 #' @param gtf.transcript Character. Name of transcript features in the GTF file (default = "mRNA").
@@ -58,7 +59,7 @@
 #'   \item `offset.symbol`: Vertical offset for gene symbols (default = 0.25)
 #'   \item `col.ns`: Color for negative strand genes (default = "cornflowerblue")
 #'   \item `col.ps`: Color for positive strand genes (default = "tomato")
-#'   \item `exon.border`: Color for exon rectangle borders (default = "black", NA removes the border)
+#'   \item `exon.border`: Color for exon rectangle borders (default = NA, meaning no border)
 #' }
 #'
 #' @return
@@ -101,17 +102,18 @@
 bwScreenshot <- function(bed,
                          tracks= character(),
                          col= colorRampPalette(c("grey60", "grey10"))(length(tracks)),
-                         bw.names= function(x) gsub("(.*)[.].*$", "\\1", x),
+                         track.names= function(x) gsub("(.*)[.].*$", "\\1", x),
                          bw.max= NA,
                          bw.min= NA,
                          bw.n.breaks= 100,
                          genome,
-                         ngenes= 3,
+                         ngenes= 1,
+                         sel.gene.symbols= NULL,
                          cex.symbol= .7,
                          offset.symbol= 0.25,
                          col.ns= "cornflowerblue",
                          col.ps= "tomato",
-                         exon.border= "black",
+                         exon.border= NA,
                          gtf,
                          gtf.transcript= "mRNA",
                          gtf.exon= "exon",
@@ -141,6 +143,7 @@ bwScreenshot <- function(bed,
     genes <- .genomeGTFfeatures(genome= genome,
                                 regions= regions,
                                 ngenes= ngenes,
+                                sel.gene.symbols= sel.gene.symbols,
                                 gene.height= gene.height,
                                 gene.space.height= gene.space.height,
                                 gtf= gtf,
@@ -157,9 +160,9 @@ bwScreenshot <- function(bed,
   if(nrow(meta))
   {
     # Add names
-    if(is.function(bw.names))
-      bw.names <- bw.names(basename(tracks))
-    meta[, track.name:= bw.names]
+    if(is.function(track.names))
+      track.names <- track.names(basename(tracks))
+    meta[, track.name:= track.names]
     # Add index, track height and score cutoffs
     meta[, track.idx:= .I]
     meta[, track.height:= switch(track.class,
@@ -225,6 +228,7 @@ bwScreenshot <- function(bed,
                              track.file= track.file[1],
                              track.col= track.col[1],
                              track.height= track.height[1],
+                             track.name= track.name,
                              ybottom= ybottom[1],
                              ytop= ytop[1])
       }

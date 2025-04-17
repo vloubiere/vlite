@@ -11,7 +11,7 @@ cmd_DESeq2 <- function(count.files,
                        MAplots.output.folder= "pdf/MAplots/RNASeq/",
                        Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if count.files exist to allow wrapping!) ----
   if(!all(grepl(".txt$", count.files)))
     stop("count.files should all be in .txt format.")
   if(any(!file.exists(count.files)))

@@ -54,7 +54,7 @@ vl_PROseq_DESeq2 <- function(umi.count.tables,
                              MAplots.output.folder= "pdf/MAplots/PROseq/",
                              Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if umi.count.tables exist to allow wrapping!) ----
   if(!all(grepl(".txt$", umi.count.files)))
     stop("umi.count.files should all be in .txt format.")
   if(any(!file.exists(umi.count.files)))

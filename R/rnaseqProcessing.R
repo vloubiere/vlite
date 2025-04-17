@@ -7,25 +7,23 @@
 #' 3. Gene counting
 #' 4. BigWig track generation
 #'
-#' Supports single-end and paired-end data, with options for custom genome and annotation files.
-#'
-#' @param fq1 Path(s) to input R1 FASTQ file(s).
-#' @param fq2 Path(s) to input R2 FASTQ file(s) for paired-end data. Default: `NULL`.
+#' @param fq1 A character vector of .fq (or .fq.gz) file paths.
+#' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
 #' @param output.prefix Prefix for output files.
-#' @param genome Reference genome identifier (e.g., `"mm10"`, `"hg38"`).
-#' @param genome.idx Path to the Rsubread genome index. If `NULL`, derived from `genome`. Default: `NULL`.
-#' @param gtf Path to the GTF annotation file. If `genome` is provided, corresponding protein-coding / mRNA genes will be used. Default: `NULL`.
+#' @param genome Reference genome identifier (e.g., "mm10", "hg38").
+#' @param genome.idx Path to the Rsubread genome index. If NULL, derived from genome. Default= NULL.
+#' @param gtf Path to the GTF annotation file. If genome is provided, corresponding protein-coding / mRNA genes will be used. Default= NULL.
 #' @param GTF.attrType.extra Additional GTF attribute to include in the output (e.g., gene symbol).
-#' @param fq.output.folder Directory for trimmed FASTQ files. Default: `"db/fq/RNASeq/"`.
-#' @param bam.output.folder Directory for aligned BAM files. Default: `"db/bam/RNASeq/"`.
-#' @param alignment.stats.output.folder Directory for alignment statistics. Default: `"db/alignment_stats/RNASeq/"`.
-#' @param counts.stats.output.folder Directory for gene count statistics. Default: `"db/stats/RNASeq/"`.
-#' @param counts.output.folder Directory for gene counts. Default: `"db/counts/RNASeq/"`.
-#' @param bw.output.folder Directory for BigWig files. Default: `"db/bw/RNASeq/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
-#' @param cores Number of CPU cores to use. Default: `8`.
+#' @param fq.output.folder Directory for trimmed FASTQ files. Default= "db/fq/RNASeq/".
+#' @param bam.output.folder Directory for aligned BAM files. Default= "db/bam/RNASeq/".
+#' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/RNASeq/".
+#' @param counts.stats.output.folder Directory for gene count statistics. Default= "db/stats/RNASeq/".
+#' @param counts.output.folder Directory for gene counts. Default= "db/counts/RNASeq/".
+#' @param bw.output.folder Directory for BigWig files. Default= "db/bw/RNASeq/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param cores Number of CPU cores to use. Default= 8.
 #'
-#' @return A `data.table` with:
+#' @return A data.table with:
 #' - `file.types`: Types of output files.
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell commands for each step in the pipeline.
@@ -70,26 +68,15 @@ rnaseqProcessing <- function(fq1,
                              Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
                              cores= 8)
 {
-  # Initiate command output ----
-  cmd <- data.table(file.type= character(),
-                    path= character(),
-                    cmd= character())
-
   # Trimming illumina adaptors ----
-  for(i in seq(fq1)) { # Multiple files can be provided for one sample
-    .c <- cmd_trimIlluminaAdaptors(fq1= fq1[i],
-                                   fq2= fq2[i],
-                                   fq.output.folder= fq.output.folder)
-    cmd <- rbind(cmd, .c)
-  }
+  cmd <- cmd_trimIlluminaAdaptors(fq1= fq1,
+                                  fq2= fq2,
+                                  fq.output.folder= fq.output.folder)
 
-  # * If several fq1/fq2 files provided, they will be merged at this step ----
-  fq1.trim <- paste0(cmd[file.type=="fq1.trim", path], collapse = ",")
-  fq2.trim <- if(!is.null(fq2)) {
-    paste0(cmd[file.type=="fq2.trim", path], collapse = ",")
-  } else {
-    NULL
-  }
+  # * If several fq1/fq2 files provided, they will be merged during alignment ----
+  fq1.trim <- cmd[file.type=="fq1.trim", path]
+  if(!is.null(fq2))
+    fq2.trim <- cmd[file.type=="fq2.trim", path]
 
   # Alignment ----
   align.cmd <- cmd_alignRnaRsubread(fq1= fq1.trim,

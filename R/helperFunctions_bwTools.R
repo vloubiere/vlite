@@ -28,6 +28,12 @@
          gtf.exon= "exon",
          gtf.symbol= "gene_symbol",
          gtf.transcript.id= "transcript_id")
+  }else if(genome=="mm9") {
+    list(gtf= "/groups/stark/vloubiere/genomes/Mus_musculus/mm9/mm9.ensGene.gtf",
+         gtf.transcript= "transcript",
+         gtf.exon= "exon",
+         gtf.symbol= "gene_name",
+         gtf.transcript.id= "transcript_id")
   }else
     stop("Genome not supported")
 
@@ -39,6 +45,7 @@
 .genomeGTFfeatures <- function(genome,
                                regions,
                                ngenes,
+                               sel.gene.symbols= NULL,
                                gene.height,
                                gene.space.height,
                                gtf,
@@ -80,6 +87,10 @@
 
   # Select n first genes to be plotted
   feat <- feat[y <= ngenes]
+
+  # Select gene symbols of interest
+  if(!is.null(sel.gene.symbols))
+    feat[!symbol %in% sel.gene.symbols, symbol:= NA]
 
   # Add plot limits
   feat[, ytop:= (max(c(y, 0))-y+1)*(gene.height+gene.space.height)]
@@ -173,7 +184,7 @@
       polygon(c(xleft, coor, xright),
               c(baseline, ypos, baseline),
               col= track.col,
-              border= track.col)
+              border= NA)
     }]
   }, region.idx]
 }
@@ -183,6 +194,7 @@
                                  track.file,
                                  track.col,
                                  track.height,
+                                 track.name,
                                  ybottom,
                                  ytop)
 {
@@ -206,6 +218,13 @@
            border= NA)
     }]
   }, region.idx]
+  # Plot label (y axis)
+  axis(2,
+       at= ybottom+track.height/2,
+       labels = track.name,
+       lwd= 0,
+       las= 1,
+       cex.axis= par("cex.lab"))
 }
 
 # Method to plot gene from GTF in genesScreenshot ----

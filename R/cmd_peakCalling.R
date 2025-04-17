@@ -6,20 +6,20 @@
 #' and outputs peak files and bedGraph files.
 #'
 #' @param bam A character vector specifying path(s) to treatment BAM file(s).
-#' @param bam.input A character vector specifying path(s) to input BAM file(s). Default: `NULL`.
-#' @param layout Sequencing layout, either `"SINGLE"` or `"PAIRED"`.
+#' @param bam.input A character vector specifying path(s) to input BAM file(s). Default= NULL.
+#' @param layout Sequencing layout, either "SINGLE" or "PAIRED".
 #' @param output.prefix Prefix for the output files.
-#' @param keep.dup Number of duplicates to keep or `"all"`. Default: `1`.
+#' @param keep.dup Number of duplicates to keep or "all". Default= 1L.
 #' @param extsize Integer value by which reads should be extended.
-#'    Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default: `200`.
+#'    Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default= 200L.
 #' @param shift Integer value by which reads will be shifted.
-#'    Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default: `0`.
-#' @param genome.macs2 Genome size parameter for MACS2 (e.g., `"mm"`, `"hs"`).
-#' @param peaks.output.folder Directory for peak files. Default: `"db/peaks/"`.
-#' @param broad Logical. Whether to call broad peaks. Default: `FALSE`.
+#'    Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default= 0L.
+#' @param genome.macs2 Genome size parameter for MACS2 (e.g., "mm", "hs").
+#' @param peaks.output.folder Directory for peak files. Default= "db/peaks/".
+#' @param broad Logical. Whether to call broad peaks. Default= FALSE.
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"peaks"`, `"bedgraph"`).
+#' @return A data.table with:
+#' - `file.type`: Output file labels (e.g: "peaks", "bedgraph").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the peak calling pipeline.
 #'
@@ -55,7 +55,10 @@ cmd_peakCalling <- function(bam,
                             peaks.output.folder= "db/peaks/",
                             broad= FALSE)
 {
-  # Check ----
+  # Check (!Do not check if bam file(s) exist to allow wrapping!) ----
+  bam <- unique(bam)
+  if(any(!grepl("bam$", bam)))
+    stop("Input files should have '.bam' file extension.")
   if(!layout %in% c("SINGLE", "PAIRED"))
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
   if(keep.dup!="all" && keep.dup %% 1!=0)

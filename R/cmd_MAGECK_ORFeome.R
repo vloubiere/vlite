@@ -64,7 +64,7 @@ cmd_MAGeCK_ORFeome <- function(sample.counts,
                                FDR.cutoff= 0.05,
                                Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Checks (!Do not check if input files exist to allow wrapping) ----
   if(any(duplicated(sample.names)))
     stop("Some sample.names are duplicated. Make sure that sample.counts files are unique and provide unique sample.names.")
   if(any(duplicated(input.names)))

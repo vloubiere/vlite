@@ -5,14 +5,14 @@
 #' Outputs a UMI counts file and a BED file of collapsed UMIs.
 #'
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
-#' @param layout Sequencing layout, either `"SINGLE"` or `"PAIRED"`.
+#' @param layout Sequencing layout, either "SINGLE" or "PAIRED".
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
-#' @param umi.counts.output.folder Directory for the UMI counts file. Default: `"db/umi_counts/"`.
-#' @param collapsed.bed.output.folder Directory for the collapsed UMI BED file. Default: `"db/bed/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param umi.counts.output.folder Directory for the UMI counts file. Default= "db/umi_counts/".
+#' @param collapsed.bed.output.folder Directory for the collapsed UMI BED file. Default= "db/bed/".
+#' @param Rpath Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"umi.counts"`, `"umi.bed"`).
+#' @return A data.table with:
+#' - `file.type`: Output file labels ("umi.counts", "umi.bed").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the UMI counting pipeline.
 #'
@@ -39,7 +39,7 @@ cmd_umiCountsFromBam <- function(bam,
                                  collapsed.bed.output.folder= "db/bed/",
                                  Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)
     stop("A unique bam file should be provided.")
   if(!layout %in% c("SINGLE", "PAIRED"))

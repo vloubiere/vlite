@@ -158,11 +158,11 @@ if(F)
   # UMI collapsing from bam (human STARR-Seq, ...)
   file.edit("R/cmd_umiCountsFromBam.R") # Wrapper
   file.edit("inst/Rscript/umiCountsFromBam.R") # R subscript
-  # Extract unaligned reads (PRO-Seq spike-in)
+  # Extract unaligned reads from bam (PRO-Seq spike-in)
   file.edit("R/cmd_extractUnalignedReadsFromBam.R")
   # UMI counts from PROseq bam
   file.edit("R/cmd_umiCollapsingProseq.R") # Wrapper
-  file.edit("inst/Rscript/umiCollapsingProseq.R") #R subscript
+  file.edit("inst/Rscript/umiCollapsingProseq.R") # R subscript
 
   # Count reads per feature ----
   # Rsubread (RNA-Seq)
@@ -238,8 +238,8 @@ if(F)
 # Call ORFtag hits -------------------------
 if(F)
 {
-  file.edit("R/callORFtagHits.R")
-  file.edit("R/callORFtagHitsStrandBias.R")
+  file.edit("R/callOrfTagHits.R")
+  file.edit("R/callOrftagHitsStrandBias.R")
 }
 
 # Plots --------------------------------

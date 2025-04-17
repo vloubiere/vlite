@@ -6,12 +6,12 @@
 #'
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
-#' @param counts.output.folder Directory for the UMI counts file. Default: `"db/counts/"`.
-#' @param stats.output.folder Directory for the UMI statistics file. Default: `"db/counts_statistics/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param counts.output.folder Directory for the UMI counts file. Default= "db/counts/".
+#' @param stats.output.folder Directory for the UMI statistics file. Default= "db/counts_statistics/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"umi.counts"`, `"umi.stats"`).
+#' @return A data.table with:
+#' - `file.type`: Output file labels ("umi.counts", "umi.stats").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the UMI counting pipeline.
 #'
@@ -29,7 +29,7 @@ cmd_umiCollapsingProseq <- function(bam,
                                     stats.output.folder= "db/counts_statistics/",
                                     Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)
     stop("A unique bam file should be provided.")
   if(is.null(output.prefix))

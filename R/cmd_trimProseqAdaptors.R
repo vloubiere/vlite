@@ -3,7 +3,7 @@
 #' @description
 #' Creates shell commands to trim PRO-Seq adapters from gzipped FASTQ files using Cutadapt.
 #'
-#' @param fq1 Path to the input FASTQ file (.fq.gz). Note that only read 1 is used in PROseq.
+#' @param fq1 A character vector of .fq (or .fq.gz) file paths.
 #' @param fq.output.folder Directory for trimmed FASTQ files. Default: `"db/fq/"`.
 #'
 #' @return A `data.table` with:
@@ -19,17 +19,21 @@
 cmd_trimProseqAdaptors <- function(fq1,
                                    fq.output.folder= "db/fq/")
 {
-  # Check ----
-  if(length(fq1)!=1)
-    stop("A unique fq1 file should be provided.")
+  # Check (!Do not check if fq1 or fq2 files exist to allow wrapping!) ----
+  fq1 <- unique(fq1)
+  if(any(!grepl(".fq$|.fq.gz$", fq1, fq2)))
+    stop("fq1 file paths should end up with `.fq` or `.fq.gz`")
 
   # Output trimmed fq files paths ----
   fq1.trim <- file.path(fq.output.folder, gsub(".fq.gz", "_trimmed.fq.gz", basename(fq1)))
 
   # Create command ----
-  cmd <- paste("cutadapt -a TGGAATTCTCGGGTGCCAAGG",
-               "-m", 10, # Remove trimmed reads shorter than 10bp
-               "-o", fq1.trim, fq1)
+  cmd <- sapply(seq(fq1), function(i) {
+    paste("cutadapt -a TGGAATTCTCGGGTGCCAAGG",
+          "-m", 10, # Remove trimmed reads shorter than 10bp
+          "-o", fq1.trim[i], # Output file
+          fq1[i]) # Input file
+  })
 
   # Wrap commands output ----
   cmd <- data.table(file.type= "fq1.trim",

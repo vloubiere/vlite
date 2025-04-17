@@ -1,4 +1,4 @@
-#' callORFtagHitsStrandBias
+#' callOrftagHitsStrandBias
 #'
 #' @description Function to call hits from a given screen. Receives sorted and unsorted counts as input, computes FC table
 #'
@@ -28,7 +28,7 @@
 #' library(vlfunctions)
 #'
 #' # 63 hits should be called with this dataset ----
-#' callORFtagHitsStrandBias(sorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_sort_rep1_same_strand.txt",
+#' callOrftagHitsStrandBias(sorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_sort_rep1_same_strand.txt",
 #'                                                           "db/exon_assignment/ORFtag/Activator2_sort_rep2_same_strand.txt"),
 #'                                 sorted.reverse.counts = c("db/exon_assignment/ORFtag/Activator2_sort_rep1_rev_strand.txt",
 #'                                                           "db/exon_assignment/ORFtag/Activator2_sort_rep2_rev_strand.txt"),
@@ -41,7 +41,7 @@
 #'                                 output.suffix = "_vs_input_strandBias.txt")
 #'
 #' @export
-callORFtagHitsStrandBias <- function(sorted.forward.counts,
+callOrftagHitsStrandBias <- function(sorted.forward.counts,
                                      sorted.reverse.counts,
                                      unsorted.forward.counts,
                                      unsorted.reverse.counts,

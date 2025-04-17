@@ -6,14 +6,14 @@
 #'
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
-#' @param genome Reference genome name (e.g., `"mm10"`, `"hg38"`). If not provided, `gtf` must be specified.
-#' @param gtf Path to the GTF annotation file. Default: `NULL`.
-#' @param bed.output.folder Directory for the BED file of unique insertions. Default: `"db/bed/"`.
-#' @param counts.output.folder Directory for the counts file. Default: `"db/counts/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param genome Reference genome name (e.g., "mm10", "hg38"). If not provided, gtf must be specified.
+#' @param gtf Path to the GTF annotation file. Default= NULL.
+#' @param bed.output.folder Directory for the BED file of unique insertions. Default= "db/bed/".
+#' @param counts.output.folder Directory for the counts file. Default= "db/counts/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"bed.file"`, `"counts.file"`).
+#' @return A data.table with:
+#' - `file.type`: Output file labels ("bed.file", "counts.file").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the insertion assignment pipeline.
 #'
@@ -41,7 +41,7 @@ cmd_assignInsertions <- function(bam,
                                  counts.output.folder= "db/counts/",
                                  Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)
     stop("A unique bam file should be provided.")
   if(is.null(output.prefix))

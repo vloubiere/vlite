@@ -6,12 +6,12 @@
 #'
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
-#' @param collapsed.bam.output.folder Directory for the collapsed BAM file. Default: `"db/bam/collapsed/"`.
-#' @param collapsed.stats.output.folder Directory for the alignment statistics file. Default: `"db/alignment_stats/"`.
-#' @param cores Number of CPU cores to use for `samtools` processing. Default: `8`.
+#' @param collapsed.bam.output.folder Directory for the collapsed BAM file. Default= "db/bam/collapsed/".
+#' @param collapsed.stats.output.folder Directory for the alignment statistics file. Default= "db/alignment_stats/".
+#' @param cores Number of CPU cores to use for samtools processing. Default= 8.
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"collapsed.bam"`, `"collapsed.stats"`).
+#' @return A data.table with:
+#' - `file.type`: Output file labels ("collapsed.bam", "collapsed.stats").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the collapsing and statistics generation pipeline.
 #'
@@ -30,7 +30,7 @@ cmd_collapseBam <- function(bam,
                             collapsed.stats.output.folder= "db/alignment_stats/",
                             cores= 8)
 {
-  # Check ----
+  # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)>1)
     stop("A unique bam file should be provided.")
   if(is.null(output.prefix))

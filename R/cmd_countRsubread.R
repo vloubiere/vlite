@@ -1,21 +1,21 @@
 #' Generate Commands for RNA-Seq Read Counting Using Rsubread
 #'
 #' @description
-#' Creates shell commands to count RNA-Seq reads from a BAM file using the Rsubread `featureCounts` function.
+#' Creates shell commands to count RNA-Seq reads from a BAM file using the Rsubread ?Rsubread::featureCounts() function.
 #' Outputs a counts file and a statistics file.
 #'
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
-#' @param layout Sequencing layout, either `"SINGLE"` or `"PAIRED"`.
+#' @param layout Sequencing layout, either "SINGLE" or "PAIRED".
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
-#' @param genome Reference genome name (e.g., `"mm10"`, `"dm6"`). If not provided, `gtf` must be specified.
-#' @param gtf Path to the GTF annotation file. Default: `NULL`.
-#' @param GTF.attrType.extra Additional GTF attribute to include in the output (e.g., gene symbol). Default: `NULL`.
-#' @param counts.stats.output.folder Directory for the alignment statistics file. Default: `"db/count_stats/"`.
-#' @param counts.output.folder Directory for the counts file. Default: `"db/counts/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param genome Reference genome name (e.g., "mm10", "dm6"). If not provided, gtf must be specified.
+#' @param gtf Path to the GTF annotation file. Default= NULL.
+#' @param GTF.attrType.extra Additional GTF attribute to include in the output (e.g., gene symbol). Default= NULL.
+#' @param counts.stats.output.folder Directory for the alignment statistics file. Default= "db/count_stats/".
+#' @param counts.output.folder Directory for the counts file. Default= "db/counts/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"count.stats"`, `"counts"`).
+#' @return A data.table with:
+#' - `file.type`: Output file labels ("count.stats", "counts").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the RNA-Seq read counting pipeline.
 #'
@@ -47,7 +47,7 @@ cmd_countRsubread <- function(bam,
                               counts.output.folder= "db/counts/",
                               Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)
     stop("A unique bam file should be provided. See ?Rsubread::featureCounts() for alternatives.")
   if(!layout %in% c("SINGLE", "PAIRED"))

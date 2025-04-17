@@ -46,19 +46,20 @@ vl_submit <- function(cmd,
   if(!is.data.table(cmd) || !all(c("file.type", "path", "cmd") %in% names(cmd)))
     stop("cmd should be a data.table containing columns 'file.type', 'path' and 'cmd'.")
 
-  # Check which commands should be executed ----
+  # Check existing files ----
   if(!overwrite) {
     cmd <- cmd[!file.exists(path)]
   }
 
-  # Create missing directories ----
-  dirs <- unique(dirname(cmd$path))
-  if(any(!dir.exists(dirs)) && execute) {
-    sapply(dirs[!dir.exists(dirs)], dir.create, recursive = TRUE, showWarnings = FALSE)
-  }
-
+  # Check if any command should be executed ----
   if(nrow(cmd))
   {
+    # Create missing directories ----
+    dirs <- unique(dirname(cmd$path))
+    if(any(!dir.exists(dirs)) && execute) {
+      sapply(dirs[!dir.exists(dirs)], dir.create, recursive = TRUE, showWarnings = FALSE)
+    }
+
     # Create final command ----
     cmd <- paste(c("module load build-env/2020",
                    "module load cutadapt/1.18-foss-2018b-python-2.7.15",
@@ -81,7 +82,6 @@ vl_submit <- function(cmd,
     } else {
       return(cmd)
     }
-
   } else
     message("All output files already existed! No command submitted ;). Consider overwrite= T if convenient.")
 }

@@ -4,13 +4,13 @@
 #' Creates shell commands to align sequencing reads to a reference genome using Bowtie2.
 #' Outputs a sorted BAM file and alignment statistics.
 #'
-#' @param fq1 A comma-separated list of .fq (or .fq.gz) file paths.
-#' @param fq2 A comma-separated list of paths to second read file(s) for paired-end data. Default: `NULL`.
-#' @param output.prefix Prefix for the output files.
-#' @param genome Reference genome name (e.g., `"mm10"`, `"hg38"`, `"dm3"`).
+#' @param fq1 A character vector of .fq (or .fq.gz) file paths.
+#' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
+#' @param output.prefix Prefix for the output file.
+#' @param genome Reference genome name (e.g., "mm10", "hg38", "dm3").
 #'        If not provided, `genome.idx` must be specified.
-#' @param genome.idx Path to the Bowtie2 genome index. Default: `NULL`.
-#' @param max.mismatch Maximum number of mismatches allowed. Default: `2`.
+#' @param genome.idx Path to the Bowtie2 genome index. Default= NULL.
+#' @param max.mismatch Maximum number of mismatches allowed. Default= 2.
 #' @param max.ins Maximum insert size for PAIRED reads. Default= 500.
 #' @param bam.output.folder Directory for the output BAM file. Default: `"db/bam/"`.
 #' @param alignment.stats.output.folder Directory for alignment statistics. Default: `"db/alignment_stats/"`.
@@ -50,11 +50,14 @@ cmd_alignBowtie <- function(fq1,
                             alignment.stats.output.folder= "db/alignment_stats/",
                             cores= 8)
 {
-  # Check ----
-  if(length(fq1)>1)
-    stop("If multiple fq1 files are provided, their paths should be concatenated and comma-separated.")
-  if(!is.null(fq2) && length(fq2)>1)
-    stop("If multiple fq2 files are provided, their paths should be concatenated and comma-separated.")
+  # Check (!Do not check if fq1 or fq2 files exist to allow wrapping!) ----
+  fq1 <- unique(fq1)
+  if(!is.null(fq2))
+    fq2 <- unique(fq2)
+  if(any(!grepl(".fq$|.fq.gz$", c(fq1, fq2))))
+    stop("fq1 and fq2 file paths should end up with `.fq` or `.fq.gz`")
+  if(!is.null(fq2) && length(fq1) != length(fq2))
+    stop("When provided, fq2 files should match fq1 files.")
   if(missing(genome) && is.null(genome.idx))
     stop("genome is missing and and genome.idx is set to NULL -> exit")
 
@@ -73,14 +76,17 @@ cmd_alignBowtie <- function(fq1,
   bam <- file.path(bam.output.folder, paste0(output.prefix, "_", genome, ".bam"))
   stats <- file.path(alignment.stats.output.folder, paste0(output.prefix, "_", genome, "_stats.txt"))
 
-  # Decompress command if gzipped ----
-  comp.files <- unlist(tstrsplit(c(fq1, fq2), ","))
-  comp.files <- grep(".fq.gz$", comp.files, value= TRUE)
+  # Decompress gzipped files (bowtie only takes .fq as input) ----
+  comp.files <- grep(".fq.gz$", c(fq1, fq2), value= TRUE)
   decomp.files <- gsub(".fq.gz$", ".fq", comp.files)
   cmd <- ""
   for(i in seq(comp.files))
-    cmd[i] <- paste0("zcat ", comp.files[i], " > ", decomp.files[i], "; ")
-  cmd <- paste0(cmd, collapse= "")
+    cmd <- paste0(cmd, "zcat ", comp.files[i], " > ", decomp.files[i], "; ")
+
+  # Files string ----
+  files <- paste0(fq1, collapse = ",")
+  if(!is.null(fq2))
+    files <- paste("-1", files, "-2", paste0(fq2, collapse = ","))
 
   # bowtie1 cmd ----
   cmd <- paste(cmd, # Decompress (bowtie only accepts .fq input)
@@ -92,7 +98,7 @@ cmd_alignBowtie <- function(fq1,
                "--sam", # Output in sam format
                "--maxins", max.ins,  # Maximum insert size for PAIRED reads
                genome.idx, # Genome index
-               ifelse(is.null(fq2), fq1, paste("-1", fq1, "-2", fq2)), # Input fq files
+               files, # Input read files (and layout)
                "2>", stats, # Return statistics
                "| samtools sort -@", cores-1, "-o", bam) # Return sorted bam
 

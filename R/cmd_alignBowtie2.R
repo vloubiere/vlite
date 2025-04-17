@@ -5,12 +5,11 @@
 #' followed by BAM file processing with samtools. Supports single-end and paired-end data,
 #' optional MAPQ filtering, and generates alignment statistics.
 #'
-#' @param fq1 Path to input FASTQ file(s) for single-end or first read file(s) for paired-end data
-#'        (comma-separated for multiple files).
-#' @param fq2 Path to second read file(s) for paired-end data (comma-separated). Default= `NULL`.
+#' @param fq1 A character vector of .fq (or .fq.gz) file paths.
+#' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
 #' @param output.prefix Prefix for output files.
-#' @param genome Reference genome identifier (e.g., `mm10`, `hg38`). Required if `genome.idx` is not provided.
-#' @param genome.idx Path to Bowtie2 index files (without extensions). Required if `genome` is not provided.
+#' @param genome Reference genome identifier (e.g., "mm10", "hg38"). Required if genome.idx is not provided.
+#' @param genome.idx Path to Bowtie2 index files (without extensions). Required if genome is not provided.
 #' @param mapq MAPQ score threshold for filtering alignments. Default= NULL (no filtering).
 #' @param max.ins Maximum insert size for paired-end alignment. Default= 500.
 #' @param bam.output.folder Directory for BAM files.
@@ -55,11 +54,14 @@ cmd_alignBowtie2 <- function(fq1,
                              alignment.stats.output.folder= "db/alignment_stats/",
                              cores= 8)
 {
-  # Check ----
-  if(length(fq1)>1)
-    stop("If multiple fq1 files are provided, their paths should be concatenated and comma-separated.")
-  if(!is.null(fq2) && length(fq2)>1)
-    stop("If multiple fq2 files are provided, their paths should be concatenated and comma-separated.")
+  # Check (!Do not check if fq1 or fq2 files exist to allow wrapping!) ----
+  fq1 <- unique(fq1)
+  if(!is.null(fq2))
+    fq2 <- unique(fq2)
+  if(any(!grepl(".fq$|.fq.gz$", c(fq1, fq2))))
+    stop("fq1 and fq2 file paths should end up with `.fq` or `.fq.gz`")
+  if(!is.null(fq2) && length(fq1) != length(fq2))
+    stop("When provided, fq2 files should match fq1 files.")
   if(missing(genome) && is.null(genome.idx))
     stop("genome is missing and and genome.idx is set to NULL -> exit")
 
@@ -79,11 +81,17 @@ cmd_alignBowtie2 <- function(fq1,
   if(!is.null(mapq))
     mapq.stats <- file.path(alignment.stats.output.folder, paste0(output.prefix, "_", genome, "_mapq", mapq, "_stats.txt"))
 
+  # Files string ----
+  files <- paste0(fq1, collapse = ",")
+  files <- if(is.null(fq2))
+    paste("-U", files) else
+      paste("-1", files, "-2", paste0(fq2, collapse = ","))
+
   # bowtie2 cmd----
   cmd <- paste("bowtie2 -p", cores, # Align
                "-x", genome.idx, # Genome index
                "--maxins", max.ins, # Maximum insert size for PAIRED reads
-               ifelse(!is.null(fq2), paste("-1", fq1, "-2", fq2),  paste("-U", fq1)),
+               files, # Input read files (and layout)
                "2>", stats, # Return statistics
                "| samtools sort -@", cores-1) # Sort
   cmd <- if(is.null(mapq)) {

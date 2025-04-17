@@ -6,11 +6,11 @@
 #'
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
 #' @param output.prefix Prefix for the output file. If not provided, it is derived from the input BAM filename.
-#' @param counts.output.folder Directory for the counts file. Default: `"db/counts/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param counts.output.folder Directory for the counts file. Default= "db/counts/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file label (`"counts.BC"`).
+#' @return A data.table with:
+#' - `file.type`: Output file label ("counts.BC").
 #' - `path`: Path to the output counts file.
 #' - `cmd`: Shell command to run the barcode counting pipeline.
 #'
@@ -27,7 +27,7 @@ cmd_countBCreads <- function(bam,
                              counts.output.folder= "db/counts/",
                              Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)
     stop("A unique bam file should be provided.")
   if(is.null(output.prefix))

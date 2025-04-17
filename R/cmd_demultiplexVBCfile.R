@@ -2,31 +2,31 @@
 #'
 #' @description
 #' Generates shell commands to demultiplex BAM or tar.gz FASTQ files from the VBC NGS facility.
-#' This function is a wrapper around the Perl scripts `vbc_bam_demultiplexing.pl` and `vbc_tar_demultiplexing.pl`.
+#' This function is a wrapper around the Perl scripts vbc_bam_demultiplexing.pl and vbc_tar_demultiplexing.pl.
 #' It supports both single-end and paired-end sequencing data, with optional support for PRO-Seq-specific processing
 #' (only supported with BAM input).
 #'
-#' @param vbcFile character(1). Path to the input BAM file or .tar.gz file containing the reads.
-#' @param layout character(1). Sequencing layout, must be either `"PAIRED"` or `"SINGLE"`.
-#' @param i7 character(1). i7 index sequence(s). Multiple indexes should be comma-separated.
-#'        Use an empty string `""` if no i7 filtering is needed. Default: `""`.
-#' @param i5 character(1). i5 index sequence(s). Multiple indexes should be comma-separated.
-#'        Use an empty string `""` if no i5 filtering is needed. Default: `""`.
-#' @param i7.column numeric(1). Column number in the BAM file containing the i7 index. Default: `14`.
-#' @param i5.column numeric(1). Column number in the BAM file containing the i5 index. Default: `12`.
-#' @param output.prefix character(1). Optional prefix for output files. If not provided, it will be
-#'        constructed from the input filename and index sequences.
-#' @param start.seq character(1). Optional sequence that must be present at the start of reads
-#'        (typically for PRO-Seq data). Only supported for BAM input. Default: `NULL`.
-#' @param trim.length numeric(1). Required when `start.seq` is provided. Number of nucleotides to trim
-#'        from the sequence (after `start.seq` has been removed) and append to the read ID. Only supported for BAM input.
-#' @param fq.output.folder character(1). Directory where output FASTQ files will be written.
-#' @param cores numeric(1). Number of CPU cores to use for samtools processing (when using BAM input).
-#' @param head numeric(1). Optional. Number of lines to process (for testing purposes). Must be a whole number.
+#' @param vbcFile Path to the input BAM file or .tar.gz file containing the reads.
+#' @param layout Sequencing layout, must be either "PAIRED" or "SINGLE".
+#' @param i7 i7 index sequence(s). Multiple indexes should be comma-separated.
+#'        If set to "none" (default), no i7 filtering is performed
+#' @param i5 i5 index sequence(s). Multiple indexes should be comma-separated.
+#'        If set to "none" (default), no i5 filtering is performed
+#' @param i7.column Column number in the BAM file containing the i7 index. Default= 14L.
+#' @param i5.column Column number in the BAM file containing the i5 index. Default= 12L.
+#' @param output.prefix Output files prefix. If not provided,
+#'        constructed from the input file name and index sequences.
+#' @param start.seq For PRO-Seq data, the eBC DNA string that must be present at the start of the reads.
+#'        Only supported for BAM input. Default= NULL.
+#' @param trim.length When start.seq is provided (PRO-Seq reads), number of nucleotides that should be cut
+#'        from the sequence (after start.seq has been trimmed) and appended to the read ID. Only supported for BAM input.
+#' @param fq.output.folder Directory where output FASTQ files will be written. Default= "db/fq/".
+#' @param cores Number of CPU cores to use for samtools processing (when using BAM input). Default= 8L.
+#' @param head Number of reads that should be processed (for testing purposes).
 #'
-#' @return A `data.table` with three columns:
+#' @return A data.table with three columns:
 #' \itemize{
-#'   \item `file.type`: Labels for output files (`"fq1"`, `"fq2"`).
+#'   \item `file.type`: Labels for output files (e.g.: "fq1", "fq2").
 #'   \item `path`: Full paths to the output files.
 #'   \item `cmd`: Shell command(s) to generate the output files.
 #' }
@@ -34,7 +34,7 @@
 #' @details
 #' The function generates commands that:
 #' 1. Read a BAM file using samtools or a .tar.gz file.
-#' 2. Process the reads using `vbc_bam_demultiplexing.pl` (BAM) or `vbc_tar_demultiplexing.pl` (tar.gz).
+#' 2. Process the reads using vbc_bam_demultiplexing.pl (BAM) or vbc_tar_demultiplexing.pl (tar.gz).
 #' 3. Filter reads based on i7 and/or i5 indexes.
 #' 4. Optionally process PRO-Seq-specific requirements (BAM only).
 #' 5. Output gzipped FASTQ files.
@@ -95,21 +95,25 @@ cmd_demultiplexVBCfile <- function(vbcFile,
                                    fq.output.folder= "db/fq/",
                                    start.seq= NULL,
                                    trim.length,
-                                   cores,
+                                   cores= 8,
                                    head)
 {
   options(scipen= 999)
   # Checks ----
   if(length(vbcFile)!=1)
     stop("A unique vbcFile path should be provided.")
+  if(!file.exists(vbcFile))
+    stop("vbcFile could not be found.")
   if(!layout %in% c("SINGLE", "PAIRED"))
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
   if(length(i7)>1 | length(i5)>1)
     stop("If several i7 or i5 indexes have been used for one sample, they should be concatenated and comma-separated.")
   if(length(i7.column)>1 | length(i5.column)>1)
     stop("Several i7 or i5 column number were provided.")
+  if(!is.null(start.seq) && !grepl(".bam$", vbcFile))
+    stop("start.seq is only supported for bam files.")
   if(!is.null(start.seq) && missing(trim.length))
-    stop("When start.seq is specified (typically for PRO-Seq data), trim.length should also be provided.")
+    stop("When start.seq is specified (PRO-Seq reads), trim.length should also be provided.")
   if(!missing(head) && head %% 1!=0)
     stop("head should be a round number.")
 

@@ -19,11 +19,9 @@
 #' @return Returns FC tables containing DESeq2-like columns.
 #'
 #' @examples
-#' library(vlfunctions)
-#'
 #' # Call hits ----
 #' # 124 hits should be identified with this dataset
-#' callORFtagHits(sorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_sort_rep1_same_strand.txt",
+#' callOrftagHits(sorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_sort_rep1_same_strand.txt",
 #'                                                "db/exon_assignment/ORFtag/Activator2_sort_rep2_same_strand.txt"),
 #'                      unsorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_input_rep1_same_strand.txt",
 #'                                                  "db/exon_assignment/ORFtag/Activator2_input_rep2_same_strand.txt"),
@@ -33,7 +31,7 @@
 #'
 #' # Call hits using revese strand (sanity check -> be cautious with the hits that are also found here!) ----
 #' # 81 hits should be identified with the reverse strand
-#' callORFtagHits(sorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_sort_rep1_rev_strand.txt",
+#' callOrftagHits(sorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_sort_rep1_rev_strand.txt",
 #'                                                "db/exon_assignment/ORFtag/Activator2_sort_rep2_rev_strand.txt"),
 #'                      unsorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_input_rep1_rev_strand.txt",
 #'                                                  "db/exon_assignment/ORFtag/Activator2_input_rep2_rev_strand.txt"),
@@ -49,10 +47,10 @@
 #' intersect(hits, sanityCheck)
 #'
 #' # To call hits using strand bias (not used)
-#' see ?callORFtagHits_strandBias()
+#' see ?callOrftagHits_strandBias()
 #'
 #' @export
-callORFtagHits <- function(sorted.forward.counts,
+callOrftagHits <- function(sorted.forward.counts,
                            unsorted.forward.counts,
                            genome,
                            name,

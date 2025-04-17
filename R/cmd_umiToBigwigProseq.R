@@ -5,11 +5,11 @@
 #'
 #' @param umi.counts Path to the input UMI counts file. Only a single file is allowed.
 #' @param output.prefix Prefix for the output BigWig files. If not provided, it is derived from the input UMI counts filename.
-#' @param bw.output.folder Directory for the BigWig files. Default: `"db/bw/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param bw.output.folder Directory for the BigWig files. Default= "db/bw/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
-#' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"ps.bw"`, `"ns.bw"`).
+#' @return A data.table with:
+#' - `file.type`: Output file labels ("ps.bw", "ns.bw").
 #' - `path`: Paths to the positive strand and negative strand BigWig files.
 #' - `cmd`: Shell command to run the UMI to BigWig conversion.
 #'
@@ -26,7 +26,7 @@ cmd_umiToBigwigProseq <- function(umi.counts,
                                   bw.output.folder= "db/bw/",
                                   Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if umi.counts file exists to allow wrapping!) ----
   if(length(umi.counts)!=1)
     stop("A unique umi.counts file should be provided.")
   if(is.null(output.prefix))

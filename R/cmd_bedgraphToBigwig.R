@@ -5,12 +5,12 @@
 #'
 #' @param bdg Path to the input BedGraph file. Only a single file is allowed.
 #' @param output.prefix Prefix for the output BigWig file.
-#' @param bw.output.folder Directory for the BigWig file. Default: `"db/bw/"`.
+#' @param bw.output.folder Directory for the BigWig file. Default= "db/bw/".
 #' @param genome Path to the genome sizes file.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
 #' @return A `data.table` with:
-#' - `file.type`: Output file label (`"bw"`).
+#' - `file.type`: Output file label ("bw").
 #' - `path`: Path to the BigWig file.
 #' - `cmd`: Shell command to run the BedGraph to BigWig conversion.
 #'
@@ -30,7 +30,7 @@ cmd_bedgraphToBigwig <- function(bdg,
                                  genome,
                                  Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Checks ----
+  # Check (!Do not check if bdg file exists to allow wrapping!) ----
   if(length(bdg)!=1)
     stop("Only one bedgraph file should be provided.")
   if(!dir.exists(bw.output.folder))

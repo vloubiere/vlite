@@ -4,17 +4,17 @@
 #' Creates shell commands to align sequencing reads to a reference genome using the Rsubread aligner.
 #' Outputs a BAM file and alignment statistics.
 #'
-#' @param fq1 Path to the input FASTQ file (.fq.gz) for single-end data or the first read file for paired-end data.
-#' @param fq2 Path to the second read file for paired-end data (.fq.gz). Default: `NULL`.
+#' @param fq1 A character vector of .fq (or .fq.gz) file paths.
+#' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
 #' @param output.prefix Prefix for the output files.
-#' @param genome Reference genome name (e.g., `"mm10"`, `"dm6"`). If not provided, `genome.idx` must be specified.
-#' @param genome.idx Path to the Rsubread genome index. Default: `NULL`.
-#' @param bam.output.folder Directory for the output BAM file. Default: `"db/bam.output.folder/"`.
-#' @param alignment.stats.output.folder Directory for alignment statistics. Default: `"db/alignment_stats/"`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
+#' @param genome Reference genome name (e.g., "mm10", "dm6"). If not provided, genome.idx must be specified.
+#' @param genome.idx Path to the Rsubread genome index. Default= NULL.
+#' @param bam.output.folder Directory for the output BAM file. Default= "db/bam.output.folder/".
+#' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
 #' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"bam"`, `"align.stats"`).
+#' - `file.type`: Output file labels ("bam", "align.stats").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run Rsubread.
 #'
@@ -46,11 +46,14 @@ cmd_alignRnaRsubread <- function(fq1,
                                  alignment.stats.output.folder= "db/alignment_stats/",
                                  Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
-  # Check ----
-  if(length(fq1)>1)
-    stop("If multiple fq1 files are provided, their paths should be concatenated and comma-separated.")
-  if(!is.null(fq2) && length(fq2)>1)
-    stop("If multiple fq2 files are provided, their paths should be concatenated and comma-separated.")
+  # Check (!Do not check if fq1 or fq2 files exist to allow wrapping!) ----
+  fq1 <- unique(fq1)
+  if(!is.null(fq2))
+    fq2 <- unique(fq2)
+  if(any(!grepl(".fq$|.fq.gz$", c(fq1, fq2))))
+    stop("fq1 and fq2 file paths should end up with `.fq` or `.fq.gz`")
+  if(!is.null(fq2) && length(fq1) != length(fq2))
+    stop("When provided, fq2 files should match fq1 files.")
   if(missing(genome) && is.null(genome.idx))
     stop("genome is missing and and genome.idx is set to NULL -> exit")
 
@@ -72,8 +75,8 @@ cmd_alignRnaRsubread <- function(fq1,
   cmd <- paste(
     Rpath,
     system.file("Rscript", "align_rna_Rsubread.R", package = "vlite"),
-    fq1,
-    ifelse(is.null(fq2), "''", fq2),
+    paste0(fq1, collapse= ","),
+    ifelse(is.null(fq2), "''", paste0(fq2, collapse= ",")),
     genome.idx,
     bam
   )
