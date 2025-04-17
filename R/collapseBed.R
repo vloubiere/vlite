@@ -88,6 +88,7 @@ collapseBed <- function(bed,
 
   # Create copy ----
   ordBed <- data.table::copy(bed)
+  ordBed[, bed.idx:= .I]
   ordBed[, idx:= .I]
 
   # Collapse ----
@@ -101,7 +102,11 @@ collapseBed <- function(bed,
     ordBed[, idx:= cumsum(!(start-max.gap-1L <= c(start[1], end[-(.N)]))), group_cols]
     # Make index >0 and avoid duplicated values on + and - strands
     ordBed[, idx:= .GRP, c(group_cols, "idx")]
-    ordBed <- ordBed[, .(start= min(start), end= max(end)), c(group_cols, "idx")]
+    ordBed <- ordBed[, .(
+      start= min(start),
+      end= max(end),
+      bed.idx= .(unique(unlist(bed.idx))) # original bed line indexes
+    ), c(group_cols, "idx")]
     after <- nrow(ordBed)
   }
 
@@ -112,14 +117,11 @@ collapseBed <- function(bed,
   if(return.idx.only)
   {
     # Return index ----
-    .ov <- if("strand" %in% group_cols)
-      c("seqnames", "start<=end", "end>=start", "strand") else
-        c("seqnames", "start<=end", "end>=start")
-    idx <- ordBed[bed, idx, .EACHI, on= .ov]$idx
+    idx <- rep(ordBed$idx, lengths(ordBed$bed.idx))[unlist(ordBed$bed.idx)]
     return(idx)
   }else
   {
     # Or collapsed table ----
-    return(ordBed[, !"idx"])
+    return(ordBed[, !c("idx", "bed.idx")])
   }
 }

@@ -5,7 +5,7 @@
 #' @param seqlvl A seqlvl present in in enr$sig.mot.coor$seqlvls.
 #' @param min.count The minimum number of significant instances across (see enr$sig.inst). Default= 3L
 #' @param best.by The group.by column for which only the instance with the best padjust should be returned.
-#' @param sel If specified, only the motifs for which best.by %in% sel will be plotted.
+#' @param sel If specified, only the motifs for which best.by in sel will be plotted.
 #' @param xlab Default= "nt"
 #' @param ylab Default= "Contribution"
 #' @param xlim Default= sequence length.

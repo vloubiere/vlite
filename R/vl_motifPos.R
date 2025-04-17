@@ -1,20 +1,20 @@
 #' Find Motif Positions in Sequences or Genomic Regions
 #'
 #' @description
-#' Identifies the positions of motifs in a set of sequences or genomic regions using a `PWMatrixList`.
+#' Identifies the positions of motifs in a set of sequences or genomic regions using a PWMatrixList.
 #'
-#' @param sequences A named character vector of sequences to analyze. This argument takes precedence over the `bed` argument.
-#' @param bed Genomic ranges in a format compatible with `importBed()`. Used to retrieve sequences if `sequences` is not provided.
-#' @param pwm_log_odds A `PWMatrixList` (in log2 odds ratio format) containing motifs to map. Defaults to motifs from the JASPAR collection in `vl_Dmel_motifs_DB_full`.
-#' @param genome The genome to use as background when `bg = "genome"` and/or to retrieve sequences (when `bed` is specified). This argument is required.
-#' @param bg The background model for motif detection. Options are `"genome"` or `"even"`. Default is `"genome"`.
-#' @param p.cutoff The p-value cutoff for motif detection. Default is `5e-5`.
-#' @param collapse.overlapping Logical. If `TRUE`, overlapping motifs (greater than 70 percent overlap) are collapsed into a single region. Default is `TRUE`.
-#' @param scratch The path to the scratch directory for temporary files. Default is `"/scratch/stark/vloubiere/"`.
-#' @param sub.folder A subfolder within the scratch directory for temporary files. Default is `tempdir()`.
-#' @param overwrite Logical. If `TRUE`, existing temporary files are overwritten. Default is `FALSE`.
+#' @param sequences A named character vector of sequences to analyze. This argument takes precedence over the bed argument.
+#' @param bed Genomic ranges in a format compatible with ?importBed(). Used to retrieve sequences if sequences is not provided.
+#' @param pwm_log_odds A PWMatrixList (in log2 odds ratio format) containing motifs to map. For example, see "/groups/stark/vloubiere/motifs_db/".
+#' @param genome The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified). This argument is required.
+#' @param bg The background model for motif detection. Options are "genome" or "even". Default= "genome".
+#' @param p.cutoff The p-value cutoff for motif detection. Default= 5e-5.
+#' @param collapse.overlapping Logical. If TRUE, overlapping motifs (greater than 70 percent overlap) are collapsed into a single region. Default= TRUE.
+#' @param scratch The path to the scratch directory for temporary files. Default= "/scratch-cbe/users/vincent.loubiere/motifs/".
+#' @param sub.folder A subfolder within the scratch directory for temporary files. If set to NULL (default), a unique id will be generated using digest::digest(list(function.parameters)).
+#' @param overwrite If set to TRUE, overwrites cached intermediate results. Default= FALSE.
 #'
-#' @return A `data.table` containing motif positions for each sequence, with the following columns:
+#' @return A data.table containing motif positions for each sequence, with the following columns:
 #' - `motif`: The name of the motif.
 #' - `seqlvls`: The sequence names.
 #' - `mot.count`: The number of motifs detected.
@@ -74,8 +74,8 @@ vl_motifPos.default <- function(sequences,
                                 bg= "genome",
                                 p.cutoff= 5e-5,
                                 collapse.overlapping= TRUE,
-                                scratch= "/scratch/stark/vloubiere/",
-                                sub.folder= tempdir(),
+                                scratch= "/scratch-cbe/users/vincent.loubiere/motifs/",
+                                sub.folder= NULL,
                                 overwrite= FALSE)
 {
   # Checks ----
@@ -87,6 +87,14 @@ vl_motifPos.default <- function(sequences,
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
 
   # Create tmp output folder ----
+  if(is.null(sub.folder)) {
+    params <- list(sequences,
+                   pwm_log_odds,
+                   genome,
+                   bg,
+                   p.cutoff)
+    sub.folder <- digest::digest(params)
+  }
   tmp.folder <- paste0(scratch, "/", sub.folder, "/")
   print(paste0("Temp files will be stored in '", tmp.folder, "'"))
   dir.create(tmp.folder, showWarnings = FALSE, recursive = TRUE)

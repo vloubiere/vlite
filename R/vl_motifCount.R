@@ -3,13 +3,13 @@
 #' @description
 #' Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList.
 #'
-#' @param sequences Named character vector of sequences to analyze. Takes precedence over the `bed` argument.
-#' @param bed Genomic ranges in a format compatible with `importBed()`. Used to retrieve sequences if `sequences` is not provided.
-#' @param pwm_log_odds A `PWMatrixList` (in log2 odds ratio format) containing motifs to count.
-#' @param genome Genome to use as background when `bg = "genome"` and/or to retrieve sequences (when `bed` is specified).
-#' @param bg Background model for motif detection. Options: `"genome"` or `"even"`. Default: `"genome"`.
-#' @param p.cutoff p-value cutoff for motif detection. Default: `5e-5`.
-#' @param cleanup.cache Logical. If `TRUE`, clears cached intermediate results. Default is `FALSE`.
+#' @param sequences Named character vector of sequences to analyze. Takes precedence over the bed argument.
+#' @param bed Genomic ranges in a format compatible with importBed(). Used to retrieve sequences if sequences is not provided.
+#' @param pwm_log_odds A PWMatrixList (in log2 odds ratio format) containing motifs to count.
+#' @param genome Genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified).
+#' @param bg Background model for motif detection. Options: "genome" or "even". Default= "genome".
+#' @param p.cutoff p-value cutoff for motif detection. Default= 5e-5.
+#' @param cleanup.cache Logical. If set to TRUE, clears cached intermediate results. Default= FALSE.
 #'
 #' @return A matrix of motif counts.
 #'

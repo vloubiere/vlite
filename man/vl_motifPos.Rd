@@ -17,41 +17,41 @@ vl_motifPos.default(
   bg = "genome",
   p.cutoff = 0.00005,
   collapse.overlapping = TRUE,
-  scratch = "/scratch/stark/vloubiere/",
-  sub.folder = tempdir(),
+  scratch = "/scratch-cbe/users/vincent.loubiere/motifs/",
+  sub.folder = NULL,
   overwrite = FALSE
 )
 }
 \arguments{
-\item{sequences}{A named character vector of sequences to analyze. This argument takes precedence over the `bed` argument.}
+\item{sequences}{A named character vector of sequences to analyze. This argument takes precedence over the bed argument.}
 
-\item{bed}{Genomic ranges in a format compatible with `importBed()`. Used to retrieve sequences if `sequences` is not provided.}
+\item{bed}{Genomic ranges in a format compatible with ?importBed(). Used to retrieve sequences if sequences is not provided.}
 
-\item{genome}{The genome to use as background when `bg = "genome"` and/or to retrieve sequences (when `bed` is specified). This argument is required.}
+\item{genome}{The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified). This argument is required.}
 
-\item{pwm_log_odds}{A `PWMatrixList` (in log2 odds ratio format) containing motifs to map. Defaults to motifs from the JASPAR collection in `vl_Dmel_motifs_DB_full`.}
+\item{pwm_log_odds}{A PWMatrixList (in log2 odds ratio format) containing motifs to map. For example, see "/groups/stark/vloubiere/motifs_db/".}
 
-\item{bg}{The background model for motif detection. Options are `"genome"` or `"even"`. Default is `"genome"`.}
+\item{bg}{The background model for motif detection. Options are "genome" or "even". Default= "genome".}
 
-\item{p.cutoff}{The p-value cutoff for motif detection. Default is `5e-5`.}
+\item{p.cutoff}{The p-value cutoff for motif detection. Default= 5e-5.}
 
-\item{collapse.overlapping}{Logical. If `TRUE`, overlapping motifs (greater than 70 percent overlap) are collapsed into a single region. Default is `TRUE`.}
+\item{collapse.overlapping}{Logical. If TRUE, overlapping motifs (greater than 70 percent overlap) are collapsed into a single region. Default= TRUE.}
 
-\item{scratch}{The path to the scratch directory for temporary files. Default is `"/scratch/stark/vloubiere/"`.}
+\item{scratch}{The path to the scratch directory for temporary files. Default= "/scratch-cbe/users/vincent.loubiere/motifs/".}
 
-\item{sub.folder}{A subfolder within the scratch directory for temporary files. Default is `tempdir()`.}
+\item{sub.folder}{A subfolder within the scratch directory for temporary files. If set to NULL (default), a unique id will be generated using digest::digest(list(function.parameters)).}
 
-\item{overwrite}{Logical. If `TRUE`, existing temporary files are overwritten. Default is `FALSE`.}
+\item{overwrite}{If set to TRUE, overwrites cached intermediate results. Default= FALSE.}
 }
 \value{
-A `data.table` containing motif positions for each sequence, with the following columns:
+A data.table containing motif positions for each sequence, with the following columns:
 - `motif`: The name of the motif.
 - `seqlvls`: The sequence names.
 - `mot.count`: The number of motifs detected.
 - `ir`: A nested `data.table` with columns for motif positions (`start`, `end`, `strand`, `width`, `score`).
 }
 \description{
-Identifies the positions of motifs in a set of sequences or genomic regions using a `PWMatrixList`.
+Identifies the positions of motifs in a set of sequences or genomic regions using a PWMatrixList.
 }
 \section{Functions}{
 \itemize{

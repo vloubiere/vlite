@@ -11,8 +11,8 @@
 getBSgenomeSize <- function(genome)
 {
   gSize <- GenomeInfoDb::seqinfo(BSgenome::getBSgenome(genome, load.only = TRUE))
-  gSize <- data.table(seqnames= seqnames(gSize),
+  gSize <- data.table(seqnames= GenomicRanges::seqnames(gSize),
                       start= 1L,
-                      end= seqlengths(gSize))
+                      end= GenomeInfoDb::seqlengths(gSize))
   return(gSize)
 }

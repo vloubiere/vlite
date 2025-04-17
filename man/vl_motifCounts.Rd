@@ -20,19 +20,19 @@ vl_motifCounts.default(
 )
 }
 \arguments{
-\item{sequences}{Named character vector of sequences to analyze. Takes precedence over the `bed` argument.}
+\item{sequences}{Named character vector of sequences to analyze. Takes precedence over the bed argument.}
 
-\item{bed}{Genomic ranges in a format compatible with `importBed()`. Used to retrieve sequences if `sequences` is not provided.}
+\item{bed}{Genomic ranges in a format compatible with importBed(). Used to retrieve sequences if sequences is not provided.}
 
-\item{genome}{Genome to use as background when `bg = "genome"` and/or to retrieve sequences (when `bed` is specified).}
+\item{genome}{Genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified).}
 
-\item{pwm_log_odds}{A `PWMatrixList` (in log2 odds ratio format) containing motifs to count.}
+\item{pwm_log_odds}{A PWMatrixList (in log2 odds ratio format) containing motifs to count.}
 
-\item{bg}{Background model for motif detection. Options: `"genome"` or `"even"`. Default: `"genome"`.}
+\item{bg}{Background model for motif detection. Options: "genome" or "even". Default= "genome".}
 
-\item{p.cutoff}{p-value cutoff for motif detection. Default: `5e-5`.}
+\item{p.cutoff}{p-value cutoff for motif detection. Default= 5e-5.}
 
-\item{cleanup.cache}{Logical. If `TRUE`, clears cached intermediate results. Default is `FALSE`.}
+\item{cleanup.cache}{Logical. If set to TRUE, clears cached intermediate results. Default= FALSE.}
 }
 \value{
 A matrix of motif counts.

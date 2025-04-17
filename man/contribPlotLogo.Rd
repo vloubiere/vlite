@@ -28,7 +28,7 @@ contribPlotLogo(
 
 \item{best.by}{The group.by column for which only the instance with the best padjust should be returned.}
 
-\item{sel}{If specified, only the motifs for which best.by %in% sel will be plotted.}
+\item{sel}{If specified, only the motifs for which best.by in sel will be plotted.}
 
 \item{xlim}{Default= sequence length.}
 
