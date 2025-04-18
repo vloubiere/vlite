@@ -7,9 +7,10 @@
 #' @param bed Genomic ranges in a format compatible with ?importBed(). Used to retrieve sequences if sequences is not provided.
 #' @param pwm_log_odds A PWMatrixList (in log2 odds ratio format) containing motifs to map. For example, see "/groups/stark/vloubiere/motifs_db/".
 #' @param genome The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified). This argument is required.
-#' @param bg The background model for motif detection. Options are "genome" or "even". Default= "genome".
+#' @param bg The background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".
 #' @param p.cutoff The p-value cutoff for motif detection. Default= 5e-5.
-#' @param collapse.overlapping Logical. If TRUE, overlapping motifs (greater than 70 percent overlap) are collapsed into a single region. Default= TRUE.
+#' @param pos.strand If set to TRUE, only motifs on the positive strand are considered (default= FALSE).
+#' @param collapse.overlapping Logical. If TRUE, motifs with 70 percent overlap ore more will be collapsed, irrespective of their strand. Default= TRUE.
 #' @param scratch The path to the scratch directory for temporary files. Default= "/scratch-cbe/users/vincent.loubiere/motifs/".
 #' @param sub.folder A subfolder within the scratch directory for temporary files. If set to NULL (default), a unique id will be generated using digest::digest(list(function.parameters)).
 #' @param overwrite If set to TRUE, overwrites cached intermediate results. Default= FALSE.
@@ -73,14 +74,15 @@ vl_motifPos.default <- function(sequences,
                                 genome,
                                 bg= "genome",
                                 p.cutoff= 5e-5,
+                                pos.strand= FALSE,
                                 collapse.overlapping= TRUE,
                                 scratch= "/scratch-cbe/users/vincent.loubiere/motifs/",
                                 sub.folder= NULL,
                                 overwrite= FALSE)
 {
   # Checks ----
-  if(missing(genome))
-    stop("genome is missing with no default")
+  if(bg=="genome" && missing(genome))
+    stop("genome is missing while bg is set to 'genome'")
   if(is.null(names(sequences)) || anyDuplicated(names(sequences)))
     stop("All sequences should have a unique name!")
   if(!"PWMatrixList" %in% class(pwm_log_odds))
@@ -90,7 +92,7 @@ vl_motifPos.default <- function(sequences,
   if(is.null(sub.folder)) {
     params <- list(sequences,
                    pwm_log_odds,
-                   genome,
+                   ifelse(bg=="genome", genome, bg),
                    bg,
                    p.cutoff)
     sub.folder <- digest::digest(params)
@@ -142,6 +144,9 @@ vl_motifPos.default <- function(sequences,
     # Import
     .c <- readRDS(file)
     .c <- as.data.table(.c)
+    # Select positive strand motifs
+    if(pos.strand)
+      .c <- .c[strand=="+"]
     # Add seqnames
     .c[, seqnames:= names(sequences)[group]]
     # If specified, collapsed motifs that overlap >70%, ignore.strand

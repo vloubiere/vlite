@@ -7,7 +7,7 @@
 #' @param bed Genomic ranges in a format compatible with importBed(). Used to retrieve sequences if sequences is not provided.
 #' @param pwm_log_odds A PWMatrixList (in log2 odds ratio format) containing motifs to count.
 #' @param genome Genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified).
-#' @param bg Background model for motif detection. Options: "genome" or "even". Default= "genome".
+#' @param bg Background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".
 #' @param p.cutoff p-value cutoff for motif detection. Default= 5e-5.
 #' @param cleanup.cache Logical. If set to TRUE, clears cached intermediate results. Default= FALSE.
 #'
@@ -74,6 +74,8 @@ vl_motifCounts.default <- function(sequences= NULL,
                                    cleanup.cache= FALSE)
 {
   # Checks ----
+  if(bg=="genome" && missing(genome))
+    stop("genome is missing while bg is set to 'genome'")
   if(!"PWMatrixList" %in% class(pwm_log_odds))
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
 

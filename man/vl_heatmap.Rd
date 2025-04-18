@@ -24,6 +24,7 @@ vl_heatmap(
   show.col.clusters = "top",
   row.clusters.col = c("grey90", "grey40"),
   col.clusters.col = c("grey90", "grey40"),
+  na.col = "lightgrey",
   legend.cex = 1,
   legend.title = "Value",
   show.numbers = FALSE,
@@ -36,63 +37,65 @@ vl_heatmap(
 \item{x}{A numeric matrix to be displayed as a heatmap.}
 
 \item{cluster.rows}{Logical or vector specifying row clustering:
-* `TRUE`: perform clustering (default)
-* `FALSE`: no clustering
+* TRUE: perform clustering (default)
+* FALSE: no clustering
 * vector: pre-defined clustering}
 
-\item{cluster.cols}{Similar to `cluster.rows` but for columns. Default= FALSE.}
+\item{cluster.cols}{Similar to cluster.rows but for columns. Default= FALSE.}
 
-\item{kmeans.k}{Integer specifying the number of k-means clusters. Defaults to `NA` (uses hierarchical clustering).}
+\item{kmeans.k}{Integer specifying the number of k-means clusters. Defaults= NA (uses hierarchical clustering).}
 
 \item{breaks}{A numeric vector specifying the breakpoints for color mapping.
-Defaults to 21 evenly spaced breaks spanning the range of `x`.}
+Defaults to 21 evenly spaced breaks spanning the range of x.}
 
-\item{col}{A vector of colors corresponding to the values in `breaks`. If `NULL`,
+\item{col}{A vector of colors corresponding to the values in breaks. If set to NULLs,
 a diverging blue-white-red palette is used for data spanning positive and negative values,
 or a sequential blue-yellow palette.}
 
-\item{show.rownames}{Logical; whether to display row names. Default is `TRUE`.}
+\item{show.rownames}{Logical; whether to display row names. Default= TRUE.}
 
-\item{show.colnames}{Logical; whether to display column names. Default is `TRUE`.}
+\item{show.colnames}{Logical; whether to display column names. Default= TRUE.}
 
-\item{tilt.colnames}{Logical; whether to tilt column names for better readability. Default is `TRUE`.}
+\item{tilt.colnames}{Logical; whether to tilt column names for better readability. Default= TRUE.}
 
 \item{main}{Ad title for the heatmap. Default= NA.}
 
-\item{clustering.method}{Character string specifying the hierarchical clustering method. Default is `"complete"`.}
+\item{clustering.method}{Character string specifying the hierarchical clustering method. Default is "complete".}
 
-\item{clustering.distance.rows}{Character string specifying the distance metric for rows. Default is `"euclidean"`.}
+\item{clustering.distance.rows}{Character string specifying the distance metric for rows. Default is "euclidean".}
 
-\item{clustering.distance.cols}{Similar to `clustering.distance.rows` but for columns.}
+\item{clustering.distance.cols}{Similar to clustering.distance.rows but for columns.}
 
 \item{cutree.rows}{Integer specifying the number of row clusters to cut the tree into.}
 
-\item{cutree.cols}{Similar to `cutree.rows` but for columns.}
+\item{cutree.cols}{Similar to cutree.rows but for columns.}
 
-\item{show.row.clusters}{Character specifying the position of row cluster visualization: `"right"`, `"left"`, or `FALSE`.}
+\item{show.row.clusters}{Character specifying the position of row cluster visualization: "right", "left", or FALSE.}
 
-\item{show.col.clusters}{Character specifying the position of column cluster visualization: `"top"`, `"bottom"`, or `FALSE`.}
+\item{show.col.clusters}{Character specifying the position of column cluster visualization: "top", "bottom", or FALSE.}
 
-\item{row.clusters.col}{A vector of two colors for the row cluster gradient. Default is `c("grey90", "grey40")`.}
+\item{row.clusters.col}{A vector of two colors for the row cluster gradient. Default is c("grey90", "grey40").}
 
-\item{col.clusters.col}{A vector of two colors for the column cluster gradient. Default is `c("grey90", "grey40")`.}
+\item{col.clusters.col}{A vector of two colors for the column cluster gradient. Default is c("grey90", "grey40").}
 
-\item{legend.cex}{Numeric scaling factor for the legend. Default is `1`.}
+\item{na.col}{Color for NA values. Default= "ligthgrey".}
 
-\item{legend.title}{Character string for the legend title. Default is `"Value"`.}
+\item{legend.cex}{Numeric scaling factor for the legend. Default= 1.}
 
-\item{show.numbers}{Logical or matrix; if `TRUE` or a matrix is provided, displays values in cells.}
+\item{legend.title}{Character string for the legend title. Default= "Value".}
 
-\item{numbers.cex}{Numeric scaling factor for the size of displayed numbers. Default is `0.7`.}
+\item{show.numbers}{Logical or matrix; if set to TRUE or a matrix is provided, displays values in cells.}
 
-\item{cluster.seed}{Integer seed for reproducible clustering. Default is `3453`.}
+\item{numbers.cex}{Numeric scaling factor for the size of displayed numbers. Default= 0.7.}
+
+\item{cluster.seed}{Integer seed for reproducible clustering. Default= 3453.}
 
 \item{useRaster}{logical; if TRUE a bitmap raster is used to plot the image instead of polygons. Default= FALSE.}
 }
 \value{
 Invisibly returns a list with two `data.table` objects:
-* `row`: Contains row names, ordering, and clustering (if applicable).
-* `col`: Contains column names, ordering, and clustering (if applicable).
+* row: Contains row names, ordering, and clustering (if applicable).
+* col: Contains column names, ordering, and clustering (if applicable).
 }
 \description{
 Generates a customizable heatmap with support for hierarchical clustering, k-means clustering,

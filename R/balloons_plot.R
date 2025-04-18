@@ -140,10 +140,8 @@ balloons_plot <- function(size.var,
   heatkey.top <- par("usr")[4]
   heatkey(breaks = color.breaks,
           col = col,
-          top = heatkey.top,
-          left = legend.left.pos,
           main = size.legend.title,
-          height = heatkey.line.width)
+          position = "right")
 
   # Compute size breaks (only affects the legend)
   if(is.null(size.legend.breaks)) {

@@ -27,36 +27,36 @@ vl_image(
 \item{mat}{A numeric matrix to be displayed as a heatmap.}
 
 \item{breaks}{A numeric vector specifying the breakpoints for color mapping.
-Defaults to 21 evenly spaced breaks spanning the range of `mat`.}
+Defaults to 21 evenly spaced breaks spanning the range of mat.}
 
-\item{col}{A vector of colors corresponding to the values in `breaks`. If `NULL`,
+\item{col}{A vector of colors corresponding to the values in breaks. If set to NULL (default),
 a diverging blue-white-red palette is used for data spanning positive and negative values,
 or a sequential blue-yellow palette.}
 
-\item{xlim}{Numeric vector of length 2 giving x-axis limits. Default is `c(0.5, ncol(mat) + 0.5)`.}
+\item{xlim}{Numeric vector of length 2 giving x-axis limits. Default= c(0.5, ncol(mat) + 0.5).}
 
-\item{ylim}{Numeric vector of length 2 giving y-axis limits. Default is `c(nrow(mat) + 0.5, 0.5)`.}
+\item{ylim}{Numeric vector of length 2 giving y-axis limits. Default= c(nrow(mat) + 0.5, 0.5).}
 
-\item{show.rownames}{Logical; whether to display row names. Default is `TRUE`.}
+\item{show.rownames}{Logical; whether to display row names. Default= TRUE.}
 
-\item{show.colnames}{Logical; whether to display column names. Default is `TRUE`.}
+\item{show.colnames}{Logical; whether to display column names. Default= TRUE.}
 
-\item{tilt.colnames}{Logical; whether to tilt column names for better readability. Default is `TRUE`.}
+\item{tilt.colnames}{Logical; whether to tilt column names for better readability. Default= TRUE.}
 
-\item{xlab}{Character string for the x-axis label. Default is `NA`.}
+\item{xlab}{Character string for the x-axis label. Default= NA.}
 
-\item{ylab}{Character string for the y-axis label. Default is `NA`.}
+\item{ylab}{Character string for the y-axis label. Default= NA.}
 
-\item{na.col}{Color to use for NA values. Default is `"lightgrey"`.}
+\item{na.col}{Color to use for NA values. Default is "lightgrey".}
 
-\item{show.numbers}{Logical or matrix; if `TRUE` or a matrix is provided, displays values in cells. Default is `FALSE`.}
+\item{show.numbers}{Logical or matrix; if TRUE or a matrix is provided, displays values in cells. Default= FALSE.}
 
-\item{numbers.cex}{Numeric scaling factor for the size of numbers when `show.numbers` is `TRUE`. Default is `0.8`.}
+\item{numbers.cex}{Numeric scaling factor for the size of numbers when show.numbers is se to TRUE. Default= 0.8.}
 
 \item{useRaster}{logical; if TRUE a bitmap raster is used to plot the image instead of polygons. Default= FALSE.}
 }
 \value{
-Invisibly returns a list containing the `breaks` and `col` used for the heatmap.
+Invisibly returns a list containing the breaks and col used for the heatmap.
 }
 \description{
 A wrapper around base R's `image()` function for enhanced visualization of matrices as heatmaps.
@@ -64,15 +64,15 @@ The function provides intuitive orientation, automatic handling of color schemes
 and axis labels, along with options for displaying numerical values in cells.
 }
 \details{
-This function improves upon base R's `image()` by:
+This function improves upon base R's image() by:
 - Automatically selecting color palettes based on data characteristics.
 - Handling NA values intelligently.
 - Displaying row and column names by default.
 - Allowing optional display of numerical values in cells.
 - Providing better default orientation (rows top-to-bottom).
 
-The default behavior for `breaks` is to create 21 evenly spaced intervals spanning the range of `mat`.
-If `mat` contains both positive and negative values, the range is symmetrically extended around zero.
+The default behavior for breaks is to create 21 evenly spaced intervals spanning the range of mat.
+If mat contains both positive and negative values, the range is symmetrically extended around zero.
 }
 \examples{
 # Basic usage with random data

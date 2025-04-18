@@ -5,19 +5,20 @@
 #'
 #' @param breaks A numeric vector specifying the breakpoints for color mapping.
 #' @param col A vector of colors corresponding to the values in `breaks`.
-#' @param left Numeric position for the left edge of the color key. Default is calculated based on the current plot region.
-#' @param top Numeric position for the top edge of the color key. Default is the top of the current plot region.
-#' @param height Numeric height of the color key in lines. Default is `4`.
-#' @param width Numeric width of the color key in lines. Default is `0.75`.
-#' @param main Character string for the title of the color key. Default is `NA` (no title).
-#' @param cex Numeric scaling factor for the size of the color key text. Default is `1`.
+#' @param pos Position of the heatkey. Can either be "right" or "top". Default= "right".
+#' @param adj.x If specified, x plotting positions are adjusted by adj.x * line.width Default= 0.
+#' @param adj.y If specified, y plotting positions are adjusted by adj.y * line height. Default= 0.
+#' @param thickness Numeric width of the color key in lines. Default= 0.75.
+#' @param length Numeric height of the color key in lines. Default= 4.
+#' @param main Character string for the title of the color key. Default= NA.
+#' @param cex Numeric scaling factor for the size of the color key text. Default= 1.
 #'
 #' @return
-#' Adds a color key to the current plot. No return value.
+#' Adds a color key to the current plot, at one line of distance from the plot border. No return value.
 #'
 #' @details
-#' The function creates a vertical color key that maps colors to values in your heatmap. The `breaks` vector defines
-#' the midpoints of the ranges for each color in `col`. The color key is customizable in terms of position, size, and appearance.
+#' The function creates a vertical color key that maps colors to values in your heatmap. The breaks vector defines
+#' the midpoints of the ranges for each color in col. The color key is customizable in terms of position, size, and appearance.
 #'
 #' @examples
 #' # Create example matrix
@@ -40,66 +41,107 @@
 #' @export
 heatkey <- function(breaks,
                     col,
-                    left= par("usr")[2]+diff(grconvertX(c(0,1), "line", "user")),
-                    top= par("usr")[4],
-                    width= 0.75,
-                    height= 4,
-                    cex= 1,
-                    main= NA)
+                    position= "right",
+                    adj.x= 0,
+                    adj.y= 0,
+                    thickness= 0.75,
+                    length= 4,
+                    main= NA,
+                    cex= 1)
 {
+  # Checks ----
+  if(!position %in% c("right", "top"))
+    stop("position should be one of 'right' or 'top'.")
+
+  # Compute line width and height (used as reference) ----
+  line.width <- diff(grconvertX(c(0, 1), "line", "user"))
+  line.height <- diff(grconvertY(c(0, 1), "line", "user"))
+
   # Compute plotting positions ----
-  line.height <- diff(grconvertY(c(0, height), "line", "user"))
-  ybottom <- top-line.height
-  ypos <- seq(ybottom, top, length.out= length(breaks)+1)
-  line.width <- diff(grconvertX(c(0, width), "line", "user"))
-  xright <- left+line.width
+  if(position=="top") {
+    # X pos
+    xleft <- mean(par("usr")[1:2])-(length/2*line.width)
+    xright <- xleft+length*line.width
+    pos <- seq(xleft, xright, length.out= length(breaks)+1)
+    xleft <- pos[-length(pos)]
+    xright <- pos[-1]
+    # Y pos
+    ybottom <- par("usr")[4]+line.height
+    ytop <- ybottom+thickness*line.height
+  } else if(position=="right") {
+    # X pos
+    xleft <- par("usr")[2]+line.width
+    xright <- xleft+thickness*line.width
+    # Y pos
+    ytop <- par("usr")[4]
+    ybottom <- ytop-length*line.height
+    pos <- seq(ybottom, ytop, length.out= length(breaks)+1)
+    ybottom <- pos[-length(pos)]
+    ytop <- pos[-1]
+  }
+
+  # Adjust position ----
+  xadj <- adj.x*line.width
+  yadj <- adj.y*line.height
 
   # Plot key ----
-  rect(xleft = left,
-       ybottom = ypos[-length(ypos)],
-       xright = xright,
-       ytop = ypos[-1],
+  rect(xleft = xleft+xadj,
+       ybottom = ybottom+yadj,
+       xright = xright+xadj,
+       ytop = ytop+yadj,
        xpd= NA,
        col= col,
        border= NA)
 
   # Add border ----
-  rect(xleft = left,
-       ybottom = ybottom,
-       xright = xright,
-       ytop = top,
+  rect(xleft = xleft[1]+xadj,
+       ybottom = ybottom[1]+yadj,
+       xright = rev(xright)[1]+xadj,
+       ytop = rev(ytop)[1]+yadj,
        xpd= NA)
+
+  # Add title ----
+  text(x = ifelse(position=="top", mean(pos), xleft[1])+xadj,
+       y = rev(ytop)[1]+line.height+yadj,
+       labels = main,
+       pos = ifelse(position=="top", 3, 4),
+       cex = cex,
+       xpd = NA,
+       offset = 0)
 
   # Compute ticks ----
   ticks <- axisTicks(range(breaks),
                      log= F,
                      nint = 3)
 
-  # Compute center y position of highest and lowest breaks rectangles ----
-  min.pos <- mean(data.table::first(ypos, n = 2)) # Lowest break
-  max.pos <- mean(data.table::last(ypos, n = 2)) # Highest break
+  # Compute center position of lowest and highet breaks rectangles ----
+  min.pos <- mean(pos[1:2]) # Lowest break
+  max.pos <- mean(rev(pos)[1:2]) # Highest break
   span <- max.pos-min.pos # Span bewteen lowest and highest
   # Compute ticks y posistions
-  ypos.t <- min.pos+span*((ticks-breaks[1])/diff(range(breaks)))
+  pos.t <- min.pos+span*((ticks-breaks[1])/diff(range(breaks)))
+  if(position=="top")
+  {
+    x0 <- x1 <- pos.t
+    y0 <- ytop
+    y1 <- ytop+line.height/8
+  } else if(position=="right") {
+    x0 <- xright
+    x1 <- xright+line.width/8
+    y0 <- y1 <- pos.t
+  }
 
-  # Add labels ----
-  text(x= left+line.width,
-       y= ypos.t,
+  # Add ticks ----
+  text(x= x1+xadj,
+       y= y0+yadj,
        labels = ticks,
        cex= cex*0.7,
-       pos= 4,
+       pos= ifelse(position=="top", 3, 4),
        xpd= NA,
        offset= 0.25)
-  segments(x0 = left+line.width,
-           y0 = ypos.t,
-           x1 = left+line.width+line.width/8,
-           y1 = ypos.t,
+  segments(x0 = x0+xadj,
+           y0 = y0+yadj,
+           x1 = x1+xadj,
+           y1 = y1+yadj,
            xpd= T)
-  text(x = left,
-       y = top+strheight(main),
-       labels = main,
-       pos = 4,
-       cex = cex,
-       xpd = NA,
-       offset = 0)
 }

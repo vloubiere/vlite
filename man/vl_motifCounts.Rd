@@ -15,7 +15,7 @@ vl_motifCounts.default(
   pwm_log_odds,
   genome,
   bg = "genome",
-  p.cutoff = 0.00005,
+  p.cutoff = 5e-05,
   cleanup.cache = FALSE
 )
 }
@@ -28,7 +28,7 @@ vl_motifCounts.default(
 
 \item{pwm_log_odds}{A PWMatrixList (in log2 odds ratio format) containing motifs to count.}
 
-\item{bg}{Background model for motif detection. Options: "genome" or "even". Default= "genome".}
+\item{bg}{Background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".}
 
 \item{p.cutoff}{p-value cutoff for motif detection. Default= 5e-5.}
 

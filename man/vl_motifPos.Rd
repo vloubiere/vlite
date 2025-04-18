@@ -15,7 +15,8 @@ vl_motifPos.default(
   pwm_log_odds = vl_Dmel_motifs_DB_full[collection == "jaspar", pwms_log_odds],
   genome,
   bg = "genome",
-  p.cutoff = 0.00005,
+  p.cutoff = 5e-05,
+  pos.strand = FALSE,
   collapse.overlapping = TRUE,
   scratch = "/scratch-cbe/users/vincent.loubiere/motifs/",
   sub.folder = NULL,
@@ -31,11 +32,13 @@ vl_motifPos.default(
 
 \item{pwm_log_odds}{A PWMatrixList (in log2 odds ratio format) containing motifs to map. For example, see "/groups/stark/vloubiere/motifs_db/".}
 
-\item{bg}{The background model for motif detection. Options are "genome" or "even". Default= "genome".}
+\item{bg}{The background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".}
 
 \item{p.cutoff}{The p-value cutoff for motif detection. Default= 5e-5.}
 
-\item{collapse.overlapping}{Logical. If TRUE, overlapping motifs (greater than 70 percent overlap) are collapsed into a single region. Default= TRUE.}
+\item{pos.strand}{If set to TRUE, only motifs on the positive strand are considered (default= FALSE).}
+
+\item{collapse.overlapping}{Logical. If TRUE, motifs with 70 percent overlap ore more will be collapsed, irrespective of their strand. Default= TRUE.}
 
 \item{scratch}{The path to the scratch directory for temporary files. Default= "/scratch-cbe/users/vincent.loubiere/motifs/".}
 
