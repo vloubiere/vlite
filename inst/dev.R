@@ -80,9 +80,10 @@ if(F)
   # pwm converion
   file.edit("R/pwmPercToLog.R")
 
-  # Motif counts
+  # Motif counts and positions
   file.edit("R/vl_motifCount.R")
   file.edit("R/vl_motifPos.R")
+  file.edit("R/motifPosToMatrix.R")
 
   # Motif enrichment
   file.edit("R/vl_motifEnrich.R")
@@ -281,6 +282,7 @@ if(F)
   # Plot DNA letters/logos
   file.edit("R/plotDNAletter.R") # Used to plot logos
   file.edit("R/addSeqLogo.R")
+  file.edit("R/vl_seqLogo.R")
   file.edit("R/addMotifs.R")
 
   # MA plot

@@ -2,7 +2,7 @@
 #'
 #' plot seqlogo from pwm matrix
 #'
-#' @param pwm List of pwm matrices
+#' @param pwm List of percentage pwm matrices (where colsums= 1).
 #' @param x x positions
 #' @param y positions (centered)
 #' @param pos eith 2 (left) of 4 (right)

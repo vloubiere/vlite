@@ -53,6 +53,7 @@ tiltAxis <- function(x,
                      pos= 2,
                      xpd= NA,
                      cex= par("cex.axis"),
+                     ticks= FALSE,
                      ...)
 {
   # Checks
@@ -72,4 +73,14 @@ tiltAxis <- function(x,
        xpd= xpd,
        cex= cex,
        ...)
+
+  # Ticks
+  if(ticks)
+  {
+    segments(x,
+             par("usr")[3],
+             x,
+             par("usr")[3]-strheight("M")*offset/2,
+             xpd= xpd)
+  }
 }

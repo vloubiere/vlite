@@ -54,8 +54,8 @@ heatkey <- function(breaks,
     stop("position should be one of 'right' or 'top'.")
 
   # Compute line width and height (used as reference) ----
-  line.width <- diff(grconvertX(c(0, 1), "line", "user"))
-  line.height <- diff(grconvertY(c(0, 1), "line", "user"))
+  line.width <- diff(grconvertX(c(0, 1), "line", "user"))*cex
+  line.height <- diff(grconvertY(c(0, 1), "line", "user"))*cex
 
   # Compute plotting positions ----
   if(position=="top") {

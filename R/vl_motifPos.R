@@ -10,10 +10,9 @@
 #' @param bg The background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".
 #' @param p.cutoff The p-value cutoff for motif detection. Default= 5e-5.
 #' @param pos.strand If set to TRUE, only motifs on the positive strand are considered (default= FALSE).
-#' @param collapse.overlapping Logical. If TRUE, motifs with 70 percent overlap ore more will be collapsed, irrespective of their strand. Default= TRUE.
+#' @param collapse.overlapping Logical. If TRUE, motifs with 70 percent overlap ore more will be collapsed, irrespective of their strand. Default= FALSE.
 #' @param scratch The path to the scratch directory for temporary files. Default= "/scratch-cbe/users/vincent.loubiere/motifs/".
-#' @param sub.folder A subfolder within the scratch directory for temporary files. If set to NULL (default), a unique id will be generated using digest::digest(list(function.parameters)).
-#' @param overwrite If set to TRUE, overwrites cached intermediate results. Default= FALSE.
+#' @param cleanup.cache If set to TRUE, overwrites cached intermediate results. Default= FALSE.
 #'
 #' @return A data.table containing motif positions for each sequence, with the following columns:
 #' - `motif`: The name of the motif.
@@ -75,10 +74,9 @@ vl_motifPos.default <- function(sequences,
                                 bg= "genome",
                                 p.cutoff= 5e-5,
                                 pos.strand= FALSE,
-                                collapse.overlapping= TRUE,
+                                collapse.overlapping= FALSE,
                                 scratch= "/scratch-cbe/users/vincent.loubiere/motifs/",
-                                sub.folder= NULL,
-                                overwrite= FALSE)
+                                cleanup.cache= FALSE)
 {
   # Checks ----
   if(bg=="genome" && missing(genome))
@@ -89,91 +87,102 @@ vl_motifPos.default <- function(sequences,
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
 
   # Create tmp output folder ----
-  if(is.null(sub.folder)) {
-    params <- list(sequences,
-                   pwm_log_odds,
-                   ifelse(bg=="genome", genome, bg),
-                   bg,
-                   p.cutoff)
-    sub.folder <- digest::digest(params)
-  }
+  params <- list(sequences,
+                 ifelse(bg=="genome", genome, bg),
+                 bg,
+                 p.cutoff)
+  sub.folder <- digest::digest(params)
   tmp.folder <- paste0(scratch, "/", sub.folder, "/")
   print(paste0("Temp files will be stored in '", tmp.folder, "'"))
-  dir.create(tmp.folder, showWarnings = FALSE, recursive = TRUE)
+  dir.create(tmp.folder,
+             showWarnings = FALSE,
+             recursive = TRUE)
 
-  # Retrieve unique motif names ----
-  mot.names <- sapply(pwm_log_odds, TFBSTools::name)
-  mot.names <- make.unique(mot.names)
+  # Create final file cache name ----
+  params <- list(sub.folder,
+                 pwm_log_odds,
+                 pos.strand,
+                 collapse.overlapping)
+  final.file <- paste0(tmp.folder, digest::digest(params), ".rds")
 
-  # Generate output file names ----
-  output <- paste0(tmp.folder, "/", gsub("/", "__", mot.names), ".rds")
+  # Main function ----
+  if(!file.exists(final.file) | cleanup.cache) {
 
-  # Check for existing files ----
-  existing.files <- if(overwrite) {
-    rep(FALSE, length(output))
-  } else {
-    file.exists(output)
-  }
-  if(sum(existing.files)) {
-    print(paste0(sum(existing.files), "/", length(pwm_log_odds), " motif files already existed!"))
-  }
+    # Retrieve unique motif names ----
+    mot.names <- sapply(pwm_log_odds, TFBSTools::name)
+    mot.names <- make.unique(mot.names)
 
-  # Map motifs ----
-  if(any(!existing.files))
-  {
-    parallel::mcmapply(function(mot, output.file)
+    # Generate output file names ----
+    output.files <- paste0(tmp.folder, "/", gsub("/", "__", mot.names), ".rds")
+
+    # Check for existing files ----
+    missing.files <- !file.exists(output.files) | cleanup.cache
+
+    # Map motifs ----
+    if(any(missing.files))
     {
-      res <- motifmatchr::matchMotifs(mot,
-                                      sequences,
-                                      genome= genome,
-                                      p.cutoff= p.cutoff,
-                                      bg= bg,
-                                      out= "positions")[[1]]
-      saveRDS(res, output.file)
-    },
-    mot= pwm_log_odds[!existing.files],
-    output.file= output[!existing.files],
-    mc.preschedule = TRUE,
-    mc.cores = data.table::getDTthreads()-1)
-  }
+      print(paste0(sum(!missing.files), "/", length(pwm_log_odds), " motif files already existed!"))
 
-  # Processing ----
-  pos <- data.table(motif= mot.names,
-                    file= output)
-  final <- pos[, {
-    # Import
-    .c <- readRDS(file)
-    .c <- as.data.table(.c)
-    # Select positive strand motifs
-    if(pos.strand)
-      .c <- .c[strand=="+"]
-    # Add seqnames
-    .c[, seqnames:= names(sequences)[group]]
-    # If specified, collapsed motifs that overlap >70%, ignore.strand
-    if(collapse.overlapping & nrow(.c))
-    {
-      min.gap <- -ceiling(mean(.c$width)*0.7)
-      .c$idx <-  collapseBed(bed = .c,
-                             max.gap = min.gap,
-                             ignore.strand = TRUE,
-                             return.idx.only = TRUE)
-      .c <- .c[, {
-        .(start= min(start),
-          end= max(end),
-          score= max(score, na.rm = TRUE))
-      }, .(seqnames, idx)]
-      .c[, width:= end-start+1]
+      parallel::mcmapply(function(mot, output.file)
+      {
+        res <- motifmatchr::matchMotifs(mot,
+                                        sequences,
+                                        genome= genome,
+                                        p.cutoff= p.cutoff,
+                                        bg= bg,
+                                        out= "positions")[[1]]
+        saveRDS(res, output.file)
+      },
+      mot= pwm_log_odds[missing.files],
+      output.file= output.files[missing.files],
+      mc.preschedule = TRUE,
+      mc.cores = data.table::getDTthreads()-1)
     }
-    # Simplify
-    .c[, seqlvls:= seqnames]
-    cols <- intersect(names(.c), c("start", "end", "strand", "width", "score"))
-    .c <- .c[, .(mot.count= .N, ir= .(.SD)), seqlvls, .SDcols= cols]
-    # Add missing levels
-    all <- data.table(seqlvls= names(sequences))
-    res <- merge(all, .c, by= "seqlvls", all.x= TRUE, sort= FALSE)
-    # Return
-    res
-  }, motif]
+    print("All motif positions computed ;)")
+
+    # Processing ----
+    pos <- data.table(motif= mot.names,
+                      file= output.files)
+    final <- pos[, {
+      # Import
+      .c <- readRDS(file)
+      .c <- as.data.table(.c)
+      # Select positive strand motifs
+      if(pos.strand)
+        .c <- .c[strand=="+"]
+      # Add seqnames
+      .c[, seqnames:= names(sequences)[group]]
+      # If specified, collapsed motifs that overlap >70%, ignore.strand
+      if(collapse.overlapping & nrow(.c))
+      {
+        min.gap <- -ceiling(mean(.c$width)*0.7)
+        .c$idx <-  collapseBed(bed = .c,
+                               max.gap = min.gap,
+                               ignore.strand = TRUE,
+                               return.idx.only = TRUE)
+        .c <- .c[, {
+          .(start= min(start),
+            end= max(end),
+            score= max(score, na.rm = TRUE))
+        }, .(seqnames, idx)]
+        .c[, width:= end-start+1]
+      }
+      # Simplify
+      .c[, seqlvls:= seqnames]
+      cols <- intersect(names(.c), c("start", "end", "strand", "width", "score"))
+      .c <- .c[, .(mot.count= .N, ir= .(.SD)), seqlvls, .SDcols= cols]
+      # Add missing levels
+      all <- data.table(seqlvls= names(sequences))
+      res <- merge(all, .c, by= "seqlvls", all.x= TRUE, sort= FALSE)
+      # Return
+      res
+    }, motif]
+
+    # Save cache file
+    saveRDS(final,
+            final.file)
+  } else
+    final <- readRDS(final.file)
 
   # Return ----
   return(final)

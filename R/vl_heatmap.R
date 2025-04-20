@@ -255,7 +255,7 @@ vl_heatmap <- function(x,
 
     # Plotting parameters
     rcls <- data.table(cl= cluster.rows[row.order])
-    rcls[, name:= paste0(cl, " (n= ", .N, ")"), cl]
+    rcls[, name:= paste0(cl, " (n= ", formatC(.N, big.mark = ","), ")"), cl]
     rcls[, top:= .I[1]-0.5, cl]
     rcls[, bottom:= .I[.N]+0.5, cl]
     rcls[, col:= colorRampPalette(row.clusters.col)(.NGRP)[.GRP], keyby= cl]
@@ -390,8 +390,9 @@ vl_heatmap <- function(x,
 
 
   # Add title ----
-  title(main= main,
-        line = (top.mar-par("usr")[4])/line.height+.5)
+  if(!is.na(main))
+    title(main= main,
+          line = (top.mar-par("usr")[4])/line.height+.25)
 
   # Return clusters and row orders ----
   row <- data.table(row.name= rownames(x)[order(row.order)],
