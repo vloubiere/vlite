@@ -392,7 +392,7 @@ vl_heatmap <- function(x,
   # Add title ----
   if(!is.na(main))
     title(main= main,
-          line = (top.mar-par("usr")[4])/line.height+.25)
+          line = max(c(1, (top.mar-par("usr")[4])/line.height+.25)))
 
   # Return clusters and row orders ----
   row <- data.table(row.name= rownames(x)[order(row.order)],

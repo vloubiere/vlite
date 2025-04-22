@@ -77,6 +77,7 @@ vl_par <- function(mai= c(.9, .9, .9, .9),
                  cex.axis= 7/12,
                  bty= "n",
                  lend= 2,
+                 font.main= 1,
                  ...)
 {
   par(mai= mai,
@@ -88,5 +89,6 @@ vl_par <- function(mai= c(.9, .9, .9, .9),
       cex.axis= cex.axis,
       bty= bty,
       lend= lend,
+      font.main= font.main,
       ...)
 }
