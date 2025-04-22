@@ -11,7 +11,7 @@
 #' @param thickness Numeric width of the color key in lines. Default= 0.75.
 #' @param length Numeric height of the color key in lines. Default= 4.
 #' @param main Character string for the title of the color key. Default= NA.
-#' @param compute.ticks Should nice ticks be computed? Otherwise, breaks are printed as is.
+#' @param compute.ticks Should nice ticks be computed? By default, they will if provided breaks are equally spaced.
 #' @param cex Numeric scaling factor for the size of the color key text. Default= 1.
 #'
 #' @return
@@ -48,7 +48,7 @@ heatkey <- function(breaks,
                     thickness= 0.75,
                     length= 4,
                     main= NA,
-                    compute.ticks= TRUE,
+                    compute.ticks,
                     cex= 1)
 {
   # Checks ----
@@ -129,13 +129,18 @@ heatkey <- function(breaks,
        xpd = NA,
        offset = 0)
 
+  # Check if nice ticks should be computed ----
+  if(missing(compute.ticks)) {
+    tol <- diff(range(breaks))/1000
+    diffs <- diff(breaks)
+    equally.spaced <- all.equal(target = diffs,
+                                current = rep(diffs[1], length(diffs)),
+                                tolerance = tol)
+    compute.ticks <- isTRUE(equally.spaced)
+  }
+
   # Compute ticks ----
-  tol <- span/1000
-  diffs <- diff(breaks)
-  equally.spaced <- all.equal(target = diffs,
-                              current = rep(diffs[1], length(diffs)),
-                              tolerance = tol)
-  ticks <- if(isTRUE(equally.spaced) & compute.ticks) {
+  ticks <- if(compute.ticks) {
     axisTicks(range(breaks),
               log= F,
               nint = 3)
@@ -174,31 +179,3 @@ heatkey <- function(breaks,
            y1 = y1+yadj,
            xpd= T)
 }
-
-
-# plot.new()
-# breaks <- c(0,3,4,5)
-# min.break <- min(diff(breaks))
-# range <- diff(range(breaks))
-# norm.breaks <- seq(min(breaks),
-#                    max(breaks),
-#                    length.out= round(range/min.break)+1)
-# pos <- seq(from= 0,
-#            to= 1,
-#            length.out= length(norm.breaks)+1)
-# col <- as.character(cut(norm.breaks, c(-1, breaks), include.lowest = T, labels = col))
-# rect(xleft = 0,
-#      ybottom = pos[-length(pos)],
-#      xright = 1,
-#      ytop = pos[-1],
-#      col= col)
-# ymin <- mean(pos[1:2])
-# ymax <- mean(rev(pos)[1:2])
-# ybreaks <- breaks/range*(ymax-ymin)+ymin
-# abline(h= ybreaks)
-
-
-#
-#
-# col <- c("white", "yellow", "orange", "red")
-# breaks[1]+seq
