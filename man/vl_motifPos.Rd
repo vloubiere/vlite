@@ -15,12 +15,11 @@ vl_motifPos.default(
   pwm_log_odds = vl_Dmel_motifs_DB_full[collection == "jaspar", pwms_log_odds],
   genome,
   bg = "genome",
-  p.cutoff = 5e-05,
+  p.cutoff = 0.00005,
   pos.strand = FALSE,
-  collapse.overlapping = TRUE,
+  collapse.overlapping = FALSE,
   scratch = "/scratch-cbe/users/vincent.loubiere/motifs/",
-  sub.folder = NULL,
-  overwrite = FALSE
+  cleanup.cache = FALSE
 )
 }
 \arguments{
@@ -38,13 +37,11 @@ vl_motifPos.default(
 
 \item{pos.strand}{If set to TRUE, only motifs on the positive strand are considered (default= FALSE).}
 
-\item{collapse.overlapping}{Logical. If TRUE, motifs with 70 percent overlap ore more will be collapsed, irrespective of their strand. Default= TRUE.}
+\item{collapse.overlapping}{Logical. If TRUE, motifs with 70 percent overlap ore more will be collapsed, irrespective of their strand. Default= FALSE.}
 
 \item{scratch}{The path to the scratch directory for temporary files. Default= "/scratch-cbe/users/vincent.loubiere/motifs/".}
 
-\item{sub.folder}{A subfolder within the scratch directory for temporary files. If set to NULL (default), a unique id will be generated using digest::digest(list(function.parameters)).}
-
-\item{overwrite}{If set to TRUE, overwrites cached intermediate results. Default= FALSE.}
+\item{cleanup.cache}{If set to TRUE, overwrites cached intermediate results. Default= FALSE.}
 }
 \value{
 A data.table containing motif positions for each sequence, with the following columns:

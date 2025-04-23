@@ -16,7 +16,7 @@ addSeqLogo(
 )
 }
 \arguments{
-\item{pwm}{List of pwm matrices}
+\item{pwm}{List of percentage pwm matrices (where colsums= 1).}
 
 \item{x}{x positions}
 

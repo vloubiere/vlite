@@ -6,15 +6,12 @@
 \usage{
 pwmPercToLog(
   perc_pwm,
-  check.colsums = TRUE,
-  pseudocount = 1e-05,
+  pseudocount = 0.00001,
   bg = c(A = 0.25, C = 0.25, G = 0.25, T = 0.25)
 )
 }
 \arguments{
 \item{perc_pwm}{A percentage PWM, where all columns sum to 1.}
-
-\item{check.colsums}{If set to TRUE (default), ensures that all the columns of the perc_pwm sum to one.}
 
 \item{pseudocount}{Pseudocount to be added before logging. Default= 1e-5.}
 

@@ -13,6 +13,7 @@ tiltAxis(
   pos = 2,
   xpd = NA,
   cex = par("cex.axis"),
+  ticks = FALSE,
   ...
 )
 }

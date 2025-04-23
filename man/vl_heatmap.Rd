@@ -25,6 +25,9 @@ vl_heatmap(
   row.clusters.col = c("grey90", "grey40"),
   col.clusters.col = c("grey90", "grey40"),
   na.col = "lightgrey",
+  show.row.dendro = TRUE,
+  show.col.dendro = TRUE,
+  show.legend = "right",
   legend.cex = 1,
   legend.title = "Value",
   show.numbers = FALSE,
@@ -34,7 +37,7 @@ vl_heatmap(
 )
 }
 \arguments{
-\item{x}{A numeric matrix to be displayed as a heatmap.}
+\item{x}{A matrix, data.table or data.frame of numeric values or factors (that will be coerced to numeric) to be displayed as a heatmap.}
 
 \item{cluster.rows}{Logical or vector specifying row clustering:
 * TRUE: perform clustering (default)
@@ -79,6 +82,12 @@ or a sequential blue-yellow palette.}
 \item{col.clusters.col}{A vector of two colors for the column cluster gradient. Default is c("grey90", "grey40").}
 
 \item{na.col}{Color for NA values. Default= "ligthgrey".}
+
+\item{show.row.dendro}{If rows are clustered using hclust, should the dendrogram be shown? Default= TRUE.}
+
+\item{show.col.dendro}{If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.}
+
+\item{show.legend}{Should the legend be plotted? Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".}
 
 \item{legend.cex}{Numeric scaling factor for the legend. Default= 1.}
 

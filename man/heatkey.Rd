@@ -7,41 +7,44 @@
 heatkey(
   breaks,
   col,
-  left = par("usr")[2] + diff(grconvertX(c(0, 1), "line", "user")),
-  top = par("usr")[4],
-  width = 0.75,
-  height = 4,
-  cex = 1,
-  main = NA
+  position = "right",
+  adj.x = 0,
+  adj.y = 0,
+  thickness = 0.75,
+  length = 4,
+  main = NA,
+  cex = 1
 )
 }
 \arguments{
-\item{breaks}{A numeric vector specifying the breakpoints for color mapping.}
+\item{breaks}{A numeric vector (or factors) specifying the breakpoints for color mapping.}
 
 \item{col}{A vector of colors corresponding to the values in `breaks`.}
 
-\item{left}{Numeric position for the left edge of the color key. Default is calculated based on the current plot region.}
+\item{adj.x}{If specified, x plotting positions are adjusted by adj.x * line.width Default= 0.}
 
-\item{top}{Numeric position for the top edge of the color key. Default is the top of the current plot region.}
+\item{adj.y}{If specified, y plotting positions are adjusted by adj.y * line height. Default= 0.}
 
-\item{width}{Numeric width of the color key in lines. Default is `0.75`.}
+\item{thickness}{Numeric width of the color key in lines. Default= 0.75.}
 
-\item{height}{Numeric height of the color key in lines. Default is `4`.}
+\item{length}{Numeric height of the color key in lines. Default= 4.}
 
-\item{cex}{Numeric scaling factor for the size of the color key text. Default is `1`.}
+\item{main}{Character string for the title of the color key. Default= NA.}
 
-\item{main}{Character string for the title of the color key. Default is `NA` (no title).}
+\item{cex}{Numeric scaling factor for the size of the color key text. Default= 1.}
+
+\item{pos}{Position of the heatkey. Can either be "right" or "top". Default= "right".}
 }
 \value{
-Adds a color key to the current plot. No return value.
+Adds a color key to the current plot, at one line of distance from the plot border. No return value.
 }
 \description{
 Plots a color key (legend) for heatmaps. This function is designed to work alongside heatmap visualizations
 and should be called after the main heatmap plot.
 }
 \details{
-The function creates a vertical color key that maps colors to values in your heatmap. The `breaks` vector defines
-the midpoints of the ranges for each color in `col`. The color key is customizable in terms of position, size, and appearance.
+The function creates a vertical color key that maps colors to values in your heatmap. The breaks vector defines
+the midpoints of the ranges for each color in col. The color key is customizable in terms of position, size, and appearance.
 }
 \examples{
 # Create example matrix

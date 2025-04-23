@@ -14,6 +14,7 @@ vl_par(
   cex.axis = 7/12,
   bty = "n",
   lend = 2,
+  font.main = 1,
   ...
 )
 }
