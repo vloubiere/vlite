@@ -269,7 +269,6 @@ if(F)
   file.edit("R/vl_boxplot.R")
 
   # Heatmap
-  file.edit("R/vl_image.R")
   file.edit("R/vl_heatmap.R")
 
   # Alluvial plot

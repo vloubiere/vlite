@@ -4,7 +4,7 @@
 #' dendrograms, and cluster visualization. This function provides advanced options for visualizing
 #' matrix data with clustering and color-coded annotations.
 #'
-#' @param x A numeric matrix to be displayed as a heatmap.
+#' @param x A matrix, data.table or data.frame of numeric values or factors (that will be coerced to numeric) to be displayed as a heatmap.
 #' @param cluster.rows Logical or vector specifying row clustering:
 #'   * TRUE: perform clustering (default)
 #'   * FALSE: no clustering
@@ -116,12 +116,28 @@ vl_heatmap <- function(x,
                        useRaster= FALSE)
 {
   # Checks and default values ----
-  if(!is.matrix(x))
+  # Coerce x to numeric matrix (useful for factors)
+  if(!is.matrix(x)) {
+    checkClass <- unique(sapply(x, class))
+    if(length(checkClass)>1)
+      stop("x cannot contain mixed classes.")
+    if(checkClass=="factor") {
+      allLvls <- unique(c(sapply(x, levels)))
+      # Factors to numeric
+      x <- lapply(x, function(x) as.numeric(factor(x, allLvls)))
+      x <- do.call(cbind, lapply(x, as.numeric))
+    }
+    # Numeric matrix
     x <- as.matrix(x)
-  if(is.null(rownames(x)))
-    rownames(x) <- seq(nrow(x))
+  } else {
+    if(!is.numeric(x))
+      stop("x should contain numeric values or factors.")
+    checkClass <- "numeric"
+  }
   if(is.null(colnames(x)))
     colnames(x) <- seq(ncol(x))
+  if(is.null(rownames(x)))
+    rownames(x) <- seq(nrow(x))
   if(nrow(x)==1)
     cluster.rows <- FALSE
   if(ncol(x)==1)
@@ -136,8 +152,49 @@ vl_heatmap <- function(x,
     show.col.clusters <- "top"
   if(!show.legend %in% c(TRUE, FALSE, "right", "top"))
     stop("show.col.clusters should be one of TRUE, FALSE, 'right' or 'top'.")
+  if(!isFALSE(cluster.rows) && show.row.clusters=="left")
+    show.rownames <- FALSE
+  if(!isFALSE(cluster.cols) && show.col.clusters=="bottom")
+    show.colnames <- FALSE
   if(isTRUE(show.legend))
     show.legend <- "right"
+  if(isTRUE(show.numbers))
+    show.numbers <- x
+
+  # Default breaks ----
+  if(is.null(breaks)) {
+    breaks <- if(checkClass=="factor") {
+      # Factor
+      seq(min(x, na.rm= TRUE),
+          max(x, na.rm= TRUE))
+    } else if(min(x, na.rm= TRUE)<0 & max(x, na.rm= TRUE)>0) {
+      lims <- max(abs(x), na.rm= TRUE)
+      # Centered on 0
+      seq(-lims,
+          lims,
+          length.out= 21)
+    } else {
+      # Unique sign
+      seq(min(x, na.rm= TRUE),
+          max(x, na.rm= TRUE),
+          length.out= 21)
+    }
+  }
+
+  # Default colors ----
+  if(is.null(col)) {
+    col <- if(checkClass=="factor") {
+      # Factor
+      rainbow(length(allLvls))
+    } else if(breaks[1] < 0 & breaks[length(breaks)] > 0) {
+      # Positive and negative values
+      c("royalblue1", "white", "red")
+    } else {
+      # Unique sign
+      c("blue", "yellow")
+    }
+  }
+  col <- colorRampPalette(col)(length(breaks))
 
   # Cluster rows ----
   row.order <- if(isFALSE(cluster.rows)) {
@@ -213,27 +270,67 @@ vl_heatmap <- function(x,
   } else
     stop("cluster.cols should either match the number of cols in x, or be a logical vector of length 1.")
 
-  # Reorder ----
-  x <- x[(row.order), , drop= FALSE]
-  x <- x[,(col.order), drop= FALSE]
+  # Reorder matrix based on clustering ----
+  x <- x[(row.order), , drop=FALSE]
+  x <- x[, (col.order), drop=FALSE]
   if(is.matrix(show.numbers)) {
-    show.numbers <- show.numbers[(row.order),]
-    show.numbers <- show.numbers[,(col.order)]
+    show.numbers <- show.numbers[(row.order), , drop=FALSE]
+    show.numbers <- show.numbers[, (col.order), drop= FALSE]
   }
 
-  # Plot heatmap ----
-  obj <- vl_image(
-    mat = x,
-    breaks = breaks,
-    col = col,
-    show.rownames = show.rownames && (isFALSE(cluster.rows) || show.row.clusters=="right"),
-    show.colnames = show.colnames && (isFALSE(cluster.cols) || show.col.clusters=="top"),
-    tilt.colnames = tilt.colnames,
-    show.numbers= show.numbers,
-    numbers.cex= numbers.cex,
-    useRaster= useRaster,
-    na.col = na.col
-  )
+  # Prepare image for plotting ----
+  # Transpose
+  im <- t(x)
+  # Clip outlier values to min/max color breaks
+  im[im<min(breaks)] <- min(breaks, na.rm= TRUE)
+  im[im>max(breaks)] <- max(breaks, na.rm= TRUE)
+  # Set NA values to min(breaks)-1
+  im[is.na(im)] <- min(breaks)-1
+  # Adjust breaks to afford NAs
+  NAbreaks <- c(breaks[1]-c(2,1), breaks)
+  NAcols <- c(na.col, col)
+
+  # Plot image ----
+  image(x= seq(nrow(im)),
+        y= seq(ncol(im)),
+        z= im,
+        breaks= NAbreaks,
+        col= NAcols,
+        xlim= c(0.5, ncol(x)+0.5),
+        ylim= c(nrow(x)+0.5, 0.5),
+        xlab= NA,
+        ylab= NA,
+        axes= FALSE,
+        useRaster= useRaster)
+
+  # Plot axes ----
+  if(show.rownames) {
+    axis(2,
+         seq(nrow(x)),
+         rownames(x),
+         lwd = 0,
+         lwd.ticks = 0)
+  }
+  if(show.colnames) {
+    if(tilt.colnames) {
+      tiltAxis(x= seq(ncol(x)),
+               labels= colnames(x))
+    } else {
+      axis(1,
+           seq(ncol(x)),
+           colnames(x),
+           lwd = 0,
+           lwd.ticks = 0)
+    }
+  }
+
+  # Plot numbers ----
+  if(!isFALSE(show.numbers)) {
+    text(x= c(col(show.numbers)),
+         y= c(row(show.numbers)),
+         labels = c(show.numbers),
+         cex= numbers.cex)
+  }
 
   # Border ----
   rect(xleft = par("usr")[1],
@@ -242,7 +339,7 @@ vl_heatmap <- function(x,
        ytop = par("usr")[4],
        xpd= T)
 
-  # Compute margsins positions ----
+  # Compute margins positions ----
   right.mar <- par("usr")[2]
   top.mar <- par("usr")[4]
 
@@ -374,8 +471,8 @@ vl_heatmap <- function(x,
 
   # Add legend ----
   if(!isFALSE(show.legend)) {
-    heatkey(col= obj$col,
-            breaks = obj$breaks,
+    heatkey(col= col,
+            breaks = if(checkClass=="factor") factor(allLvls, allLvls) else breaks,
             position = show.legend,
             adj.x = ifelse(show.legend=="top",
                            0,
@@ -387,7 +484,6 @@ vl_heatmap <- function(x,
             main = legend.title)
     top.mar <- top.mar+((show.legend=="top")*3*line.height)
   }
-
 
   # Add title ----
   if(!is.na(main))

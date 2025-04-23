@@ -3,7 +3,7 @@
 #' Plots a color key (legend) for heatmaps. This function is designed to work alongside heatmap visualizations
 #' and should be called after the main heatmap plot.
 #'
-#' @param breaks A numeric vector specifying the breakpoints for color mapping.
+#' @param breaks A numeric vector (or factors) specifying the breakpoints for color mapping.
 #' @param col A vector of colors corresponding to the values in `breaks`.
 #' @param pos Position of the heatkey. Can either be "right" or "top". Default= "right".
 #' @param adj.x If specified, x plotting positions are adjusted by adj.x * line.width Default= 0.
@@ -11,7 +11,6 @@
 #' @param thickness Numeric width of the color key in lines. Default= 0.75.
 #' @param length Numeric height of the color key in lines. Default= 4.
 #' @param main Character string for the title of the color key. Default= NA.
-#' @param compute.ticks Should nice ticks be computed? By default, they will if provided breaks are equally spaced.
 #' @param cex Numeric scaling factor for the size of the color key text. Default= 1.
 #'
 #' @return
@@ -48,12 +47,18 @@ heatkey <- function(breaks,
                     thickness= 0.75,
                     length= 4,
                     main= NA,
-                    compute.ticks,
                     cex= 1)
 {
   # Checks ----
   if(!position %in% c("right", "top"))
     stop("position should be one of 'right' or 'top'.")
+  if(is.numeric(breaks)) {
+    labels <- breaks
+  } else if (is.factor(breaks)) {
+    labels <- levels(breaks)
+    breaks <- as.numeric(breaks)
+  } else
+    stop("breaks vector should either contain numeric values or factors.")
 
   # Compute normalized breaks ----
   min.break <- min(diff(breaks))
@@ -64,7 +69,7 @@ heatkey <- function(breaks,
 
   # Compute normalized colors ----
   col <- cut(norm.breaks,
-             c(-1, breaks),
+             c(breaks[1]-1, breaks),
              include.lowest = T,
              labels = col)
   col <- as.character(col)
@@ -129,29 +134,20 @@ heatkey <- function(breaks,
        xpd = NA,
        offset = 0)
 
-  # Check if nice ticks should be computed ----
-  if(missing(compute.ticks)) {
-    tol <- diff(range(breaks))/1000
-    diffs <- diff(breaks)
-    equally.spaced <- all.equal(target = diffs,
-                                current = rep(diffs[1], length(diffs)),
-                                tolerance = tol)
-    compute.ticks <- isTRUE(equally.spaced)
-  }
-
   # Compute ticks ----
-  ticks <- if(compute.ticks) {
-    axisTicks(range(breaks),
-              log= F,
-              nint = 3)
+  if(is.numeric(labels)) {
+    ticks <- axisTicks(range(breaks),
+                       log= F,
+                       nint = 3)
+    labels <- ticks
   } else {
-    breaks
+    ticks <- breaks
   }
 
   # Compute tick positions ----
   min.pos <- mean(pos[1:2]) # Lowest break
   max.pos <- mean(rev(pos)[1:2]) # Highest break
-  pos.t <- ticks/span*(max.pos-min.pos)+min.pos
+  pos.t <- (ticks-min(breaks))/span*(max.pos-min.pos)+min.pos
 
   # Plot ticks ----
   if(position=="top")
@@ -168,7 +164,7 @@ heatkey <- function(breaks,
   # Add ticks ----
   text(x= x1+xadj,
        y= y0+yadj,
-       labels = ticks,
+       labels = labels,
        cex= cex*0.7,
        pos= ifelse(position=="top", 3, 4),
        xpd= NA,
