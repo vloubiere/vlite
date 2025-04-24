@@ -7,6 +7,7 @@
 #' @param by Optional factor for grouping the data (e.g., by condition or feature type)
 #' @param tracks Character vector of paths to BigWig files
 #' @param names Function or character vector to generate track names. Default extracts names from file paths
+#' @param show.title Should names be shown as heatmaps' titles?
 #' @param center Method for centering profiles: "center" for point-centric or "region" for meta-gene like plots
 #' @param center.name Label for the center point in the plot (default: "center" or "Start", when center=="region")
 #' @param region.end When center is set to region, label for the end of the region. Default= "End".
@@ -15,6 +16,7 @@
 #' @param nbins Integer vector. Number of bins for signal averaging. For center="region", expects c(upstream_bins, body_bins, downstream_bins). For center="center", single integer (default: 251)
 #' @param ignore.strand Logical. If TRUE, ignores strand information (default: FALSE)
 #' @param col.palette Vector of colors for the tracks (default: rainbow palette)
+#' @param legend.cex Legend cex.
 #' @param xlab X axis label (default: Genomic distance)
 #' @param ylab Y axis label (default: Mean signal)
 #' @param cleanup.cache Logical. Whether to force recomputation of cached results (default: FALSE)
@@ -63,18 +65,20 @@ bwHeatmap <- function(bed,
                       by= NULL,
                       tracks,
                       names= function(x) gsub("(.*)[.].*$", "\\1", basename(tracks)),
+                      show.title= TRUE,
                       center= "center",
                       center.name= ifelse(center!="region", "Center", "Start"),
                       region.end= "End",
                       upstream= 5000L,
                       downstream= 5000L,
                       max.cutoffs= NULL,
-                      max.fun= function(x) quantile(x, .999),
+                      max.fun= function(x) quantile(x, .999, na.rm= T),
                       ordering.track.idx= 1,
-                      ordering.fun= function(x) mean(x),
+                      ordering.fun= function(x) mean(x, na.rm= T),
                       nbins= if(center=="region") c(50L, 150L, 50L) else 251L,
                       ignore.strand= FALSE,
                       col.palette= c("blue", "yellow"),
+                      legend.cex= .6,
                       xlab= "Genomic distance",
                       ylab= NULL,
                       cleanup.cache= FALSE)
@@ -118,13 +122,13 @@ bwHeatmap <- function(bed,
                cluster.rows = if(is.null(by)) FALSE else sort(by),
                cluster.cols = FALSE,
                show.rownames = FALSE,
-               zlim = c(0, max.cutoffs[i]),
+               breaks = seq(0, max.cutoffs[i], length.out= 101),
                show.row.clusters = "left",
                show.colnames = FALSE,
-               legend.title = "Signal")
-    title(main= names[i],
-          xlab= xlab,
-          ylab= ylab)
+               legend.title = "Signal",
+               legend.cex= legend.cex,
+               main= if(show.title) names[i] else NA,
+               useRaster= TRUE)
 
     # Add x axis
     if(center!="region") {

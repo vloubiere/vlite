@@ -23,6 +23,8 @@
 #' @param xlab X axis label (default: Genomic distance)
 #' @param ylab Y axis label (default: Mean signal)
 #' @param legend Logical. Whether to display legend (default: TRUE)
+#' @param legend.x x position for legend. Default= par("usr")[2].
+#' @param legend.y y position for legend. Default= par("usr")[4].
 #' @param legend.pos Character. Legend position (default: "topright")
 #' @param legend.cex Numeric. Legend text size (default: 0.7)
 #' @param cleanup.cache Logical. Whether to force recomputation of cached results (default: FALSE)
@@ -88,7 +90,8 @@ bwAverageTrack <- function(bed,
                            xlab= "Genomic distance",
                            ylab= "Mean signal",
                            legend= TRUE,
-                           legend.pos= "topright",
+                           legend.x= par("usr")[2],
+                           legend.y= par("usr")[4],
                            legend.cex= .7,
                            cleanup.cache= FALSE)
 {
@@ -147,24 +150,34 @@ bwAverageTrack <- function(bed,
          xlim= xlim,
          ylim= ylim,
          type= "n",
-         xlab= xlab,
+         xlab= NA,
          xaxt= "n",
-         ylab= ylab)
+         ylab= NA)
+    if(!is.na(xlab))
+      title(xlab = xlab, line = .65)
+    if(!is.na(ylab))
+      title(ylab = ylab, line = 1.5)
     # Add x axis
     if(center!="region") {
       if(upstream>0 & downstream>0) {
         axis(1,
              at = c(-upstream, 0, downstream),
-             labels = c(-upstream, center.name, downstream))
+             labels = c(-upstream, center.name, downstream),
+             xpd= NA,
+             padj= -1.25)
       } else {
         axis(1,
              at = c(-upstream, downstream),
-             labels = c(-upstream, downstream))
+             labels = c(-upstream, downstream),
+             xpd= NA,
+             padj= -1.25)
       }
     } else {
       axis(1,
            at = c(-upstream, 0, diff(xlim)*nbins[2]/sum(nbins), xlim[2]),
-           labels = c(-upstream, center.name, "End", downstream))
+           labels = c(-upstream, center.name, "End", downstream),
+           xpd= NA,
+           padj= -1.25)
     }
   }
 
@@ -183,11 +196,13 @@ bwAverageTrack <- function(bed,
 
   # Legend ----
   if(legend)
-    legend(legend.pos,
-           legend= unique(dat$name),
-           text.col= unique(dat$col),
-           cex = legend.cex,
-           bty= "n")
+    vl_legend(x= legend.x,
+              y= legend.y,
+              legend= unique(dat$name),
+              text.col= unique(dat$col),
+              cex = legend.cex,
+              bty= "n",
+              xpd= NA)
 
   # Return mean signal ----
   invisible(dat)

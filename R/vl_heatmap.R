@@ -130,10 +130,12 @@ vl_heatmap <- function(x,
     # Numeric matrix
     x <- as.matrix(x)
   } else {
-    if(!is.numeric(x))
-      stop("x should contain numeric values or factors.")
     checkClass <- "numeric"
   }
+  if(is.logical(x))
+    x <- apply(x, 2, as.numeric)
+  if(!is.numeric(x))
+    stop("x should contain numeric values, factors or logical values.")
   if(is.null(colnames(x)))
     colnames(x) <- seq(ncol(x))
   if(is.null(rownames(x)))
@@ -160,6 +162,8 @@ vl_heatmap <- function(x,
     show.legend <- "right"
   if(isTRUE(show.numbers))
     show.numbers <- x
+  if(!isFALSE(show.numbers) & !is.matrix(show.numbers))
+    show.numbers <- as.matrix(show.numbers)
 
   # Default breaks ----
   if(is.null(breaks)) {
@@ -360,7 +364,8 @@ vl_heatmap <- function(x,
     rcls <- unique(rcls)
 
     # Add cluster lines
-    abline(h= rcls[, c(top[-1], bottom[-(.N)])])
+    cl.y.pos <- rcls[, c(top[-1], bottom[-(.N)])]
+    segments(par("usr")[1], cl.y.pos, par("usr")[2], cl.y.pos)
 
     # Add cluster labels
     if(!isFALSE(show.row.clusters)) {
