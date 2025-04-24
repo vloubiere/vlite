@@ -25,7 +25,8 @@ bwAverageTrack(
   xlab = "Genomic distance",
   ylab = "Mean signal",
   legend = TRUE,
-  legend.pos = "topright",
+  legend.x = par("usr")[2],
+  legend.y = par("usr")[4],
   legend.cex = 0.7,
   cleanup.cache = FALSE
 )
@@ -71,11 +72,15 @@ bwAverageTrack(
 
 \item{legend}{Logical. Whether to display legend (default: TRUE)}
 
-\item{legend.pos}{Character. Legend position (default: "topright")}
+\item{legend.x}{x position for legend. Default= par("usr")[2].}
+
+\item{legend.y}{y position for legend. Default= par("usr")[4].}
 
 \item{legend.cex}{Numeric. Legend text size (default: 0.7)}
 
 \item{cleanup.cache}{Logical. Whether to force recomputation of cached results (default: FALSE)}
+
+\item{legend.pos}{Character. Legend position (default: "topright")}
 }
 \value{
 Plots the average signal profile and invisibly returns NULL

@@ -9,18 +9,20 @@ bwHeatmap(
   by = NULL,
   tracks,
   names = function(x) gsub("(.*)[.].*$", "\\\\1", basename(tracks)),
+  show.title = TRUE,
   center = "center",
   center.name = ifelse(center != "region", "Center", "Start"),
   region.end = "End",
   upstream = 5000L,
   downstream = 5000L,
   max.cutoffs = NULL,
-  max.fun = function(x) quantile(x, 0.999),
+  max.fun = function(x) quantile(x, 0.999, na.rm = T),
   ordering.track.idx = 1,
-  ordering.fun = function(x) mean(x),
+  ordering.fun = function(x) mean(x, na.rm = T),
   nbins = if (center == "region") c(50L, 150L, 50L) else 251L,
   ignore.strand = FALSE,
   col.palette = c("blue", "yellow"),
+  legend.cex = 0.6,
   xlab = "Genomic distance",
   ylab = NULL,
   cleanup.cache = FALSE
@@ -34,6 +36,8 @@ bwHeatmap(
 \item{tracks}{Character vector of paths to BigWig files}
 
 \item{names}{Function or character vector to generate track names. Default extracts names from file paths}
+
+\item{show.title}{Should names be shown as heatmaps' titles?}
 
 \item{center}{Method for centering profiles: "center" for point-centric or "region" for meta-gene like plots}
 
@@ -50,6 +54,8 @@ bwHeatmap(
 \item{ignore.strand}{Logical. If TRUE, ignores strand information (default: FALSE)}
 
 \item{col.palette}{Vector of colors for the tracks (default: rainbow palette)}
+
+\item{legend.cex}{Legend cex.}
 
 \item{xlab}{X axis label (default: Genomic distance)}
 
