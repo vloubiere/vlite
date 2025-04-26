@@ -198,7 +198,7 @@ vl_GOenrich <- function(geneIDs,
     GOs <- unique(GOs[gene_id %in% geneUniverse.IDs])
     # Count
     GOs[, universe_hit:= length(unique(gene_id)), .(annotation, GO)]
-    GOs[, universe_total:= length(unique(GOs$gene_id))]
+    GOs[, universe_total:= length(unique(gene_id))]
     # Add description
     terms <- AnnotationDbi::select(GO.db::GO.db,
                                    keys = as.character(unique(GOs$GO)),

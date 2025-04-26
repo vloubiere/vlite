@@ -31,8 +31,6 @@ cmd_umiToBigwigProseq <- function(umi.counts,
     stop("A unique umi.counts file should be provided.")
   if(is.null(output.prefix))
     output.prefix <- gsub(".txt$", "", basename(umi.counts))
-  if(!dir.exists(bw.output.folder))
-    dir.create(bw.output.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Output file ----
   ps.bw <- file.path(bw.output.folder, paste0(output.prefix, ".ps.bw"))

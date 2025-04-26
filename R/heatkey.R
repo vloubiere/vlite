@@ -75,14 +75,14 @@ heatkey <- function(breaks,
   col <- as.character(col)
 
   # Compute line width and height (used as reference) ----
-  line.width <- diff(grconvertX(c(0, 1), "line", "user"))*cex
-  line.height <- diff(grconvertY(c(0, 1), "line", "user"))*cex
+  line.width <- diff(grconvertX(c(0, 1), "line", "user"))
+  line.height <- diff(grconvertY(c(0, 1), "line", "user"))
 
   # Compute plotting positions ----
   if(position=="top") {
     # X pos
-    xleft <- mean(par("usr")[1:2])-(length/2*line.width)
-    xright <- xleft+length*line.width
+    xleft <- mean(par("usr")[1:2])-(length/2*line.width*cex)
+    xright <- xleft+length*line.width*cex
     pos <- seq(xleft,
                xright,
                length.out= length(norm.breaks)+1)
@@ -90,14 +90,14 @@ heatkey <- function(breaks,
     xright <- pos[-1]
     # Y pos
     ybottom <- par("usr")[4]+line.height
-    ytop <- ybottom+thickness*line.height
+    ytop <- ybottom+thickness*line.height*cex
   } else if(position=="right") {
     # X pos
     xleft <- par("usr")[2]+line.width
-    xright <- xleft+thickness*line.width
+    xright <- xleft+thickness*line.width*cex
     # Y pos
     ytop <- par("usr")[4]
-    ybottom <- ytop-length*line.height
+    ybottom <- ytop-length*line.height*cex
     pos <- seq(ybottom,
                ytop,
                length.out= length(norm.breaks)+1)
@@ -127,7 +127,7 @@ heatkey <- function(breaks,
 
   # Add title ----
   text(x = ifelse(position=="top", mean(pos), xleft[1])+xadj,
-       y = rev(ytop)[1]+ifelse(position=="top", line.height, line.height/2)+yadj,
+       y = rev(ytop)[1]+ifelse(position=="top", line.height*0.75*cex, line.height*cex/2)+yadj,
        labels = main,
        pos = ifelse(position=="top", 3, 4),
        cex = cex,
@@ -154,10 +154,10 @@ heatkey <- function(breaks,
   {
     x0 <- x1 <- pos.t
     y0 <- ytop
-    y1 <- ytop+line.height/8
+    y1 <- ytop+line.height*cex/8
   } else if(position=="right") {
     x0 <- xright
-    x1 <- xright+line.width/8
+    x1 <- xright+line.width*cex/8
     y0 <- y1 <- pos.t
   }
 
@@ -168,10 +168,10 @@ heatkey <- function(breaks,
        cex= cex*0.7,
        pos= ifelse(position=="top", 3, 4),
        xpd= NA,
-       offset= 0.25)
+       offset= 0.25*cex)
   segments(x0 = x0+xadj,
            y0 = y0+yadj,
            x1 = x1+xadj,
            y1 = y1+yadj,
-           xpd= T)
+           xpd= NA)
 }

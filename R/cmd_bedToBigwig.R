@@ -34,8 +34,6 @@ cmd_bedToBigwig <- function(bed,
     stop("A unique bed file should be provided.")
   if(is.null(output.prefix))
     output.prefix <- gsub(".bed$", "", basename(bed))
-  if(!dir.exists(bw.output.folder))
-    dir.create(bw.output.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Output file ----
   bw.file <- file.path(bw.output.folder, paste0(output.prefix, "_", genome, ".bw"))

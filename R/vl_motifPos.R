@@ -136,7 +136,7 @@ vl_motifPos.default <- function(sequences,
       mot= pwm_log_odds[missing.files],
       output.file= output.files[missing.files],
       mc.preschedule = TRUE,
-      mc.cores = data.table::getDTthreads()-1)
+      mc.cores = max(c(1, data.table::getDTthreads()-1)))
     }
     print("All motif positions computed ;)")
 

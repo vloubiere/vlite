@@ -51,8 +51,6 @@ cmd_bamToBigwig <- function(bam,
     output.prefix <- gsub(".bam$", "", basename(bam))
   if(extsize<0)
     stop("extsize < 0 not supported")
-  if(!dir.exists(bw.output.folder))
-    dir.create(bw.output.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Output file ----
   bw.file <- file.path(bw.output.folder, paste0(output.prefix, ".bw"))

@@ -19,22 +19,23 @@
 #' @param show.rownames Logical; whether to display row names. Default= TRUE.
 #' @param show.colnames Logical; whether to display column names. Default= TRUE.
 #' @param tilt.colnames Logical; whether to tilt column names for better readability. Default= TRUE.
-#' @param main Ad title for the heatmap. Default= NA.
-#' @param clustering.method Character string specifying the hierarchical clustering method. Default is "complete".
+#' @param main Add title to the heatmap. Default= NA.
 #' @param clustering.distance.rows Character string specifying the distance metric for rows. Default is "euclidean".
 #' @param clustering.distance.cols Similar to clustering.distance.rows but for columns.
+#' @param clustering.method Character string specifying the hierarchical clustering method. Default is "complete".
 #' @param cutree.rows Integer specifying the number of row clusters to cut the tree into.
 #' @param cutree.cols Similar to cutree.rows but for columns.
 #' @param show.row.clusters Character specifying the position of row cluster visualization: "right", "left", or FALSE.
 #' @param show.col.clusters Character specifying the position of column cluster visualization: "top", "bottom", or FALSE.
-#' @param show.row.dendro If rows are clustered using hclust, should the dendrogram be shown? Default= TRUE.
-#' @param show.col.dendro If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.
-#' @param show.legend Should the legend be plotted? Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".
 #' @param row.clusters.col A vector of two colors for the row cluster gradient. Default is c("grey90", "grey40").
 #' @param col.clusters.col A vector of two colors for the column cluster gradient. Default is c("grey90", "grey40").
 #' @param na.col Color for NA values. Default= "ligthgrey".
-#' @param legend.cex Numeric scaling factor for the legend. Default= 1.
+#' @param show.row.dendro If rows are clustered using hclust, should the dendrogram be shown? Default= TRUE.
+#' @param show.col.dendro If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.
+#' @param show.legend Should the legend be plotted?
+#'        Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".
 #' @param legend.title Character string for the legend title. Default= "Value".
+#' @param legend.cex Numeric scaling factor for the legend. Default= 1.
 #' @param show.numbers Logical or matrix; if set to TRUE or a matrix is provided, displays values in cells.
 #' @param numbers.cex Numeric scaling factor for the size of displayed numbers. Default= 0.7.
 #' @param cluster.seed Integer seed for reproducible clustering. Default= 3453.
@@ -95,9 +96,13 @@ vl_heatmap <- function(x,
                        show.colnames= TRUE,
                        tilt.colnames= TRUE,
                        main= NA,
-                       clustering.method = "complete",
+                       row.annotations= NULL,
+                       row.annotations.col= rainbow(9)[1:7],
+                       col.annotations= NULL,
+                       col.annotations.col= rainbow(9)[1:7],
                        clustering.distance.rows= "euclidean",
                        clustering.distance.cols= "euclidean",
+                       clustering.method = "complete",
                        cutree.rows,
                        cutree.cols,
                        show.row.clusters= "right",
@@ -108,8 +113,8 @@ vl_heatmap <- function(x,
                        show.row.dendro= TRUE,
                        show.col.dendro= TRUE,
                        show.legend= "right",
-                       legend.cex= 1,
                        legend.title= "Value",
+                       legend.cex= 1,
                        show.numbers= FALSE,
                        numbers.cex= .7,
                        cluster.seed= 3453,
@@ -351,6 +356,54 @@ vl_heatmap <- function(x,
   line.width <- diff(grconvertX(c(0,1), "line", "user"))
   line.height <- diff(grconvertY(c(0,1), "line", "user"))
 
+  # Plot row annotations ----
+  if(!is.null(row.annotations)) {
+    # Plotting parameters
+    rann <- data.table(ann= row.annotations[row.order])
+    rann[, top:= .I[1]-0.5, rleid(ann)]
+    rann[, bottom:= .I[.N]+0.5, rleid(ann)]
+    rann[, col:= colorRampPalette(row.annotations.col)(.NGRP)[.GRP], keyby= ann]
+    setorderv(rann, "bottom")
+    rann <- unique(rann)
+
+    # Plotting annotations on the right
+    right.mar <- right.mar+line.width/5
+    rect(xleft = right.mar,
+         ybottom = rann$bottom,
+         xright = right.mar+line.width,
+         ytop = rann$top,
+         xpd= NA,
+         col= rann$col,
+         border= NA)
+
+    # Shift margin
+    right.mar <- right.mar+line.width
+  }
+
+  # Plot col annotations ----
+  if(!is.null(col.annotations)) {
+    # Plotting parameters
+    cann <- data.table(ann= col.annotations[col.order])
+    cann[, left:= .I[1]-0.5, rleid(ann)]
+    cann[, right:= .I[.N]+0.5, rleid(ann)]
+    cann[, col:= colorRampPalette(col.annotations.col)(.NGRP)[.GRP], keyby= ann]
+    setorderv(cann, "left")
+    cann <- unique(cann)
+
+    # Plot annotations on the top
+    top.mar <- top.mar+line.height/5
+    rect(xleft = cann$left,
+         ybottom = top.mar,
+         xright = cann$right,
+         ytop = top.mar+line.height,
+         xpd= NA,
+         col= cann$col,
+         border= NA)
+
+    # Shift margin
+    top.mar <- top.mar+line.height
+  }
+
   # Plot row clusters ----
   if(!isFALSE(cluster.rows)) {
 
@@ -474,20 +527,58 @@ vl_heatmap <- function(x,
     top.mar <- top.mar+line.height
   }
 
-  # Add legend ----
+  # Add heatkey ----
   if(!isFALSE(show.legend)) {
+    # Plotting parameters
+    adj.x <- ifelse(show.legend=="top",
+                    0,
+                    (right.mar-par("usr")[2])/line.width-.5)
+    adj.y <- ifelse(show.legend=="top",
+                    (top.mar-par("usr")[4])/line.height-.5,
+                    0)
+    # Main heatmap heatkey
     heatkey(col= col,
             breaks = if(checkClass=="factor") factor(allLvls, allLvls) else breaks,
             position = show.legend,
-            adj.x = ifelse(show.legend=="top",
-                           0,
-                           (right.mar-par("usr")[2])/line.width-.5),
-            adj.y = ifelse(show.legend=="top",
-                           (top.mar-par("usr")[4])/line.height-.5,
-                           0),
+            adj.x = adj.x,
+            adj.y = adj.y,
             cex = legend.cex,
             main = legend.title)
+
+    # Shift top margin (for title)
     top.mar <- top.mar+((show.legend=="top")*3*line.height)
+
+    # Row annotations
+    if(!is.null(row.annotations)) {
+      # Adjust pos
+      adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
+      # Add heatkey
+      rann <- unique(rann[,.(ann, col)])
+      setorderv(rann, "ann", -1)
+      heatkey(col= rann$col,
+              breaks = factor(rann$ann, unique(rann$ann)),
+              position = show.legend,
+              adj.x = adj.x,
+              adj.y = adj.y,
+              cex = legend.cex,
+              main = "Rows")
+    }
+
+    # Col annotations
+    if(!is.null(col.annotations)) {
+      # Adjust pos
+      adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
+      # Add heatkey
+      cann <- unique(cann[,.(ann, col)])
+      setorderv(cann, "ann", -1)
+      heatkey(col= cann$col,
+              breaks = factor(cann$ann, unique(cann$ann)),
+              position = show.legend,
+              adj.x = adj.x,
+              adj.y = adj.y,
+              cex = legend.cex,
+              main = "Columns")
+    }
   }
 
   # Add title ----

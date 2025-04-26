@@ -129,7 +129,7 @@ bwBinnedCoverage <- function(bed,
       bwCoverage(bins, x)
     },
     mc.preschedule = T,
-    mc.cores = data.table::getDTthreads()-1)
+    mc.cores = max(c(1, data.table::getDTthreads()-1)))
     .q <- do.call(cbind, .q)
     .q <- as.data.table(.q)
 

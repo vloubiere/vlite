@@ -6,7 +6,7 @@
 #' @param bdg Path to the input BedGraph file. Only a single file is allowed.
 #' @param output.prefix Prefix for the output BigWig file.
 #' @param bw.output.folder Directory for the BigWig file. Default= "db/bw/".
-#' @param genome Path to the genome sizes file.
+#' @param genome A BSgenome ("mm10", "dm3"...).
 #' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
 #' @return A `data.table` with:
@@ -19,7 +19,7 @@
 #' cmd <- cmd_bedgraphToBigwig(
 #'   bdg = "/data/peaks/sample.bdg",
 #'   output.prefix = "sample",
-#'   genome = "/data/genome/mm10.chrom.sizes"
+#'   genome = "mm10"
 #' )
 #' vl_submit(cmd, execute= FALSE)
 #'
@@ -33,8 +33,6 @@ cmd_bedgraphToBigwig <- function(bdg,
   # Check (!Do not check if bdg file exists to allow wrapping!) ----
   if(length(bdg)!=1)
     stop("Only one bedgraph file should be provided.")
-  if(!dir.exists(bw.output.folder))
-    dir.create(bw.output.folder, recursive = TRUE, showWarnings = FALSE)
 
   # Output file ----
   bw.file <- file.path(bw.output.folder, paste0(output.prefix, "_", genome, ".bw"))
