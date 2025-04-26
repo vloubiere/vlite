@@ -20,6 +20,10 @@
 #' @param show.colnames Logical; whether to display column names. Default= TRUE.
 #' @param tilt.colnames Logical; whether to tilt column names for better readability. Default= TRUE.
 #' @param main Add title to the heatmap. Default= NA.
+#' @param row.annotations A vector of length nrow(x) containing row annotations.
+#' @param row.annotations.col Row annotations colors. Default= rainbow(9)[1:7].
+#' @param col.annotations  A vector of length ncol(x) containing row annotations.
+#' @param col.annotations.col Col annotations colors. Default= rainbow(9)[1:7].
 #' @param clustering.distance.rows Character string specifying the distance metric for rows. Default is "euclidean".
 #' @param clustering.distance.cols Similar to clustering.distance.rows but for columns.
 #' @param clustering.method Character string specifying the hierarchical clustering method. Default is "complete".
@@ -149,6 +153,10 @@ vl_heatmap <- function(x,
     cluster.rows <- FALSE
   if(ncol(x)==1)
     cluster.cols <- FALSE
+  if(!is.null(row.annotations) && (!is.vector(row.annotations) || length(row.annotations) != nrow(x)))
+    stop("row.annotations should be a vector of length nrow(x)")
+  if(!is.null(col.annotations) && (!is.vector(col.annotations) || length(col.annotations) != ncol(x)))
+    stop("col.annotations should be a vector of length ncol(x)")
   if(!show.row.clusters %in% c(TRUE, FALSE, "left", "right"))
     stop("show.row.clusters should be one of TRUE, FALSE, 'left' or 'right'.")
   if(isTRUE(show.row.clusters))

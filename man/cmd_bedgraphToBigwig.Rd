@@ -19,7 +19,7 @@ cmd_bedgraphToBigwig(
 
 \item{bw.output.folder}{Directory for the BigWig file. Default= "db/bw/".}
 
-\item{genome}{Path to the genome sizes file.}
+\item{genome}{A BSgenome ("mm10", "dm3"...).}
 
 \item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
@@ -37,7 +37,7 @@ Creates shell commands to convert a BedGraph file to BigWig format using a genom
 cmd <- cmd_bedgraphToBigwig(
   bdg = "/data/peaks/sample.bdg",
   output.prefix = "sample",
-  genome = "/data/genome/mm10.chrom.sizes"
+  genome = "mm10"
 )
 vl_submit(cmd, execute= FALSE)
 

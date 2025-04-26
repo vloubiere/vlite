@@ -15,9 +15,13 @@ vl_heatmap(
   show.colnames = TRUE,
   tilt.colnames = TRUE,
   main = NA,
-  clustering.method = "complete",
+  row.annotations = NULL,
+  row.annotations.col = rainbow(9)[1:7],
+  col.annotations = NULL,
+  col.annotations.col = rainbow(9)[1:7],
   clustering.distance.rows = "euclidean",
   clustering.distance.cols = "euclidean",
+  clustering.method = "complete",
   cutree.rows,
   cutree.cols,
   show.row.clusters = "right",
@@ -28,8 +32,8 @@ vl_heatmap(
   show.row.dendro = TRUE,
   show.col.dendro = TRUE,
   show.legend = "right",
-  legend.cex = 1,
   legend.title = "Value",
+  legend.cex = 1,
   show.numbers = FALSE,
   numbers.cex = 0.7,
   cluster.seed = 3453,
@@ -61,13 +65,21 @@ or a sequential blue-yellow palette.}
 
 \item{tilt.colnames}{Logical; whether to tilt column names for better readability. Default= TRUE.}
 
-\item{main}{Ad title for the heatmap. Default= NA.}
+\item{main}{Add title to the heatmap. Default= NA.}
 
-\item{clustering.method}{Character string specifying the hierarchical clustering method. Default is "complete".}
+\item{row.annotations}{A vector of length nrow(x) containing row annotations.}
+
+\item{row.annotations.col}{Row annotations colors. Default= rainbow(9)[1:7].}
+
+\item{col.annotations}{A vector of length ncol(x) containing row annotations.}
+
+\item{col.annotations.col}{Col annotations colors. Default= rainbow(9)[1:7].}
 
 \item{clustering.distance.rows}{Character string specifying the distance metric for rows. Default is "euclidean".}
 
 \item{clustering.distance.cols}{Similar to clustering.distance.rows but for columns.}
+
+\item{clustering.method}{Character string specifying the hierarchical clustering method. Default is "complete".}
 
 \item{cutree.rows}{Integer specifying the number of row clusters to cut the tree into.}
 
@@ -87,11 +99,12 @@ or a sequential blue-yellow palette.}
 
 \item{show.col.dendro}{If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.}
 
-\item{show.legend}{Should the legend be plotted? Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".}
-
-\item{legend.cex}{Numeric scaling factor for the legend. Default= 1.}
+\item{show.legend}{Should the legend be plotted?
+Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".}
 
 \item{legend.title}{Character string for the legend title. Default= "Value".}
+
+\item{legend.cex}{Numeric scaling factor for the legend. Default= 1.}
 
 \item{show.numbers}{Logical or matrix; if set to TRUE or a matrix is provided, displays values in cells.}
 
