@@ -248,6 +248,9 @@ if(F)
 # Plots --------------------------------
 if(F)
 {
+  # Helper functions
+  file.edit("R/helperFunctions_plots.R")
+
   # Plotting parameters
   file.edit("R/vl_par.R")
 
