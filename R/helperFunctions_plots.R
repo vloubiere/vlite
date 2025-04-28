@@ -1,4 +1,6 @@
-heatmap.get.clusters <- function(obj,
+heatmap.get.clusters <- function(name,
+                                 idx,
+                                 annot,
                                  x,
                                  clusters,
                                  distance,
@@ -6,10 +8,18 @@ heatmap.get.clusters <- function(obj,
                                  cutree,
                                  kmeans.k,
                                  cluster.seed,
+                                 annot.col,
+                                 cluster.col,
                                  gap.width)
 {
-  # User defined clusters
+  # Initiate object ----
+  obj <- data.table(name= rownames(x),
+                    idx= seq(nrow(x)),
+                    annot = annot)
+
+  # Define clustere ----
   if(length(clusters) == nrow(x)) {
+    # User defined
     obj[, cluster:= clusters]
   } else if(isTRUE(clusters)) {
     # Clustering
@@ -40,21 +50,26 @@ heatmap.get.clusters <- function(obj,
       dend <- data.table::as.data.table(dend$segments)
     }
   } else if(!isFALSE(clusters))
-    stop("Row and col clusters should either match the dimensions of x or be logical vectors of length 1.")
+    stop("Row and col clusters should match the dimensions of x or be logical vectors of length 1.")
 
   # Default values
   if(!"cluster" %in% names(obj))
     obj[, cluster:= as.character(NA)]
+  obj[, cluster:= factor(cluster, sort(unique(cluster)))]
   if(!"order" %in% names(obj))
     obj[, order:= order(cluster)]
 
-  # Compute plotting parameters
+  # Add colors
+  obj[, cluster.col:= colorRampPalette(cluster.col)(.NGRP)[as.numeric(cluster)], cluster]
+  if(!is.null(annot))
+    obj[, annot.col:= colorRampPalette(annot.col)(.NGRP)[as.numeric(annot)], annot]
+
+  # Compute image coord and plotting positions
   obj <- obj[(order)]
-  obj[, cluster:= factor(cluster, sort(unique(cluster)))]
   obj[, im:= .I]
   obj[, pos:= .I+(.GRP-1)*gap.width, cluster]
 
   # Return dendrogram
-  return(list(obj= obj,
+  return(list(obj= obj[order(idx)],
               dend= if(exists("dend")) dend else NULL))
 }
