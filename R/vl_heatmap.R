@@ -226,7 +226,7 @@ vl_heatmap <- function(x,
     row.gap.width <- col.gap.width*(nrow(x)/ncol(x))
   }
 
-  # Cluster rows ----
+  # Cluster rows object ----
   rows <- heatmap.get.clusters(name= rownames(x),
                                idx= seq(nrow(x)),
                                annot = row.annotations,
@@ -246,7 +246,7 @@ vl_heatmap <- function(x,
            c("idx", "im", "pos"),
            c("line.idx", "im.col", "y.pos"))
 
-  # Cluster columns ----
+  # Cluster columns object ----
   cols <- heatmap.get.clusters(name= colnames(x),
                                idx= seq(ncol(x)),
                                annot = col.annotations,
@@ -472,7 +472,7 @@ vl_heatmap <- function(x,
 
   # Add dendrograms ----
   # Rows
-  if(exists("rdend") && show.row.dendro) {
+  if(!is.null(rdend) && show.row.dendro) {
     # For each segment, interpolate new y0 and y1
     rdend[, y0 := {
       start <- rows$y.pos[floor(x)]
@@ -497,7 +497,7 @@ vl_heatmap <- function(x,
   }
 
   # Columns
-  if(exists("cdend") && show.col.dendro) {
+  if(!is.null(cdend) && show.col.dendro) {
     # For each segment, interpolate new x0 and x1
     cdend[, x0 := {
       start <- cols$x.pos[floor(x)]

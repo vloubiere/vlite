@@ -17,8 +17,11 @@ heatmap.get.clusters <- function(name,
                     idx= seq(nrow(x)),
                     annot = annot)
 
-  # Define clustere ----
-  if(length(clusters) == nrow(x)) {
+  # Define clusters ----
+  if(isFALSE(clusters)) {
+    # No clustering
+    obj[, cluster:= as.character(NA)]
+  }else if(length(clusters) == nrow(x)) {
     # User defined
     obj[, cluster:= clusters]
   } else if(isTRUE(clusters)) {
@@ -38,6 +41,7 @@ heatmap.get.clusters <- function(name,
       }
       # Hierachical clustering
       hcl <- hclust(.d, method = method)
+      obj[, cluster:= as.character(NA)]
       obj[, order:= hcl$order]
       # Cutree
       if(!missing(cutree)) {
@@ -49,12 +53,10 @@ heatmap.get.clusters <- function(name,
                                     rotate= T)
       dend <- data.table::as.data.table(dend$segments)
     }
-  } else if(!isFALSE(clusters))
+  } else
     stop("Row and col clusters should match the dimensions of x or be logical vectors of length 1.")
 
-  # Default values
-  if(!"cluster" %in% names(obj))
-    obj[, cluster:= as.character(NA)]
+  # Coerce to factors and compute order ----
   obj[, cluster:= factor(cluster, sort(unique(cluster)))]
   if(!"order" %in% names(obj))
     obj[, order:= order(cluster)]
