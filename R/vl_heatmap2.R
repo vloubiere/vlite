@@ -16,13 +16,16 @@
 #' @param col A vector of colors corresponding to the values in breaks. If set to NULLs,
 #'   a diverging blue-white-red palette is used for data spanning positive and negative values,
 #'   or a sequential blue-yellow palette.
+#' @param row.annotations A vector of length nrow(x) containing row annotations.
+#' @param col.annotations  A vector of length ncol(x) containing row annotations.
+#' @param show.legend Should the legend be plotted?
+#'        Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".
+#' @param legend.title Character string for the legend title. Default= "Value".
+#' @param show.numbers Logical or matrix; if set to TRUE or a matrix is provided, displays values in cells.
 #' @param show.rownames Logical; whether to display row names. Default= TRUE.
 #' @param show.colnames Logical; whether to display column names. Default= TRUE.
 #' @param main Add title to the heatmap. Default= NA.
-#' @param row.annotations A vector of length nrow(x) containing row annotations.
-#' @param row.annotations.col Row annotations colors. Default= rainbow(9)[1:7].
-#' @param col.annotations  A vector of length ncol(x) containing row annotations.
-#' @param col.annotations.col Col annotations colors. Default= rainbow(9)[1:7].
+#' @param useRaster logical; if TRUE a bitmap raster is used to plot the image instead of polygons. Default= FALSE.
 #' @param clustering.distance.rows Character string specifying the distance metric for rows. Default is "euclidean".
 #' @param clustering.distance.cols Similar to clustering.distance.rows but for columns.
 #' @param clustering.method Character string specifying the hierarchical clustering method. Default is "complete".
@@ -30,19 +33,17 @@
 #' @param cutree.cols Similar to cutree.rows but for columns.
 #' @param show.row.clusters Character specifying the position of row cluster visualization: "right", "left", or FALSE.
 #' @param show.col.clusters Character specifying the position of column cluster visualization: "top", "bottom", or FALSE.
-#' @param row.clusters.col A vector of two colors for the row cluster gradient. Default is c("grey90", "grey40").
-#' @param col.clusters.col A vector of two colors for the column cluster gradient. Default is c("grey90", "grey40").
-#' @param na.col Color for NA values. Default= "ligthgrey".
 #' @param show.row.dendro If rows are clustered using hclust, should the dendrogram be shown? Default= TRUE.
 #' @param show.col.dendro If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.
-#' @param show.legend Should the legend be plotted?
-#'        Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".
-#' @param legend.title Character string for the legend title. Default= "Value".
-#' @param legend.cex Numeric scaling factor for the legend. Default= 1.
-#' @param show.numbers Logical or matrix; if set to TRUE or a matrix is provided, displays values in cells.
-#' @param numbers.cex Numeric scaling factor for the size of displayed numbers. Default= 0.7.
+#' @param gap.width The width of the gap between clusters, expressed as a fraction of the plot limits. Default= 1/40.
 #' @param cluster.seed Integer seed for reproducible clustering. Default= 3453.
-#' @param useRaster logical; if TRUE a bitmap raster is used to plot the image instead of polygons. Default= FALSE.
+#' @param row.clusters.col A vector of two colors for the row cluster gradient. Default is c("grey90", "grey40").
+#' @param col.clusters.col A vector of two colors for the column cluster gradient. Default is c("grey90", "grey40").
+#' @param row.annotations.col Row annotations colors. Default= rainbow(9)[1:7].
+#' @param col.annotations.col Col annotations colors. Default= rainbow(9)[1:7].
+#' @param na.col Color for NA values. Default= "ligthgrey".
+#' @param legend.cex Numeric scaling factor for the legend. Default= 1.
+#' @param numbers.cex Numeric scaling factor for the size of displayed numbers. Default= 0.7.
 #'
 #' @return
 #' Invisibly returns a list with two `data.table` objects:
@@ -89,19 +90,21 @@
 #' \code{\link{kmeans}} for k-means clustering.
 #'
 #' @export
-vl_heatmap <- function(x,
+vl_heatmap2 <- function(x,
                        cluster.rows= TRUE,
                        cluster.cols= FALSE,
                        kmeans.k= NA,
                        breaks= NULL,
                        col= NULL,
+                       row.annotations= NULL,
+                       col.annotations= NULL,
+                       show.legend= "right",
+                       legend.title= "Value",
+                       show.numbers= FALSE,
                        show.rownames= TRUE,
                        show.colnames= TRUE,
                        main= NA,
-                       row.annotations= NULL,
-                       row.annotations.col= rainbow(9)[1:7],
-                       col.annotations= NULL,
-                       col.annotations.col= rainbow(9)[1:7],
+                       useRaster= FALSE,
                        clustering.distance.rows= "euclidean",
                        clustering.distance.cols= "euclidean",
                        clustering.method = "complete",
@@ -109,19 +112,17 @@ vl_heatmap <- function(x,
                        cutree.cols,
                        show.row.clusters= "right",
                        show.col.clusters= "top",
-                       cluster.lines.col= ifelse(col[1] %in% c("#0000FF", "blue"), "white", "black"),
-                       row.clusters.col= c("grey90", "grey40"),
-                       col.clusters.col= c("grey90", "grey40"),
-                       na.col= "lightgrey",
                        show.row.dendro= TRUE,
                        show.col.dendro= TRUE,
-                       show.legend= "right",
-                       legend.title= "Value",
-                       legend.cex= 1,
-                       show.numbers= FALSE,
-                       numbers.cex= .7,
+                       gap.width= 1/40,
                        cluster.seed= 3453,
-                       useRaster= FALSE)
+                       row.clusters.col= c("grey90", "grey40"),
+                       col.clusters.col= c("grey90", "grey40"),
+                       row.annotations.col= rainbow(9)[1:7],
+                       col.annotations.col= rainbow(9)[1:7],
+                       na.col= "lightgrey",
+                       legend.cex= 1,
+                       numbers.cex= .7)
 {
   # Checks and default values ----
   # Coerce x to numeric matrix (useful for factors)
@@ -154,8 +155,12 @@ vl_heatmap <- function(x,
     cluster.cols <- FALSE
   if(!is.null(row.annotations) && length(row.annotations) != nrow(x))
     stop("row.annotations should be a vector of length nrow(x)")
+  if(!is.null(row.annotations) && !is.factor(row.annotations))
+    row.annotations <- factor(row.annotations, unique(row.annotations))
   if(!is.null(col.annotations) && length(col.annotations) != ncol(x))
     stop("col.annotations should be a vector of length ncol(x)")
+  if(!is.null(col.annotations) && !is.factor(col.annotations))
+    col.annotations <- factor(col.annotations, unique(col.annotations))
   if(!show.row.clusters %in% c(TRUE, FALSE, "left", "right"))
     stop("show.row.clusters should be one of TRUE, FALSE, 'left' or 'right'.")
   if(isTRUE(show.row.clusters))
@@ -213,21 +218,33 @@ vl_heatmap <- function(x,
   col <- colorRampPalette(col)(length(breaks))
 
   # Cluster rows ----
-  row.order <- if(isFALSE(cluster.rows)) {
+  rows <- data.table(name= rownames(x),
+                     line.idx= seq(nrow(x)),
+                     annot= row.annotations)
+  if(isFALSE(cluster.rows)) {
+
     # No clustering
-    seq(nrow(x))
+    rows[, cluster:= as.character(NA)]
+    rows[, order:= .I]
+
   } else if(length(cluster.rows) == nrow(x)) {
+
     # User defined clusters
-    order(cluster.rows)
+    rows[, cluster:= cluster.rows]
+    rows[, order:= order(cluster)]
+
   } else if(isTRUE(cluster.rows)) {
     set.seed(cluster.seed)
     if(!is.na(kmeans.k))
     {
+
       # Kmeans clustering
-      cluster.rows <- kmeans(x, centers = kmeans.k)$cluster
-      order(cluster.rows)
+      rows[, cluster:= kmeans(x, centers = kmeans.k)$cluster]
+      rows[, order:= order(cluster)]
+
     } else {
-      # Hierachical clustering
+
+      # Compute distances
       .d <- if(clustering.distance.rows %in% c("pearson", "spearman")) {
         as.dist(1 - cor(t(x),
                         use= "pairwise.complete.obs",
@@ -235,33 +252,46 @@ vl_heatmap <- function(x,
       } else {
         dist(x, method = clustering.distance.rows)
       }
-      # Hierarchical clustering
+
+      # Hierachical clustering
       hcl <- hclust(.d, method = clustering.method)
+      rows[, cluster:= as.character(NA)]
+      rows[, order:= hcl$order]
+
       # Cutree
-      cluster.rows <- if(!missing(cutree.rows)) {
-        cutree(hcl, cutree.rows)
-      } else
-        FALSE
-      # Extract dend
+      if(!missing(cutree.rows)) {
+        rows[, cluster:= cutree(hcl, cutree.rows)]
+      }
+
+      # Extract dendrograms
       dend <- ggdendro::dendro_data(hcl,
                                     type = "rectangle",
                                     rotate= T)
       rdend <- data.table::as.data.table(dend$segments)
-      # Return order
-      hcl$order
+
     }
   } else
     stop("cluster.rows should either match the number of rows in x, or be a logical vector of length 1.")
 
   # Cluster columns ----
-  col.order <- if(isFALSE(cluster.cols)) {
+  cols <- data.table(name= colnames(x),
+                     column.idx= seq(ncol(x)),
+                     annot= col.annotations)
+  if(isFALSE(cluster.cols)) {
+
     # No clustering
-    seq(ncol(x))
+    cols[, cluster:= as.character(NA)]
+    cols[, order:= .I]
+
   } else if(length(cluster.cols) == ncol(x)) {
-    # User defined clusters
-    order(cluster.cols)
+
+    # User defined clustering
+    cols[, cluster:= cluster.cols]
+    cols[, order:= order(cluster)]
+
   } else if(isTRUE(cluster.cols)) {
-    set.seed(cluster.seed)
+
+    # Compute distances
     .d <- if(clustering.distance.cols %in% c("pearson", "spearman")) {
       as.dist(1 - cor(x,
                       use= "pairwise.complete.obs",
@@ -269,29 +299,33 @@ vl_heatmap <- function(x,
     } else {
       dist(t(x), method = clustering.distance.cols)
     }
+
     # Hierarchical clustering
+    set.seed(cluster.seed)
     hcl <- hclust(.d, method = clustering.method)
+    cols[, cluster:= as.character(NA)]
+    cols[, order:= hcl$order]
+
     # Cutree
-    cluster.cols <- if(!missing(cutree.cols)) {
-      cutree(hcl, cutree.cols)
-    } else
-      FALSE
+    if(!missing(cutree.cols)) {
+      cols[, cluster:= cutree(hcl, cutree.cols)]
+    }
+
     # Extract dend
     dend <- ggdendro::dendro_data(hcl,
                                   type = "rectangle",
                                   rotate= T)
     cdend <- data.table::as.data.table(dend$segments)
-    # Return order
-    hcl$order
+
   } else
     stop("cluster.cols should either match the number of cols in x, or be a logical vector of length 1.")
 
   # Reorder matrix based on clustering ----
-  x <- x[(row.order), , drop=FALSE]
-  x <- x[, (col.order), drop=FALSE]
+  x <- x[(rows$order), , drop=FALSE]
+  x <- x[, (cols$order), drop=FALSE]
   if(is.matrix(show.numbers)) {
-    show.numbers <- show.numbers[(row.order), , drop=FALSE]
-    show.numbers <- show.numbers[, (col.order), drop= FALSE]
+    show.numbers <- show.numbers[(rows$order), , drop=FALSE]
+    show.numbers <- show.numbers[, (cols$order), drop= FALSE]
   }
 
   # Prepare image for plotting ----
@@ -306,89 +340,117 @@ vl_heatmap <- function(x,
   NAbreaks <- c(breaks[1]-c(2,1), breaks)
   NAcols <- c(na.col, col)
 
-  # Plot image ----
-  image(x= seq(nrow(im)),
-        y= seq(ncol(im)),
-        z= im,
-        breaks= NAbreaks,
-        col= NAcols,
-        xlim= c(0.5, ncol(x)+0.5),
-        ylim= c(nrow(x)+0.5, 0.5),
+  # Compute row and cols gap width ----
+  if(nrow(rows)>=nrow(cols)) {
+    row.gap.width <- nrow(rows)*gap.width
+    col.gap.width <- row.gap.width*(nrow(cols)/nrow(rows))
+  }else{
+    col.gap.width <- nrow(cols)*gap.width
+    row.gap.width <- col.gap.width*(nrow(rows)/nrow(cols))
+  }
+
+  # Compute x and y plotting positions ----
+  rows <- rows[(order)]
+  rows[, cluster:= factor(cluster, sort(unique(cluster)))]
+  rows[, im.col:= .I]
+  rows[, y.pos:= .I+(.GRP-1)*row.gap.width, cluster]
+  cols <- cols[(order)]
+  cols[, cluster:= factor(cluster, sort(unique(cluster)))]
+  cols[, im.row:= .I]
+  cols[, x.pos:= .I+(.GRP-1)*col.gap.width, cluster]
+
+  # Initiate full image ----
+  image(x= 1,
+        y= 1,
+        z= matrix(NA),
+        breaks= c(-1,1),
+        col= NA,
+        xlim= cols[c(1, .N), x.pos]+c(-0.5, 0.5),
+        ylim= rows[c(.N, 1), y.pos]+c(0.5, -0.5),
         xlab= NA,
         ylab= NA,
-        axes= FALSE,
-        useRaster= useRaster)
+        axes= FALSE)
+
+  # Plot clusters iteratively ----
+  rows[, {
+    cols[, {
+      image(x= if(length(x.pos)==1) x.pos+c(-0.5, 0.5) else x.pos,
+            y= if(length(y.pos)==1) y.pos+c(-0.5, 0.5) else y.pos,
+            z= im[im.row, im.col, drop= FALSE],
+            breaks= NAbreaks,
+            col= NAcols,
+            xlab= NA,
+            ylab= NA,
+            axes= FALSE,
+            useRaster= useRaster,
+            add= TRUE)
+      rect(xleft = x.pos[1]-0.5,
+           ybottom = rev(y.pos)[1]+0.5,
+           xright = rev(x.pos)[1]+0.5,
+           ytop = y.pos[1]-0.5,
+           xpd= NA)
+    }, cluster]
+  }, cluster]
+
+  # Plot numbers ----
+  if(!isFALSE(show.numbers)) {
+    text(x= rep(cols$x.pos, each= nrow(rows)),
+         y= rep(rows$y.pos, nrow(cols)),
+         labels = c(show.numbers),
+         cex= numbers.cex)
+  }
 
   # Plot axes ----
+  # X axis
   if(show.rownames) {
     axis(2,
-         seq(nrow(x)),
-         rownames(x),
+         rows$y.pos,
+         rows$name,
          lwd = 0,
          lwd.ticks = 0)
   }
+  # Y axis
   if(show.colnames) {
+    # Check if labels overlap
     cn.width <- strwidth(colnames(x))/2
     cn.n <- seq(ncol(x))
     colnames.ov <- (cn.n-cn.width)[-1] < (cn.n+cn.width)[-length(cn.n)]
+    # Now plot
     if(any(colnames.ov)) {
-      tiltAxis(x= seq(ncol(x)),
-               labels= colnames(x))
+      tiltAxis(x= cols$x.pos,
+               labels= cols$name)
     } else {
       axis(1,
-           seq(ncol(x)),
-           colnames(x),
+           at = cols$x.pos,
+           labels = cols$name,
            lwd = 0,
            lwd.ticks = 0,
            padj= -1.25)
     }
   }
 
-  # Plot numbers ----
-  if(!isFALSE(show.numbers)) {
-    text(x= c(col(show.numbers)),
-         y= c(row(show.numbers)),
-         labels = c(show.numbers),
-         cex= numbers.cex)
-  }
-
-  # Border ----
-  rect(xleft = par("usr")[1],
-       ybottom = par("usr")[3],
-       xright = par("usr")[2],
-       ytop = par("usr")[4],
-       xpd= T)
-
-  # Compute margins positions ----
+  # Compute margins positions and define line width/height (used as ref) ----
   right.mar <- par("usr")[2]
   top.mar <- par("usr")[4]
-
-  # Define line width and height, which will serve as ref below ----
   line.width <- diff(grconvertX(c(0,1), "line", "user"))
   line.height <- diff(grconvertY(c(0,1), "line", "user"))
 
   # Plot row annotations ----
   if(!is.null(row.annotations)) {
-    # Check
-    if(!is.factor(row.annotations))
-      row.annotations <- factor(row.annotations, unique(row.annotations))
     # Plotting parameters
-    rann <- data.table(ann= row.annotations[row.order])
-    rann[, top:= .I[1]-0.5, rleid(ann)]
-    rann[, bottom:= .I[.N]+0.5, rleid(ann)]
-    rann[, col:= colorRampPalette(row.annotations.col)(.NGRP)[.GRP], keyby= ann]
-    setorderv(rann, "bottom")
-    rann <- unique(rann)
-
-    # Plotting annotations on the right
     right.mar <- right.mar+line.width/5
-    rect(xleft = right.mar,
-         ybottom = rann$bottom,
-         xright = right.mar+line.width,
-         ytop = rann$top,
-         xpd= NA,
-         col= rann$col,
-         border= NA)
+    rows[, annot.col:= colorRampPalette(row.annotations.col)(.NGRP)[as.numeric(annot)], annot]
+
+    # Plot
+    rows[, {
+      rect(xleft = right.mar,
+           ybottom = rev(y.pos)[1]+0.5,
+           xright = right.mar+line.width,
+           ytop = y.pos[1]-0.5,
+           col= annot.col[1],
+           xpd= NA,
+           border= NA)
+    }, rleid(annot, cluster)]
 
     # Shift margin
     right.mar <- right.mar+line.width
@@ -396,154 +458,151 @@ vl_heatmap <- function(x,
 
   # Plot col annotations ----
   if(!is.null(col.annotations)) {
-    # Check
-    col.annotations <- factor(col.annotations, unique(col.annotations))
     # Plotting parameters
-    cann <- data.table(ann= col.annotations[col.order])
-    cann[, left:= .I[1]-0.5, rleid(ann)]
-    cann[, right:= .I[.N]+0.5, rleid(ann)]
-    cann[, col:= colorRampPalette(col.annotations.col)(.NGRP)[.GRP], keyby= ann]
-    cann <- unique(cann)
-
-    # Plot annotations on the top
     top.mar <- top.mar+line.height/5
-    rect(xleft = cann$left,
-         ybottom = top.mar,
-         xright = cann$right,
-         ytop = top.mar+line.height,
-         xpd= NA,
-         col= cann$col,
-         border= NA)
+    cols[, annot.col:= colorRampPalette(col.annotations.col)(.NGRP)[as.numeric(annot)], annot]
+
+    # Plot
+    cols[, {
+      rect(xleft = x.pos[1]-0.5,
+           ybottom = top.mar,
+           xright = rev(x.pos)[1]+0.5,
+           ytop = top.mar+line.height,
+           col= annot.col[1],
+           xpd= NA,
+           border= NA)
+    }, rleid(annot, cluster)]
 
     # Shift margin
     top.mar <- top.mar+line.height
   }
 
   # Plot row clusters ----
-  if(!isFALSE(cluster.rows)) {
+  if(sum(!is.na(rows$cluster)) && !isFALSE(show.row.clusters)) {
 
-    # Plotting parameters
-    rcls <- data.table(cl= cluster.rows[row.order])
-    rcls[, name:= paste0(cl, " (n= ", formatC(.N, big.mark = ","), ")"), cl]
-    rcls[, top:= .I[1]-0.5, cl]
-    rcls[, bottom:= .I[.N]+0.5, cl]
-    rcls[, col:= colorRampPalette(row.clusters.col)(.NGRP)[.GRP], keyby= cl]
-    setorderv(rcls, "bottom")
-    rcls <- unique(rcls)
+    # Plot on the right side
+    if(show.row.clusters=="right") {
+      # Plotting parameters
+      right.mar <- right.mar+line.width/5
+      rows[, cluster.col:= colorRampPalette(row.clusters.col)(.NGRP)[as.numeric(cluster)], cluster]
 
-    # Add cluster lines
-    cl.y.pos <- rcls[, c(top[-1], bottom[-(.N)])]
-    segments(par("usr")[1],
-             cl.y.pos,
-             par("usr")[2],
-             cl.y.pos,
-             col= cluster.lines.col)
-
-    # Add cluster labels
-    if(!isFALSE(show.row.clusters)) {
-
-      # Plot clusters on the right side
-      if(show.row.clusters=="right") {
-        right.mar <- right.mar+line.width/5
+      # Plot
+      rows[, {
         rect(xleft = right.mar,
-             ybottom = rcls$bottom,
+             ybottom = rev(y.pos)[1]+0.5,
              xright = right.mar+line.width,
-             ytop = rcls$top,
+             ytop = y.pos[1]-0.5,
+             col= cluster.col[1],
              xpd= NA,
-             col= rcls$col,
              border= NA)
         text(x = right.mar+line.width/2,
-             y = rowMeans(rcls[, .(top, bottom)]),
-             labels = rcls$cl,
+             y = mean(y.pos),
+             labels = cluster[1],
              cex= par("cex.lab"),
              xpd= NA,
              offset= 0,
              srt= -90)
+      }, rleid(cluster)]
 
-        # Shift margin
-        right.mar <- right.mar+line.width
+      # Shift margin
+      right.mar <- right.mar+line.width
 
-      } else if(show.row.clusters=="left") {
+    } else if(show.row.clusters=="left") {
 
-        # Or plot on the left side
-        axis(2,
-             at = rowMeans(rcls[, .(top, bottom)]),
-             labels = rcls$name,
-             tick = FALSE)
-      }
+      # Plot on the left side
+      axis(2,
+           at = rows[, mean(y.pos), cluster]$V1,
+           labels = rows[, paste0(cluster, " (n= ", formatC(.N, big.mark = ","), ")"), cluster]$V1,
+           tick = FALSE)
     }
   }
 
-  # Plot columns clusters ----
-  if(!isFALSE(cluster.cols)) {
+  # Plot column clusters ----
+  if(sum(!is.na(cols$cluster)) && !isFALSE(show.col.clusters)) {
 
-    # Plotting parameters
-    ccls <- data.table(cl= cluster.cols[col.order])
-    ccls[, name:= paste0(cl, "\n(n= ", .N, ")"), cl]
-    ccls[, left:= .I[1]-0.5, cl]
-    ccls[, right:= .I[.N]+0.5, cl]
-    ccls[, col:= colorRampPalette(col.clusters.col)(.NGRP)[.GRP], keyby= cl]
-    setorderv(ccls, "left")
-    ccls <- unique(ccls)
+    # On the top
+    if(show.col.clusters=="top") {
+      # Plotting parameters
+      top.mar <- top.mar+line.height/5
+      cols[, cluster.col:= colorRampPalette(col.clusters.col)(.NGRP)[as.numeric(cluster)], cluster]
 
-    # Add cluster lines
-    cl.x.pos <- ccls[, c(left[-1], right[-(.N)])]
-    segments(x0= cl.x.pos,
-             y0 = par("usr")[3],
-             x1 = cl.x.pos,
-             y1 =  par("usr")[4],
-             col= cluster.lines.col)
-
-    if(!isFALSE(show.col.clusters)) {
-
-      # Plot clusters on the top
-      if(show.col.clusters=="top") {
-        top.mar <- top.mar+line.height/5
-        rect(xleft = ccls$left,
+      # Plot
+      cols[, {
+        rect(xleft = x.pos[1]-0.5,
              ybottom = top.mar,
-             xright = ccls$right,
+             xright = rev(x.pos)[1]+0.5,
              ytop = top.mar+line.height,
+             col= cluster.col[1],
              xpd= NA,
-             col= ccls$col,
              border= NA)
-        text(x = rowMeans(ccls[, .(left, right)]),
+        text(x = mean(x.pos),
              y = top.mar+line.height/2,
+             labels = cluster[1],
              cex= par("cex.lab"),
-             labels = ccls$cl,
              xpd= NA,
              offset= 0)
+      }, rleid(cluster)]
 
-        # Shift margin
-        top.mar <- top.mar+line.height
+      # Shift margin
+      top.mar <- top.mar+line.height
 
-      } else if(show.col.clusters=="bottom") {
+    } else if(show.col.clusters=="bottom") {
 
-        # Or plot on the bottom
-        axis(1,
-             at = rowMeans(ccls[, .(left, right)]),
-             labels = ccls$name,
-             tick = FALSE)
-      }
+      # Or plot on the bottom
+      axis(1,
+           at = cols[, mean(x.pos), cluster]$V1,
+           labels = cols[, paste0(cluster, "\nn= ", formatC(.N, big.mark = ",")), cluster]$V1,
+           tick = FALSE)
+
     }
   }
 
   # Add dendrograms ----
   # Rows
   if(exists("rdend") && show.row.dendro) {
-    segments(right.mar+rdend$y/diff(range(rdend[,c(y, yend)]))*line.width,
-             par("usr")[4]+rdend$x-0.5,
-             right.mar+rdend$yend/diff(range(rdend[,c(y, yend)]))*line.width,
-             par("usr")[4]+rdend$xend-0.5,
-             xpd= NA)
+    # For each segment, interpolate new y0 and y1
+    rdend[, y0 := {
+      start <- rows$y.pos[floor(x)]
+      end   <- rows$y.pos[ceiling(x)]
+      start + (end - start) * (x - floor(x))
+    }]
+    rdend[, y1 := {
+      start <- rows$y.pos[floor(xend)]
+      end   <- rows$y.pos[ceiling(xend)]
+      start + (end - start) * (xend - floor(xend))
+    }]
 
-    # Shift margin
-    right.mar <- right.mar+line.width
+    # Now plot
+    segments(
+      right.mar + rdend$y    / diff(range(rdend[,c(y, yend)])) * line.width,
+      par("usr")[4] + rdend$y0    - 0.5,
+      right.mar + rdend$yend / diff(range(rdend[,c(y, yend)])) * line.width,
+      par("usr")[4] + rdend$y1    - 0.5,
+      xpd = NA
+    )
+
+    # Shift right margin
+    right.mar <- right.mar + line.width
   }
+
   # Columns
   if(exists("cdend") && show.col.dendro) {
-    segments(cdend$x,
+    # For each segment, interpolate new x0 and x1
+    cdend[, x0 := {
+      start <- cols$x.pos[floor(x)]
+      end   <- cols$x.pos[ceiling(x)]
+      start + (end - start) * (x - floor(x))
+    }]
+    cdend[, x1 := {
+      start <- cols$x.pos[floor(xend)]
+      end   <- cols$x.pos[ceiling(xend)]
+      start + (end - start) * (xend - floor(xend))
+    }]
+
+    # Now plot
+    segments(cdend$x0,
              top.mar+cdend$y/diff(range(cdend[,c(y, yend)]))*line.height,
-             cdend$xend,
+             cdend$x1,
              top.mar+cdend$yend/diff(range(cdend[,c(y, yend)]))*line.height,
              xpd= NA)
 
@@ -560,6 +619,7 @@ vl_heatmap <- function(x,
     adj.y <- ifelse(show.legend=="top",
                     (top.mar-par("usr")[4])/line.height-.5,
                     0)
+
     # Main heatmap heatkey
     heatkey(col= col,
             breaks = if(checkClass=="factor") factor(allLvls, allLvls) else breaks,
@@ -577,10 +637,10 @@ vl_heatmap <- function(x,
       # Adjust pos
       adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
       # Add heatkey
-      rann <- unique(rann[,.(ann, col)])
-      setorderv(rann, "ann")
-      heatkey(col= rann$col,
-              breaks = factor(rann$ann, unique(rann$ann)),
+      rann <- unique(rows[,.(annot, annot.col)])
+      setorderv(rann, "annot")
+      heatkey(col= rann$annot.col,
+              breaks = factor(rann$annot, unique(rann$annot)),
               position = show.legend,
               adj.x = adj.x,
               adj.y = adj.y,
@@ -593,10 +653,10 @@ vl_heatmap <- function(x,
       # Adjust pos
       adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
       # Add heatkey
-      cann <- unique(cann[,.(ann, col)])
-      setorderv(cann, "ann")
-      heatkey(col= cann$col,
-              breaks = factor(cann$ann, unique(cann$ann)),
+      cann <- unique(cols[,.(annot, annot.col)])
+      setorderv(cann, "annot")
+      heatkey(col= cann$annot.col,
+              breaks = factor(cann$annot, unique(cann$annot)),
               position = show.legend,
               adj.x = adj.x,
               adj.y = adj.y,
@@ -610,16 +670,8 @@ vl_heatmap <- function(x,
     title(main= main,
           line = max(c(1, (top.mar-par("usr")[4])/line.height+.25)))
 
-  # Return clusters and row orders ----
-  row <- data.table(row.name= rownames(x)[order(row.order)],
-                    row.order= row.order)
-  if(!isFALSE(cluster.rows))
-    row[, row.cluster:= cluster.rows]
-  col <- data.table(col.name= colnames(x)[order(col.order)],
-                    col.order= col.order)
-  if(!isFALSE(cluster.cols))
-    col[, col.cluster:= cluster.cols]
   # Return clusters ----
-  obj <- list(row= row, col= col)
+  obj <- list(rows= rows[order(line.idx), .(name, line.idx, cluster, order, y.pos)],
+              cols= cols[order(column.idx), .(name, column.idx, cluster, order, x.pos)])
   invisible(obj)
 }

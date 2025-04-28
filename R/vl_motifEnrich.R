@@ -101,7 +101,7 @@ vl_motifEnrich <- function(counts,
   ctl <- melt(control.counts,
               measure.vars = names(control.counts),
               variable.name= "motif")
-  ctl <- ctl[, .(ctl_hit= sum(value>0), ctl_total= .N), motif]
+  ctl <- ctl[, .(ctl_hit= sum(value>=1), ctl_total= .N), motif]
 
   # Add names ----
   add.names <- data.table(motif= colnames(control.counts),
@@ -111,7 +111,7 @@ vl_motifEnrich <- function(counts,
   # Melt counts ----
   cl <- lapply(counts, function(x) melt(x, measure.vars= names(x), variable.name= "motif"))
   cl <- rbindlist(cl, idcol = "cl")
-  cl <- cl[, .(set_hit= sum(value>0), set_total= .N), .(cl, motif)]
+  cl <- cl[, .(set_hit= sum(value>=1), set_total= .N), .(cl, motif)]
 
   # Compute enrichment ----
   enr <- merge(cl, ctl)
