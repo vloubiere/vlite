@@ -55,9 +55,9 @@ vl_heatmap(
 \item{breaks}{A numeric vector specifying the breakpoints for color mapping.
 Defaults to 21 evenly spaced breaks spanning the range of x.}
 
-\item{col}{A vector of colors corresponding to the values in breaks. If set to NULLs,
-a diverging blue-white-red palette is used for data spanning positive and negative values,
-or a sequential blue-yellow palette.}
+\item{col}{A vector of colors corresponding to the values in breaks. If set to NULL,
+rainbow(9)[1:7] is used for factors, a diverging blue-white-red palette for data spanning positive and negative values,
+or a sequential blue-yellow palette for data with a unique sign.}
 
 \item{row.annotations}{A vector of length nrow(x) containing row annotations.}
 

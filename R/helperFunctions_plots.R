@@ -1,3 +1,6 @@
+
+# Take rows and columns names/idx/annot and makes an object containing
+# clusters, colors, positions...
 heatmap.get.clusters <- function(name,
                                  idx,
                                  annot,
@@ -21,7 +24,7 @@ heatmap.get.clusters <- function(name,
   if(isFALSE(clusters)) {
     # No clustering
     obj[, cluster:= as.character(NA)]
-  }else if(length(clusters) == nrow(x)) {
+  } else if(length(clusters) == nrow(x)) {
     # User defined
     obj[, cluster:= clusters]
   } else if(isTRUE(clusters)) {
@@ -31,7 +34,7 @@ heatmap.get.clusters <- function(name,
     if(!is.na(kmeans.k)) {
       obj[, cluster:= kmeans(x, centers = kmeans.k)$cluster]
     } else {
-      # Compute distances for hclust
+      # Distances
       .d <- if(distance %in% c("pearson", "spearman")) {
         as.dist(1 - cor(t(x),
                         use= "pairwise.complete.obs",
@@ -56,22 +59,37 @@ heatmap.get.clusters <- function(name,
   } else
     stop("Row and col clusters should match the dimensions of x or be logical vectors of length 1.")
 
-  # Coerce to factors and compute order ----
+  # Coerce clusters to factors and compute order ----
   obj[, cluster:= factor(cluster, sort(unique(cluster)))]
   if(!"order" %in% names(obj))
     obj[, order:= order(cluster)]
 
-  # Add colors
-  obj[, cluster.col:= colorRampPalette(cluster.col)(.NGRP)[as.numeric(cluster)], cluster]
-  if(!is.null(annot))
-    obj[, annot.col:= colorRampPalette(annot.col)(.NGRP)[as.numeric(annot)], annot]
-
-  # Compute image coord and plotting positions
+  # Compute image coordinates and plotting positions ----
   obj <- obj[(order)]
   obj[, im:= .I]
   obj[, pos:= .I+(.GRP-1)*gap.width, cluster]
 
-  # Return dendrogram
-  return(list(obj= obj[order(idx)],
-              dend= if(exists("dend")) dend else NULL))
+  # Add clusters and annotations colors ----
+  obj[, cluster.col:= colorRampPalette(cluster.col)(.NGRP)[as.numeric(cluster)], cluster]
+  if(!is.null(annot))
+    obj[, annot.col:= colorRampPalette(annot.col)(.NGRP)[as.numeric(annot)], annot]
+
+  # For dendrogram, compute plotting positions by interpolating gaps
+  dend <- if(exists("dend")) {
+    dend[, s.start := {
+      start <- obj$pos[floor(x)]
+      end   <- obj$pos[ceiling(x)]
+      start + (end - start) * (x - floor(x))
+    }]
+    dend[, s.end := {
+      start <- obj$pos[floor(xend)]
+      end   <- obj$pos[ceiling(xend)]
+      start + (end - start) * (xend - floor(xend))
+    }]
+  } else
+    NULL
+
+  # Return object and dendrogram ----
+  return(list(obj= obj[order(idx)], # Original order
+              dend= dend))
 }

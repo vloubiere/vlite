@@ -13,9 +13,9 @@
 #' @param kmeans.k Integer specifying the number of k-means clusters. Defaults= NA (uses hierarchical clustering).
 #' @param breaks A numeric vector specifying the breakpoints for color mapping.
 #'   Defaults to 21 evenly spaced breaks spanning the range of x.
-#' @param col A vector of colors corresponding to the values in breaks. If set to NULLs,
-#'   a diverging blue-white-red palette is used for data spanning positive and negative values,
-#'   or a sequential blue-yellow palette.
+#' @param col A vector of colors corresponding to the values in breaks. If set to NULL,
+#'   rainbow(9)[1:7] is used for factors, a diverging blue-white-red palette for data spanning positive and negative values,
+#'   or a sequential blue-yellow palette for data with a unique sign.
 #' @param row.annotations A vector of length nrow(x) containing row annotations.
 #' @param col.annotations  A vector of length ncol(x) containing row annotations.
 #' @param show.legend Should the legend be plotted?
@@ -153,30 +153,36 @@ vl_heatmap <- function(x,
     cluster.rows <- FALSE
   if(ncol(x)==1)
     cluster.cols <- FALSE
-  if(!is.null(row.annotations) && length(row.annotations) != nrow(x))
-    stop("row.annotations should be a vector of length nrow(x)")
-  if(!is.null(row.annotations) && !is.factor(row.annotations))
-    row.annotations <- factor(row.annotations, unique(row.annotations))
-  if(!is.null(col.annotations) && length(col.annotations) != ncol(x))
-    stop("col.annotations should be a vector of length ncol(x)")
-  if(!is.null(col.annotations) && !is.factor(col.annotations))
-    col.annotations <- factor(col.annotations, unique(col.annotations))
-  if(!show.row.clusters %in% c(TRUE, FALSE, "left", "right"))
-    stop("show.row.clusters should be one of TRUE, FALSE, 'left' or 'right'.")
+  if(!is.null(row.annotations)) {
+    if(length(row.annotations) != nrow(x)) {
+      stop("row.annotations should be a vector of length nrow(x)")
+    } else if(!is.factor(row.annotations)) {
+      row.annotations <- factor(row.annotations, unique(row.annotations))
+    }
+  }
+  if(!is.null(col.annotations)) {
+    if(length(col.annotations) != ncol(x)) {
+      stop("col.annotations should be a vector of length ncol(x)")
+    } else if(!is.factor(col.annotations)) {
+      col.annotations <- factor(col.annotations, unique(col.annotations))
+    }
+  }
   if(isTRUE(show.row.clusters))
     show.row.clusters <- "left"
-  if(!show.col.clusters %in% c(TRUE, FALSE, "bottom", "top"))
-    stop("show.col.clusters should be one of TRUE, FALSE, 'bottom' or 'top'.")
+  if(!show.row.clusters %in% c(FALSE, "left", "right"))
+    stop("show.row.clusters should be one of TRUE, FALSE, 'left' or 'right'.")
   if(isTRUE(show.col.clusters))
     show.col.clusters <- "top"
-  if(!show.legend %in% c(TRUE, FALSE, "right", "top"))
+  if(!show.col.clusters %in% c(FALSE, "bottom", "top"))
+    stop("show.col.clusters should be one of TRUE, FALSE, 'bottom' or 'top'.")
+  if(isTRUE(show.legend))
+    show.legend <- "right"
+  if(!show.legend %in% c(FALSE, "right", "top"))
     stop("show.col.clusters should be one of TRUE, FALSE, 'right' or 'top'.")
   if(!isFALSE(cluster.rows) && show.row.clusters=="left")
     show.rownames <- FALSE
   if(!isFALSE(cluster.cols) && show.col.clusters=="bottom")
     show.colnames <- FALSE
-  if(isTRUE(show.legend))
-    show.legend <- "right"
   if(isTRUE(show.numbers))
     show.numbers <- x
   if(!isFALSE(show.numbers) & !is.matrix(show.numbers))
@@ -186,11 +192,10 @@ vl_heatmap <- function(x,
   if(is.null(breaks)) {
     breaks <- if(checkClass=="factor") {
       # Factor
-      seq(min(x, na.rm= TRUE),
-          max(x, na.rm= TRUE))
+      seq(max(x, na.rm= TRUE))
     } else if(min(x, na.rm= TRUE)<0 & max(x, na.rm= TRUE)>0) {
-      lims <- max(abs(x), na.rm= TRUE)
       # Centered on 0
+      lims <- max(abs(x), na.rm= TRUE)
       seq(-lims,
           lims,
           length.out= 21)
@@ -206,7 +211,7 @@ vl_heatmap <- function(x,
   if(is.null(col)) {
     col <- if(checkClass=="factor") {
       # Factor
-      rainbow(length(allLvls))
+      rainbow(length(allLvls))(9)[1:7]
     } else if(breaks[1] < 0 & breaks[length(breaks)] > 0) {
       # Positive and negative values
       c("royalblue1", "white", "red")
@@ -221,7 +226,7 @@ vl_heatmap <- function(x,
   if(nrow(x)>=ncol(x)) {
     row.gap.width <- nrow(x)*gap.width
     col.gap.width <- row.gap.width*(ncol(x)/nrow(x))
-  }else{
+  } else {
     col.gap.width <- ncol(x)*gap.width
     row.gap.width <- col.gap.width*(nrow(x)/ncol(x))
   }
@@ -266,13 +271,15 @@ vl_heatmap <- function(x,
            c("idx", "im", "pos"),
            c("column.idx", "im.row", "x.pos"))
 
-  # Reorder matrix based on clustering ----
+  # Reorder matrices and rows/cols based on clustering ----
   x <- x[(rows$order), , drop=FALSE]
   x <- x[, (cols$order), drop=FALSE]
   if(is.matrix(show.numbers)) {
     show.numbers <- show.numbers[(rows$order), , drop=FALSE]
     show.numbers <- show.numbers[, (cols$order), drop= FALSE]
   }
+  rows <- rows[(order)]
+  cols <- cols[(order)]
 
   # Prepare image for plotting ----
   # Transpose
@@ -286,18 +293,14 @@ vl_heatmap <- function(x,
   NAbreaks <- c(breaks[1]-c(2,1), breaks)
   NAcols <- c(na.col, col)
 
-  # Order rows and cols before plotting ----
-  rows <- rows[(order)]
-  cols <- cols[(order)]
-
-  # Initiate full image ----
+  # Plot full image frame ----
   image(x= 1,
         y= 1,
         z= matrix(NA),
         breaks= c(-1,1),
         col= NA,
-        xlim= cols[c(1, .N), x.pos]+c(-0.5, 0.5),
-        ylim= rows[c(.N, 1), y.pos]+c(0.5, -0.5),
+        xlim= range(cols$x.pos)+c(-0.5, 0.5),
+        ylim= rev(range(rows$y.pos))+c(0.5, -0.5),
         xlab= NA,
         ylab= NA,
         axes= FALSE)
@@ -343,9 +346,8 @@ vl_heatmap <- function(x,
   # Y axis
   if(show.colnames) {
     # Check if labels will overlap
-    cn.width <- strwidth(colnames(x))/2
-    cn.n <- seq(ncol(x))
-    colnames.ov <- (cn.n-cn.width)[-1] < (cn.n+cn.width)[-length(cn.n)]
+    cn.width <- strwidth(cols$name)/2
+    colnames.ov <- (cols$x.pos-cn.width)[-1] < (cols$x.pos+cn.width)[-length(cn.width)]
     # If yes, tilt them
     if(any(colnames.ov)) {
       tiltAxis(x= cols$x.pos,
@@ -425,7 +427,7 @@ vl_heatmap <- function(x,
              xpd= NA,
              offset= 0,
              srt= -90)
-      }, rleid(cluster)]
+      }, cluster]
       # Adjust margin
       right.mar <- right.mar+line.width
     } else if(show.row.clusters=="left") {
@@ -458,7 +460,7 @@ vl_heatmap <- function(x,
              cex= par("cex.lab"),
              xpd= NA,
              offset= 0)
-      }, rleid(cluster)]
+      }, cluster]
       # Adjust margin
       top.mar <- top.mar+line.height
     } else if(show.col.clusters=="bottom") {
@@ -470,56 +472,33 @@ vl_heatmap <- function(x,
     }
   }
 
-  # Add dendrograms ----
-  # Rows
+  # Add rows dendrogram ----
   if(!is.null(rdend) && show.row.dendro) {
-    # For each segment, interpolate new y0 and y1
-    rdend[, y0 := {
-      start <- rows$y.pos[floor(x)]
-      end   <- rows$y.pos[ceiling(x)]
-      start + (end - start) * (x - floor(x))
-    }]
-    rdend[, y1 := {
-      start <- rows$y.pos[floor(xend)]
-      end   <- rows$y.pos[ceiling(xend)]
-      start + (end - start) * (xend - floor(xend))
-    }]
-    # Now plot
+    #
     segments(
       right.mar + rdend$y    / diff(range(rdend[,c(y, yend)])) * line.width,
-      par("usr")[4] + rdend$y0    - 0.5,
+      par("usr")[4] + rdend$s.start    - 0.5,
       right.mar + rdend$yend / diff(range(rdend[,c(y, yend)])) * line.width,
-      par("usr")[4] + rdend$y1    - 0.5,
+      par("usr")[4] + rdend$s.end    - 0.5,
       xpd = NA
     )
     # Adjust margin
     right.mar <- right.mar + line.width
   }
 
-  # Columns
+  # Add columns dendrogram ----
   if(!is.null(cdend) && show.col.dendro) {
-    # For each segment, interpolate new x0 and x1
-    cdend[, x0 := {
-      start <- cols$x.pos[floor(x)]
-      end   <- cols$x.pos[ceiling(x)]
-      start + (end - start) * (x - floor(x))
-    }]
-    cdend[, x1 := {
-      start <- cols$x.pos[floor(xend)]
-      end   <- cols$x.pos[ceiling(xend)]
-      start + (end - start) * (xend - floor(xend))
-    }]
     # Now plot
-    segments(cdend$x0,
+    segments(cdend$s.start,
              top.mar+cdend$y/diff(range(cdend[,c(y, yend)]))*line.height,
-             cdend$x1,
+             cdend$s.end,
              top.mar+cdend$yend/diff(range(cdend[,c(y, yend)]))*line.height,
              xpd= NA)
     # Adjust margin
     top.mar <- top.mar+line.height
   }
 
-  # Add heatkey ----
+  # Add heatkeys ----
   if(!isFALSE(show.legend)) {
     # Adjust plotting position
     adj.x <- ifelse(show.legend=="top",
@@ -536,13 +515,14 @@ vl_heatmap <- function(x,
             adj.y = adj.y,
             cex = legend.cex,
             main = legend.title)
-    # Adjust top margin (for title)
+    # Adjust top margin for title
     top.mar <- top.mar+((show.legend=="top")*3*line.height)
+
     # Row annotations
     if(!is.null(row.annotations)) {
-      # Adjust pos
+      # Adjust plotting position
       adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
-      # Add heatkey
+      # Annotations heatkey
       rann <- unique(rows[,.(annot, annot.col)])
       setorderv(rann, "annot")
       heatkey(col= rann$annot.col,
@@ -553,11 +533,12 @@ vl_heatmap <- function(x,
               cex = legend.cex,
               main = "Rows")
     }
+
     # Col annotations
     if(!is.null(col.annotations)) {
       # Adjust plotting position
       adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
-      # Add heatkey
+      # Annotations heatkey
       cann <- unique(cols[,.(annot, annot.col)])
       setorderv(cann, "annot")
       heatkey(col= cann$annot.col,
@@ -576,7 +557,7 @@ vl_heatmap <- function(x,
           line = max(c(1, (top.mar-par("usr")[4])/line.height+.25)))
 
   # Return clusters ----
-  obj <- list(rows= rows[order(line.idx), .(name, line.idx, cluster, order, y.pos)],
-              cols= cols[order(column.idx), .(name, column.idx, cluster, order, x.pos)])
+  obj <- list(rows= rows[order(line.idx), .(name, line.idx, cluster, order, y.pos, annot)],
+              cols= cols[order(column.idx), .(name, column.idx, cluster, order, x.pos, annot)])
   invisible(obj)
 }
