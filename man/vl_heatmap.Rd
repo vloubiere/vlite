@@ -29,7 +29,7 @@ vl_heatmap(
   show.col.clusters = "top",
   show.row.dendro = TRUE,
   show.col.dendro = TRUE,
-  gap.width = 1/40,
+  gap.width = 1/80,
   cluster.seed = 3453,
   row.clusters.col = c("grey90", "grey40"),
   col.clusters.col = c("grey90", "grey40"),
@@ -96,7 +96,7 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 
 \item{show.col.dendro}{If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.}
 
-\item{gap.width}{The width of the gap between clusters, expressed as a fraction of the plot limits. Default= 1/40.}
+\item{gap.width}{The width of the gap between clusters, expressed as a fraction of the plot limits. Default= 1/80.}
 
 \item{cluster.seed}{Integer seed for reproducible clustering. Default= 3453.}
 

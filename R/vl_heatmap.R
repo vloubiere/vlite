@@ -35,7 +35,7 @@
 #' @param show.col.clusters Character specifying the position of column cluster visualization: "top", "bottom", or FALSE.
 #' @param show.row.dendro If rows are clustered using hclust, should the dendrogram be shown? Default= TRUE.
 #' @param show.col.dendro If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.
-#' @param gap.width The width of the gap between clusters, expressed as a fraction of the plot limits. Default= 1/40.
+#' @param gap.width The width of the gap between clusters, expressed as a fraction of the plot limits. Default= 1/80.
 #' @param cluster.seed Integer seed for reproducible clustering. Default= 3453.
 #' @param row.clusters.col A vector of two colors for the row cluster gradient. Default is c("grey90", "grey40").
 #' @param col.clusters.col A vector of two colors for the column cluster gradient. Default is c("grey90", "grey40").
@@ -114,7 +114,7 @@ vl_heatmap <- function(x,
                        show.col.clusters= "top",
                        show.row.dendro= TRUE,
                        show.col.dendro= TRUE,
-                       gap.width= 1/40,
+                       gap.width= 1/80,
                        cluster.seed= 3453,
                        row.clusters.col= c("grey90", "grey40"),
                        col.clusters.col= c("grey90", "grey40"),
