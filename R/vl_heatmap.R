@@ -153,20 +153,10 @@ vl_heatmap <- function(x,
     cluster.rows <- FALSE
   if(ncol(x)==1)
     cluster.cols <- FALSE
-  if(!is.null(row.annotations)) {
-    if(length(row.annotations) != nrow(x)) {
-      stop("row.annotations should be a vector of length nrow(x)")
-    } else if(!is.factor(row.annotations)) {
-      row.annotations <- factor(row.annotations, unique(row.annotations))
-    }
-  }
-  if(!is.null(col.annotations)) {
-    if(length(col.annotations) != ncol(x)) {
-      stop("col.annotations should be a vector of length ncol(x)")
-    } else if(!is.factor(col.annotations)) {
-      col.annotations <- factor(col.annotations, unique(col.annotations))
-    }
-  }
+  if(!is.null(row.annotations) && length(row.annotations) != nrow(x))
+    stop("row.annotations should be a vector of length nrow(x)")
+  if(!is.null(col.annotations) && length(col.annotations) != ncol(x))
+    stop("col.annotations should be a vector of length ncol(x)")
   if(isTRUE(show.row.clusters))
     show.row.clusters <- "left"
   if(!show.row.clusters %in% c(FALSE, "left", "right"))
@@ -523,7 +513,7 @@ vl_heatmap <- function(x,
       # Adjust plotting position
       adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
       # Annotations heatkey
-      rann <- unique(rows[,.(annot, annot.col)])
+      rann <- unique(rows[!is.na(annot),.(annot, annot.col)])
       setorderv(rann, "annot")
       heatkey(col= rann$annot.col,
               breaks = factor(rann$annot, unique(rann$annot)),

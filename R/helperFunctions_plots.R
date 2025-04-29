@@ -15,6 +15,10 @@ heatmap.get.clusters <- function(name,
                                  cluster.col,
                                  gap.width)
 {
+  # Checks ----
+  if(!is.null(annot) && !is.factor(annot))
+    annot <- factor(annot, unique(sort(annot)))
+
   # Initiate object ----
   obj <- data.table(name= rownames(x),
                     idx= seq(nrow(x)),
@@ -59,8 +63,9 @@ heatmap.get.clusters <- function(name,
   } else
     stop("Row and col clusters should match the dimensions of x or be logical vectors of length 1.")
 
-  # Coerce clusters to factors and compute order ----
-  obj[, cluster:= factor(cluster, sort(unique(cluster)))]
+  # Coerce to factors and compute order ----
+  obj[, cluster:= factor(cluster, unique(sort(cluster)))]
+  obj[, cluster:= factor(cluster, unique(sort(cluster)))]
   if(!"order" %in% names(obj))
     obj[, order:= order(cluster)]
 
@@ -70,9 +75,9 @@ heatmap.get.clusters <- function(name,
   obj[, pos:= .I+(.GRP-1)*gap.width, cluster]
 
   # Add clusters and annotations colors ----
-  obj[, cluster.col:= colorRampPalette(cluster.col)(.NGRP)[as.numeric(cluster)], cluster]
+  obj[, cluster.col:= colorRampPalette(cluster.col)(length(levels(cluster)))[as.numeric(cluster)]]
   if(!is.null(annot))
-    obj[, annot.col:= colorRampPalette(annot.col)(.NGRP)[as.numeric(annot)], annot]
+    obj[, annot.col:= colorRampPalette(annot.col)(length(levels(annot)))[as.numeric(annot)]]
 
   # For dendrogram, compute plotting positions by interpolating gaps
   dend <- if(exists("dend")) {
