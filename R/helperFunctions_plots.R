@@ -15,10 +15,6 @@ heatmap.get.clusters <- function(name,
                                  cluster.col,
                                  gap.width)
 {
-  # Checks ----
-  if(!is.null(annot) && !is.factor(annot))
-    annot <- factor(annot, unique(sort(annot)))
-
   # Initiate object ----
   obj <- data.table(name= rownames(x),
                     idx= seq(nrow(x)),

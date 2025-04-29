@@ -7,6 +7,7 @@
 heatkey(
   breaks,
   col,
+  labels = NULL,
   position = "right",
   adj.x = 0,
   adj.y = 0,
@@ -17,23 +18,29 @@ heatkey(
 )
 }
 \arguments{
-\item{breaks}{A numeric vector (or factors) specifying the breakpoints for color mapping.}
+\item{breaks}{A numeric vector specifying the breakpoints (edges) for color mapping.
+The number of colors in col must be exactly one less than the number of breaks.}
 
-\item{col}{A vector of colors corresponding to the values in `breaks`.}
+\item{col}{A vector of colors, where each color corresponds to the interval between consecutive breakpoints in breaks.
+Must have length length(breaks) - 1.}
 
-\item{adj.x}{If specified, x plotting positions are adjusted by adj.x * line.width Default= 0.}
+\item{labels}{Labels to be added to the color key. By default, elegant numeric ticks spanning the values in breaks are computed.
+If provided as a numeric vector, labels are placed at the corresponding values.
+If provided as a character vector of length equal to col, labels are placed at the center of each color interval.}
 
-\item{adj.y}{If specified, y plotting positions are adjusted by adj.y * line height. Default= 0.}
+\item{position}{Position of the color key. Either "right" (vertical legend) or "top" (horizontal legend). Default= "right".}
+
+\item{adj.x}{If specified, x plotting positions are adjusted by adj.x*line.width. Default= 0.}
+
+\item{adj.y}{If specified, y plotting positions are adjusted by adj.y*line.height. Default= 0.}
 
 \item{thickness}{Numeric width of the color key in lines. Default= 0.75.}
 
-\item{length}{Numeric height of the color key in lines. Default= 4.}
+\item{length}{Numeric height (if vertical) or width (if horizontal) of the color key in lines. Default= 4.}
 
 \item{main}{Character string for the title of the color key. Default= NA.}
 
 \item{cex}{Numeric scaling factor for the size of the color key text. Default= 1.}
-
-\item{pos}{Position of the heatkey. Can either be "right" or "top". Default= "right".}
 }
 \value{
 Adds a color key to the current plot, at one line of distance from the plot border. No return value.
@@ -43,8 +50,9 @@ Plots a color key (legend) for heatmaps. This function is designed to work along
 and should be called after the main heatmap plot.
 }
 \details{
-The function creates a vertical color key that maps colors to values in your heatmap. The breaks vector defines
-the midpoints of the ranges for each color in col. The color key is customizable in terms of position, size, and appearance.
+The function creates a color key (legend) that maps colors to value intervals in your heatmap.
+The number of colors must be exactly one less than the number of breaks.
+Labels can be numeric (placed at the corresponding value) or character (placed at the center of each color interval).
 }
 \examples{
 # Create example matrix
@@ -58,10 +66,5 @@ rownames(test) <- paste("Gene", 1:20, sep = "")
 
 # Basic heatmap with default color key
 vl_par()
-vl_image(test)
-heatkey(col = heat.colors(100), breaks = seq(-3, 3, length.out = 100))
 
-}
-\seealso{
-\code{\link{vl_image}} for creating the main heatmap.
 }

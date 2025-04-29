@@ -12,15 +12,20 @@
 #' @param cluster.cols Similar to cluster.rows but for columns. Default= FALSE.
 #' @param kmeans.k Integer specifying the number of k-means clusters. Defaults= NA (uses hierarchical clustering).
 #' @param breaks A numeric vector specifying the breakpoints for color mapping.
-#'   Defaults to 21 evenly spaced breaks spanning the range of x.
-#' @param col A vector of colors corresponding to the values in breaks. If set to NULL,
-#'   rainbow(9)[1:7] is used for factors, a diverging blue-white-red palette for data spanning positive and negative values,
-#'   or a sequential blue-yellow palette for data with a unique sign.
+#'   Can either be the length of col (centered breaks) or one element longer (breaks as edges).
+#'   If set to NULL, defaults to the different levels for factors (centered breaks), a diverging vector
+#'   of 21 values (centered on 0) or to 20 values spanning the range of x (breaks as edges).
+#' @param col A vector of colors corresponding to the values in breaks.
+#'   Can either be the length of breaks (centered breaks) or one element shorter (breaks as edges).
+#'   If set to NULL, rainbow colors are used for factors, a diverging blue-white-red palette for data
+#'   spanning positive and negative values, or a sequential blue-yellow palette for data with a unique sign.
 #' @param row.annotations A vector of length nrow(x) containing row annotations.
 #' @param col.annotations  A vector of length ncol(x) containing row annotations.
 #' @param show.legend Should the legend be plotted?
 #'        Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".
 #' @param legend.title Character string for the legend title. Default= "Value".
+#' @param row.annotations.title Title for the row annotations legend. Default= "Rows".
+#' @param col.annotations.title Title for the column annotations legend. Default= "Columns".
 #' @param show.numbers Logical or matrix; if set to TRUE or a matrix is provided, displays values in cells.
 #' @param show.rownames Logical; whether to display row names. Default= TRUE.
 #' @param show.colnames Logical; whether to display column names. Default= TRUE.
@@ -100,6 +105,8 @@ vl_heatmap <- function(x,
                        col.annotations= NULL,
                        show.legend= "right",
                        legend.title= "Value",
+                       row.annotations.title= "Rows",
+                       col.annotations.title= "Columns",
                        show.numbers= FALSE,
                        show.rownames= TRUE,
                        show.colnames= TRUE,
@@ -124,8 +131,7 @@ vl_heatmap <- function(x,
                        legend.cex= 1,
                        numbers.cex= .7)
 {
-  # Checks and default values ----
-  # Coerce x to numeric matrix (useful for factors)
+  # Coerce x to numeric matrix (useful for factors) ----
   if(!is.matrix(x)) {
     checkClass <- unique(sapply(x, class))
     if(length(checkClass)>1)
@@ -139,8 +145,10 @@ vl_heatmap <- function(x,
     # Numeric matrix
     x <- as.matrix(x)
   } else {
-    checkClass <- "numeric"
+    checkClass <- "non-factor"
   }
+
+  # Checks and default values ----
   if(is.logical(x))
     x <- apply(x, 2, as.numeric)
   if(!is.numeric(x))
@@ -153,10 +161,22 @@ vl_heatmap <- function(x,
     cluster.rows <- FALSE
   if(ncol(x)==1)
     cluster.cols <- FALSE
-  if(!is.null(row.annotations) && length(row.annotations) != nrow(x))
-    stop("row.annotations should be a vector of length nrow(x)")
-  if(!is.null(col.annotations) && length(col.annotations) != ncol(x))
-    stop("col.annotations should be a vector of length ncol(x)")
+  if(!is.null(row.annotations)) {
+    if(length(row.annotations) != nrow(x))
+      stop("row.annotations should be a vector of length nrow(x)")
+    if(is.numeric(row.annotations))
+      stop("Row annotations should correspond to non-numeric labels")
+    if(!is.factor(row.annotations))
+      row.annotations <- factor(row.annotations, unique(sort(row.annotations)))
+  }
+  if(!is.null(col.annotations)) {
+    if(length(col.annotations) != ncol(x))
+      stop("col.annotations should be a vector of length ncol(x)")
+    if(is.numeric(col.annotations))
+      stop("col annotations should correspond to non-numeric labels")
+    if(!is.factor(col.annotations))
+      col.annotations <- factor(col.annotations, unique(sort(col.annotations)))
+  }
   if(isTRUE(show.row.clusters))
     show.row.clusters <- "left"
   if(!show.row.clusters %in% c(FALSE, "left", "right"))
@@ -181,36 +201,50 @@ vl_heatmap <- function(x,
   # Default breaks ----
   if(is.null(breaks)) {
     breaks <- if(checkClass=="factor") {
-      # Factor
+      # Factors (centered breaks)
       seq(max(x, na.rm= TRUE))
     } else if(min(x, na.rm= TRUE)<0 & max(x, na.rm= TRUE)>0) {
-      # Centered on 0
+      # Centered on 0 (centered breaks)
       lims <- max(abs(x), na.rm= TRUE)
       seq(-lims,
           lims,
           length.out= 21)
     } else {
-      # Unique sign
+      # Unique sign (breaks as edges)
       seq(min(x, na.rm= TRUE),
           max(x, na.rm= TRUE),
-          length.out= 21)
+          length.out= 20)
     }
   }
 
   # Default colors ----
   if(is.null(col)) {
     col <- if(checkClass=="factor") {
-      # Factor
-      rainbow(9)[1:7]
+      # Factor (centered breaks)
+      colorRampPalette(rainbow(9)[1:7])(length(breaks))
     } else if(breaks[1] < 0 & breaks[length(breaks)] > 0) {
-      # Positive and negative values
-      c("royalblue1", "white", "red")
+      # Positive and negative values (centered breaks)
+      colorRampPalette(c("royalblue1", "white", "red"))(length(breaks))
     } else {
-      # Unique sign
-      c("blue", "yellow")
+      # Unique sign (breaks as edges)
+      colorRampPalette(c("blue", "yellow"))(length(breaks)-1)
     }
   }
-  col <- colorRampPalette(col)(length(breaks))
+
+  # Center breaks if relevant ----
+  if(length(col)==length(breaks)) {
+    d <- diff(breaks)
+    breaks <- c(
+      breaks[1] - d[1]/2,
+      (breaks[-1] + breaks[-length(breaks)])/2,
+      breaks[length(breaks)] + d[length(d)]/2
+    )
+    message("Breaks were centered.")
+  } else {
+    # By default, breaks are used as edges
+    col <- colorRampPalette(col)(length(breaks)-1)
+    message("Breaks used as edges.")
+  }
 
   # Compute row and column gap widths ----
   if(nrow(x)>=ncol(x)) {
@@ -280,7 +314,7 @@ vl_heatmap <- function(x,
   # Set NA values to min(breaks)-1
   im[is.na(im)] <- min(breaks)-1
   # Adjust breaks to afford NAs
-  NAbreaks <- c(breaks[1]-c(2,1), breaks)
+  NAbreaks <- c(breaks[1]-c(2,1), breaks[-1])
   NAcols <- c(na.col, col)
 
   # Plot full image frame ----
@@ -297,6 +331,7 @@ vl_heatmap <- function(x,
 
   # Plot clusters iteratively ----
   rows[, {
+    ccl <- cluster
     cols[, {
       image(x= if(length(x.pos)==1) x.pos+c(-0.5, 0.5) else x.pos,
             y= if(length(y.pos)==1) y.pos+c(-0.5, 0.5) else y.pos,
@@ -464,7 +499,6 @@ vl_heatmap <- function(x,
 
   # Add rows dendrogram ----
   if(!is.null(rdend) && show.row.dendro) {
-    #
     segments(
       right.mar + rdend$y    / diff(range(rdend[,c(y, yend)])) * line.width,
       par("usr")[4] + rdend$s.start    - 0.5,
@@ -478,7 +512,6 @@ vl_heatmap <- function(x,
 
   # Add columns dendrogram ----
   if(!is.null(cdend) && show.col.dendro) {
-    # Now plot
     segments(cdend$s.start,
              top.mar+cdend$y/diff(range(cdend[,c(y, yend)]))*line.height,
              cdend$s.end,
@@ -499,7 +532,8 @@ vl_heatmap <- function(x,
                     0)
     # Main heatmap heatkey
     heatkey(col= col,
-            breaks = if(checkClass=="factor") factor(allLvls, allLvls) else breaks,
+            breaks = breaks,
+            labels = if(checkClass=="factor") allLvls else NULL,
             position = show.legend,
             adj.x = adj.x,
             adj.y = adj.y,
@@ -515,13 +549,14 @@ vl_heatmap <- function(x,
       # Annotations heatkey
       rann <- unique(rows[!is.na(annot),.(annot, annot.col)])
       setorderv(rann, "annot")
-      heatkey(col= rann$annot.col,
-              breaks = factor(rann$annot, unique(rann$annot)),
+      heatkey(breaks = as.numeric(rann$annot),
+              col= rann$annot.col,
+              labels = levels(rann$annot),
               position = show.legend,
               adj.x = adj.x,
               adj.y = adj.y,
               cex = legend.cex,
-              main = "Rows")
+              main = row.annotations.title)
     }
 
     # Col annotations
@@ -531,13 +566,14 @@ vl_heatmap <- function(x,
       # Annotations heatkey
       cann <- unique(cols[,.(annot, annot.col)])
       setorderv(cann, "annot")
-      heatkey(col= cann$annot.col,
-              breaks = factor(cann$annot, unique(cann$annot)),
+      heatkey(breaks = as.numeric(cann$annot),
+              col= cann$annot.col,
+              labels = levels(cann$annot),
               position = show.legend,
               adj.x = adj.x,
               adj.y = adj.y,
               cex = legend.cex,
-              main = "Columns")
+              main = col.annotations.title)
     }
   }
 

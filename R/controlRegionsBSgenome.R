@@ -41,6 +41,7 @@ controlRegionsBSgenome <- function(bed,
     .c[, end:= end-width+1]
     # Compute new width
     .c[, width:= end-start+1]
+    .c <- .c[width>0]
     # Randomly sample contigs based on their width
     idx <- sample(nrow(.c), .N, replace = TRUE, prob = .c$width)
     .c <- .c[idx]

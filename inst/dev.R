@@ -66,7 +66,7 @@ if(F)
 {
   file.edit("R/getBSgenomeSize.R")
   file.edit("R/binBSgenome.R")
-  file.edit("R/sampleRegionsBSgenome.R")
+  file.edit("R/controlRegionsBSgenome.R")
   file.edit("R/randomRegionsBSgenome.R")
   file.edit("R/getBSsequence.R")
 }

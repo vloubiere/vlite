@@ -15,6 +15,8 @@ vl_heatmap(
   col.annotations = NULL,
   show.legend = "right",
   legend.title = "Value",
+  row.annotations.title = "Rows",
+  col.annotations.title = "Columns",
   show.numbers = FALSE,
   show.rownames = TRUE,
   show.colnames = TRUE,
@@ -53,11 +55,14 @@ vl_heatmap(
 \item{kmeans.k}{Integer specifying the number of k-means clusters. Defaults= NA (uses hierarchical clustering).}
 
 \item{breaks}{A numeric vector specifying the breakpoints for color mapping.
-Defaults to 21 evenly spaced breaks spanning the range of x.}
+Can either be the length of col (centered breaks) or one element longer (breaks as edges).
+If set to NULL, defaults to the different levels for factors (centered breaks), a diverging vector
+of 21 values (centered on 0) or to 20 values spanning the range of x (breaks as edges).}
 
-\item{col}{A vector of colors corresponding to the values in breaks. If set to NULL,
-rainbow(9)[1:7] is used for factors, a diverging blue-white-red palette for data spanning positive and negative values,
-or a sequential blue-yellow palette for data with a unique sign.}
+\item{col}{A vector of colors corresponding to the values in breaks.
+Can either be the length of breaks (centered breaks) or one element shorter (breaks as edges).
+If set to NULL, rainbow colors are used for factors, a diverging blue-white-red palette for data
+spanning positive and negative values, or a sequential blue-yellow palette for data with a unique sign.}
 
 \item{row.annotations}{A vector of length nrow(x) containing row annotations.}
 
@@ -67,6 +72,10 @@ or a sequential blue-yellow palette for data with a unique sign.}
 Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "right".}
 
 \item{legend.title}{Character string for the legend title. Default= "Value".}
+
+\item{row.annotations.title}{Title for the row annotations legend. Default= "Rows".}
+
+\item{col.annotations.title}{Title for the column annotations legend. Default= "Columns".}
 
 \item{show.numbers}{Logical or matrix; if set to TRUE or a matrix is provided, displays values in cells.}
 

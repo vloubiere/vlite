@@ -3,13 +3,18 @@
 #' Plots a color key (legend) for heatmaps. This function is designed to work alongside heatmap visualizations
 #' and should be called after the main heatmap plot.
 #'
-#' @param breaks A numeric vector (or factors) specifying the breakpoints for color mapping.
-#' @param col A vector of colors corresponding to the values in `breaks`.
-#' @param pos Position of the heatkey. Can either be "right" or "top". Default= "right".
-#' @param adj.x If specified, x plotting positions are adjusted by adj.x * line.width Default= 0.
-#' @param adj.y If specified, y plotting positions are adjusted by adj.y * line height. Default= 0.
+#' @param breaks A numeric vector specifying the breakpoints (edges) for color mapping.
+#' The number of colors in col must be exactly one less than the number of breaks.
+#' @param col A vector of colors, where each color corresponds to the interval between consecutive breakpoints in breaks.
+#' Must have length length(breaks) - 1.
+#' @param labels Labels to be added to the color key. By default, elegant numeric ticks spanning the values in breaks are computed.
+#' If provided as a numeric vector, labels are placed at the corresponding values.
+#' If provided as a character vector of length equal to col, labels are placed at the center of each color interval.
+#' @param position Position of the color key. Either "right" (vertical legend) or "top" (horizontal legend). Default= "right".
+#' @param adj.x If specified, x plotting positions are adjusted by adj.x*line.width. Default= 0.
+#' @param adj.y If specified, y plotting positions are adjusted by adj.y*line.height. Default= 0.
 #' @param thickness Numeric width of the color key in lines. Default= 0.75.
-#' @param length Numeric height of the color key in lines. Default= 4.
+#' @param length Numeric height (if vertical) or width (if horizontal) of the color key in lines. Default= 4.
 #' @param main Character string for the title of the color key. Default= NA.
 #' @param cex Numeric scaling factor for the size of the color key text. Default= 1.
 #'
@@ -17,8 +22,9 @@
 #' Adds a color key to the current plot, at one line of distance from the plot border. No return value.
 #'
 #' @details
-#' The function creates a vertical color key that maps colors to values in your heatmap. The breaks vector defines
-#' the midpoints of the ranges for each color in col. The color key is customizable in terms of position, size, and appearance.
+#' The function creates a color key (legend) that maps colors to value intervals in your heatmap.
+#' The number of colors must be exactly one less than the number of breaks.
+#' Labels can be numeric (placed at the corresponding value) or character (placed at the center of each color interval).
 #'
 #' @examples
 #' # Create example matrix
@@ -32,15 +38,14 @@
 #'
 #' # Basic heatmap with default color key
 #' vl_par()
-#' vl_image(test)
-#' heatkey(col = heat.colors(100), breaks = seq(-3, 3, length.out = 100))
-#'
-#' @seealso
-#' \code{\link{vl_image}} for creating the main heatmap.
+# image(matrix(1:3), breaks= 0:3, col= c("blue", "white", "red"))
+# heatkey(0:3, c("blue", "white", "red"), main = "test", position = "top")
+# heatkey(0:3, c("blue", "white", "red"), main = "test", position = "right")
 #'
 #' @export
 heatkey <- function(breaks,
                     col,
+                    labels= NULL,
                     position= "right",
                     adj.x= 0,
                     adj.y= 0,
@@ -52,29 +57,21 @@ heatkey <- function(breaks,
   # Checks ----
   if(!position %in% c("right", "top"))
     stop("position should be one of 'right' or 'top'.")
-  if(is.numeric(breaks)) {
-    labels <- breaks
-  } else if (is.factor(breaks)) {
-    labels <- levels(breaks)
-    breaks <- as.numeric(breaks)
-  } else
-    stop("breaks vector should either contain numeric values or factors.")
+  if(!is.numeric(breaks))
+    stop("Breaks should be numeric")
+  breaks <- sort(breaks)
+  if(length(breaks)!=length(col)+1)
+    stop("heatkey: must have one more break than color")
+  if(is.null(labels))
+    labels <- axisTicks(range(breaks),
+                        log= F,
+                        nint = 3)
+  if(!is.numeric(labels) && length(labels)!=length(col))
+    stop("labels should either have the  the same length as col or be numeric.")
+  if(is.numeric(labels))
+    labels <- labels[labels>=min(breaks) & labels<=max(breaks)]
 
-  # Compute normalized breaks ----
-  min.break <- min(diff(breaks))
-  span <- diff(range(breaks))
-  norm.breaks <- seq(min(breaks),
-                     max(breaks),
-                     length.out= round(span/min.break)+1)
-
-  # Compute normalized colors ----
-  col <- cut(norm.breaks,
-             c(breaks[1]-1, breaks),
-             include.lowest = T,
-             labels = col)
-  col <- as.character(col)
-
-  # Compute line width and height (used as reference) ----
+  # Compute line width and heigh (used as reference) ----
   line.width <- diff(grconvertX(c(0, 1), "line", "user"))
   line.height <- diff(grconvertY(c(0, 1), "line", "user"))
 
@@ -83,9 +80,7 @@ heatkey <- function(breaks,
     # X pos
     xleft <- mean(par("usr")[1:2])-(length/2*line.width*cex)
     xright <- xleft+length*line.width*cex
-    pos <- seq(xleft,
-               xright,
-               length.out= length(norm.breaks)+1)
+    pos <- (breaks-min(breaks))/diff(range(breaks))*(xright-xleft)+xleft
     xleft <- pos[-length(pos)]
     xright <- pos[-1]
     # Y pos
@@ -98,9 +93,7 @@ heatkey <- function(breaks,
     # Y pos
     ytop <- par("usr")[4]
     ybottom <- ytop-length*line.height*cex
-    pos <- seq(ybottom,
-               ytop,
-               length.out= length(norm.breaks)+1)
+    pos <- (breaks-min(breaks))/diff(range(breaks))*(ytop-ybottom)+ybottom
     ybottom <- pos[-length(pos)]
     ytop <- pos[-1]
   }
@@ -135,19 +128,12 @@ heatkey <- function(breaks,
        offset = 0)
 
   # Compute ticks ----
-  if(is.numeric(labels)) {
-    ticks <- axisTicks(range(breaks),
-                       log= F,
-                       nint = 3)
-    labels <- ticks
-  } else {
-    ticks <- breaks
+  span <- pos[length(pos)]-pos[1]
+  pos.t <- if(is.numeric(labels)) {
+    (labels-min(breaks))/diff(range(breaks))*span+pos[1]
+  } else if(length(labels)==length(col)) {
+    pos[-1]-diff(pos)/2
   }
-
-  # Compute tick positions ----
-  min.pos <- mean(pos[1:2]) # Lowest break
-  max.pos <- mean(rev(pos)[1:2]) # Highest break
-  pos.t <- (ticks-min(breaks))/span*(max.pos-min.pos)+min.pos
 
   # Plot ticks ----
   if(position=="top")
