@@ -211,7 +211,7 @@ vl_heatmap <- function(x,
   if(is.null(col)) {
     col <- if(checkClass=="factor") {
       # Factor
-      rainbow(length(allLvls))(9)[1:7]
+      rainbow(9)[1:7]
     } else if(breaks[1] < 0 & breaks[length(breaks)] > 0) {
       # Positive and negative values
       c("royalblue1", "white", "red")
