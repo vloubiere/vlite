@@ -557,7 +557,7 @@ vl_heatmap <- function(x,
           line = max(c(1, (top.mar-par("usr")[4])/line.height+.25)))
 
   # Return clusters ----
-  obj <- list(rows= rows[order(line.idx), .(name, line.idx, cluster, order, y.pos, annot)],
-              cols= cols[order(column.idx), .(name, column.idx, cluster, order, x.pos, annot)])
+  obj <- list(rows= rows[order(line.idx), .(name, line.idx, cluster, order, y.pos)],
+              cols= cols[order(column.idx), .(name, column.idx, cluster, order, x.pos)])
   invisible(obj)
 }
