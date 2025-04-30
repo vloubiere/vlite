@@ -59,15 +59,14 @@ heatkey <- function(breaks,
     stop("position should be one of 'right' or 'top'.")
   if(!is.numeric(breaks))
     stop("Breaks should be numeric")
-  breaks <- sort(breaks)
   if(length(breaks)!=length(col)+1)
     stop("heatkey: must have one more break than color")
   if(is.null(labels))
     labels <- axisTicks(range(breaks),
                         log= F,
                         nint = 3)
-  if(!is.numeric(labels) && length(labels)!=length(col))
-    stop("labels should either have the  the same length as col or be numeric.")
+  if(length(labels)!=length(col) && !is.numeric(labels))
+    stop("labels should either be the length of col vector or be numeric.")
   if(is.numeric(labels))
     labels <- labels[labels>=min(breaks) & labels<=max(breaks)]
 

@@ -118,7 +118,7 @@ bwHeatmap <- function(bed,
   # Plot ----
   for(i in seq(signal)) {
     # Heatmap
-    vl_heatmap(signal[[i]][ord,],
+    vl_heatmap(x = signal[[i]][ord,],
                cluster.rows = if(is.null(by)) FALSE else sort(by),
                cluster.cols = FALSE,
                show.rownames = FALSE,

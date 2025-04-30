@@ -36,7 +36,7 @@ balloons_plot <- function(size.var,
                           size.legend.breaks= NULL,
                           color.legend.title= NULL)
 {
-  # Checks
+  # Checks ----
   if(is.null(colnames(size.var))) {
     colnames(size.var) <- if(!is.null(colnames(color.var))) {
       colnames(color.var)
@@ -73,7 +73,7 @@ balloons_plot <- function(size.var,
   }
   col <- colorRampPalette(col)(length(color.breaks))
 
-  # Init plot
+  # Init plot ----
   plot(x= col(size.var),
        y= row(size.var),
        type= "n",
@@ -83,7 +83,7 @@ balloons_plot <- function(size.var,
        ylab= NA,
        frame= FALSE)
 
-  # Lines
+  # Lines ----
   segments(1:ncol(size.var),
            1,
            1:ncol(size.var),
@@ -95,7 +95,7 @@ balloons_plot <- function(size.var,
            1:nrow(size.var),
            xpd=T)
 
-  # Compute balloons positions
+  # Compute balloons positions ----
   x <- unlist(col(size.var))
   y <- unlist(row(size.var)[nrow(size.var):1,])
   # Sizes
@@ -105,7 +105,7 @@ balloons_plot <- function(size.var,
   b.col <- Cc(unlist(color.var))
   b.col[is.na(b.col)] <- "lightgrey"
 
-  # Plot balloons
+  # Plot balloons ----
   points(x,
          y,
          col= b.col,
@@ -113,7 +113,7 @@ balloons_plot <- function(size.var,
          cex= abs(sizes)*cex, # Multiply by expansion factor
          xpd= T)
 
-  # Axes
+  # Axes ----
   tiltAxis(x = seq(ncol(size.var)),
            labels = colnames(size.var))
   axis(side= 2,
@@ -122,7 +122,7 @@ balloons_plot <- function(size.var,
        gap.axis= gap.axis,
        lwd= NA)
 
-  # Axes legends
+  # Axes legends ----
   if(!is.null(main))
     title(main= main)
   if(!is.null(xlab))
@@ -130,26 +130,33 @@ balloons_plot <- function(size.var,
   if(!is.null(ylab))
     title(ylab = ylab)
 
-  # Caompute default left position for legend
+  # Caompute default left position for legend ----
   if(is.null(legend.left.pos)) {
     legend.left.pos <- par("usr")[2]+diff(grconvertX(c(0,1), "line", "user"))
   }
 
-  # Add color legend
-  heatkey.line.width <- 4
-  heatkey.top <- par("usr")[4]
-  heatkey(breaks = color.breaks,
+  # Add color legend ----
+  # breaks have to be centered
+  d <- diff(color.breaks)
+  centered.breaks <- c(
+    color.breaks[1] - d[1]/2,
+    (color.breaks[-1] + color.breaks[-length(color.breaks)])/2,
+    color.breaks[length(color.breaks)] + d[length(d)]/2
+  )
+  heatkey(breaks = centered.breaks,
           col = col,
           main = size.legend.title,
           position = "right")
 
-  # Compute size breaks (only affects the legend)
+  # Compute size breaks (only affects the legend) ----
   if(is.null(size.legend.breaks)) {
     size.legend.breaks <- range(unlist(size.var), na.rm= TRUE)
     size.legend.breaks <- axisTicks(size.legend.breaks, log= F, nint = 4)
   }
 
-  # Add sizes legend
+  # Add sizes legend ----
+  heatkey.line.width <- 4
+  heatkey.top <- par("usr")[4]
   heatkey.bot <- heatkey.top-diff(grconvertY(c(0, heatkey.line.width+2), "line", "user"))
   balloonskey(breaks = size.legend.breaks,
               labels = size.legend.breaks,
