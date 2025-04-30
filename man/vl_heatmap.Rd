@@ -46,21 +46,21 @@ vl_heatmap(
 \item{x}{A matrix, data.table or data.frame of numeric values or factors (that will be coerced to numeric) to be displayed as a heatmap.}
 
 \item{cluster.rows}{Logical or vector specifying row clustering:
-* TRUE: perform clustering (default)
-* FALSE: no clustering
-* vector: pre-defined clustering}
+* TRUE: perform clustering (default).
+* FALSE: no clustering.
+* vector: pre-defined clustering. Will be coerced to factors.}
 
 \item{cluster.cols}{Similar to cluster.rows but for columns. Default= FALSE.}
 
-\item{kmeans.k}{Integer specifying the number of k-means clusters. Defaults= NA (uses hierarchical clustering).}
+\item{kmeans.k}{Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).}
 
 \item{breaks}{A numeric vector specifying the breakpoints for color mapping.
-Can either be the length of col (centered breaks) or one element longer (breaks as edges).
-If set to NULL, defaults to the different levels for factors (centered breaks), a diverging vector
+Can either be the length of col (centered breaks) or one element longer (in which case breaks will correspond to edges).
+If set to NULL, defaults to the different levels for factors (centered breaks), a diverging scale
 of 21 values (centered on 0) or to 20 values spanning the range of x (breaks as edges).}
 
 \item{col}{A vector of colors corresponding to the values in breaks.
-Can either be the length of breaks (centered breaks) or one element shorter (breaks as edges).
+Can either be the length of breaks (centered breaks) or one element shorter (breaks used as edges).
 If set to NULL, rainbow colors are used for factors, a diverging blue-white-red palette for data
 spanning positive and negative values, or a sequential blue-yellow palette for data with a unique sign.}
 
@@ -133,43 +133,24 @@ Generates a customizable heatmap with support for hierarchical clustering, k-mea
 dendrograms, and cluster visualization. This function provides advanced options for visualizing
 matrix data with clustering and color-coded annotations.
 }
-\details{
-The function supports:
-- Hierarchical clustering with customizable distance metrics and methods.
-- K-means clustering for rows or columns.
-- Pre-defined clustering for rows or columns.
-- Visualization of dendrograms and color-coded cluster bars.
-
-Color schemes are automatically selected based on the data:
-- For data spanning positive and negative values: blue-white-red.
-- For non-negative data: blue-yellow.
-
-The default behavior for `breaks` is to create 21 evenly spaced intervals spanning the range of `x`.
-If `x` contains both positive and negative values, the range is symmetrically extended around zero.
-}
 \examples{
 # Create example matrix
 set.seed(1234)
 mat <- matrix(rnorm(200), 20, 10)
 colnames(mat) <- paste("Sample", 1:10, sep = "")
 rownames(mat) <- paste("Gene", 1:20, sep = "")
+mat <- round(mat, 2)
 
 # Basic heatmap
 vl_par()
 vl_heatmap(mat)
 
 # Hierarchical clustering
-vl_heatmap(mat, cluster.rows = TRUE, cluster.cols = TRUE)
+vl_heatmap(mat,
+cluster.rows = T,
+cluster.cols = T,
+cutree.rows = 3,
+cutree.cols = 3,
+show.numbers = T)
 
-# K-means clustering
-vl_heatmap(mat, kmeans.k = 3, cluster.cols = TRUE)
-
-# Display cell values
-vl_heatmap(mat, show.numbers = round(mat, 1))
-
-}
-\seealso{
-\code{\link{vl_image}} for the underlying image plotting.
-\code{\link{hclust}} for hierarchical clustering.
-\code{\link{kmeans}} for k-means clustering.
 }

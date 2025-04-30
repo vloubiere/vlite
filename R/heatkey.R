@@ -3,13 +3,12 @@
 #' Plots a color key (legend) for heatmaps. This function is designed to work alongside heatmap visualizations
 #' and should be called after the main heatmap plot.
 #'
-#' @param breaks A numeric vector specifying the breakpoints (edges) for color mapping.
-#' The number of colors in col must be exactly one less than the number of breaks.
-#' @param col A vector of colors, where each color corresponds to the interval between consecutive breakpoints in breaks.
-#' Must have length length(breaks) - 1.
+#' @param breaks A numeric vector specifying the breakpoints for color mapping.
+#' @param col A vector of colors, which can either be the length of breaks (in which case breaks will be centered)
+#'    or have one value less than breaks (in which case breaks will be used as edges).
 #' @param labels Labels to be added to the color key. By default, elegant numeric ticks spanning the values in breaks are computed.
-#' If provided as a numeric vector, labels are placed at the corresponding values.
-#' If provided as a character vector of length equal to col, labels are placed at the center of each color interval.
+#' If numeric labels are provided, they are plotted at the corresponding positions.
+#' If a character vector (or factor levels) of length equal to col is provided, labels are centered between each breaks' intervals.
 #' @param position Position of the color key. Either "right" (vertical legend) or "top" (horizontal legend). Default= "right".
 #' @param adj.x If specified, x plotting positions are adjusted by adj.x*line.width. Default= 0.
 #' @param adj.y If specified, y plotting positions are adjusted by adj.y*line.height. Default= 0.
@@ -27,20 +26,20 @@
 #' Labels can be numeric (placed at the corresponding value) or character (placed at the center of each color interval).
 #'
 #' @examples
-#' # Create example matrix
-#' set.seed(1234)
-#' test <- matrix(rnorm(200), 20, 10)
-#' test[1:10, seq(1, 10, 2)] <- test[1:10, seq(1, 10, 2)] + 3
-#' test[11:20, seq(2, 10, 2)] <- test[11:20, seq(2, 10, 2)] + 2
-#' test[15:20, seq(2, 10, 2)] <- test[15:20, seq(2, 10, 2)] + 4
-#' colnames(test) <- paste("Test", 1:10, sep = "")
-#' rownames(test) <- paste("Gene", 1:20, sep = "")
+#' # Example with the image function
+#' image(matrix(1:3, ncol= 1), col= c("blue", "white", "red"))
 #'
-#' # Basic heatmap with default color key
-#' vl_par()
-# image(matrix(1:3), breaks= 0:3, col= c("blue", "white", "red"))
-# heatkey(0:3, c("blue", "white", "red"), main = "test", position = "top")
-# heatkey(0:3, c("blue", "white", "red"), main = "test", position = "right")
+#' # By default, in this function, breaks are used as edges:
+#' heatkey(0:3, c("blue", "white", "red"), main = "test")
+#'
+#' # But in other situations (for example to emphasize 0 as the middle value), one might prefer to use centered breaks:
+#' breaks <- c(-2.5, -1.5, -0.5, 0.5, 1.5, 2.5)
+#' col <- c("blue", "cornflowerblue", "white", "tomato", "red")
+#' image(matrix(-2:2, ncol= 1), breaks= breaks, col= col)
+#' heatkey(breaks= breaks, col= col, pos= "top", main= "Values")
+#'
+#' # Character also be used for character labels
+#' heatkey(breaks= 1:3, labels= c("A", "B", "C"), col= c("green", "yellow", "purple"), main= "Test")
 #'
 #' @export
 heatkey <- function(breaks,
@@ -59,8 +58,16 @@ heatkey <- function(breaks,
     stop("position should be one of 'right' or 'top'.")
   if(!is.numeric(breaks))
     stop("Breaks should be numeric")
+  if(length(breaks)==length(col)) { # Center breaks if necessary
+    d <- diff(breaks)
+    breaks <- c(
+      breaks[1] - d[1]/2,
+      (breaks[-1] + breaks[-length(breaks)])/2,
+      breaks[length(breaks)] + d[length(d)]/2
+    )
+  }
   if(length(breaks)!=length(col)+1)
-    stop("heatkey: must have one more break than color")
+    stop("heatkey: breaks should be the same length as col or one value longer.")
   if(is.null(labels))
     labels <- axisTicks(range(breaks),
                         log= F,

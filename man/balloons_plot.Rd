@@ -15,9 +15,9 @@ balloons_plot(
   ylab = NULL,
   gap.axis = 0,
   legend.left.pos = NULL,
-  size.legend.title = NULL,
+  size.legend.title = "Size",
   size.legend.breaks = NULL,
-  color.legend.title = NULL
+  color.legend.title = "Color"
 )
 }
 \arguments{

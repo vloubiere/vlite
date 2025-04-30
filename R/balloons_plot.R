@@ -32,9 +32,9 @@ balloons_plot <- function(size.var,
                           ylab= NULL,
                           gap.axis= 0,
                           legend.left.pos= NULL,
-                          size.legend.title= NULL,
+                          size.legend.title= "Size",
                           size.legend.breaks= NULL,
-                          color.legend.title= NULL)
+                          color.legend.title= "Color")
 {
   # Checks ----
   if(is.null(colnames(size.var))) {
@@ -136,16 +136,9 @@ balloons_plot <- function(size.var,
   }
 
   # Add color legend ----
-  # breaks have to be centered
-  d <- diff(color.breaks)
-  centered.breaks <- c(
-    color.breaks[1] - d[1]/2,
-    (color.breaks[-1] + color.breaks[-length(color.breaks)])/2,
-    color.breaks[length(color.breaks)] + d[length(d)]/2
-  )
-  heatkey(breaks = centered.breaks,
+  heatkey(breaks = color.breaks,
           col = col,
-          main = size.legend.title,
+          main = color.legend.title,
           position = "right")
 
   # Compute size breaks (only affects the legend) ----
@@ -160,7 +153,7 @@ balloons_plot <- function(size.var,
   heatkey.bot <- heatkey.top-diff(grconvertY(c(0, heatkey.line.width+2), "line", "user"))
   balloonskey(breaks = size.legend.breaks,
               labels = size.legend.breaks,
-              main = color.legend.title,
+              main = size.legend.title,
               cex= cex,
               left= legend.left.pos,
               top= heatkey.bot)

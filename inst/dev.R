@@ -248,14 +248,8 @@ if(F)
 # Plots --------------------------------
 if(F)
 {
-  # Helper functions
-  file.edit("R/helperFunctions_plots.R")
-
   # Plotting parameters
   file.edit("R/vl_par.R")
-
-  # Function linking values to colors
-  file.edit("R/vl_colorRamp.R")
 
   # Legends
   file.edit("R/tiltAxis.R")
@@ -274,6 +268,7 @@ if(F)
   file.edit("R/vl_boxplot.R")
 
   # Heatmap
+  file.edit("R/helperFunctions_heatmap.R")
   file.edit("R/vl_heatmap.R")
 
   # Alluvial plot
