@@ -4,77 +4,54 @@
 \alias{importBed}
 \title{Import Genomic Ranges in BED Format}
 \usage{
-importBed(bed, extra.columns = NULL)
+importBed(bed, col.names = NULL)
 }
 \arguments{
-\item{bed}{Input genomic ranges in one of these formats:
+\item{bed}{Input genomic ranges in one of the following formats:
 \itemize{
-  \item Character vector of genomic coordinates ("chr:start-end[:strand]")
-  \item File path(s) to .bed, .narrowPeak, or .broadPeak files
-  \item GRanges object
-  \item data.frame or data.table with required columns
+  \item Character vector of genomic coordinates ("chr:start-end[:strand]").
+  \item File path(s) to .bed, .narrowPeak, or .broadPeak files. If several files are provided, they will be catenated.
+  \item GRanges object.
+  \item data.frame or data.table with required columns.
 }}
 
-\item{extra.columns}{Character vector specifying names for additional columns
-in BED files beyond the standard fields. Default is NULL.}
-}
-\value{
-A data.table with standardized columns:
-\itemize{
-  \item seqnames: Chromosome or sequence name (character)
-  \item start: Start position (integer)
-  \item end: End position (integer)
-  \item strand: Strand information (character: "+", "-", or "*")
-  \item Additional columns from input (if any)
-}
+\item{col.names}{Can be used to overwrite default column names.}
 }
 \description{
 A versatile function that imports genomic coordinates from various input formats
-into a standardized data.table. Supports multiple input types including BED files,
-narrowPeak files, GRanges objects, and string coordinates.
+into a standardized data.table. Supports multiple input types including GRanges objects,
+character strings (e.g. "chr2L:30000-31000:-"), .bed, .narrowPeak and .broadPeak
+files (see specifications at https://genome.ucsc.edu/FAQ/FAQformat.html).
 }
 \details{
-Input format handling:
-
-1. BED files (.bed):
-   - Must contain at least chromosome, start, and end columns
-   - Additional columns can be named using extra.columns
-
-2. Peak files (.narrowPeak, .broadPeak):
-   - Automatically recognizes ENCODE peak file formats
-   - Preserves all standard peak columns
-
-3. Character coordinates:
-   - Format: "chr:start-end[:strand]"
-   - Strand is optional (defaults to "*" if not specified)
-   - Example: "chr2L:1000-2000:+" or "chr2L:1000-2000"
-
-4. GRanges objects:
-   - Converts directly to data.table
-   - Preserves metadata columns
-
-5. data.frame/data.table:
-   - Must contain columns: seqnames, start, end
+.bed, .narrowPeak and .broadPeak file specifications can be found at https://genome.ucsc.edu/FAQ/FAQformat.html.
+Character coordinates should follow the syntax "chr:start-end[:strand]" (e.g. "chr2L:1000-2000:+", "chr2L:1000-2000"...).
+GRanges objects are directly converted to data.table and metadata columns are preserved.
+Required columns for data.frames/data.tables are 'seqnames', 'start', 'end'.
    - Strand column is optional
 }
 \examples{
 # Import from character coordinates
-importBed(c("chr2L:1000-2000:+", "chr3L:1000-2000:-", "chr3L:4000-6000:*"))
+importBed(c("chr2L:1000-2000:+", "chr3L:1000-2000:-", "chr3L:4000-6000:*"))[]
 
 # Import from GRanges
 gr <- GRanges("chr2L", IRanges(c(1000, 5000), c(2000, 6000)))
-importBed(gr)
+importBed(gr)[]
 
 # Import single BED file
-bed_file <- system.file("extdata", "Drosophila_transcripts_r6.36.bed",
-                       package = "dtBedTools")
-bed <- importBed(bed_file)
+bed_file <- tempfile(fileext = ".bed")
+rtracklayer::export(gr, bed_file)
+importBed(bed_file)[]
 
 # Import and merge multiple peak files
-peaks1 <- system.file("extdata", "ATAC_control_eye_disc.narrowPeak",
-                     package = "dtBedTools")
-peaks2 <- system.file("extdata", "ATAC_tumor.narrowPeak",
-                     package = "dtBedTools")
-combined_peaks <- importBed(c(peaks1, peaks2))
+file1 <- tempfile(fileext = ".narrowPeak")
+download.file(url = "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE222193&format=file&file#' =GSE222193\%5FCUTandRUN\%5FH3K27Ac\%5FControl\%5Fno\%5Fph\%2DKD\%5Fconfident\%5Fpeaks\%2EnarrowPeak\%2Egz",
+              destfile = file1)
+file2 <- tempfile(fileext = ".narrowPeak")
+download.file(url = "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE222193&format=file&file#' =GSE222193\%5FChIP\%5FPH\%5FControl\%5Fno\%5Fph\%2DKD\%5Fconfident\%5Fpeaks\%2EnarrowPeak\%2Egz",
+              destfile = file2)
+importBed(bed = file1)[]
+importBed(bed = file2)[]
+importBed(bed = c(file1, file2))[]
 
 }

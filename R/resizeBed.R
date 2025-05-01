@@ -1,50 +1,25 @@
 #' Resize Genomic Regions in a BED File
 #'
 #' @description
-#' Adjusts the size of genomic regions in a BED file by extending or contracting them
-#' from a specified origin. Supports strand-aware resizing and flexible centering options.
+#' Adjusts the size of genomic coordinates.
 #'
-#' @param bed Input genomic ranges in a format compatible with `importBed()`. This can include:
-#'   - A character vector of ranges (e.g., `"chr:start-end:strand"`)
-#'   - A `GRanges` object
-#'   - A `data.table` or `data.frame` with columns `seqnames`, `start`, `end`, and optionally `strand`
-#'   - A file path to a `.bed` file
-#' @param center Character. Specifies the origin for resizing. Options are:
+#' @param bed Input genomic ranges in a format compatible with ?importBed().
+#' @param center Specifies the origin for resizing. Options are:
 #' \itemize{
-#'   \item `"center"`: Resize symmetrically around the midpoint of the region (default).
-#'   \item `"start"`: Resize from the start of the region.
-#'   \item `"end"`: Resize from the end of the region.
-#'   \item `"region"`: Extend or contract the entire region's boundaries.
+#'   \item `center`: Resize symmetrically around the midpoint of the region (default).
+#'   \item `start`: Resize from the start of the region.
+#'   \item `end`: Resize from the end of the region.
+#'   \item `region`: Extend or shorten the entire region's boundaries.
 #' }
-#' @param upstream Integer. Number of bases to extend upstream from the specified origin. Default is `500L`.
-#' @param downstream Integer. Number of bases to extend downstream from the specified origin. Default is `500L`.
-#' @param genome A BS genome name ("dm3", "dm6", "mm10") to clip regions exceeding chromosome lengths. Default= NULL.
-#' @param ignore.strand Logical. If `TRUE`, the strand is ignored, and resizing always proceeds
-#'   from the leftmost coordinate. Default is `FALSE`.
+#' @param upstream Integer. Number of bases to extend upstream from the specified origin. Default= 500.
+#' @param downstream Integer. Number of bases to extend downstream from the specified origin. Default= 500L.
+#' @param genome A BS genome name (e.g. "dm6", "mm10").
+#' If specified, resized regions exceeding chromosome lengths will be clipped. Default= NULL.
+#' @param ignore.strand Logical. If set to TRUE, upstream and downstream resizing is performed irrespective
+#' of the strand. Default= FALSE.
 #'
 #' @details
-#' The function allows flexible resizing of genomic regions:
-#' - **Centering options**:
-#'   - `"center"`: Resizes symmetrically around the midpoint of the region.
-#'   - `"start"`: Resizes relative to the start coordinate, respecting strand orientation.
-#'   - `"end"`: Resizes relative to the end coordinate, respecting strand orientation.
-#'   - `"region"`: Extends or contracts the entire region, maintaining its original boundaries.
-#' - **Strand handling**:
-#'   - When `ignore.strand = FALSE`, resizing respects the strand:
-#'     * Positive strand: upstream is subtracted, downstream is added.
-#'     * Negative strand: upstream is added, downstream is subtracted.
-#'   - When `ignore.strand = TRUE`, resizing always proceeds from the leftmost coordinate.
-#'
-#' The function ensures that the resized regions are returned as a properly formatted `data.table`,
-#' preserving any additional columns from the input.
-#'
-#' @return A `data.table` containing the resized genomic ranges with the following columns:
-#' \itemize{
-#'   \item `seqnames`: Chromosome or sequence name
-#'   \item `start`: Resized start position
-#'   \item `end`: Resized end position
-#'   \item Additional columns from the input
-#' }
+#' Resized regions are returned as a gr data.table containing any additional columns from the input.
 #'
 #' @examples
 #' # Import example BED file

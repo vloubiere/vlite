@@ -1,65 +1,31 @@
 #' Export Genomic Ranges to BED Format Files
 #'
 #' @description
-#' Exports genomic coordinates to standard BED, narrowPeak, or broadPeak files.
-#' Automatically handles coordinate conversion and column formatting according to
-#' the specified output format.
+#' Exports genomic ranges as .bed, .narrowPeak or .broadPeak files
+#' File specifications can be found at https://genome.ucsc.edu/FAQ/FAQformat.html.
 #'
-#' @param bed Input genomic ranges in one of these formats:
+#' @param bed Input genomic ranges in one of the following formats:
 #' \itemize{
-#'   \item Character vector of genomic coordinates ("chr:start-end[:strand]")
-#'   \item GRanges object
-#'   \item data.frame/data.table with required columns
-#'   \item Path(s) to existing .bed, .narrowPeak, or .broadPeak files
+#'   \item data.table or data.frame with required columns.
+#'   \item Character vector of genomic coordinates ("chr:start-end[:strand]").
+#'   \item GRanges object.
+#'   \item File path(s) to .bed, .narrowPeak, or .broadPeak files. If several files are provided, they will be catenated.
 #' }
-#' @param file Character. Output file path ending in .bed, .narrowPeak, or .broadPeak
+#' @param file Output file path ending with .bed, .narrowPeak or .broadPeak extensions.
 #'
 #' @details
-#' Output format requirements:
-#'
-#' 1. BED format (.bed):
-#'    - Required columns: seqnames, start
-#'    - Auto-generated if missing:
-#'      * end (set to start position)
-#'      * name (set to ".")
-#'      * score (set to NA)
-#'      * strand (set to ".")
-#'
-#' 2. narrowPeak format (.narrowPeak):
-#'    - Required columns:
-#'      * seqnames (chr)
-#'      * start (integer)
-#'      * end (integer)
-#'      * name (character)
-#'      * score (numeric)
-#'      * strand (character)
-#'      * signalValue (numeric)
-#'      * pValue (numeric)
-#'      * qValue (numeric)
-#'      * peak (integer)
-#'
-#' 3. broadPeak format (.broadPeak):
-#'    - Same as narrowPeak but without the 'peak' column
-#'
-#' Note: Start coordinates are automatically converted to 0-based format
-#' as required by BED specification.
-#'
-#' @return Writes a tab-delimited file to the specified path. No return value.
+#' Upon saving, 1-based start coordinates will be converted to 0-based, following BED format specifications.
 #'
 #' @examples
-#' # Export simple BED format
+#' # Export simple BED format:
 #' bed <- data.table(seqnames = "chr2L",
 #'                   start = 1000,
 #'                   end = 2000,
 #'                   strand = "+")
 #' exportBed(bed, file = "test.bed")
-#' importBed("test.bed")[]
-#'
-#' # Export from character coordinates
 #' exportBed("chr3R:1000-2000:+", file = "test.bed")
-#' importBed("test.bed")[]
 #'
-#' # Export narrowPeak format (requires all columns)
+#' # Export narrowPeak format:
 #' peak_data <- data.table(
 #'   seqnames = "chr2L",
 #'   start = 1000,
@@ -77,67 +43,38 @@
 #' @export
 exportBed <- function(bed, file)
 {
-  # Check output type
+  # Output type
   type <- gsub(".*[.](.*)$", "\\1", file)
+  if(!type %in% c("bed", "narrowPeak", "broadPeak"))
+    stop("Path should have .bed, .narrowPeak or .broadPeak extension.")
 
-  # Import file
+  # Import file (also checks columns classes are correct)
   current <- importBed(bed)
-
-  # Format required columns
-  if(type=="bed")
-  {
-    # Check format
-    if(!all(c("seqnames", "start") %in% names(current)))
-      stop("seqnames and start columns are required!")
-    # Add missing columns
+  
+  # Add missing columns for bed format
+  if(type=="bed") {
     if(!"end" %in% names(current)) current[, end := as.integer(start)]
     if(!"name" %in% names(current)) current[, name := as.character(".")]
     if(!"score" %in% names(current)) current[, score := as.numeric(NA)]
     if(!"strand" %in% names(current)) current[, strand := as.character(".")]
-    # Order columns
-    col.names <- c("seqnames", "start", "end", "name", "score", "strand")
-    setcolorder(current, col.names)
-  }else if(type=="narrowPeak")
-  {
-    # Check all required columns exist
-    col.names <- c("seqnames", "start", "end", "name", "score", "strand", "signalValue", "pValue", "qValue", "peak")
-    if(!all(col.names %in% names(current)))
-      stop(paste("Missing columns for narrowPeak format:",
-                 paste0(setdiff(col.names, names(current)), collapse = ", ")))
-    # Check columns classes
-    current[, seqnames:= as.character(seqnames)]
-    current[, start:= as.integer(start)]
-    current[, end:= as.integer(end)]
-    current[, name:= as.character(name)]
-    current[, score:= as.numeric(score)]
-    current[, strand:= as.character(strand)]
-    current[, signalValue:= as.numeric(signalValue)]
-    current[, pValue:= as.numeric(pValue)]
-    current[, qValue:= as.numeric(qValue)]
-    current[, peak:= as.integer(peak)]
-    # Order
-    current <- current[, (col.names), with= FALSE]
-  }else if(type=="broadPeak")
-  {
-    # Check all required columns exist
-    col.names <- c("seqnames", "start", "end", "name", "score", "strand", "signalValue", "pValue", "qValue")
-    if(!all(col.names %in% names(current)))
-      stop(paste("Missing columns for braodPeak format:",
-                 paste0(setdiff(col.names, names(current)), collapse = ", ")))
-    # Check columns classes
-    current[, seqnames:= as.character(seqnames)]
-    current[, start:= as.integer(start)]
-    current[, end:= as.integer(end)]
-    current[, name:= as.character(name)]
-    current[, score:= as.numeric(score)]
-    current[, strand:= as.character(strand)]
-    current[, signalValue:= as.numeric(signalValue)]
-    current[, pValue:= as.numeric(pValue)]
-    current[, qValue:= as.numeric(qValue)]
-    # Order
-    current <- current[, (col.names), with= FALSE]
-  }else
-    stop("Path should have .bed, .narrowPeak or .broadPeak extension")
+  }
+
+  # Check if required columns exist
+  col.names <- if(type=="bed") {
+    c("seqnames", "start", "end", "name", "score", "strand")
+  } else if(type=="broadPeak") {
+    c("seqnames", "start", "end", "name", "score", "strand", "signalValue", "pValue", "qValue")
+  } else if(type=="narrowPeak") {
+    c("seqnames", "start", "end", "name", "score", "strand", "signalValue", "pValue", "qValue", "peak")
+  }
+  if(!all(col.names %in% names(current))) {
+    missing.cols <- setdiff(col.names, names(current))
+    missing.cols <- paste0(missing.cols, collapse = ", ")
+    stop(paste("Missing columns for" , type, "format:", missing.cols))
+  }
+  
+  # Select columns and order them
+  current <- current[, (col.names), with= FALSE]
 
   # Convert start to 0 base and make sure coor are integers
   current[, start:= start-1]

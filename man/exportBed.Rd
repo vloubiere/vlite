@@ -7,68 +7,33 @@
 exportBed(bed, file)
 }
 \arguments{
-\item{bed}{Input genomic ranges in one of these formats:
+\item{bed}{Input genomic ranges in one of the following formats:
 \itemize{
-  \item Character vector of genomic coordinates ("chr:start-end[:strand]")
-  \item GRanges object
-  \item data.frame/data.table with required columns
-  \item Path(s) to existing .bed, .narrowPeak, or .broadPeak files
+  \item data.table or data.frame with required columns.
+  \item Character vector of genomic coordinates ("chr:start-end[:strand]").
+  \item GRanges object.
+  \item File path(s) to .bed, .narrowPeak, or .broadPeak files. If several files are provided, they will be catenated.
 }}
 
-\item{file}{Character. Output file path ending in .bed, .narrowPeak, or .broadPeak}
-}
-\value{
-Writes a tab-delimited file to the specified path. No return value.
+\item{file}{Output file path ending with .bed, .narrowPeak or .broadPeak extensions.}
 }
 \description{
-Exports genomic coordinates to standard BED, narrowPeak, or broadPeak files.
-Automatically handles coordinate conversion and column formatting according to
-the specified output format.
+Exports genomic ranges as .bed, .narrowPeak or .broadPeak files
+File specifications can be found at https://genome.ucsc.edu/FAQ/FAQformat.html.
 }
 \details{
-Output format requirements:
-
-1. BED format (.bed):
-   - Required columns: seqnames, start
-   - Auto-generated if missing:
-     * end (set to start position)
-     * name (set to ".")
-     * score (set to NA)
-     * strand (set to ".")
-
-2. narrowPeak format (.narrowPeak):
-   - Required columns:
-     * seqnames (chr)
-     * start (integer)
-     * end (integer)
-     * name (character)
-     * score (numeric)
-     * strand (character)
-     * signalValue (numeric)
-     * pValue (numeric)
-     * qValue (numeric)
-     * peak (integer)
-
-3. broadPeak format (.broadPeak):
-   - Same as narrowPeak but without the 'peak' column
-
-Note: Start coordinates are automatically converted to 0-based format
-as required by BED specification.
+Upon saving, 1-based start coordinates will be converted to 0-based, following BED format specifications.
 }
 \examples{
-# Export simple BED format
+# Export simple BED format:
 bed <- data.table(seqnames = "chr2L",
                   start = 1000,
                   end = 2000,
                   strand = "+")
 exportBed(bed, file = "test.bed")
-importBed("test.bed")[]
-
-# Export from character coordinates
 exportBed("chr3R:1000-2000:+", file = "test.bed")
-importBed("test.bed")[]
 
-# Export narrowPeak format (requires all columns)
+# Export narrowPeak format:
 peak_data <- data.table(
   seqnames = "chr2L",
   start = 1000,

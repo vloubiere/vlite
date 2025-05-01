@@ -8,35 +8,30 @@ importBamRaw(
   file,
   extra_arg,
   headN,
-  samtools_exe_path = "/software/2020/software/samtools/1.9-foss-2018b/bin/samtools view"
+  samtools_exe_path = "/software/2020/software/samtools/1.9-foss-2018b/bin/samtools"
 )
 }
 \arguments{
 \item{file}{A character string specifying the path to the BAM file.}
 
-\item{extra_arg}{Additional arguments to pass to `samtools view`. Optional.}
+\item{extra_arg}{Optional extra arguments that will be passed to `samtools view`.}
 
-\item{headN}{An integer specifying the number of starting lines to import. Optional.}
+\item{headN}{An integer specifying the number of starting lines to import. By default, all reads will be processed.}
 
-\item{samtools_exe_path}{A character string specifying the path to the `samtools` executable.
-Defaults to `/software/2020/software/samtools/1.9-foss-2018b/bin/samtools view`.}
+\item{samtools_exe_path}{A character string specifying the path to the samtools executable.
+Default= "/software/2020/software/samtools/1.9-foss-2018b/bin/samtools".}
 }
 \value{
 A data table containing the imported BAM file.
 }
 \description{
-Uses `samtools` to import a BAM file and reads the output into R using `fread`.
+Uses samtools to import a BAM file and reads the output into R using fread.
 }
 \examples{
-\dontrun{
 # Import a BAM file
 importBamRaw("path/to/bam/file.bam")
 
 # Import with additional arguments
-importBamRaw("path/to/bam/file.bam", extra_arg = "-f 4")
-
-# Import only the first 100 lines
-importBamRaw("path/to/bam/file.bam", headN = 100)
-}
+importBamRaw("path/to/bam/file.bam", extra_arg = "-f 4", headN = 100)
 
 }

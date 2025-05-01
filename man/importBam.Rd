@@ -15,25 +15,23 @@ importBam(
 \arguments{
 \item{file}{A character string specifying the path to the BAM file.}
 
-\item{sel}{A character vector specifying the columns to import. Defaults to `Rsamtools::scanBamWhat()`.}
+\item{sel}{A character vector specifying the columns to import. Defaults to Rsamtools::scanBamWhat().}
 
 \item{new.col.names}{A character vector specifying the new column names for the imported data.
 Defaults to `c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "cigar",
 "mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore", "groupID", "mate_status")`.}
 }
 \value{
-A `data.table` containing the content of the BAM file with the specified columns and column names.
+A data.table containing the content of the BAM file with the specified columns and column names.
 }
 \description{
-Imports a BAM file using `Rsamtools` and returns its content as a `data.table`.
+Imports a BAM file using Rsamtools and returns its content as a data.table.
 }
 \examples{
-\dontrun{
-# Import a BAM file with default columns
-importBam("path/to_bam_file")
+# Import a BAM file with all default columns
+importBam(file= "path/to_bam_file")
 
-# Import a BAM file with custom columns
-importBam("path/to_bam_file", sel = c("qname", "flag"), new.col.names = c("readID", "samFlag"))
-}
+# Import specific columns columns
+importBam(file= "path/to_bam_file", sel = c("qname", "flag"), new.col.names = c("readID", "samFlag"))
 
 }

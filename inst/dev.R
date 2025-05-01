@@ -1,5 +1,5 @@
 setwd("/groups/stark/vloubiere/vlite/")
-devtools::load_all("/groups/stark/vloubiere/vlite/")
+devtools::load_all("./")
 # file.edit("inst/test.R")
 
 # Tests/wip --------------------------------
@@ -26,7 +26,7 @@ if(F)
   file.edit("R/importBed.R")
   file.edit("R/exportBed.R")
 
-  # Standalone funcitons
+  # Standalone functions
   file.edit("R/resizeBed.R")
   file.edit("R/collapseBed.R")
   file.edit("R/closestBed.R")
