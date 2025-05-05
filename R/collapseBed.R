@@ -1,43 +1,20 @@
 #' Collapse or Merge Overlapping Genomic Ranges
 #'
 #' @description
-#' Merges genomic ranges that are within a specified distance of each other or overlap.
-#' Provides options for strand-specific merging and index tracking of merged regions.
+#' Merges overlapping genomic ranges.
 #'
-#' @param bed Input genomic ranges in any format compatible with `importBed()`:
-#' \itemize{
-#'   \item Character vector of ranges ("chr:start-end[:strand]")
-#'   \item GRanges object
-#'   \item data.frame/data.table with required columns
-#'   \item Path to a BED file
-#' }
+#' @param bed Input genomic ranges in any format compatible with ?importBed().
 #' @param max.gap Integer. Maximum distance between features to be merged:
 #' \itemize{
 #'   \item Positive value: Merges features separated by ≤ max.gap bases
 #'   \item Zero: Merges only touching or overlapping features
 #'   \item Negative value: Requires overlap of ≥ |max.gap| bases to merge
 #' }
-#' Default is `0L` (merge touching or overlapping features).
-#' @param return.idx.only Logical. If `TRUE`, returns indices of merged regions
-#'   instead of collapsing them. Default is `FALSE`.
-#' @param ignore.strand Logical. If `TRUE`, merges regions regardless of strand.
-#'   If `FALSE`, only merges regions on the same strand. Default is `TRUE`.
-#'
-#' @details
-#' The function performs iterative merging of genomic regions:
-#'
-#' **Merging Process**:
-#' 1. Sorts regions by chromosome and coordinates
-#' 2. Identifies adjacent or overlapping regions based on `max.gap`
-#' 3. Iteratively merges regions until no more merging is possible
-#'
-#' **Strand Handling**:
-#' - When `ignore.strand = TRUE`: Merges regions based only on genomic coordinates
-#' - When `ignore.strand = FALSE`: Merges regions only if they are on the same strand
-#'
-#' **Output Options**:
-#' - With `return.idx.only = FALSE`: Returns merged regions
-#' - With `return.idx.only = TRUE`: Returns original regions with merge group indices
+#' Default= 0L (merge touching or overlapping features).
+#' @param return.idx.only If set to TRUE, returns the indices of merged regions
+#'   instead of collapsing them. Default= FALSE.
+#' @param ignore.strand If set to FALSE, only overlapping regions that are on the same strand
+#' are merged. If set to TRUE (default), regions are merged regardless of their strand.
 #'
 #' @return Depends on `return.idx.only`:
 #' \itemize{
@@ -48,35 +25,38 @@
 #'     - strand: Strand (if present in input and `ignore.strand = FALSE`)
 #'   \item If `TRUE`: A vector of indices indicating which regions were merged together
 #' }
-#'
+#' 
 #' @examples
 #' # Create example regions
 #' bed <- importBed(c(
 #'   "chr2R:1000-2000:+",  # Region 1
-#'   "chr2R:1500-2500:-",  # Region 2 (overlaps Region 1)
-#'   "chr2R:3000-4000:+"   # Region 3 (separate)
+#'   "chr2R:1500-2500:+",  # Region 2 (overlaps Region 1)
+#'   "chr2R:1500-2500:-",  # Region 3 (overlaps Region 1, but different strand)
+#'   "chr2R:3000-4000:+"   # Region 4 (500 bp away from region 2)
 #' ))
 #'
-#' # Merge overlapping regions (strand-agnostic)
+#' # Merge overlapping regions with the same strand (3 merge regions)
 #' collapseBed(bed)
-#'
-#' # Merge regions considering strand
-#' collapseBed(bed, ignore.strand = FALSE)
-#'
-#' # Get merge indices instead of merging
+#' 
+#' # Get merge indices instead of merging ()
 #' collapseBed(bed, return.idx.only = TRUE)
+#' 
+#' # Ignore strand (2 merged regions)
+#' collapseBed(bed, ignore.strand = TRUE)
 #'
-#' # Merge regions within 500bp of each other
-#' collapseBed(bed, max.gap = 500)
+#' # Merge regions within 450/500bp of each other
+#' collapseBed(bed, max.gap = 450) # 3 merged regions
+#' collapseBed(bed, max.gap = 500) # 2 merged regions
 #'
-#' # Merge only regions with at least 100bp overlap
-#' collapseBed(bed, max.gap = -100)
+#' # Merge only regions with at least 600/100bp overlap
+#' collapseBed(bed, max.gap = -600) # 4 merged regions
+#' collapseBed(bed, max.gap = -100) # 3 merged regions
 #'
 #' @export
 collapseBed <- function(bed,
                         max.gap= 0L,
-                        return.idx.only= F,
-                        ignore.strand= TRUE)
+                        return.idx.only= FALSE,
+                        ignore.strand= FALSE)
 {
   # Import Bed ----
   bed <- importBed(bed)

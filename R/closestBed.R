@@ -5,23 +5,17 @@
 #' similar to `bedtools closest`. Supports strand-aware distance calculations,
 #' multiple closest features, and distance filtering.
 #'
-#' @param a Query regions in any format compatible with `importBed()`:
-#' \itemize{
-#'   \item Character vector of ranges ("chr:start-end[:strand]")
-#'   \item GRanges object
-#'   \item data.frame/data.table with required columns
-#'   \item Path to a BED file
-#' }
-#' @param b Target regions in same format as `a`. These are the features
-#'   to find closest to regions in `a`.
-#' @param n Integer. Number of closest features to report for each query region.
-#'   Default is `1`.
-#' @param min.dist Integer. Minimum absolute distance required between features.
-#'   Features closer than this are excluded. Default is `0L`.
-#' @param max.dist Integer. Maximum absolute distance allowed between features.
-#'   Features farther than this are excluded. Default is `Inf`.
-#' @param ignore.strand Logical. If `TRUE`, finds closest features regardless of strand.
-#'   If `FALSE`, only considers features on matching strands. Default is `TRUE`.
+#' @param a Query regions in any format compatible with ?importBed().
+#' @param b Target regions in any format compatible with ?importBed().
+#' @param n Number of closest features to report for each query region.
+#' Default= 1L.
+#' @param min.dist Minimum absolute distance allowed between features. Default= 0L,
+#' meaning that both overlapping (dist = 0) and non-overlapping (dist > 0) features will be reported.
+#' @param max.dist Maximum absolute distance allowed between features.
+#'   Features farther than this are excluded. Default= Inf.
+#' @param ignore.strand If set to FALSE, only closest features that are on the same strand will be considered.
+#' If set to TRUE (default), closest features are reported regardless of their strand, and their relative
+#' positions will be stored using the sign of the 'dist' column (see details).
 #'
 #' @details
 #' **Distance Calculation**:
