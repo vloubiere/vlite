@@ -1,93 +1,24 @@
 #' Calculate Feature Coverage Across Genomic Intervals
 #'
 #' @description
-#' Counts overlapping features from a target set for each interval in a query set.
-#' Supports both strand-aware and strand-agnostic counting, similar to
-#' `bedtools coverage`.
+#' For each genomic range in a, counts the number of overlapping genomic ranges in b.
 #'
-#' @param a Query regions in any format compatible with `importBed()`:
-#' \itemize{
-#'   \item Character vector of ranges ("chr:start-end[:strand]")
-#'   \item GRanges object
-#'   \item data.frame/data.table with required columns
-#'   \item Path to a BED file
-#' }
-#' @param b Target regions in same format as `a`. These features are counted
-#'   when they overlap regions in `a`.
-#' @param ignore.strand Logical. If `TRUE`, counts overlaps regardless of strand.
-#'   If `FALSE`, only counts features on matching strands. Default is `TRUE`.
+#' @param a Query regions in any format compatible with ?importBed().
+#' @param b Target regions in any format compatible with ?importBed().
+#' @param ignore.strand If set to FALSE, only features that are on the same strand will be counted.
+#' If set to TRUE (default), overlapping feature on both strands are counted.
 #'
-#' @details
-#' **Coverage Calculation**:
-#'
-#' For each region in `a`:
-#' - Identifies all overlapping features from `b`
-#' - Counts number of distinct overlapping features
-#' - Reports 0 for regions with no overlaps
-#'
-#' **Strand Handling**:
-#'
-#' - When `ignore.strand = TRUE`:
-#'   * Counts all overlapping features
-#'   * Useful for strand-independent analyses
-#' - When `ignore.strand = FALSE`:
-#'   * Only counts features on matching strands
-#'   * Required for strand-specific analyses
-#'
-#' **Overlap Definition**:
-#'
-#' Features are counted if they:
-#' - Share the same chromosome
-#' - Have any overlap in coordinates
-#' - Match strands (if `ignore.strand = FALSE`)
-#'
-#' @return A numeric vector where:
-#' \itemize{
-#'   \item Length equals number of regions in `a`
-#'   \item Each value represents number of overlapping features from `b`
-#'   \item Values ≥ 0 (0 indicates no overlapping features)
-#' }
+#' @return A numeric vector of length nrow(a) corresponding, for each region in a, to the number
+#' of overlapping regions in b. 0 means no overlaps.
 #'
 #' @examples
 #' # Create example regions
-#' query <- importBed(c(
-#'   "chr1:100-300:+",  # Region with multiple overlaps
-#'   "chr1:400-500:-",  # Region with strand-specific overlap
-#'   "chr2:100-200:+"   # Region with no overlaps
-#' ))
+#' a <- importBed(c("chr1:100-300:+", "chr1:400-500:-", "chr2:100-200:+"))
+#' b <- importBed(c("chr1:50-150:+", "chr1:200-250:+", "chr1:400-450:-", "chr1:400-450:+", "chr3:100-200:+"))
 #'
-#' features <- importBed(c(
-#'   "chr1:50-150:+",    # Overlaps first region
-#'   "chr1:200-250:+",   # Overlaps first region
-#'   "chr1:400-450:-",   # Overlaps second region (strand-specific)
-#'   "chr1:400-450:+",   # Overlaps second region (opposite strand)
-#'   "chr3:100-200:+"    # No overlaps with query
-#' ))
-#'
-#' # Count all overlapping features
-#' strand_agnostic <- covBed(query, features)
-#' print("Strand-agnostic coverage:")
-#' print(strand_agnostic)
-#'
-#' # Count only same-strand features
-#' strand_specific <- covBed(query, features, ignore.strand = FALSE)
-#' print("Strand-specific coverage:")
-#' print(strand_specific)
-#'
-#' # Complex example with nested features
-#' complex_query <- importBed(c(
-#'   "chr1:100-500:+"    # Large region containing multiple features
-#' ))
-#'
-#' complex_features <- importBed(c(
-#'   "chr1:150-200:+",   # Contained within query
-#'   "chr1:300-350:+",   # Contained within query
-#'   "chr1:400-600:+"    # Partially overlaps query
-#' ))
-#'
-#' complex_coverage <- covBed(complex_query, complex_features)
-#' print("Complex coverage example:")
-#' print(complex_coverage)
+#' # Count overlapping features
+#' covBed(a, b)
+#' covBed(a, b, ignore.strand = FALSE)
 #'
 #' @export
 covBed <- function(a,

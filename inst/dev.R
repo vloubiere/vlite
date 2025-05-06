@@ -31,9 +31,9 @@ if(F)
   file.edit("R/collapseBed.R")
   file.edit("R/closestBed.R")
   file.edit("R/binBed.R")
+  file.edit("R/overlapBed.R")
 
   # Functions using overlapBed
-  file.edit("R/overlapBed.R")
   file.edit("R/covBed.R")
   file.edit("R/intersectBed.R")
   file.edit("R/subtractBed.R")

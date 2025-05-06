@@ -3,8 +3,8 @@
 #' @description
 #' Merges overlapping genomic ranges.
 #'
-#' @param bed Input genomic ranges in any format compatible with ?importBed().
-#' @param max.gap Integer. Maximum distance between features to be merged:
+#' @param bed Input regions in any format compatible with ?importBed().
+#' @param max.gap Maximum distance between features to be merged:
 #' \itemize{
 #'   \item Positive value: Merges features separated by ≤ max.gap bases
 #'   \item Zero: Merges only touching or overlapping features
@@ -14,26 +14,22 @@
 #' @param return.idx.only If set to TRUE, returns the indices of merged regions
 #'   instead of collapsing them. Default= FALSE.
 #' @param ignore.strand If set to FALSE, only overlapping regions that are on the same strand
-#' are merged. If set to TRUE (default), regions are merged regardless of their strand.
+#' are merged. If set to TRUE (default), regions are merged irrespective of their strand.
 #'
-#' @return Depends on `return.idx.only`:
+#' @return
+#' If return.idx.only = FALSE: a gr data.table with columns:
 #' \itemize{
-#'   \item If `FALSE`: A data.table of merged regions with columns:
-#'     - seqnames: Chromosome name
-#'     - start: Start position of merged region
-#'     - end: End position of merged region
-#'     - strand: Strand (if present in input and `ignore.strand = FALSE`)
-#'   \item If `TRUE`: A vector of indices indicating which regions were merged together
+#'   \item seqnames: chromosome or sequence name.
+#'   \item start: start position of merged region.
+#'   \item end: end position of merged region.
+#'   \item strand: strand (if present in input and ignore.strand = FALSE).
 #' }
+#' If return.idx.only = TRUE: a vector of run-length type id indicating which regions
+#' belong to the same contig and could be merged.
 #' 
 #' @examples
 #' # Create example regions
-#' bed <- importBed(c(
-#'   "chr2R:1000-2000:+",  # Region 1
-#'   "chr2R:1500-2500:+",  # Region 2 (overlaps Region 1)
-#'   "chr2R:1500-2500:-",  # Region 3 (overlaps Region 1, but different strand)
-#'   "chr2R:3000-4000:+"   # Region 4 (500 bp away from region 2)
-#' ))
+#' bed <- importBed(c("chr2R:1000-2000:+", "chr2R:1500-2500:+", "chr2R:1500-2500:-", "chr2R:3000-4000:+"))
 #'
 #' # Merge overlapping regions with the same strand (3 merge regions)
 #' collapseBed(bed)
@@ -56,7 +52,7 @@
 collapseBed <- function(bed,
                         max.gap= 0L,
                         return.idx.only= FALSE,
-                        ignore.strand= FALSE)
+                        ignore.strand= TRUE)
 {
   # Import Bed ----
   bed <- importBed(bed)

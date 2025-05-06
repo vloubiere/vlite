@@ -4,106 +4,40 @@
 \alias{clipBed}
 \title{Clip Genomic Regions to Defined Limits}
 \usage{
-clipBed(a, b, min.width = 1, ignore.strand = TRUE)
+clipBed(a, b, min.width = 1L, ignore.strand = TRUE)
 }
 \arguments{
-\item{a}{Query regions in any format compatible with `importBed()`:
-\itemize{
-  \item Character vector of ranges ("chr:start-end[:strand]")
-  \item GRanges object
-  \item data.frame/data.table with required columns
-  \item Path to a BED file
-}}
+\item{a}{Query regions in any format compatible with ?importBed().}
 
-\item{b}{Target regions in same format as `a`. These regions define the
-boundaries for clipping regions in `a`.}
+\item{b}{Target regions in any format compatible with ?importBed().}
 
-\item{min.width}{Integer. Minimum width required for resulting clipped regions.
-Regions smaller than this are discarded. Default is `1L`.}
+\item{min.width}{Integer specifying the minimum width required for clipped regions.
+Regions smaller than this are discarded. Default= 1L.}
 
-\item{ignore.strand}{Logical. If `TRUE`, clips regions regardless of strand.
-If `FALSE`, only clips regions on matching strands. Default is `TRUE`.}
+\item{ignore.strand}{If set to FALSE, only clips at boundaries that are on the same strand.
+If set to TRUE (default), clips boundaries regardless of their strands.}
 }
 \value{
-A data.table containing:
-\itemize{
-  \item Clipped portions of regions from `a`.
-  \item All original columns from `a` preserved.
-  \item Coordinates adjusted to reflect clipping.
-  \item Only regions meeting minimum width requirement.
-}
+A gr data.table containing the remaining portions of a, after clipping them using the boundaries
+defined in b.
 }
 \description{
-Clips genomic regions in `a` to the boundaries defined by regions in `b`.
-This function is useful for restricting regions in `a` to valid genomic
+Clips genomic regions in a to the boundaries defined by regions in b.
+This function is used for restricting regions in a to valid genomic
 boundaries, such as chromosome limits or other predefined regions.
-}
-\details{
-**Clipping Process**:
-
-1. Overlapping regions in `b` are first merged.
-2. For each region in `a`:
-   - Identifies overlaps with merged `b` regions.
-   - Clips `a` regions to the boundaries of overlapping `b` regions.
-   - Discards regions smaller than `min.width`.
-
-**Strand Handling**:
-
-- When `ignore.strand = TRUE`:
-  * Clips regions regardless of strand.
-  * Useful for strand-independent analyses.
-- When `ignore.strand = FALSE`:
-  * Only clips regions on matching strands.
-  * Preserves strand-specific information.
-
-**Width Filtering**:
-
-- Regions are filtered after clipping.
-- Only regions ≥ `min.width` are retained.
-- Prevents creation of very small fragments.
 }
 \examples{
 # Create example regions
-query <- importBed(c(
-  "chr1:100-500:+",    # Large region to clip
-  "chr1:700-900:-",    # Region with strand
-  "chr2:100-300:+"     # No overlaps
-))
+a <- importBed(c("chr1:100-500:+"))
+b <- importBed(c("chr1:200-300:+", "chr1:400-450:-", "chr1:425-475:-"))
 
-boundaries <- importBed(c(
-  "chr1:200-300:+",    # Internal region
-  "chr1:400-600:+",    # Overlaps end
-  "chr1:700-800:-",    # Same strand as second region
-  "chr1:700-800:+"     # Different strand from second region
-))
+# Basic example
+clipBed(a, b)
 
-# Basic clipping (strand-agnostic)
-result <- clipBed(query, boundaries)
-print("Clipped regions:")
-print(result)
+# Require minimum width of 100bp
+clipBed(a, b, min.width= 100)
 
-# Strand-specific clipping
-strand_result <- clipBed(query, boundaries,
-                        ignore.strand = FALSE)
-print("Strand-specific clipping:")
-print(strand_result)
-
-# Require minimum width of 50bp
-min_width_result <- clipBed(query, boundaries,
-                           min.width = 50L)
-print("Regions ≥50bp after clipping:")
-print(min_width_result)
-
-# Complex example with multiple overlaps
-complex_query <- importBed("chr1:100-1000:+")
-complex_boundaries <- importBed(c(
-  "chr1:200-300:+",    # Creates gap in middle
-  "chr1:400-500:+",    # Creates second gap
-  "chr1:900-1100:+"    # Overlaps end
-))
-
-complex_result <- clipBed(complex_query, complex_boundaries)
-print("Complex clipping result:")
-print(complex_result)
+# Strand-specific
+clipBed(a, b, ignore.strand = FALSE)
 
 }

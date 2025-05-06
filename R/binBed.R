@@ -1,123 +1,93 @@
 #' Bin Genomic Regions into Fixed-Size or Sliding Windows
 #'
 #' @description
-#' Creates fixed-size or sliding window bins from genomic regions. Supports both
-#' equal-division binning and sliding window approaches, with options for
-#' strand-awareness and centered binning.
+#' Creates fixed-size or sliding window bins from genomic ranges. Supports both
+#' equal-division binning and sliding window approaches.
 #'
-#' @param bed Input genomic ranges in any format compatible with `importBed()`:
-#' \itemize{
-#'   \item Character vector of ranges ("chr:start-end[:strand]")
-#'   \item GRanges object
-#'   \item data.frame/data.table with required columns
-#'   \item Path to a BED file
-#' }
-#' @param nbins Integer. Number of equal-sized bins per region. If specified,
-#'   `bins.width` is ignored.
-#' @param bins.width Integer. Size of each bin in base pairs. Used only when
-#'   `nbins` is not specified.
-#' @param steps.width Integer. Distance between starts of consecutive bins.
-#'   Default equals `bins.width` (non-overlapping bins). Smaller values create
-#'   overlapping bins.
-#' @param bins.width.min Logical. If `TRUE`, only returns complete bins matching
-#'   `bins.width` exactly. Default is `FALSE`.
-#' @param centered Logical. If `TRUE`, centers bins around region midpoints.
-#'   Default is `FALSE`.
-#' @param ignore.strand Logical. If `TRUE`, bins left-to-right regardless of
-#'   strand. Default is `FALSE`.
+#' @param bed Input genomic ranges in any format compatible with ?importBed().
+#' @param nbins Integer specifying the number of equal-sized bins in which each region is divided.
+#' @param center.nbins If set to TRUE, bins are centered around the regions' midpoints. If set to
+#' FALSE (default), the first bin will start from the most upstream coordinate.
+#' Only meaningful when nbins is specified.
+#' @param bins.width Integer specifying the width of the bins in which each region is divided. 
+#' Used only when nbins is not specified. See bins.width.min for handling shorter bins
+#' near bed boundaries. 
+#' @param steps.width Integer specifying the distance between starts of consecutive bins. Used in
+#' combination with bins.width. Default= bins.width, resulting in non-overlapping bins.
+#' Smaller values create overlapping bins.
+#' If specified, bins.width is ignored.
+#' @param bins.width.min If set to TRUE, only bins matching the size specified in bins.width
+#' are returned. This is useful to exclude shorter bins nearby regions' boundaries.
+#' Default= FALSE.
+#' @param ignore.strand If set to TRUE, bins are oriented in 5' to 3' positions, regardless of 
+#' their strand. If set to FALSE (default), bins orientation follow input regions' strand.
 #'
 #' @details
-#' **Binning Methods**:
-#'
-#' 1. Equal Division (`nbins`):
-#'    - Splits each region into `nbins` equal parts
-#'    - Useful for comparing regions of different sizes
-#'    - All bins within a region have equal width
-#'
-#' 2. Sliding Window (`bins.width`):
-#'    - Creates fixed-width bins
-#'    - Controls overlap via `steps.width`:
-#'      * `steps.width = bins.width`: Non-overlapping bins
-#'      * `steps.width < bins.width`: Overlapping bins
-#'      * `steps.width > bins.width`: Gaps between bins
-#'    - Option to filter incomplete bins (`bins.width.min`)
-#'
-#' **Strand Handling**:
-#'
-#' - `ignore.strand = FALSE`:
-#'   * Positive/unstranded: Left to right binning
-#'   * Negative strand: Right to left binning
-#' - `ignore.strand = TRUE`: Always bins left to right
 #'
 #' **Centered Binning**:
+#' Centering bins (center.nbins = TRUE) is useful for analyzing features relative to central points.
+#' In this case, each region will first be extended symmetrically by region_width/(nbins-1)/2.
+#' Only available when using nbins.
 #'
-#' When `centered = TRUE`:
-#' - Extends regions symmetrically around midpoint
-#' - Useful for analyzing features relative to central points
-#' - Extension size depends on binning method:
-#'   * Equal division: (region_width/nbins)/2
-#'   * Sliding window: bins.width/2
-#'
-#' @return A data.table with columns:
+#' @return A gr data.table with columns:
 #' \itemize{
-#'   \item line.idx: Index linking bins to source regions
-#'   \item bin.idx: Sequential bin number within each region
-#'   \item seqnames: Chromosome/sequence name
-#'   \item start: Bin start position
-#'   \item end: Bin end position
-#'   \item Additional columns from input preserved
+#'   \item line.idx: line index of the region in bed.
+#'   \item bin.idx: bin index (unique for each line.idx).
+#'   \item seqnames: chromosome or sequence name.
+#'   \item start: bin start position.
+#'   \item end: bin end position.
+#'   \item Additional columns within bed input are preserved.
 #' }
 #'
 #' @examples
 #' # Equal division binning
-#' regions <- c(
-#'   "chr2L:1-10:+",    # 10bp region
-#'   "chr2L:100-200:-"  # 100bp region
-#' )
-#'
-#' # Split into 2 equal bins
-#' binBed(regions, nbins = 2)
+#' regions <- importBed(c("chr2L:1-10:+", "chr2L:100-200:-"))
 #'
 #' # Split into 5 equal bins
 #' binBed(regions, nbins = 5)
 #'
-#' # Sliding window with different overlaps
-#' region <- "chr2L:1-20:+"
+#' # Non-overlapping 50bp bins
+#' binBed(regions, bins.width = 50, steps.width = 50)
 #'
-#' # Non-overlapping 5bp bins
-#' binBed(region, bins.width = 5, steps.width = 5)
+#' # Overlapping 50bp bins
+#' binBed(regions, bins.width = 50, steps.width = 25)
 #'
-#' # Overlapping bins (2bp step)
-#' binBed(region, bins.width = 5, steps.width = 2)
-#'
-#' # With gaps (7bp step)
-#' binBed(region, bins.width = 5, steps.width = 7)
-#'
-#' # Centered binning
-#' tss <- "chr2L:1000:+"  # TSS position
-#' # Create 100bp bins centered on TSS
-#' binBed(tss, bins.width = 100, centered = TRUE)
-#'
-#' # Strand-specific binning
-#' binBed("chr2L:1-10:+", nbins = 2)  # Left to right
-#' binBed("chr2L:1-10:-", nbins = 2)  # Right to left
+#' # Compare start-anchored vs. centered binning
+#' nc1 <- binBed(regions, nbins= 5)
+#' c1 <- binBed(regions, nbins= 5, center.nbins = TRUE)
+#' nc2 <- binBed(regions, bins.width = 25)
+#' 
+#' plot(x= c(50, 250), y= c(4, 10), type= "n", xlab= "coordinates", ylab= NA, yaxt= "n")
+#' abline(v= c(100, 200))
+#' nc1[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 9, pos= 3, "nbins=5"); rect(start, 8, end, 9)}]
+#' c1[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 7, pos= 3, "centered"); rect(start, 6, end, 7)}]
+#' nc2[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 5, pos= 3, "bins.width=25"); rect(start, 4, end, 5)}]
 #'
 #' @export
 binBed <- function(bed,
                    nbins,
+                   center.nbins= FALSE,
                    bins.width = NULL,
                    steps.width = bins.width,
                    bins.width.min= FALSE,
-                   centered= FALSE,
+                   genome= NULL,
                    ignore.strand= FALSE)
 {
-  # Checks
+  # Checks ----
   method <- if(!missing(nbins)) {
-    "nbins"
+    if(nbins %% 1 != 0 | nbins<1) {
+      stop("nbins should be an integer >= 1!")
+    } else
+      "nbins"
   } else if(is.numeric(bins.width) & is.numeric(steps.width)) {
-    "slidingWindow"
+    if(any(c(bins.width, steps.width) %% 1 != 0) || any(c(bins.width, steps.width)<1)) {
+      stop("bins.width and steps.width should be integers >= 1!")
+    } else
+      "slidingWindow"
   } else
     stop("nbins or bins.width should be specified!")
+  if(center.nbins && method!="nbins")
+    stop("The 'center.nbins' option is only meaningful when 'nbins' is provided.")
 
   # Hard copy for incapsulation ----
   regions <- importBed(bed)
@@ -129,18 +99,15 @@ binBed <- function(bed,
     regions[, neg.strand:= strand=="-"]
 
   # Resize if bins have to be centered ----
-  if(centered) {
+  if(center.nbins) {
     # Compute ext size
-    ext <- if(method=="nbins") {
-      floor(regions[, (end-start+1)]/nbins/2)
-    } else if(method=="slidingWindow") {
-      floor(bins.width/2)
-    }
+    ext <- floor(regions[, (end-start+1)]/(nbins-1)/2)
     # Extend
     regions <- resizeBed(regions,
                          center = "region",
                          upstream = ext,
                          downstream = ext,
+                         genome= genome,
                          ignore.strand = ignore.strand)
   }
 

@@ -29,7 +29,6 @@ binBSgenome <- function(genome,
   bins <- binBed(gSize,
                  bins.width = bins.width,
                  steps.width = steps.width,
-                 centered = FALSE,
                  ignore.strand = TRUE)
 
   # Return

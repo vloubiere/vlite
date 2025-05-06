@@ -4,104 +4,62 @@
 \alias{closestBed}
 \title{Find Closest Genomic Features Between Two Sets of Regions}
 \usage{
-closestBed(a, b, n = 1, min.dist = 0L, max.dist = Inf, ignore.strand = TRUE)
+closestBed(a, b, n = 1L, min.dist = 0L, max.dist = Inf, ignore.strand = TRUE)
 }
 \arguments{
-\item{a}{Query regions in any format compatible with `importBed()`:
-\itemize{
-  \item Character vector of ranges ("chr:start-end[:strand]")
-  \item GRanges object
-  \item data.frame/data.table with required columns
-  \item Path to a BED file
-}}
+\item{a}{Query regions in any format compatible with ?importBed().}
 
-\item{b}{Target regions in same format as `a`. These are the features
-to find closest to regions in `a`.}
+\item{b}{Target regions in any format compatible with ?importBed().}
 
-\item{n}{Integer. Number of closest features to report for each query region.
-Default is `1`.}
+\item{n}{Report all features at the n-th closest distances, including ties (e.g., if three features are
+at distance 0 and two are at distance 1000, n = 1 returns the three at distance 0; n = 2 also returns the
+two at distance 1000). Default = 1L.}
 
-\item{min.dist}{Integer. Minimum absolute distance required between features.
-Features closer than this are excluded. Default is `0L`.}
+\item{min.dist}{Minimum absolute distance allowed between features. Features closer than this are excluded.
+Default= 0L, meaning that both overlapping (dist = 0) and non-overlapping (dist > 0) features are reported.}
 
-\item{max.dist}{Integer. Maximum absolute distance allowed between features.
-Features farther than this are excluded. Default is `Inf`.}
+\item{max.dist}{Maximum absolute distance allowed between features. Features farther than this are excluded.
+Default= Inf.}
 
-\item{ignore.strand}{Logical. If `TRUE`, finds closest features regardless of strand.
-If `FALSE`, only considers features on matching strands. Default is `TRUE`.}
+\item{ignore.strand}{If set to FALSE, only closest features that are on the same strand are reported.
+If set to TRUE (default), closest features on both strands are reported. See details about how the
+sign of the computed distance reflects the location of the closest feature.}
 }
 \value{
 A data.table with columns:
 \itemize{
-  \item idx.a: Integer index of region in set A
-  \item idx.b: Integer index of closest region(s) in set B
-  \item dist: Distance between matched regions:
-    - Negative: B is upstream of A
-    - Zero: Regions overlap
-    - Positive: B is downstream of A
+  \item idx.a: line index of the regions in a.
+  \item idx.b: line index of the closest region(s) in b.
+  \item dist: distance between closest regions (see details).
 }
 }
 \description{
-Identifies the closest genomic features in set B for each region in set A,
-similar to `bedtools closest`. Supports strand-aware distance calculations,
-multiple closest features, and distance filtering.
+For each genomic range in a, identifies the closest genomic ranges in b.
 }
 \details{
 **Distance Calculation**:
-- For non-overlapping features:
-  * Distance is the base pairs between feature boundaries
+- For overlapping features, a distance of 0 is returned.
+- For non-overlapping features, the genomic distance between their closest boundaries are returned:
   * Negative distances indicate upstream features
   * Positive distances indicate downstream features
-- For overlapping features:
-  * Distance is 0
-
-**Strand Handling**:
-- When `ignore.strand = FALSE`:
-  * Only features on matching strands are considered
-  * Distance sign follows strand orientation
-- When `ignore.strand = TRUE`:
-  * Strand is ignored for matching
-  * Distance sign follows genomic coordinates
-
-**Distance Filtering**:
-- `min.dist`: Excludes features closer than this distance
-- `max.dist`: Excludes features farther than this distance
-- Both filters use absolute distances (direction ignored)
+- If strand information is missing for features in a:
+  * Negative distances indicate features in 5'
+  * Positive distances indicate features in 3'
 }
 \examples{
 # Create example regions
-a <- importBed(c(
-  "chr2L:10-20:+",    # Region A1
-  "chr2L:10-20:-",    # Region A2
-  "chr3L:10-20:+"     # Region A3
-))
-b <- importBed(c(
-  "chr2L:5-7:+",      # Region B1
-  "chr2L:23-26:-",    # Region B2
-  "chr2L:100-200:+",  # Region B3
-  "chr2L:1000-2000:+" # Region B4
-))
+a <- importBed(c("chr2R:100-200:+",
+                 "chr2R:100-200:-"))
+b <- importBed(c("chr2R:300-400:+",
+                 "chr2R:300-400:-",
+                 "chr2R:3000-3100:+"))
 
-# Find single closest feature (strand-agnostic)
-idx <- closestBed(a, b)
-cbind(idx, a[idx$idx.a], b[idx$idx.b])
+# Find single closest features
+closestBed(a, b)[] # Irrespective of the strand
+closestBed(a, b, ignore.strand = F)[] # Only consider features that are on the same strand
+closestBed(a[, !"strand"], b)[] # No strand is provided; a features are considered as '+'
 
-# Find closest feature on same strand
-idx <- closestBed(a, b, ignore.strand = FALSE)
-cbind(idx, a[idx$idx.a], b[idx$idx.b])
-
-# Find three closest features
-idx <- closestBed(a, b, n = 3)
-cbind(idx, a[idx$idx.a], b[idx$idx.b])
-
-# Filter by distance
-# Only features at least 10bp apart
-idx <- closestBed(a, b, min.dist = 10)
-
-# Only features within 100bp
-idx <- closestBed(a, b, max.dist = 100)
-
-# Features between 150-1000bp apart
-idx <- closestBed(a, b, min.dist = 150, max.dist = 1000)
+# Return all features at the second closest distance (including ties):
+closestBed(a, b, n= 2)[]
 
 }

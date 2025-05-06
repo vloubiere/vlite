@@ -7,13 +7,7 @@
 exportBed(bed, file)
 }
 \arguments{
-\item{bed}{Input genomic ranges in one of the following formats:
-\itemize{
-  \item data.table or data.frame with required columns.
-  \item Character vector of genomic coordinates ("chr:start-end[:strand]").
-  \item GRanges object.
-  \item File path(s) to .bed, .narrowPeak, or .broadPeak files. If several files are provided, they will be catenated.
-}}
+\item{bed}{Input genomic ranges, in any format compatible with ?importBed().}
 
 \item{file}{Output file path ending with .bed, .narrowPeak or .broadPeak extensions.}
 }

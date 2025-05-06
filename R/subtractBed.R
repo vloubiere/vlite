@@ -1,99 +1,32 @@
 #' Subtract Genomic Regions from Reference Intervals
 #'
 #' @description
-#' Creates new genomic intervals by removing overlapping regions from reference
-#' intervals, similar to `bedtools subtract`. Supports strand-specific operations
-#' and minimum width filtering.
+#' Resize regions in a by subtracting regions in b in order to remove overlaps between
+#' the two. If regions in a fully overlap region(s) in b, they will therefore be removed.
 #'
-#' @param a Reference regions in any format compatible with `importBed()`:
-#' \itemize{
-#'   \item Character vector of ranges ("chr:start-end[:strand]")
-#'   \item GRanges object
-#'   \item data.frame/data.table with required columns
-#'   \item Path to a BED file
-#' }
-#' @param b Regions to subtract from `a`, in same format as `a`.
-#' @param min.width Integer. Minimum width required for resulting regions.
-#'   Regions smaller than this are discarded. Default is `1L`.
-#' @param ignore.strand Logical. If `TRUE`, subtracts overlaps regardless of strand.
-#'   If `FALSE`, only subtracts regions on matching strands. Default is `TRUE`.
+#' @param a Query regions in any format compatible with ?importBed().
+#' @param b Target regions in any format compatible with ?importBed().
+#' @param min.width Integer specifying the minimum width required for resized regions.
+#' Regions smaller than this are discarded. Default= 1L.
+#' @param ignore.strand If set to FALSE, only subtracts overlapping features that are on the same strand.
+#' If set to TRUE (default), subtracts overlapping feature(s) regardless of their strand(s).
 #'
-#' @details
-#' **Subtraction Process**:
-#'
-#' 1. Overlapping regions in `b` are first merged
-#' 2. For each region in `a`:
-#'    - Identifies overlaps with merged `b` regions
-#'    - Removes overlapping portions
-#'    - Creates new regions from remaining segments
-#'    - Filters by minimum width
-#'
-#' **Strand Handling**:
-#'
-#' - When `ignore.strand = TRUE`:
-#'   * Subtracts all overlapping regions
-#'   * Useful for strand-independent features
-#' - When `ignore.strand = FALSE`:
-#'   * Only subtracts regions on matching strands
-#'   * Preserves strand-specific information
-#'
-#' **Width Filtering**:
-#'
-#' - Regions are filtered after subtraction
-#' - Only regions ≥ `min.width` are retained
-#' - Prevents creation of very small fragments
-#'
-#' @return A data.table containing:
-#' \itemize{
-#'   \item Remaining portions of regions from `a`
-#'   \item All original columns from `a` preserved
-#'   \item Coordinates adjusted to reflect subtraction
-#'   \item Only regions meeting minimum width requirement
-#' }
+#' @return A gr data.table containing the remaining portions of a, after subtracting the regions
+#' defined in b.
 #'
 #' @examples
 #' # Create example regions
-#' reference <- importBed(c(
-#'   "chr1:100-500:+",    # Large region to subtract from
-#'   "chr1:700-900:-",    # Region with strand
-#'   "chr2:100-300:+"     # No overlaps
-#' ))
+#' a <- importBed(c("chr1:100-500:-"))
+#' b <- importBed(c("chr1:200-300:+", "chr1:400-450:-", "chr1:425-475:-"))
 #'
-#' to_subtract <- importBed(c(
-#'   "chr1:200-300:+",    # Internal region
-#'   "chr1:400-600:+",    # Overlaps end
-#'   "chr1:700-800:-",    # Same strand as second region
-#'   "chr1:700-800:+"     # Different strand from second region
-#' ))
-#'
-#' # Basic subtraction (strand-agnostic)
-#' result <- subtractBed(reference, to_subtract)
-#' print("Regions after subtraction:")
-#' print(result)
-#'
-#' # Strand-specific subtraction
-#' strand_result <- subtractBed(reference, to_subtract,
-#'                             ignore.strand = FALSE)
-#' print("Strand-specific subtraction:")
-#' print(strand_result)
-#'
-#' # Require minimum width of 50bp
-#' min_width_result <- subtractBed(reference, to_subtract,
-#'                                min.width = 50L)
-#' print("Regions ≥50bp after subtraction:")
-#' print(min_width_result)
-#'
-#' # Complex example with multiple overlaps
-#' complex_ref <- importBed("chr1:100-1000:+")
-#' complex_sub <- importBed(c(
-#'   "chr1:200-300:+",    # Creates gap in middle
-#'   "chr1:400-500:+",    # Creates second gap
-#'   "chr1:900-1100:+"    # Overlaps end
-#' ))
-#'
-#' complex_result <- subtractBed(complex_ref, complex_sub)
-#' print("Complex subtraction result:")
-#' print(complex_result)
+#' # Basic example
+#' subtractBed(a, b)
+#' 
+#' # Minimum width of 50bp
+#' subtractBed(a, b, min.width = 50L)
+#' 
+#' # Only subtract regions with similar strand
+#' subtractBed(a, b, ignore.strand= FALSE)
 #'
 #' @export
 subtractBed <- function(a,

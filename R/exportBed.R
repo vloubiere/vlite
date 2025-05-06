@@ -4,13 +4,7 @@
 #' Exports genomic ranges as .bed, .narrowPeak or .broadPeak files
 #' File specifications can be found at https://genome.ucsc.edu/FAQ/FAQformat.html.
 #'
-#' @param bed Input genomic ranges in one of the following formats:
-#' \itemize{
-#'   \item data.table or data.frame with required columns.
-#'   \item Character vector of genomic coordinates ("chr:start-end[:strand]").
-#'   \item GRanges object.
-#'   \item File path(s) to .bed, .narrowPeak, or .broadPeak files. If several files are provided, they will be catenated.
-#' }
+#' @param bed Input genomic ranges, in any format compatible with ?importBed().
 #' @param file Output file path ending with .bed, .narrowPeak or .broadPeak extensions.
 #'
 #' @details

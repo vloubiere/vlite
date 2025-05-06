@@ -4,83 +4,58 @@
 \alias{collapseBed}
 \title{Collapse or Merge Overlapping Genomic Ranges}
 \usage{
-collapseBed(bed, max.gap = 0L, return.idx.only = F, ignore.strand = TRUE)
+collapseBed(bed, max.gap = 0L, return.idx.only = FALSE, ignore.strand = TRUE)
 }
 \arguments{
-\item{bed}{Input genomic ranges in any format compatible with `importBed()`:
-\itemize{
-  \item Character vector of ranges ("chr:start-end[:strand]")
-  \item GRanges object
-  \item data.frame/data.table with required columns
-  \item Path to a BED file
-}}
+\item{bed}{Input regions in any format compatible with ?importBed().}
 
-\item{max.gap}{Integer. Maximum distance between features to be merged:
+\item{max.gap}{Maximum distance between features to be merged:
 \itemize{
   \item Positive value: Merges features separated by ≤ max.gap bases
   \item Zero: Merges only touching or overlapping features
   \item Negative value: Requires overlap of ≥ |max.gap| bases to merge
 }
-Default is `0L` (merge touching or overlapping features).}
+Default= 0L (merge touching or overlapping features).}
 
-\item{return.idx.only}{Logical. If `TRUE`, returns indices of merged regions
-instead of collapsing them. Default is `FALSE`.}
+\item{return.idx.only}{If set to TRUE, returns the indices of merged regions
+instead of collapsing them. Default= FALSE.}
 
-\item{ignore.strand}{Logical. If `TRUE`, merges regions regardless of strand.
-If `FALSE`, only merges regions on the same strand. Default is `TRUE`.}
+\item{ignore.strand}{If set to FALSE, only overlapping regions that are on the same strand
+are merged. If set to TRUE (default), regions are merged irrespective of their strand.}
 }
 \value{
-Depends on `return.idx.only`:
+If return.idx.only = FALSE: a gr data.table with columns:
 \itemize{
-  \item If `FALSE`: A data.table of merged regions with columns:
-    - seqnames: Chromosome name
-    - start: Start position of merged region
-    - end: End position of merged region
-    - strand: Strand (if present in input and `ignore.strand = FALSE`)
-  \item If `TRUE`: A vector of indices indicating which regions were merged together
+  \item seqnames: chromosome or sequence name.
+  \item start: start position of merged region.
+  \item end: end position of merged region.
+  \item strand: strand (if present in input and ignore.strand = FALSE).
 }
+If return.idx.only = TRUE: a vector of run-length type id indicating which regions
+belong to the same contig and could be merged.
 }
 \description{
-Merges genomic ranges that are within a specified distance of each other or overlap.
-Provides options for strand-specific merging and index tracking of merged regions.
-}
-\details{
-The function performs iterative merging of genomic regions:
-
-**Merging Process**:
-1. Sorts regions by chromosome and coordinates
-2. Identifies adjacent or overlapping regions based on `max.gap`
-3. Iteratively merges regions until no more merging is possible
-
-**Strand Handling**:
-- When `ignore.strand = TRUE`: Merges regions based only on genomic coordinates
-- When `ignore.strand = FALSE`: Merges regions only if they are on the same strand
-
-**Output Options**:
-- With `return.idx.only = FALSE`: Returns merged regions
-- With `return.idx.only = TRUE`: Returns original regions with merge group indices
+Merges overlapping genomic ranges.
 }
 \examples{
 # Create example regions
-bed <- importBed(c(
-  "chr2R:1000-2000:+",  # Region 1
-  "chr2R:1500-2500:-",  # Region 2 (overlaps Region 1)
-  "chr2R:3000-4000:+"   # Region 3 (separate)
-))
+bed <- importBed(c("chr2R:1000-2000:+", "chr2R:1500-2500:+", "chr2R:1500-2500:-", "chr2R:3000-4000:+"))
 
-# Merge overlapping regions (strand-agnostic)
+# Merge overlapping regions with the same strand (3 merge regions)
 collapseBed(bed)
 
-# Merge regions considering strand
-collapseBed(bed, ignore.strand = FALSE)
-
-# Get merge indices instead of merging
+# Get merge indices instead of merging ()
 collapseBed(bed, return.idx.only = TRUE)
 
-# Merge regions within 500bp of each other
-collapseBed(bed, max.gap = 500)
+# Ignore strand (2 merged regions)
+collapseBed(bed, ignore.strand = TRUE)
 
-# Merge only regions with at least 100bp overlap
-collapseBed(bed, max.gap = -100)
+# Merge regions within 450/500bp of each other
+collapseBed(bed, max.gap = 450) # 3 merged regions
+collapseBed(bed, max.gap = 500) # 2 merged regions
+
+# Merge only regions with at least 600/100bp overlap
+collapseBed(bed, max.gap = -600) # 4 merged regions
+collapseBed(bed, max.gap = -100) # 3 merged regions
 
 }

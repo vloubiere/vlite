@@ -79,7 +79,7 @@ bwBinnedCoverage <- function(bed,
       # Compute bins
       binBed(resized,
              nbins = nbins,
-             centered = TRUE,
+             center.nbins = TRUE,
              ignore.strand = ignore.strand)
 
     }else if(center=="region")
@@ -95,7 +95,7 @@ bwBinnedCoverage <- function(bed,
       upBins <- binBed(up,
                        nbins= nbins[1],
                        ignore.strand = ignore.strand,
-                       centered= TRUE)
+                       center.nbins = TRUE)
       # Downstream
       down <- resizeBed(regions,
                         center = "end",
@@ -105,15 +105,15 @@ bwBinnedCoverage <- function(bed,
       downBins <- binBed(down,
                          nbins= nbins[3],
                          ignore.strand = ignore.strand,
-                         centered= TRUE)
-      # Middle regions adjusted after cetenring up/down bins'
+                         center.nbins = TRUE)
+      # Adjust middle regions after centering up/down bins'
       middle <- importBed(regions)
       middle[, start:= ifelse(up$end<down$end, up$end, down$end)+1L]
       middle[, end:= ifelse(up$start>down$start, up$start, down$start)-1L]
       middleBins <- binBed(middle,
                            nbins= nbins[2],
                            ignore.strand = ignore.strand,
-                           centered= FALSE)
+                           center.nbins = FALSE)
       # Adjust bin indexes
       middleBins[, bin.idx:= bin.idx+nbins[1]]
       downBins[, bin.idx:= bin.idx+sum(nbins[1:2])]

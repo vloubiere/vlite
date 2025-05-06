@@ -1,9 +1,9 @@
 #' Resize Genomic Regions in a BED File
 #'
 #' @description
-#' Adjusts the size of genomic coordinates.
+#' Adjusts the size of genomic ranges
 #'
-#' @param bed Input genomic ranges, in a format compatible with ?importBed().
+#' @param bed Input regions in any format compatible with ?importBed().
 #' @param center Specifies the origin for resizing. Options are:
 #' \itemize{
 #'   \item `center`: Resize symmetrically around the midpoint of the region (default).
@@ -13,12 +13,13 @@
 #' }
 #' @param upstream Size of the extension upstream of the specified origin. Default= 500L.
 #' @param downstream Size of the extension downstream of the specified origin. Default= 500L.
-#' @param genome A BS genome name ("dm6", "mm10") to clip regions exceeding chromosome lengths. Default= NULL.
-#' @param ignore.strand If set to TRUE, resizing always proceeds from the leftmost coordinate, irrespective of the strand.
+#' @param genome A BS genome name (e.g. "dm6", "mm10").
+#' If specified, resized regions exceeding chromosome lengths will be clipped. Default= NULL.
+#' @param ignore.strand If set to TRUE, resizing always proceeds from the leftmost coordinate, irrespective of their strand.
 #' If set to FALSE (default), upstream and downstream resizing respect the feature's strand.
 #'
-#' @details
-#' Resized regions are returned as a gr data.table, containing any additional column present in the input.
+#' @return
+#' A gr data.table containing resized regions.
 #'
 #' @examples
 #' # Import example BED file
@@ -41,6 +42,10 @@ resizeBed <- function(bed,
                       genome= NULL,
                       ignore.strand= FALSE)
 {
+  # Checks ----
+  if(is.null(genome))
+    message("No genome provided: resized regions may extend beyond chromosome sizes.")
+  
   # Import bed ----
   current <- importBed(bed)
 
