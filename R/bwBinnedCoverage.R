@@ -6,15 +6,15 @@
 #' @param bed A BED-formatted object compatible with `rtracklayer::import()`. Can be a file path or a GRanges object.
 #' @param tracks Character vector of paths to BigWig (.bw) files.
 #' @param center Character string specifying the anchor point for region resizing:
-#'   * `"center"`: Resize around the region center (default)
-#'   * `"start"`: Resize from region start
-#'   * `"end"`: Resize from region end
-#'   * `"region"`: Extend or contract entire region boundaries
+#'   * `center`: Resize around the region center (default)
+#'   * `start`: Resize from region start
+#'   * `end`: Resize from region end
+#'   * `region`: Extend or contract entire region boundaries
 #' @param upstream Integer specifying bases to extend upstream (default: 5000L).
 #' @param downstream Integer specifying bases to extend downstream (default: 5000L).
 #' @param nbins Integer vector specifying number of bins:
-#'   * For `center = "center"/"start"/"end"`: Length 1 vector (default: 251L)
-#'   * For `center = "region"`: Length 3 vector for upstream/body/downstream bins (default: c(50L, 150L, 50L))
+#'   * For `center = 'center'/'start'/'end'"'`: Length 1 vector (default: 251L)
+#'   * For `center = 'region'"'`: Length 3 vector for upstream/body/downstream bins (default: c(50L, 150L, 50L))
 #' @param ignore.strand Logical indicating whether to ignore strand information (default: FALSE).
 #' @param cleanup.cache Logical. Whether to force recomputation of cached results (default: FALSE).
 #'
@@ -44,6 +44,12 @@ bwBinnedCoverage <- function(bed,
                              ignore.strand= FALSE,
                              cleanup.cache= FALSE)
 {
+  # Checks ----
+  if(length(upstream)>1)
+    stop("'upstream' should be a unique integer value.")
+  if(length(downstream)>1)
+    stop("'downstream' should be a unique integer value.")
+  
   # Use a temp directory for caching signal files ----
   cache_dir <- tempdir()
   signal.params <- list(bed,
