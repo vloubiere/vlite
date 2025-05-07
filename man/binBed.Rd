@@ -24,7 +24,7 @@ binBed(
 FALSE (default), the first bin will start from the most upstream coordinate.
 Only meaningful when nbins is specified.}
 
-\item{bins.width}{Integer specifying the width of the bins in which each region is divided. 
+\item{bins.width}{Integer specifying the width of the bins in which each region is divided.
 Used only when nbins is not specified. See bins.width.min for handling shorter bins
 near bed boundaries.}
 
@@ -37,8 +37,8 @@ If specified, bins.width is ignored.}
 are returned. This is useful to exclude shorter bins nearby regions' boundaries.
 Default= FALSE.}
 
-\item{ignore.strand}{If set to TRUE, bins are oriented in 5' to 3' positions, regardless of 
-their strand. If set to FALSE (default), bins orientation follow input regions' strand.}
+\item{ignore.strand}{If set to TRUE, bins are oriented in 5' to 3' positions, regardless of
+their strand. If set to FALSE (default), bins orientation respect the strand.}
 }
 \value{
 A gr data.table with columns:

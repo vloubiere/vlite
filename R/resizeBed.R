@@ -15,7 +15,7 @@
 #' @param downstream Size of the extension downstream of the specified origin. Default= 500L.
 #' @param genome A BS genome name (e.g. "dm6", "mm10").
 #' If specified, resized regions exceeding chromosome lengths will be clipped. Default= NULL.
-#' @param ignore.strand If set to TRUE, resizing always proceeds from the leftmost coordinate, irrespective of their strand.
+#' @param ignore.strand If set to TRUE, resizing always proceeds from the leftmost coordinate, irrespective of the strand.
 #' If set to FALSE (default), upstream and downstream resizing respect the feature's strand.
 #'
 #' @return
@@ -45,7 +45,7 @@ resizeBed <- function(bed,
   # Checks ----
   if(is.null(genome))
     message("No genome provided: resized regions may extend beyond chromosome sizes.")
-  
+
   # Import bed ----
   current <- importBed(bed)
 

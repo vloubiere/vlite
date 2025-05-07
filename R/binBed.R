@@ -9,9 +9,9 @@
 #' @param center.nbins If set to TRUE, bins are centered around the regions' midpoints. If set to
 #' FALSE (default), the first bin will start from the most upstream coordinate.
 #' Only meaningful when nbins is specified.
-#' @param bins.width Integer specifying the width of the bins in which each region is divided. 
+#' @param bins.width Integer specifying the width of the bins in which each region is divided.
 #' Used only when nbins is not specified. See bins.width.min for handling shorter bins
-#' near bed boundaries. 
+#' near bed boundaries.
 #' @param steps.width Integer specifying the distance between starts of consecutive bins. Used in
 #' combination with bins.width. Default= bins.width, resulting in non-overlapping bins.
 #' Smaller values create overlapping bins.
@@ -19,8 +19,8 @@
 #' @param bins.width.min If set to TRUE, only bins matching the size specified in bins.width
 #' are returned. This is useful to exclude shorter bins nearby regions' boundaries.
 #' Default= FALSE.
-#' @param ignore.strand If set to TRUE, bins are oriented in 5' to 3' positions, regardless of 
-#' their strand. If set to FALSE (default), bins orientation follow input regions' strand.
+#' @param ignore.strand If set to TRUE, bins are oriented in 5' to 3' positions, regardless of
+#' their strand. If set to FALSE (default), bins orientation respect the strand.
 #'
 #' @details
 #'
@@ -56,7 +56,7 @@
 #' nc1 <- binBed(regions, nbins= 5)
 #' c1 <- binBed(regions, nbins= 5, center.nbins = TRUE)
 #' nc2 <- binBed(regions, bins.width = 25)
-#' 
+#'
 #' plot(x= c(50, 250), y= c(4, 10), type= "n", xlab= "coordinates", ylab= NA, yaxt= "n")
 #' abline(v= c(100, 200))
 #' nc1[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 9, pos= 3, "nbins=5"); rect(start, 8, end, 9)}]

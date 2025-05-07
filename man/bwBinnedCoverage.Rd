@@ -21,18 +21,18 @@ bwBinnedCoverage(
 \item{tracks}{Character vector of paths to BigWig (.bw) files.}
 
 \item{center}{Character string specifying the anchor point for region resizing:
-* `"center"`: Resize around the region center (default)
-* `"start"`: Resize from region start
-* `"end"`: Resize from region end
-* `"region"`: Extend or contract entire region boundaries}
+* `center`: Resize around the region center (default)
+* `start`: Resize from region start
+* `end`: Resize from region end
+* `region`: Extend or contract entire region boundaries}
 
 \item{upstream}{Integer specifying bases to extend upstream (default: 5000L).}
 
 \item{downstream}{Integer specifying bases to extend downstream (default: 5000L).}
 
 \item{nbins}{Integer vector specifying number of bins:
-* For `center = "center"/"start"/"end"`: Length 1 vector (default: 251L)
-* For `center = "region"`: Length 3 vector for upstream/body/downstream bins (default: c(50L, 150L, 50L))}
+* For `center = 'center'/'start'/'end'"'`: Length 1 vector (default: 251L)
+* For `center = 'region'"'`: Length 3 vector for upstream/body/downstream bins (default: c(50L, 150L, 50L))}
 
 \item{ignore.strand}{Logical indicating whether to ignore strand information (default: FALSE).}
 

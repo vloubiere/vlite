@@ -31,7 +31,7 @@ resizeBed(
 \item{genome}{A BS genome name (e.g. "dm6", "mm10").
 If specified, resized regions exceeding chromosome lengths will be clipped. Default= NULL.}
 
-\item{ignore.strand}{If set to TRUE, resizing always proceeds from the leftmost coordinate, irrespective of their strand.
+\item{ignore.strand}{If set to TRUE, resizing always proceeds from the leftmost coordinate, irrespective of the strand.
 If set to FALSE (default), upstream and downstream resizing respect the feature's strand.}
 }
 \value{

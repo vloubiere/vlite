@@ -4,18 +4,18 @@
 \alias{overlapBed}
 \title{Find Overlapping Regions Between Two Sets of Genomic Intervals}
 \usage{
-overlapBed(a, b, ignore.strand = TRUE, all.a = TRUE)
+overlapBed(a, b, all.a = TRUE, ignore.strand = TRUE)
 }
 \arguments{
 \item{a}{Query regions in any format compatible with ?importBed().}
 
 \item{b}{Target regions in any format compatible with ?importBed().}
 
-\item{ignore.strand}{If set to FALSE, only reports overlaps between regions that are on the same strand.
-If set to TRUE (default), reports overlaps on both strands.}
-
 \item{all.a}{If set to FALSE, only returns the regions in a for each at least one overlap was found.
 If set to TRUE (default), reports all regions in a, including those without overlaps (see return values).}
+
+\item{ignore.strand}{If set to FALSE, only reports overlaps between regions that are on the same strand.
+If set to TRUE (default), reports overlaps on both strands.}
 }
 \value{
 A data.table with columns:

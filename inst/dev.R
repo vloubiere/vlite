@@ -26,10 +26,10 @@ if(F)
   file.edit("R/exportBed.R")
 
   # Standalone functions
-  file.edit("R/resizeBed.R")
+  file.edit("R/resizeBed.R") # ignore.strand= FALSE
+  file.edit("R/binBed.R") # ignore.strand= FALSE
   file.edit("R/collapseBed.R")
   file.edit("R/closestBed.R")
-  file.edit("R/binBed.R")
   file.edit("R/overlapBed.R")
 
   # Functions using overlapBed

@@ -5,10 +5,10 @@
 #'
 #' @param a Query regions in any format compatible with ?importBed().
 #' @param b Target regions in any format compatible with ?importBed().
-#' @param ignore.strand If set to FALSE, only reports overlaps between regions that are on the same strand.
-#' If set to TRUE (default), reports overlaps on both strands.
 #' @param all.a If set to FALSE, only returns the regions in a for each at least one overlap was found.
 #' If set to TRUE (default), reports all regions in a, including those without overlaps (see return values).
+#' @param ignore.strand If set to FALSE, only reports overlaps between regions that are on the same strand.
+#' If set to TRUE (default), reports overlaps on both strands.
 #'
 #' @return A data.table with columns:
 #' \itemize{
@@ -34,8 +34,8 @@
 #' @export
 overlapBed <- function(a,
                        b,
-                       ignore.strand= TRUE,
-                       all.a= TRUE)
+                       all.a= TRUE,
+                       ignore.strand= TRUE)
 {
   # Hard copy for incapsulation ----
   a <- importBed(a)
