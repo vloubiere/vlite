@@ -108,7 +108,8 @@ bwAverageTrack <- function(bed,
                              upstream = upstream,
                              downstream = downstream,
                              nbins = nbins,
-                             ignore.strand= ignore.strand)
+                             ignore.strand= ignore.strand,
+                             cleanup.cache = cleanup.cache)
 
   # Split groups using by ----
   if(!is.null(by)) {
@@ -159,22 +160,14 @@ bwAverageTrack <- function(bed,
       title(ylab = ylab, line = 1.5)
     # Add x axis
     if(center!="region") {
-      if(upstream>0 & downstream>0) {
-        axis(1,
-             at = c(-upstream, 0, downstream),
-             labels = c(-upstream, center.name, downstream),
-             xpd= NA,
-             padj= -1.25)
-      } else {
-        axis(1,
-             at = c(-upstream, downstream),
-             labels = c(-upstream, downstream),
-             xpd= NA,
-             padj= -1.25)
-      }
+      axis(1,
+           at = c(-upstream, 0, downstream),
+           labels = c(-upstream, center.name, downstream),
+           xpd= NA,
+           padj= -1.25)
     } else {
       axis(1,
-           at = c(-upstream, 0, diff(xlim)*nbins[2]/sum(nbins), xlim[2]),
+           at = unlist(bin.x.pos)[c(1, nbins[1], sum(nbins[1:2])+1, sum(nbins))],
            labels = c(-upstream, center.name, "End", downstream),
            xpd= NA,
            padj= -1.25)

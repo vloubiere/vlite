@@ -151,16 +151,17 @@ bwBinnedCoverage <- function(bed,
       up <- seq(-upstream, 0, length.out= nbins[1])
       bin.width <- diff(up)[1]
       mid <- seq(0+bin.width, bin.width*nbins[2], length.out= nbins[2])
-      down.start <- rev(mid)[1]+bin.width
+      down.start <- bin.width*(nbins[2]+1)
       down <- seq(down.start, down.start+downstream, length.out= nbins[3])
       c(up, mid, down)
     }
+
 
     # dcast ----
     cols <- data.table::last(names(obj), n = ncol(.q))
     res <- lapply(cols, function(col) {
       .c <- dcast(obj, line.idx~bin.idx, value.var = col)
-      .c <- data.frame(.c, row.names = 1)
+      .c <- as.matrix(.c, 1)
       colnames(.c) <- as.character(bins.center)
       .c
     })
