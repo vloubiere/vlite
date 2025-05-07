@@ -132,20 +132,13 @@ bwHeatmap <- function(bed,
 
     # Add x axis
     if(center!="region") {
-      if(upstream>0 & downstream>0) {
-        axis(1,
-             at = c(1, upstream/(upstream-(-downstream))*(nbins+1), nbins),
-             labels = c(-upstream, center.name, downstream),
-             padj= -1.25)
-      } else {
-        axis(1,
-             at = c(1, nbins),
-             labels = c(-upstream, downstream),
-             padj= -1.25)
-      }
+      axis(1,
+           at = c(1, upstream/(upstream+downstream)*(nbins+1), nbins),
+           labels = c(-upstream, center.name, downstream),
+           padj= -1.25)
     } else {
       axis(1,
-           at = c(1, nbins[1]+1, sum(nbins[1:2]), sum(nbins)),
+           at = c(1, nbins[1], sum(nbins[1:2]), sum(nbins)),
            labels = c(-upstream, center.name, "End", downstream),
            padj= -1.25)
     }

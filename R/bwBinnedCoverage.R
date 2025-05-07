@@ -116,6 +116,7 @@ bwBinnedCoverage <- function(bed,
       middle <- importBed(regions)
       middle[, start:= ifelse(up$end<down$end, up$end, down$end)+1L]
       middle[, end:= ifelse(up$start>down$start, up$start, down$start)-1L]
+      # Bin middle region
       middleBins <- binBed(middle,
                            nbins= nbins[2],
                            ignore.strand = ignore.strand,
