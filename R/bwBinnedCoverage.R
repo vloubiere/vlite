@@ -49,7 +49,7 @@ bwBinnedCoverage <- function(bed,
     stop("'upstream' should be a unique integer value.")
   if(length(downstream)>1)
     stop("'downstream' should be a unique integer value.")
-  
+
   # Use a temp directory for caching signal files ----
   cache_dir <- tempdir()
   signal.params <- list(bed,
@@ -148,9 +148,12 @@ bwBinnedCoverage <- function(bed,
     bins.center <- if(center!="region") {
       seq(-upstream, downstream, length.out= nbins)
     } else {
-      seq(-upstream,
-          sum(nbins[2:3])/nbins[1]*upstream,
-          length.out= sum(nbins))
+      up <- seq(-upstream, 0, length.out= nbins[1])
+      bin.width <- diff(up)[1]
+      mid <- seq(0+bin.width, bin.width*nbins[2], length.out= nbins[2])
+      down.start <- rev(mid)[1]+bin.width
+      down <- seq(down.start, down.start+downstream, length.out= nbins[3])
+      c(up, mid, down)
     }
 
     # dcast ----

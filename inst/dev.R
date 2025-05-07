@@ -1,6 +1,5 @@
 setwd("/groups/stark/vloubiere/vlite/")
 devtools::load_all("./")
-# file.edit("inst/test.R")
 
 # Tests/wip --------------------------------
 if(F)
