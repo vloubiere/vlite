@@ -7,7 +7,7 @@
 #' 3. UMI counting
 #' 4. BigWig track generation
 #'
-#' @param fq1 A character vector of .fq (or .fq.gz) file paths. Note that read 2 is not used.
+#' @param fq1 A character vector of .fq (or .fq.gz) file paths. Note that the UMI sequences should be appended to the readIDs (see ?cmd_demultiplexVBCfile()), and that read 2 are not used.
 #' @param output.prefix Prefix for output files.
 #' @param ref.genome Reference genome identifier (e.g., "mm10", "hg38").
 #' @param ref.genome.idx Path to the Bowtie1 index for the reference genome. If NULL, derived from ref.genome. Default= NULL.

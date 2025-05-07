@@ -8,18 +8,16 @@
 #'
 #' @param vbcFile Path to the input BAM file or .tar.gz file containing the reads.
 #' @param layout Sequencing layout, must be either "PAIRED" or "SINGLE".
-#' @param i7 i7 index sequence(s). Multiple indexes should be comma-separated.
-#'        If set to "none" (default), no i7 filtering is performed
-#' @param i5 i5 index sequence(s). Multiple indexes should be comma-separated.
-#'        If set to "none" (default), no i5 filtering is performed
+#' @param i7 A character vector of i7 index sequence(s). If set to "none" (default), no i7 filtering is performed
+#' @param i5 A character vector of i5 index sequence(s). If set to "none" (default), no i5 filtering is performed
 #' @param i7.column Column number in the BAM file containing the i7 index. Default= 14L.
 #' @param i5.column Column number in the BAM file containing the i5 index. Default= 12L.
 #' @param output.prefix Output files prefix. If not provided,
 #'        constructed from the input file name and index sequences.
-#' @param start.seq For PRO-Seq data, the eBC DNA string that must be present at the start of the reads.
-#'        Only supported for BAM input. Default= NULL.
-#' @param trim.length When start.seq is provided (PRO-Seq reads), number of nucleotides that should be cut
-#'        from the sequence (after start.seq has been trimmed) and appended to the read ID. Only supported for BAM input.
+#' @param proseq.eBC For PRO-Seq reads, the experimental barcode (eBC) sequence that must be found at the start of the
+#'        reads and will be used for demultiplexing. Only supported for BAM input. Default= NULL.
+#' @param proseq.umi.length For PRO-Seq reads, integer specifying the length of the UMI sequence located right after the eBC
+#'        sequence (see proseq.eBC), which will be trimmed and appended to the read ID. Default= 10L. Only supported for BAM input.
 #' @param fq.output.folder Directory where output FASTQ files will be written. Default= "db/fq/".
 #' @param cores Number of CPU cores to use for samtools processing (when using BAM input). Default= 8L.
 #' @param head Number of reads that should be processed (for testing purposes).
@@ -69,8 +67,8 @@
 #'   i7.column = 14,
 #'   output.prefix = "PE_PROSeq",
 #'   fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'   start.seq = "ATCG",
-#'   trim.length = 10,
+#'   proseq.eBC = "ATCG",
+#'   proseq.umi.length = 10,
 #'   cores = 8,
 #'   head = 40000
 #' )
@@ -93,8 +91,8 @@ cmd_demultiplexVBCfile <- function(vbcFile,
                                    i5.column= 12,
                                    output.prefix,
                                    fq.output.folder= "db/fq/",
-                                   start.seq= NULL,
-                                   trim.length,
+                                   proseq.eBC= NULL,
+                                   proseq.umi.length= 10,
                                    cores= 8,
                                    head)
 {
@@ -106,14 +104,24 @@ cmd_demultiplexVBCfile <- function(vbcFile,
     stop("vbcFile could not be found.")
   if(!layout %in% c("SINGLE", "PAIRED"))
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
-  if(length(i7)>1 | length(i5)>1)
-    stop("If several i7 or i5 indexes have been used for one sample, they should be concatenated and comma-separated.")
+  i7 <- unique(i7)
+  if(!identical(i7, "none")) {
+    if(!all(unlist(strsplit(i7, "")) %in% c("A", "C", "G", "T")))
+      stop("Some characters in i7 are not one of 'A', 'C', 'G', 'T'")
+    i7 <- paste(i7, collapse = ",")
+  }
+  i5 <- unique(i5)
+  if(!identical(i5, "none")) {
+    if(!all(unlist(strsplit(i5, "")) %in% c("A", "C", "G", "T")))
+      stop("Some characters in i5 are not one of 'A', 'C', 'G', 'T'")
+    i5 <- paste(i5, collapse = ",")
+  }
   if(length(i7.column)>1 | length(i5.column)>1)
     stop("Several i7 or i5 column number were provided.")
-  if(!is.null(start.seq) && !grepl(".bam$", vbcFile))
-    stop("start.seq is only supported for bam files.")
-  if(!is.null(start.seq) && missing(trim.length))
-    stop("When start.seq is specified (PRO-Seq reads), trim.length should also be provided.")
+  if(!is.null(proseq.eBC) && !grepl(".bam$", vbcFile))
+    stop("proseq.eBC is only supported for bam files.")
+  if(!is.null(proseq.eBC) && missing(proseq.umi.length))
+    stop("When proseq.eBC is specified (PRO-Seq reads), proseq.umi.length should also be provided.")
   if(!missing(head) && head %% 1!=0)
     stop("head should be a round number.")
 
@@ -139,7 +147,7 @@ cmd_demultiplexVBCfile <- function(vbcFile,
     # Demultiplexing command
     cmd <- paste(
       decompress,
-      "perl", system.file("perl", "vbc_bam_demultiplexing.pl", package = "genomicsPipelines"), # perl script
+      "perl", system.file("perl", "vbc_bam_demultiplexing.pl", package = "vlite"), # perl script
       paste0("'", layout, "'"),
       paste0("'", i7, "'"), # i7 barcode sequence
       paste0("'", i5, "'"), # i5 index sequence
@@ -149,17 +157,17 @@ cmd_demultiplexVBCfile <- function(vbcFile,
     )
 
     # PRO-Seq specific arguments
-    if(!is.null(start.seq)) {
+    if(!is.null(proseq.eBC)) {
       cmd <- paste(cmd,
-                   paste0("'", start.seq, "'"),
-                   trim.length)
+                   paste0("'", proseq.eBC, "'"),
+                   proseq.umi.length)
     }
   } else if(grepl(".tar.gz$", vbcFile)) {
 
     # Method for .tar.gz files ----
 
     # perl script call
-    perl.script <- system.file("perl", "vbc_tar_demultiplexing.pl", package = "genomicsPipelines")
+    perl.script <- system.file("perl", "vbc_tar_demultiplexing.pl", package = "vlite")
     perl.script <- paste("perl", perl.script)
     if(!missing(head))
       perl.script <- paste(perl.script, "-n", head)
@@ -174,8 +182,8 @@ cmd_demultiplexVBCfile <- function(vbcFile,
                  paste0("'", layout, "'"))
 
     # Check PRO-Seq args
-    if(!is.null(start.seq))
-      stop("Optional'start.seq' parameter for PRO-Seq is not supoorted for .tar.gz input files.")
+    if(!is.null(proseq.eBC))
+      stop("Optional'proseq.eBC' parameter for PRO-Seq is not supoorted for .tar.gz input files.")
   } else {
     stop("vbcFile should be in .bam or .tar.gz format.")
   }

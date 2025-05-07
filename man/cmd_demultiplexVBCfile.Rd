@@ -14,8 +14,8 @@ cmd_demultiplexVBCfile(
   i5.column = 12,
   output.prefix,
   fq.output.folder = "db/fq/",
-  start.seq = NULL,
-  trim.length,
+  proseq.eBC = NULL,
+  proseq.umi.length = 10,
   cores = 8,
   head
 )
@@ -25,11 +25,9 @@ cmd_demultiplexVBCfile(
 
 \item{layout}{Sequencing layout, must be either "PAIRED" or "SINGLE".}
 
-\item{i7}{i7 index sequence(s). Multiple indexes should be comma-separated.
-If set to "none" (default), no i7 filtering is performed}
+\item{i7}{A character vector of i7 index sequence(s). If set to "none" (default), no i7 filtering is performed}
 
-\item{i5}{i5 index sequence(s). Multiple indexes should be comma-separated.
-If set to "none" (default), no i5 filtering is performed}
+\item{i5}{A character vector of i5 index sequence(s). If set to "none" (default), no i5 filtering is performed}
 
 \item{i7.column}{Column number in the BAM file containing the i7 index. Default= 14L.}
 
@@ -40,11 +38,11 @@ constructed from the input file name and index sequences.}
 
 \item{fq.output.folder}{Directory where output FASTQ files will be written. Default= "db/fq/".}
 
-\item{start.seq}{For PRO-Seq data, the eBC DNA string that must be present at the start of the reads.
-Only supported for BAM input. Default= NULL.}
+\item{proseq.eBC}{For PRO-Seq reads, the experimental barcode (eBC) sequence that must be found at the start of the
+reads and will be used for demultiplexing. Only supported for BAM input. Default= NULL.}
 
-\item{trim.length}{When start.seq is provided (PRO-Seq reads), number of nucleotides that should be cut
-from the sequence (after start.seq has been trimmed) and appended to the read ID. Only supported for BAM input.}
+\item{proseq.umi.length}{For PRO-Seq reads, integer specifying the length of the UMI sequence located right after the eBC
+sequence (see proseq.eBC), which will be trimmed and appended to the read ID. Default= 10L. Only supported for BAM input.}
 
 \item{cores}{Number of CPU cores to use for samtools processing (when using BAM input). Default= 8L.}
 
@@ -104,8 +102,8 @@ cmd <- cmd_demultiplexVBCfile(
   i7.column = 14,
   output.prefix = "PE_PROSeq",
   fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-  start.seq = "ATCG",
-  trim.length = 10,
+  proseq.eBC = "ATCG",
+  proseq.umi.length = 10,
   cores = 8,
   head = 40000
 )

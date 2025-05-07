@@ -23,7 +23,7 @@ proseqProcessing(
 )
 }
 \arguments{
-\item{fq1}{A character vector of .fq (or .fq.gz) file paths. Note that read 2 is not used.}
+\item{fq1}{A character vector of .fq (or .fq.gz) file paths. Note that the UMI sequences should be appended to the readIDs (see ?cmd_demultiplexVBCfile()), and that read 2 are not used.}
 
 \item{output.prefix}{Prefix for output files.}
 
