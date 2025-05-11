@@ -12,9 +12,9 @@
 #' Default= 0L, meaning that both overlapping (dist = 0) and non-overlapping (dist > 0) features are reported.
 #' @param max.dist Maximum absolute distance allowed between features. Features farther than this are excluded.
 #' Default= Inf.
-#' @param ignore.strand If set to FALSE, only closest features that are on the same strand are reported.
-#' If set to TRUE (default), closest features on both strands are reported. See details about how the
-#' sign of the computed distance reflects the location of the closest feature.
+#' @param ignore.strand If set to FALSE and strand column is provided, only closest features that are on the
+#' same strand are reported. If set to TRUE (default), closest features on both strands are reported. See details
+#' about how the sign of the computed distance reflects the repesctive location of a and b features.
 #'
 #' @details
 #' **Distance Calculation**:
@@ -40,12 +40,12 @@
 #' b <- importBed(c("chr2R:300-400:+",
 #'                  "chr2R:300-400:-",
 #'                  "chr2R:3000-3100:+"))
-#' 
+#'
 #' # Find single closest features
 #' closestBed(a, b)[] # Irrespective of the strand
 #' closestBed(a, b, ignore.strand = F)[] # Only consider features that are on the same strand
 #' closestBed(a[, !"strand"], b)[] # No strand is provided; a features are considered as '+'
-#' 
+#'
 #' # Return all features at the second closest distance (including ties):
 #' closestBed(a, b, n= 2)[]
 #'
@@ -98,7 +98,7 @@ closestBed <- function(a,
   # Upstream features will receive a negative distance ----
   upstream <- a[idx$idx.a, start] > b[idx$idx.b, end]
   idx[upstream, dist:= -dist]
-  
+
   # Adjust distance sign depending on the strand ----
   if("strand" %in% names(a))
   {

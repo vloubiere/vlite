@@ -7,7 +7,7 @@ if(!length(args) == 4) {
        [required] 1/ Collapsed bam file\n
        [required] 2/ Path to a gtf file containing non-first exons used for assignment\n
        [required] 3/ Output bed file (.bed)\n
-       [required] 4/ Output assignment_table basename\n")
+       [required] 4/ Output assignment_table prefix\n")
 }
 
 # Load packges ----

@@ -89,14 +89,14 @@ orftagProcessing <- function(fq1,
   cmd <- rbind(cmd, collapse.cmd)
 
   # Assign insertions to closest downstream exon ----
-  cmd <- cmd_assignInsertions(bam = cmd[file.type=="collapsed.bam", path],
-                              output.prefix = NULL, # From bam file
-                              genome = genome,
-                              gtf = gtf,
-                              bed.output.folder = bed.output.folder,
-                              counts.output.folder = counts.output.folder,
-                              Rpath = Rpath)
-  cmd <- rbind(cmd, collapse.cmd)
+  assign.cmd <- cmd_assignInsertions(bam = cmd[file.type=="collapsed.bam", path],
+                                     output.prefix = NULL, # From bam file
+                                     genome = genome,
+                                     gtf = gtf,
+                                     bed.output.folder = bed.output.folder,
+                                     counts.output.folder = counts.output.folder,
+                                     Rpath = Rpath)
+  cmd <- rbind(cmd, assign.cmd)
 
   # Return ----
   return(cmd)

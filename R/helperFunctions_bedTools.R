@@ -22,11 +22,11 @@
     coorDT[, V3:= V2]
   }else if (ncol(coorDT)>3)
     stop("Character strings should follow the syntax: 'chr:start-end[:strand]'")
-  
+
   # Name columns and cbind
   setnames(coorDT, c("seqnames", "start", "end"))
   current <- cbind(coorDT, current)
-  
+
   # Return input type
   return(current)
 }
@@ -38,11 +38,13 @@
   type <- unique(gsub(".*[.](.*)$", "\\1", file))
   if(length(type)>1)
     stop("Mixed input file formats are not supported.")
-  
+  if(any(duplicated(file)))
+    warning("Some input file paths were duplicated.")
+
   # Import and rbind regions ----
   current <- lapply(file, data.table::fread)
   current <- rbindlist(current)
-  
+
   # Column names ----
   if(is.null(col.names)) {
     col.names <- if(type=="bed") {
@@ -54,10 +56,10 @@
     }
   }
   setnames(current, col.names)
-  
+
   # 0-base offset to 1-offset
   current[, start:= start+1]
-  
+
   # Return
   return(current)
 }
@@ -80,7 +82,7 @@
     # Check Boundaries
     if(any(current[, start>end]))
       warning("bed file contains genomic ranges with start>end -> malformed?")
-  } 
+  }
   if ("name" %in% names(current)) current[, name := as.character(name)]
   if ("score" %in% names(current)) current[, score := as.numeric(score)]
   if ("strand" %in% names(current))

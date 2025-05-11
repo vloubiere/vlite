@@ -64,6 +64,8 @@ cmd_alignBowtie2 <- function(fq1,
     stop("When provided, fq2 files should match fq1 files.")
   if(missing(genome) && is.null(genome.idx))
     stop("genome is missing and and genome.idx is set to NULL -> exit")
+  if(length(max.ins)!=1 || max.ins %% 1 != 0)
+    stop("max.ins should be a unique integer value.")
 
   # Retrieve index ----
   if(!missing(genome)) {

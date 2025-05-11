@@ -41,7 +41,7 @@
 #' # Import
 #' importBed(bed = file1)[]
 #'
-#' # Import and merge multiple peak files               
+#' # Import and merge multiple peak files
 #' # Download second example file
 #' file2 <- tempfile(fileext = ".narrowPeak")
 #' download.file(url = "https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE222193&format=file&file#' =GSE222193%5FChIP%5FPH%5FControl%5Fno%5Fph%2DKD%5Fconfident%5Fpeaks%2EnarrowPeak%2Egz",
@@ -76,6 +76,8 @@ importBed <- function(bed, col.names= NULL)
 
   # Make sure that columns have expected classes ----
   current <- .checkDataTableBedColClasses(bed= current)
+  if(nrow(current)==0)
+    message("provided bed file is empty.")
 
   # Return bed data.table ----
   return(current)

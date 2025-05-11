@@ -7,8 +7,8 @@
 #' @param b Target regions in any format compatible with ?importBed().
 #' @param all.a If set to FALSE, only returns the regions in a for each at least one overlap was found.
 #' If set to TRUE (default), reports all regions in a, including those without overlaps (see return values).
-#' @param ignore.strand If set to FALSE, only reports overlaps between regions that are on the same strand.
-#' If set to TRUE (default), reports overlaps on both strands.
+#' @param ignore.strand If set to FALSE and strand column is provided, only reports overlaps between regions
+#' that are on the same strand. If set to TRUE (default), reports overlaps on both strands.
 #'
 #' @return A data.table with columns:
 #' \itemize{
@@ -45,30 +45,32 @@ overlapBed <- function(a,
   a[, idx.a:= .I]
   b[, idx.b:= .I]
 
-  # Check ----
+  # columns to overlap ----
   .cols <- if(!ignore.strand && "strand" %in% names(a) && "strand" %in% names(b))
-    c("seqnames", "strand", "start", "end") else
-      c("seqnames", "start", "end")
+    c("seqnames", "start<=end", "end>=start", "strand") else
+      c("seqnames", "start<=end", "end>=start")
 
-  # Key bed files ----
-  setkeyv(a, .cols)
-  setkeyv(b, .cols)
+  # Compute overlaps ----
+  idx.b <- b[a, .(.(idx.b)), by= .EACHI, on= .cols]$V1
+  idx <- data.table(idx.a= rep(a$idx.a, lengths(idx.b)),
+                               idx.b= unlist(idx.b))
 
-  # foverlaps ----
-  idx <- foverlaps(a,
-                   b,
-                   nomatch= if(all.a) NA else NULL)
+  # Remove regions in a with no overlaps in b ----
+  if(!all.a)
+    idx <- idx[!is.na(idx.b)]
 
   # Compute overlap.start, overlap.end, overlap.width
-  idx[, overlap.start:= ifelse(i.start>start, i.start, start)]
-  idx[, overlap.end:= ifelse(i.end<end, i.end, end)]
-  idx[, overlap.width:= overlap.end-overlap.start+1]
-  idx[is.na(overlap.width), overlap.width:= 0]
+  coor <- cbind(a[idx$idx.a, .(start, end)],
+                b[idx$idx.b, .(b.start= start, b.end= end)])
+  coor[, overlap.start:= ifelse(start>b.start, start, b.start)]
+  coor[, overlap.end:= ifelse(end<b.end, end, b.end)]
+  coor[, overlap.width:= overlap.end-overlap.start+1]
+  coor[is.na(overlap.width), overlap.width:= 0]
 
-  # Sort rows and select columns ----
-  setorderv(idx, c("idx.a", "idx.b"))
-  idx <- idx[, .(idx.a, idx.b, overlap.start, overlap.end, overlap.width)]
+  # Final result ----
+  res <- cbind(idx,
+               coor[, .(overlap.start, overlap.end, overlap.width)])
 
   # Return ----
-  return(idx)
+  return(res)
 }

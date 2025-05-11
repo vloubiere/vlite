@@ -16,7 +16,7 @@
 #' @param genome A BS genome name (e.g. "dm6", "mm10").
 #' If specified, resized regions exceeding chromosome lengths will be clipped. Default= NULL.
 #' @param ignore.strand If set to TRUE, resizing always proceeds from the leftmost coordinate, irrespective of the strand.
-#' If set to FALSE (default), upstream and downstream resizing respect the feature's strand.
+#' If set to FALSE (default) and strand column is provided, upstream and downstream resizing respect feature's strand.
 #'
 #' @return
 #' A gr data.table containing resized regions.

@@ -5,6 +5,7 @@ devtools::load_all("./")
 if(F)
 {
   file.edit("inst/test/newUmiCollapsingStrat.R")
+  file.edit("inst/test/peakCallingFromBw.R")
 }
 
 # bamtools ---------------------------------
@@ -30,10 +31,10 @@ if(F)
   file.edit("R/binBed.R") # ignore.strand= FALSE
   file.edit("R/collapseBed.R")
   file.edit("R/closestBed.R")
+  file.edit("R/covBed.R")
   file.edit("R/overlapBed.R")
 
-  # Functions using overlapBed
-  file.edit("R/covBed.R")
+  # Functions internally using overlapBed
   file.edit("R/intersectBed.R")
   file.edit("R/subtractBed.R")
   file.edit("R/clipBed.R")

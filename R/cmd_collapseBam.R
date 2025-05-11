@@ -41,15 +41,15 @@ cmd_collapseBam <- function(bam,
   collapsed.stats <- file.path(collapsed.stats.output.folder, paste0(output.prefix, "_collapsed_stats.txt"))
 
   # Samtools collapsing command
-  paste("samtools sort -n -@", cores-1, "-T", collapsed.bam.output.folder, bam,
-        "| samtools fixmate -m - - | samtools sort -@", cores-1, "-T", collapsed.bam.output.folder,
-        "| samtools markdup -r - - | samtools view -b -o",  collapsed.bam,
-        "; samtools stats", collapsed.bam, "-@", cores-1, "| grep ^SN>", collapsed.stats) # Save statistics
+  collapse.cmd <- paste("samtools sort -n -@", cores-1, "-T", collapsed.bam.output.folder, bam,
+               "| samtools fixmate -m - - | samtools sort -@", cores-1, "-T", collapsed.bam.output.folder,
+               "| samtools markdup -r - - | samtools view -b -o",  collapsed.bam)
+  stats.cmd <- paste("samtools stats", collapsed.bam, "-@", cores-1, "| grep ^SN>", collapsed.stats)
 
   # Wrap commands output ----
   cmd <- data.table(file.type= c("collapsed.bam", "collapsed.stats"),
                     path= c(collapsed.bam, collapsed.stats),
-                    cmd= cmd)
+                    cmd= c(collapse.cmd, stats.cmd))
 
   # Return ----
   return(cmd)

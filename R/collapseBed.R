@@ -13,8 +13,9 @@
 #' Default= 0L (merge touching or overlapping features).
 #' @param return.idx.only If set to TRUE, returns the indices of merged regions
 #'   instead of collapsing them. Default= FALSE.
-#' @param ignore.strand If set to FALSE, only overlapping regions that are on the same strand
-#' are merged. If set to TRUE (default), regions are merged irrespective of their strand.
+#' @param ignore.strand If set to FALSE and strand column is provided, only overlapping
+#' regions that are on the same strand are merged. If set to TRUE (default), regions are
+#' merged irrespective of their strand.
 #'
 #' @return
 #' If return.idx.only = FALSE: a gr data.table with columns:
@@ -26,17 +27,17 @@
 #' }
 #' If return.idx.only = TRUE: a vector of run-length type id indicating which regions
 #' belong to the same contig and could be merged.
-#' 
+#'
 #' @examples
 #' # Create example regions
 #' bed <- importBed(c("chr2R:1000-2000:+", "chr2R:1500-2500:+", "chr2R:1500-2500:-", "chr2R:3000-4000:+"))
 #'
 #' # Merge overlapping regions with the same strand (3 merge regions)
 #' collapseBed(bed)
-#' 
+#'
 #' # Get merge indices instead of merging ()
 #' collapseBed(bed, return.idx.only = TRUE)
-#' 
+#'
 #' # Ignore strand (2 merged regions)
 #' collapseBed(bed, ignore.strand = TRUE)
 #'

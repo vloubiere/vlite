@@ -45,6 +45,8 @@ bwBinnedCoverage <- function(bed,
                              cleanup.cache= FALSE)
 {
   # Checks ----
+  if(nrow(bed)==1)
+    stop("At least two regions should be provided.")
   if(length(upstream)>1)
     stop("'upstream' should be a unique integer value.")
   if(length(downstream)>1)

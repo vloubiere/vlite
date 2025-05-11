@@ -20,7 +20,8 @@
 #' are returned. This is useful to exclude shorter bins nearby regions' boundaries.
 #' Default= FALSE.
 #' @param ignore.strand If set to TRUE, bins are oriented in 5' to 3' positions, regardless of
-#' their strand. If set to FALSE (default), bins orientation respect the strand.
+#' their strand. If set to FALSE (default) and strand column is provided, bins orientation respects
+#' the strand.
 #'
 #' @details
 #'

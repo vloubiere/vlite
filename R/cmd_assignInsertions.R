@@ -60,7 +60,9 @@ cmd_assignInsertions <- function(bam,
 
   # Output file ----
   bed.file <- file.path(bed.output.folder, paste0(output.prefix, "_unique_insertions.bed"))
-  counts.file <- file.path(counts.output.folder, paste0(output.prefix, "_assigned_counts_same_strand.txt"))
+  counts.file.prefix <- file.path(counts.output.folder, paste0(output.prefix, "_assigned_counts"))
+  fw.counts.file <- paste0(counts.file.prefix, "_same_strand.txt")
+  rev.counts.file <- paste0(counts.file.prefix, "_rev_strand.txt")
 
   # Command ----
   cmd <- paste(Rpath,
@@ -68,11 +70,11 @@ cmd_assignInsertions <- function(bam,
                bam,
                gtf,
                bed.file,
-               counts.file)
+               counts.file.prefix)
 
   # Wrap commands output ----
-  cmd <- data.table(file.type= c("bed.file", "counts.file"),
-                    path= c(bed.file, counts.file),
+  cmd <- data.table(file.type= c("bed.file", "fw.counts.file", "rev.counts.file"),
+                    path= c(bed.file, fw.counts.file, rev.counts.file),
                     cmd= cmd)
 
   # Return ----

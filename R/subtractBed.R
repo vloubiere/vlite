@@ -8,8 +8,9 @@
 #' @param b Target regions in any format compatible with ?importBed().
 #' @param min.width Integer specifying the minimum width required for resized regions.
 #' Regions smaller than this are discarded. Default= 1L.
-#' @param ignore.strand If set to FALSE, only subtracts overlapping features that are on the same strand.
-#' If set to TRUE (default), subtracts overlapping feature(s) regardless of their strand(s).
+#' @param ignore.strand If set to FALSE and strand column is provided, only subtracts overlapping
+#' features that are on the same strand. If set to TRUE (default), subtracts overlapping feature(s)
+#' regardless of their strand(s).
 #'
 #' @return A gr data.table containing the remaining portions of a, after subtracting the regions
 #' defined in b.
@@ -21,10 +22,10 @@
 #'
 #' # Basic example
 #' subtractBed(a, b)
-#' 
+#'
 #' # Minimum width of 50bp
 #' subtractBed(a, b, min.width = 50L)
-#' 
+#'
 #' # Only subtract regions with similar strand
 #' subtractBed(a, b, ignore.strand= FALSE)
 #'

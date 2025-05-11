@@ -9,8 +9,8 @@
 #' @param b Target regions in any format compatible with ?importBed().
 #' @param min.width Integer specifying the minimum width required for clipped regions.
 #' Regions smaller than this are discarded. Default= 1L.
-#' @param ignore.strand If set to FALSE, only clips at boundaries that are on the same strand.
-#' If set to TRUE (default), clips boundaries regardless of their strands.
+#' @param ignore.strand If set to FALSE and strand column is provided, only clips at boundaries
+#' that are on the same strand. If set to TRUE (default), clips boundaries regardless of their strands.
 #'
 #' @return A gr data.table containing the remaining portions of a, after clipping them using the boundaries
 #' defined in b.
@@ -25,7 +25,7 @@
 #'
 #' # Require minimum width of 100bp
 #' clipBed(a, b, min.width= 100)
-#' 
+#'
 #' # Strand-specific
 #' clipBed(a, b, ignore.strand = FALSE)
 #'
