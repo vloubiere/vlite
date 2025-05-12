@@ -29,7 +29,7 @@ bwHeatmap(
 )
 }
 \arguments{
-\item{bed}{A GRanges or data.frame object containing genomic regions of interest}
+\item{bed}{A GRanges or data.frame object containing genomic regions of interest.}
 
 \item{by}{Optional factor for grouping the data (e.g., by condition or feature type)}
 
@@ -71,19 +71,20 @@ Creates a visualization of average signal profiles from BigWig files around geno
 with optional grouping and customizable appearance.
 }
 \examples{
-# Import 200 genes for example
-path <- system.file("extdata", "Drosophila_transcripts_r6.36.bed", package = "vlite")
-genes <- importBed(path)[5001:5200]
+# Sample 200 random genes
+all_genes <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+set.seed(42)
+random_genes <- all_genes[sample(length(all_genes), 200)]
 
 # Example tracks
 tracks <- c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
             "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw")
 
 # Parameters for a nice layout
-vl_par()
+vl_par(mfrow= c(1,2))
 
 # Simple example with two tracks
-bwHeatmap(bed = genes,
+bwHeatmap(bed = random_genes,
           tracks = tracks,
           center = "start",
           upstream = 5000,
@@ -91,7 +92,7 @@ bwHeatmap(bed = genes,
           nbins = 251L)
 
 # Two tracks and two subgroups of regions
-bwHeatmap(bed = genes,
+bwHeatmap(bed = random_genes,
           by = c(rep("group.a", 50), rep("group.b", 150)),
           tracks = tracks,
           center = "start",
@@ -101,7 +102,7 @@ bwHeatmap(bed = genes,
 abline(v= 0, lty= 2)
 
 # Example using anchored region
-bwHeatmap(bed = genes,
+bwHeatmap(bed = random_genes,
           tracks = tracks,
           center = "region",
           upstream = 5000,

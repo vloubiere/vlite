@@ -5,10 +5,14 @@
 \title{Add Enhanced Legend to Plot}
 \usage{
 vl_legend(
-  x = par("usr")[2],
-  y = par("usr")[4],
+  x,
+  y,
   legend,
   fill,
+  x.adj = 0,
+  y.adj = 0,
+  x.log = par("xlog"),
+  y.log = par("ylog"),
   bty = "n",
   xpd = T,
   cex = 7/12,
@@ -17,15 +21,21 @@ vl_legend(
 )
 }
 \arguments{
-\item{x}{Numeric x-coordinate for legend position. Default is right edge
-of plot (par("usr")[2]).}
+\item{x}{Numeric x-coordinate for legend position. Default= par("usr")[2].}
 
-\item{y}{Numeric y-coordinate for legend position. Default is top edge
-of plot (par("usr")[4]).}
+\item{y}{Numeric y-coordinate for legend position. Default= par("usr")[4].}
 
 \item{legend}{Character vector of legend labels.}
 
 \item{fill}{Vector of colors for legend key boxes.}
+
+\item{x.adj}{If specified, x plotting position is shifted by x.adj*line.width. Default= 0.}
+
+\item{y.adj}{If specified, y plotting positions is shifted by y.adj*line.height. Default= 0.}
+
+\item{x.log}{Should the x value be logged? Default= par("xlog").}
+
+\item{y.log}{Should the x value be logged? Default= par("ylog").}
 
 \item{bty}{Character specifying box type around legend. Default is "n"
 (no box).}
@@ -49,14 +59,6 @@ legend()).
 A wrapper around base R's legend() function with improved default settings
 for scientific visualization. Automatically positions the legend in the
 top-right corner of the plot with clean, minimal styling.
-}
-\details{
-This function implements a consistent and clean legend style with:
-* No box around the legend
-* No borders around color boxes
-* Slightly reduced text size
-* Automatic positioning at plot edge
-* Ability to extend outside plot region
 }
 \examples{
 # Basic plot with legend

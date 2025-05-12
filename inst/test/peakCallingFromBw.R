@@ -11,6 +11,55 @@ chr <- importBed("chr2L:1-23513712")
 bins <- binBed(chr, bins.width = 100, steps.width = 1)
 bins <- bins[, .(seqnames, start, end)]
 
+# Hard copy for incapsulation, select cols and compute width ----
+regions <- importBed(bins[1:10000000])
+regions <- regions[, .(seqnames, start, end, width= end-start+1)]
+# Transform to Granges
+gr <- GenomicRanges::GRanges(na.omit(regions))
+
+# Import bw ----
+sel <- rtracklayer::BigWigSelection(gr, "score")
+var <- rtracklayer::import.bw(track, selection= sel)
+var <- data.table::as.data.table(var)
+
+# Overlap ----
+gr_a <- makeGRangesFromDataFrame(var)
+gr_b <- makeGRangesFromDataFrame(regions)
+t0 <- Sys.time()
+res1 <- overlapBed(a= var,
+                   b= regions,
+                   ignore.strand = TRUE, # .bw files are not stranded
+                   all.a = TRUE)
+t1 <- Sys.time()
+res2 <- overlapBed_2(a= var,
+                     b= regions,
+                     ignore.strand = TRUE, # .bw files are not stranded
+                     all.a = TRUE)
+t2 <- Sys.time()
+res4 <- findOverlaps(gr_a, gr_b, ignore.strand = ignore.strand)
+t3 <- Sys.time()
+t1-t0
+t2-t1
+t3-t2
+t4 <- Sys.time()
+res6 <- binnedAverage(gr_b, import(track, as = "RleList")[unique(seqnames(gr_b))], "score")
+t5 <- Sys.time()
+t5-t4
+
+t2 <- Sys.time()
+res3 <- covBed(var, regions)
+res5 <- resizeBed(regions, center = "start", upstream = 10000, downstream = 10000)
+t5 <- Sys.time()
+res6 <- GenomicRanges::resize(gr_b, width = 10000, fix = "start")
+t6 <- Sys.time()
+print(t1-t0)
+print(t2-t1)
+print(t3-t2)
+print(t4-t3)
+print(t5-t4)
+print(t6-t5)
+
+
 # Compute signal
 bins[, signal:= bwCoverage(.SD, track)]
 

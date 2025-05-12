@@ -66,8 +66,8 @@
                               colnames = c("type", gtf.symbol, gtf.transcript.id),
                               feature.type= c(gtf.transcript, gtf.exon))
   seqlevelsStyle(feat) <- "UCSC"
-  feat <- importBed(feat)
-  feat <- clipBed(feat, regions)
+  feat <- vlite::importBed(feat)
+  feat <- vlite::clipBed(feat, regions)
 
   # Make feat column names and type column reproducible
   setnames(feat,
@@ -124,7 +124,7 @@
   gaps <- subtractBed(regions[, .(seqnames, start, end)],
                       var)
   gaps[, score:= as.numeric(0)]
-  var <- rbind(var, gaps)
+  var <- rbind(var, gaps, fill = TRUE)
   # Clip score based on cutoffs
   if(is.na(track.cutoff.min))
     track.cutoff.min <- min(c(0, var$score))

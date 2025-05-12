@@ -50,62 +50,21 @@
 #' closestBed(a, b, n= 2)[]
 #'
 #' @export
-closestBed <- function(a,
-                       b,
-                       n= 1L,
-                       min.dist= 0L,
-                       max.dist= Inf,
-                       ignore.strand= TRUE)
+closestBed_2 <- function(a,
+                         b,
+                         n= 1L,
+                         min.dist= 0L,
+                         max.dist= Inf,
+                         ignore.strand= TRUE)
 {
   # Checks ----
   if(min.dist<0L | max.dist<0L)
     stop("min.dist and max.dist, should be positive integers")
 
   # Import bed files ----
-  a <- importBed(a)
-  b <- importBed(b)
+  a <- GRanges(a)
+  b <- GRanges(b)
 
-  # Should strand be considered?
-  .cols <- if(!ignore.strand && "strand" %in% names(a) & "strand" %in% names(b))
-    c("seqnames", "strand") else
-      "seqnames"
-
-  # Compute closest ----
-  idx <- b[a, {
-    # Compute all distances
-    dist <- fcase(x.start>i.end, as.integer(x.start-i.end),
-                  x.end<i.start, as.integer(i.start-x.end),
-                  is.na(x.start) | is.na(x.end), NA_integer_,
-                  default= 0L)
-    # Compute range depening on n
-    range <- sort(unique(dist[between(dist, min.dist, max.dist)]))
-    min <- range[1]
-    max <- range[ifelse(length(range) > n, n, length(range))]
-    # Select closest features
-    sel <- between(dist, min, max)
-    .(idx.a= .GRP,
-      idx.b= .I[sel],
-      dist= dist[sel])
-  }, .EACHI, on= .cols]
-
-  # Remove regions in a with no closest feature in b ----
-  count <- uniqueN(idx[is.na(idx.b), idx.a])
-  if(length(count))
-    message(paste0(count, "/", nrow(a),
-                   " region(s) in 'a' had no closest features in b and were discarded"))
-  idx <- na.omit(idx[, .(idx.a, idx.b, dist)])
-
-  # Upstream features will receive a negative distance ----
-  upstream <- a[idx$idx.a, start] > b[idx$idx.b, end]
-  idx[upstream, dist:= -dist]
-
-  # Adjust distance sign depending on the strand ----
-  if("strand" %in% names(a))
-  {
-    neg.strand <- a[idx$idx.a, strand]=="-"
-    idx[neg.strand, dist:= -dist]
-  }
-
-  # Return ----
-  return(idx)
+  # Compute pairwise distances ----
+  lapply(seq_along(a), function(i) GenomicRanges::distance(a[i], b))
 }

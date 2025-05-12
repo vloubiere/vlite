@@ -23,31 +23,22 @@ bwCoverage <- function(bed,
   if(!file.exists(bw))
     stop("bw file does not exist!")
 
-  # Hard copy for incapsulation, select cols and compute width ----
-  regions <- importBed(bed)
-  regions <- regions[, .(seqnames, start, end, width= end-start+1)]
-  # Transform to Granges
-  gr <- GenomicRanges::GRanges(na.omit(regions))
+  # Copy for incapsulation ----
+  bed <- vlite::importBed(bed)
 
   # Import bw ----
+  gr <- GenomicRanges::GRanges(bed)
   sel <- rtracklayer::BigWigSelection(gr, "score")
-  var <- rtracklayer::import.bw(bw, selection= sel)
-  var <- data.table::as.data.table(var)
+  var <- suppressWarnings(
+    rtracklayer::import.bw(con = bw,
+                           selection= sel,
+                           as="RleList")
+  )
+  seqlevels(gr, pruning.mode="coarse") <- names(var)
 
-  # Overlap ----
-  res <- overlapBed(a= regions,
-                    b= var,
-                    ignore.strand = TRUE, # .bw files are not stranded
-                    all.a = TRUE)
-  # Retrieve regions widths (file a)
-  res[, width:= regions[idx.a, width]]
-  # Retrieve bins scores (file b)
-  res[, score:= var[idx.b, score]]
-
-  # Compute mean signal. *
-  meanSig <- res[, sum(score*overlap.width)/width, keyby= .(idx.a, width)]$V1
-  # * .bw files do not store NAs -> only regions with no overlaps will return NA
+  # Compute mean score ----
+  bed[seqnames %in% seqlevels(gr), cov:= binnedAverage(gr, var, "average_score")$average_score]
 
   # Return
-  return(meanSig)
+  return(bed$cov)
 }

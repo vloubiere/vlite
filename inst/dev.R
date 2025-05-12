@@ -6,69 +6,42 @@ if(F)
 {
   file.edit("inst/test/newUmiCollapsingStrat.R")
   file.edit("inst/test/peakCallingFromBw.R")
+  file.edit("inst/test/new_closestBed.R")
 }
 
 # bamtools ---------------------------------
 if(F)
 {
-  # Import bam
   file.edit("R/importBamRsamtools.R")
-  file.edit("R/importBamRaw.R") # Using samtools and fread
 }
 
 # bedtools ---------------------------------
 if(F)
 {
-  # Helper functions
-  file.edit("R/helperFunctions_bedTools.R")
-
-  # Import/export
-  file.edit("R/importBed.R")
-  file.edit("R/exportBed.R")
-
-  # Standalone functions
-  file.edit("R/resizeBed.R") # ignore.strand= FALSE
-  file.edit("R/binBed.R") # ignore.strand= FALSE
-  file.edit("R/collapseBed.R")
-  file.edit("R/closestBed.R")
-  file.edit("R/covBed.R")
-  file.edit("R/overlapBed.R")
-
-  # Functions internally using overlapBed
-  file.edit("R/intersectBed.R")
-  file.edit("R/subtractBed.R")
-  file.edit("R/clipBed.R")
+  file.edit("R/bedTools.R")
 }
 
 # bwtools ---------------------------------
 if(F)
 {
-  # Helper functions
-  file.edit("R/helperFunctions_bwTools.R")
-
   # Coverage
   file.edit("R/bwCoverage.R")
   file.edit("R/bwBinnedCoverage.R")
 
   # Screenshot
+  file.edit("R/helperFunctions_bwScreenshot.R")
   file.edit("R/bwScreenshot.R")
 
-  # Average tracks
+  # Average tracks and heatmap
   file.edit("R/bwAverageTrack.R")
-
-  # Bw heatmaps
   file.edit("R/bwHeatmap.R")
-
 }
 
 # BSgenomes tools -------------------------
 if(F)
 {
-  file.edit("R/getBSgenomeSize.R")
-  file.edit("R/binBSgenome.R")
-  file.edit("R/controlRegionsBSgenome.R")
-  file.edit("R/randomRegionsBSgenome.R")
-  file.edit("R/getBSsequence.R")
+  file.edit("R/helperFunction_randomRegionsBSgenome.R")
+  file.edit("R/BSgenomeTools.R")
 }
 
 # Motifs analyses tools --------------------

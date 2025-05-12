@@ -51,12 +51,18 @@ For each BigWig file, it returns a matrix where rows represent regions from the 
 }
 \examples{
 
-# Example regions (100 genes)
-path <- system.file("extdata", "Drosophila_transcripts_r6.36.bed", package = "dtBedTools")
-bed <- importBed(path)[5000:5100]
+# Load the TxDb object
+
+# Sample 100 random genes
+all_genes <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+set.seed(42)
+random_genes <- all_genes[sample(length(all_genes), 100)]
 
 # Example tracks
 tracks <- c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
             "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw")
+
+# Compute
+binnedCov <- bwBinnedCoverage(random_genes, tracks)
 
 }

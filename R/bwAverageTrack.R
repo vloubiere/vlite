@@ -32,9 +32,10 @@
 #' @return Plots the average signal profile and invisibly returns NULL
 #'
 #' @examples
-#' # Import 200 genes for example
-#' path <- system.file("extdata", "Drosophila_transcripts_r6.36.bed", package = "vlite")
-#' genes <- importBed(path)[5001:5200]
+#' # Sample 200 random genes
+#' all_genes <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+#' set.seed(42)
+#' random_genes <- all_genes[sample(length(all_genes), 200)]
 #'
 #' # Example tracks
 #' tracks <- c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
@@ -44,7 +45,7 @@
 #' vl_par()
 #'
 #' # Simple example with two tracks
-#' meanSignal <- bwAverageTrack(bed = genes,
+#' meanSignal <- bwAverageTrack(bed = random_genes,
 #'                              tracks = tracks,
 #'                              center = "start",
 #'                              upstream = 5000,
@@ -52,7 +53,7 @@
 #'                              nbins = 251L)
 #'
 #' # Two tracks and two subgroups of regions
-#' meanSignal <- bwAverageTrack(bed = genes,
+#' meanSignal <- bwAverageTrack(bed = random_genes,
 #'                              by = c(rep("group.a", 50), rep("group.b", 150)),
 #'                              tracks = tracks,
 #'                              center = "start",
@@ -62,7 +63,7 @@
 #' abline(v= 0, lty= 2)
 #'
 #' # Example with anchored region (Genomic distance is now a pseudodistance)
-#' meanSignal <- bwAverageTrack(bed = genes,
+#' meanSignal <- bwAverageTrack(bed = random_genes,
 #'                              tracks = tracks,
 #'                              center = "region",
 #'                              upstream = 5000,
@@ -95,7 +96,7 @@ bwAverageTrack <- function(bed,
                            legend.cex= .7,
                            cleanup.cache= FALSE)
 {
-  # Checks
+  # Checks ----
   if(is.function(names))
     names <- names(tracks)
   if(!is.null(by))
@@ -110,6 +111,7 @@ bwAverageTrack <- function(bed,
                              nbins = nbins,
                              ignore.strand= ignore.strand,
                              cleanup.cache = cleanup.cache)
+  signal <- lapply(signal, as.data.table)
 
   # Split groups using by ----
   if(!is.null(by)) {

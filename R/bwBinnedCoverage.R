@@ -26,13 +26,19 @@
 #'
 #' @examples
 #'
-#' # Example regions (100 genes)
-#' path <- system.file("extdata", "Drosophila_transcripts_r6.36.bed", package = "dtBedTools")
-#' bed <- importBed(path)[5000:5100]
+#' # Load the TxDb object
+#'
+#' # Sample 100 random genes
+#' all_genes <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+#' set.seed(42)
+#' random_genes <- all_genes[sample(length(all_genes), 100)]
 #'
 #' # Example tracks
 #' tracks <- c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
 #'             "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw")
+#'
+#' # Compute
+#' binnedCov <- bwBinnedCoverage(random_genes, tracks)
 #'
 #' @export
 bwBinnedCoverage <- function(bed,
@@ -45,6 +51,7 @@ bwBinnedCoverage <- function(bed,
                              cleanup.cache= FALSE)
 {
   # Checks ----
+  bed <- vlite::importBed(bed)
   if(nrow(bed)==1)
     stop("At least two regions should be provided.")
   if(length(upstream)>1)
@@ -68,7 +75,7 @@ bwBinnedCoverage <- function(bed,
   if(cleanup.cache | !file.exists(signal.cache)) {
 
     # Hard copy for incapsulation ----
-    regions <- importBed(bed)
+    regions <- vlite::importBed(bed)
 
     # Resize and bin ----
     bins <- if(center!="region")
@@ -78,51 +85,59 @@ bwBinnedCoverage <- function(bed,
         stop("When center is set to 'center', 'start' or 'end', nbins should be of length 1")
 
       # Resize regions
-      resized <- resizeBed(regions,
-                           center = center,
-                           upstream = upstream,
-                           downstream = downstream,
-                           ignore.strand = ignore.strand)
+      resized <- vlite::resizeBed(regions,
+                                  center = center,
+                                  upstream = upstream,
+                                  downstream = downstream,
+                                  ignore.strand = ignore.strand)
 
       # Compute bins
-      binBed(resized,
-             nbins = nbins,
-             center.nbins = TRUE,
-             ignore.strand = ignore.strand)
+      vlite::binBed(resized,
+                    nbins = nbins,
+                    center.nbins = TRUE,
+                    ignore.strand = ignore.strand)
 
     }else if(center=="region")
     {
       if(length(nbins)!=3L)
         stop("When center is set to 'region', nbins should be of length 3")
-      # Upstream
-      up <- resizeBed(regions,
-                      center = "start",
-                      upstream = upstream,
-                      downstream = 0,
-                      ignore.strand = ignore.strand)
-      upBins <- binBed(up,
-                       nbins= nbins[1],
-                       ignore.strand = ignore.strand,
-                       center.nbins = TRUE)
-      # Downstream
-      down <- resizeBed(regions,
-                        center = "end",
-                        upstream = 0,
-                        downstream = downstream,
-                        ignore.strand = ignore.strand)
-      downBins <- binBed(down,
-                         nbins= nbins[3],
-                         ignore.strand = ignore.strand,
-                         center.nbins = TRUE)
+      # Upstream regions
+      up <- vlite::resizeBed(regions,
+                             center = "start",
+                             upstream = upstream,
+                             downstream = 0,
+                             ignore.strand = ignore.strand)
+      # Downstream regions
+      down <- vlite::resizeBed(regions,
+                               center = "end",
+                               upstream = 0,
+                               downstream = downstream,
+                               ignore.strand = ignore.strand)
       # Adjust middle regions after centering up/down bins'
-      middle <- importBed(regions)
+      middle <- vlite::importBed(regions)
       middle[, start:= ifelse(up$end<down$end, up$end, down$end)+1L]
       middle[, end:= ifelse(up$start>down$start, up$start, down$start)-1L]
-      # Bin middle region
-      middleBins <- binBed(middle,
-                           nbins= nbins[2],
-                           ignore.strand = ignore.strand,
-                           center.nbins = FALSE)
+      # Check that middle regions are large enough
+      too.short <- middle[, end-start+1<nbins[2]]
+      if(any(too.short)) {
+        warning(paste(sum(too.short), "/", nrow(middle), "regions shorter than nbins[2] -> removed!"))
+        up <- up[!(too.short)]
+        down <- down[!(too.short)]
+        middle <- middle[!(too.short)]
+      }
+      # Bin Regions
+      upBins <- vlite::binBed(up,
+                              nbins= nbins[1],
+                              ignore.strand = ignore.strand,
+                              center.nbins = TRUE)
+      downBins <- vlite::binBed(down,
+                                nbins= nbins[3],
+                                ignore.strand = ignore.strand,
+                                center.nbins = TRUE)
+      middleBins <- vlite::binBed(middle,
+                                  nbins= nbins[2],
+                                  ignore.strand = ignore.strand,
+                                  center.nbins = FALSE)
       # Adjust bin indexes
       middleBins[, bin.idx:= bin.idx+nbins[1]]
       downBins[, bin.idx:= bin.idx+sum(nbins[1:2])]
@@ -135,7 +150,7 @@ bwBinnedCoverage <- function(bed,
 
     # Quantif tracks ----
     .q <- parallel::mclapply(tracks, function(x) {
-      bwCoverage(bins, x)
+      vlite::bwCoverage(bins, x)
     },
     mc.preschedule = T,
     mc.cores = max(c(1, data.table::getDTthreads()-1)))

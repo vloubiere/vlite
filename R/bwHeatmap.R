@@ -3,7 +3,7 @@
 #' Creates a visualization of average signal profiles from BigWig files around genomic features,
 #' with optional grouping and customizable appearance.
 #'
-#' @param bed A GRanges or data.frame object containing genomic regions of interest
+#' @param bed A GRanges or data.frame object containing genomic regions of interest.
 #' @param by Optional factor for grouping the data (e.g., by condition or feature type)
 #' @param tracks Character vector of paths to BigWig files
 #' @param names Function or character vector to generate track names. Default extracts names from file paths
@@ -24,19 +24,20 @@
 #' @return Plots the average signal profile and invisibly returns NULL
 #'
 #' @examples
-#' # Import 200 genes for example
-#' path <- system.file("extdata", "Drosophila_transcripts_r6.36.bed", package = "vlite")
-#' genes <- importBed(path)[5001:5200]
+#' # Sample 200 random genes
+#' all_genes <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+#' set.seed(42)
+#' random_genes <- all_genes[sample(length(all_genes), 200)]
 #'
 #' # Example tracks
 #' tracks <- c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
 #'             "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw")
 #'
 #' # Parameters for a nice layout
-#' vl_par()
+#' vl_par(mfrow= c(1,2))
 #'
 #' # Simple example with two tracks
-#' bwHeatmap(bed = genes,
+#' bwHeatmap(bed = random_genes,
 #'           tracks = tracks,
 #'           center = "start",
 #'           upstream = 5000,
@@ -44,7 +45,7 @@
 #'           nbins = 251L)
 #'
 #' # Two tracks and two subgroups of regions
-#' bwHeatmap(bed = genes,
+#' bwHeatmap(bed = random_genes,
 #'           by = c(rep("group.a", 50), rep("group.b", 150)),
 #'           tracks = tracks,
 #'           center = "start",
@@ -54,7 +55,7 @@
 #' abline(v= 0, lty= 2)
 #'
 #' # Example using anchored region
-#' bwHeatmap(bed = genes,
+#' bwHeatmap(bed = random_genes,
 #'           tracks = tracks,
 #'           center = "region",
 #'           upstream = 5000,
@@ -96,7 +97,8 @@ bwHeatmap <- function(bed,
                              upstream = upstream,
                              downstream = downstream,
                              nbins = nbins,
-                             ignore.strand= ignore.strand)
+                             ignore.strand= ignore.strand,
+                             cleanup.cache = cleanup.cache)
 
   # Compute max values ----
   if(is.null(max.cutoffs))

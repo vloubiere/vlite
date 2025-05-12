@@ -36,13 +36,7 @@ bwScreenshot(
 )
 }
 \arguments{
-\item{bed}{Genomic regions to display. Accepts:
-\itemize{
-  \item Character vector of ranges ("chr:start-end[:strand]")
-  \item GRanges object
-  \item data.frame/data.table with required columns
-  \item Path to a BED file
-}}
+\item{bed}{Input genomic ranges, in any format compatible with ?importBed().}
 
 \item{tracks}{Character vector of paths to visualization tracks:
 \itemize{
@@ -58,7 +52,7 @@ from file basenames.}
 \item{bw.max}{Numeric. Maximum signal value for BigWig tracks. Values above this
 will be clipped. Default (NA) uses track maximum.}
 
-\item{bw.n.breaks}{The number of breaks to which the signal will be simplified, to avoid polygon vector with to many points.
+\item{bw.n.breaks}{The number of breaks to which the signal will be simplified, to avoid polygon vector with too many points.
 If set to NA, the signal is not simplified and is plotted as is.}
 
 \item{genome}{Character. Genome assembly (e.g., "mm10", "dm6") for gene annotations.
@@ -66,10 +60,9 @@ If specified, nearby genes will be displayed.}
 
 \item{ngenes}{Integer. Number of nearest genes to display. Default = 1.}
 
-\item{sel.gene.symbols}{If specific, only selected gene symbols will be plotted. Default= NULL.}
+\item{sel.gene.symbols}{If specified, only selected gene symbols will be plotted. Default= NULL.}
 
-\item{gtf}{Character. Path to a GTF file for custom gene annotations. Alternative to using
-the 'genome' parameter.}
+\item{gtf}{Character path to a custom GTF file for custom gene annotations (alternative to the 'genome' parameter).}
 
 \item{gtf.transcript}{Character. Name of transcript features in the GTF file (default = "mRNA").}
 
@@ -82,14 +75,7 @@ the 'genome' parameter.}
 (default = "transcript_id").}
 }
 \value{
-Creates a plot in the current graphics device. Returns invisible(NULL).
-The plot contains:
-\itemize{
-  \item BigWig signal tracks with automatic or specified y-axis limits
-  \item BED region tracks showing discrete genomic features
-  \item Optional gene annotations with strand-specific coloring
-  \item Track labels and signal value scales
-}
+A screenshot of the genomic tracks/regions.
 
 A genomic screenshot.
 }
@@ -126,7 +112,6 @@ regions can be displayed side by side for comparison.
 }
 
 \examples{
-
 # Plotting parameters for a nice layout
 par(mai = c(0.9, 0.9, 0.9, 0.9),
     las = 1,
@@ -139,7 +124,7 @@ par(mai = c(0.9, 0.9, 0.9, 0.9),
     lend = 2)
 
 # Simple example with two regions and 4 tracks
-bwScreenshot(bed= c("chr3R:30,760,926-30,794,202", "chr3R:30,765,926-30,789,202"),
+bwScreenshot(bed= c("chr3R:30760926-30794202", "chr3R:30765926-30789202"),
              tracks= c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
                        "/groups/stark/vloubiere/projects/epigenetic_cancer/db/peaks/ATAC/ATAC_PH18_conf_peaks.narrowPeak",
                        "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw",
@@ -147,7 +132,7 @@ bwScreenshot(bed= c("chr3R:30,760,926-30,794,202", "chr3R:30,765,926-30,789,202"
              genome= "dm6")
 
 # Genes only
-bwScreenshot(bed= c("chr3R:30,760,926-30,794,202", "chr3R:30,765,926-30,789,202"),
+bwScreenshot(bed= c("chr3R:30760926-30794202", "chr3R:30765926-30789202"),
              genome= "dm6")
 
 }

@@ -5,13 +5,7 @@
 #' BED regions, and optional gene annotations for specified genomic regions. Multiple
 #' regions can be displayed side by side for comparison.
 #'
-#' @param bed Genomic regions to display. Accepts:
-#' \itemize{
-#'   \item Character vector of ranges ("chr:start-end[:strand]")
-#'   \item GRanges object
-#'   \item data.frame/data.table with required columns
-#'   \item Path to a BED file
-#' }
+#' @param bed Input genomic ranges, in any format compatible with ?importBed().
 #' @param tracks Character vector of paths to visualization tracks:
 #' \itemize{
 #'   \item BigWig (.bw) files for continuous signal tracks
@@ -22,14 +16,13 @@
 #'   from file basenames.
 #' @param bw.max Numeric. Maximum signal value for BigWig tracks. Values above this
 #'   will be clipped. Default (NA) uses track maximum.
-#' @param bw.n.breaks The number of breaks to which the signal will be simplified, to avoid polygon vector with to many points.
+#' @param bw.n.breaks The number of breaks to which the signal will be simplified, to avoid polygon vector with too many points.
 #' If set to NA, the signal is not simplified and is plotted as is.
 #' @param genome Character. Genome assembly (e.g., "mm10", "dm6") for gene annotations.
 #'   If specified, nearby genes will be displayed.
 #' @param ngenes Integer. Number of nearest genes to display. Default = 1.
-#' @param sel.gene.symbols If specific, only selected gene symbols will be plotted. Default= NULL.
-#' @param gtf Character. Path to a GTF file for custom gene annotations. Alternative to using
-#'   the 'genome' parameter.
+#' @param sel.gene.symbols If specified, only selected gene symbols will be plotted. Default= NULL.
+#' @param gtf Character path to a custom GTF file for custom gene annotations (alternative to the 'genome' parameter).
 #' @param gtf.transcript Character. Name of transcript features in the GTF file (default = "mRNA").
 #' @param gtf.exon Character. Name of exon features in the GTF file (default = "exon").
 #' @param gtf.symbol Character. Name of the attribute containing gene symbols in the GTF file
@@ -63,17 +56,9 @@
 #' }
 #'
 #' @return
-#' Creates a plot in the current graphics device. Returns invisible(NULL).
-#' The plot contains:
-#' \itemize{
-#'   \item BigWig signal tracks with automatic or specified y-axis limits
-#'   \item BED region tracks showing discrete genomic features
-#'   \item Optional gene annotations with strand-specific coloring
-#'   \item Track labels and signal value scales
-#' }
+#' A screenshot of the genomic tracks/regions.
 #'
 #' @examples
-#'
 #' # Plotting parameters for a nice layout
 #' par(mai = c(0.9, 0.9, 0.9, 0.9),
 #'     las = 1,
@@ -86,7 +71,7 @@
 #'     lend = 2)
 #'
 #' # Simple example with two regions and 4 tracks
-#' bwScreenshot(bed= c("chr3R:30,760,926-30,794,202", "chr3R:30,765,926-30,789,202"),
+#' bwScreenshot(bed= c("chr3R:30760926-30794202", "chr3R:30765926-30789202"),
 #'              tracks= c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
 #'                        "/groups/stark/vloubiere/projects/epigenetic_cancer/db/peaks/ATAC/ATAC_PH18_conf_peaks.narrowPeak",
 #'                        "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw",
@@ -94,7 +79,7 @@
 #'              genome= "dm6")
 #'
 #' # Genes only
-#' bwScreenshot(bed= c("chr3R:30,760,926-30,794,202", "chr3R:30,765,926-30,789,202"),
+#' bwScreenshot(bed= c("chr3R:30760926-30794202", "chr3R:30765926-30789202"),
 #'              genome= "dm6")
 #'
 #' @return A genomic screenshot.
@@ -129,8 +114,7 @@ bwScreenshot <- function(bed,
                          add= FALSE)
 {
   # Import bed regions ----
-  regions <- importBed(bed = bed)
-  regions <- regions[, .(seqnames, start, end)]
+  regions <- vlite::importBed(bed = bed)[, .(seqnames, start, end)]
   # Add index, width and plot limits
   regions[, region.idx:= .I]
   regions[, width:= end-start+1]
