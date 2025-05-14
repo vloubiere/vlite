@@ -149,7 +149,7 @@ if(F)
   file.edit("inst/Rscript/count_PROseq_reads.R") # R subscript
 
   # Generate bigwigs ----
-  # Merge bigiw files ----
+  # Merge bigwig files ----
   file.edit("R/cmd_mergeBigwig.R") # Wrapper
   # Bedgraph to bigwig
   file.edit("R/cmd_bedgraphToBigwig.R") # Wrapper
@@ -163,6 +163,9 @@ if(F)
   # PROSeq UMI counts to bigwig
   file.edit("R/cmd_umiToBigwigProseq.R") # Wrapper
   file.edit("inst/Rscript/umiToBigwigProseq.R") # R subscript
+  # log2 Ratio bigwig
+  file.edit("R/cmd_logRatioBigwig.R") # Wrapper
+  file.edit("inst/Rscript/logRatioBigwig.R") # Wrapper
 }
 
 # Genomics pipelines -----------------------

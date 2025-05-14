@@ -6,7 +6,7 @@
 #'
 #' @param experiment.bw.file Path to the experiment bigWig (.bw) file. Must be unique.
 #' @param input.bw.file Optional path to input/control bigWig (.bw) file. Must be unique or NULL.
-#' @param bed Genomic ranges for which peaks will be called, in any format compatible with ?importBed.
+#' @param bed Path to a bed file containing regions for which peaks should be called.
 #' If genome is specified (see below), this argument will be ignored.
 #' @param genome A BSgenome name specifying the genome for which peaks should be called. For custom regions,
 #' see the bed argument.
@@ -48,15 +48,13 @@ cmd_peakCallingFromBw <- function(experiment.bw.file,
                                   Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Check (!Do not check if files exist to allow wrapping!) ----
-  if(length(experiment.bw.file)>1)
+  if(length(experiment.bw.file)!=1)
     stop("A unique experiment bw file should be provided.")
   if(length(input.bw.file)>1)
     stop("If provided, the input bw file should be unique.")
   if(!all(grepl(".bw$", c(experiment.bw.file, input.bw.file))))
     stop("Experiment and optional input bw file should be in .bw extension.")
-  if(!all(file.exists(c(experiment.bw.file, input.bw.file))))
-    stop("Experiment or input bw file could not be found.")
-  if(!is.null(bed) && (length(bed)>1 || !file.exists(bed)))
+  if(!is.null(bed) && length(bed)>1)
     stop("If specified, bed should be a path to a unique, existing bed file.")
   if(!is.numeric(c(zscore.cutoff, local.enr.cutoff, local.fdr.cutoff, input.enr.cutoff, input.fdr.cutoff)))
     stop("zscore.cutoff, local.enr.cutoff, local.fdr.cutoff, input.enr.cutoff and input.fdr.cutoff should be numeric.")
