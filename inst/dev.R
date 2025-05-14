@@ -5,7 +5,6 @@ devtools::load_all("./")
 if(F)
 {
   file.edit("inst/test/newUmiCollapsingStrat.R")
-  file.edit("inst/test/peakCallingFromBw.R")
   file.edit("inst/test/new_closestBed.R")
 }
 
@@ -25,6 +24,7 @@ if(F)
 if(F)
 {
   # Coverage
+  file.edit("R/bwGetSeqnames.R")
   file.edit("R/bwCoverage.R")
   file.edit("R/bwBinnedCoverage.R")
 
@@ -84,20 +84,16 @@ if(F)
   file.edit("R/vl_last_err.R")
 }
 
-# Download data ----------------------------
+# Download/upload data ---------------------
 if(F)
 {
+  # Dropbox
+  file.edit("R/dropboxUpload.R")
+  file.edit("R/dropboxDownload.R")
   # SRA toolkit
   file.edit("R/cmd_downloadSRA.R")
   # fqs (or other...)
   file.edit("R/cmd_download.R")
-}
-
-# Dropbox API ------------------------------
-if(F)
-{
-  file.edit("R/dropboxUpload.R")
-  file.edit("R/dropboxDownload.R")
 }
 
 # Demultiplexing commands ------------------
@@ -189,6 +185,8 @@ if(F)
   file.edit("R/cmd_peakCalling.R") # Wrapper
   file.edit("R/cmd_confidentPeaks.R") # Wrapper
   file.edit("inst/Rscript/confident_peaks.R") # R subscript
+  file.edit("R/cmd_peakCallingFromBw.R") # Wrapper
+  file.edit("inst/Rscript/peakCallingFromBw.R") # R subscript
 }
 
 # DESeq2 commands --------------------------

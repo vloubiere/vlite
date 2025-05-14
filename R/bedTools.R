@@ -146,7 +146,7 @@ exportBed <- function(bed, file)
 
   if(type=="bed") {
     # Export using rtracklayer ----
-    rtracklayer::export(GRanges(bed), file)
+    rtracklayer::export(GenomicRanges::GRanges(bed), file)
   } else {
     # Custom method for broadPeak/narrowPeak ----
     current <- vlite::importBed(bed)
@@ -460,6 +460,9 @@ collapseBed <- function(bed,
                         return.idx.only= FALSE,
                         ignore.strand= TRUE)
 {
+  # Import for incapsulation ----
+  bed <- vlite::importBed(bed)
+
   # Reduce ----
   gr <- GenomicRanges::GRanges(bed)
   coll <- GenomicRanges::reduce(gr,
@@ -624,6 +627,10 @@ covBed <- function(a,
                    minoverlap= 0L,
                    ignore.strand= TRUE)
 {
+  # Import for incapsulation ----
+  a <- vlite::importBed(a)
+  b <- vlite::importBed(b)
+
   # Compute coverage ----
   cov <- suppressWarnings(
     GenomicRanges::countOverlaps(query = GRanges(a),
@@ -714,7 +721,7 @@ overlapBed <- function(a,
 #' Subset overlapping or non-overlapping Regions
 #'
 #' @description
-#' A wrapper around ?GenomicRanges::findOverlaps that subsets the genomic ranges in a that do
+#' A wrapper around ?GenomicRanges::countOverlaps that subsets the genomic ranges in a that do
 #' (or do not) overlap region(s) in b.
 #'
 #' @param a Query regions in any format compatible with ?importBed.
@@ -770,20 +777,18 @@ intersectBed <- function(a,
 
   # Overlaps ----
   ov <- suppressWarnings(
-    GenomicRanges::findOverlaps(query = GenomicRanges::GRanges(a),
-                                subject = GenomicRanges::GRanges(b),
-                                maxgap = maxgap,
-                                minoverlap = minoverlap,
-                                ignore.strand = ignore.strand)
+    GenomicRanges::countOverlaps(query = GRanges(a),
+                                 subject = GRanges(b),
+                                 maxgap = maxgap,
+                                 minoverlap = minoverlap,
+                                 ignore.strand= ignore.strand)
   )
-  ov <- as.data.table(ov)
-  setnames(ov, c("idx.a", "idx.b"))
 
   # Non-intersecting indexes ----
   res <- if(invert) {
-    a[-unique(ov$idx.a)]
+    a[ov==0]
   } else {
-    a[unique(ov$idx.a)]
+    a[ov>0]
   }
 
   # Return, preserving original order ----
@@ -826,6 +831,7 @@ subtractBed <- function(a,
 {
   # Import for incapsulation ----
   a <- vlite::importBed(a)
+  b <- vlite::importBed(b)
 
   # Check if used column name exists ----
   check.col <- if("idx.a" %in% names(a)) {
@@ -861,7 +867,7 @@ subtractBed <- function(a,
 #' Clip Genomic Regions to Defined Limits
 #'
 #' @description
-#' A wrapper around ?GenomicRanges::intersect that clips the regions in a that extend beyond
+#' A wrapper around ?GenomicRanges::findOverlaps that clips the regions in a that extend beyond
 #' the regions in b.
 #'
 #' @param a Query regions in any format compatible with ?importBed.

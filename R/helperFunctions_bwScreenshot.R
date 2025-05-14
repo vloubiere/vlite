@@ -173,19 +173,21 @@
   regions[, {
     # Clip Polygons to region
     poly <- clipBed(var, .SD)
-    poly[, idx:= .I]
-    poly <- poly[, .(coor= c(start, end), ypos), idx]
+    if(nrow(poly)) {
+      poly[, idx:= .I]
+      poly <- poly[, .(coor= c(start, end), ypos), idx]
 
-    # Scale polygons
-    poly$coor <- (poly$coor-start)/width*diff(c(xleft, xright))+xleft
+      # Scale polygons
+      poly$coor <- (poly$coor-start)/width*diff(c(xleft, xright))+xleft
 
-    # Plot polygons
-    poly[, {
-      polygon(c(xleft, coor, xright),
-              c(baseline, ypos, baseline),
-              col= track.col,
-              border= NA)
-    }]
+      # Plot polygons
+      poly[, {
+        polygon(c(xleft, coor, xright),
+                c(baseline, ypos, baseline),
+                col= track.col,
+                border= NA)
+      }]
+    }
   }, region.idx]
 }
 
@@ -205,18 +207,20 @@
   regions[, {
     # Clip Polygons to region
     poly <- clipBed(var, .SD[, .(seqnames, start, end)])
-    # Adjust start and end
-    poly$start <- (poly$start-start)/width*diff(c(xleft, xright))+xleft
-    poly$end <- (poly$end-start)/width*diff(c(xleft, xright))+xleft
-    # Plot polygons
-    poly[, {
-      rect(start,
-           ybottom,
-           end,
-           ytop,
-           col= track.col,
-           border= NA)
-    }]
+    if(nrow(poly)) {
+      # Adjust start and end
+      poly$start <- (poly$start-start)/width*diff(c(xleft, xright))+xleft
+      poly$end <- (poly$end-start)/width*diff(c(xleft, xright))+xleft
+      # Plot polygons
+      poly[, {
+        rect(start,
+             ybottom,
+             end,
+             ytop,
+             col= track.col,
+             border= NA)
+      }]
+    }
   }, region.idx]
   # Plot label (y axis)
   axis(2,
@@ -239,34 +243,36 @@
   regions[, {
     # Select transcripts overlapping current region
     current <- clipBed(genes, .SD)
-    # Scale start and end
-    current$start <- (current$start-start)/width*diff(c(xleft, xright))+xleft
-    current$end <- (current$end-start)/width*diff(c(xleft, xright))+xleft
-    # Only keep the gene symbol for the lowest transcript on the plot
-    current[type=="mRNA", symbol:= ifelse(y<max(y), NA, symbol), symbol]
-    # Plot gene bodies (segments)
-    current[type=="mRNA", {
-      segments(start,
-               (ytop+ybottom)/2,
-               end,
-               (ytop+ybottom)/2,
-               col= ifelse(strand=="-", col.ns, col.ps))
-      text((start+end)/2,
-           ybottom,
-           symbol,
-           pos= 1,
-           offset= offset.symbol,
-           cex= cex.symbol,
-           xpd= TRUE)
-    }]
-    # Plot exons (rectangles)
-    current[type=="exon", {
-      rect(start,
-           ybottom,
-           end,
-           ytop,
-           col = ifelse(strand=="-", col.ns, col.ps),
-           border= exon.border)
-    }]
+    if(nrow(current)) {
+      # Scale start and end
+      current$start <- (current$start-start)/width*diff(c(xleft, xright))+xleft
+      current$end <- (current$end-start)/width*diff(c(xleft, xright))+xleft
+      # Only keep the gene symbol for the lowest transcript on the plot
+      current[type=="mRNA", symbol:= ifelse(y<max(y), NA, symbol), symbol]
+      # Plot gene bodies (segments)
+      current[type=="mRNA", {
+        segments(start,
+                 (ytop+ybottom)/2,
+                 end,
+                 (ytop+ybottom)/2,
+                 col= ifelse(strand=="-", col.ns, col.ps))
+        text((start+end)/2,
+             ybottom,
+             symbol,
+             pos= 1,
+             offset= offset.symbol,
+             cex= cex.symbol,
+             xpd= TRUE)
+      }]
+      # Plot exons (rectangles)
+      current[type=="exon", {
+        rect(start,
+             ybottom,
+             end,
+             ytop,
+             col = ifelse(strand=="-", col.ns, col.ps),
+             border= exon.border)
+      }]
+    }
   }, region.idx]
 }

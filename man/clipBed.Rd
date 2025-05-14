@@ -19,7 +19,7 @@ A data.table containing the remaining portions of a, after clipping them using t
 defined in b.
 }
 \description{
-A wrapper around ?GenomicRanges::intersect that clips the regions in a that extend beyond
+A wrapper around ?GenomicRanges::findOverlaps that clips the regions in a that extend beyond
 the regions in b.
 }
 \examples{

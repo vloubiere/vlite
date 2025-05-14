@@ -38,7 +38,7 @@ A data.table containing:
 }
 }
 \description{
-A wrapper around ?GenomicRanges::findOverlaps that subsets the genomic ranges in a that do
+A wrapper around ?GenomicRanges::countOverlaps that subsets the genomic ranges in a that do
 (or do not) overlap region(s) in b.
 }
 \examples{
