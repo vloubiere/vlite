@@ -11,7 +11,20 @@ if(F)
 # bamtools ---------------------------------
 if(F)
 {
+  # Import in R
   file.edit("R/importBamRsamtools.R")
+
+  # Commands
+  # Collapse bam file unique mapping positions (ORFtag)
+  file.edit("R/cmd_collapseBam.R")
+  # UMI collapsing from bam (human STARR-Seq, ...)
+  file.edit("R/cmd_umiCountsFromBam.R") # Wrapper
+  file.edit("inst/Rscript/umiCountsFromBam.R") # R subscript
+  # Extract unaligned reads from bam (PRO-Seq spike-in)
+  file.edit("R/cmd_extractUnalignedReadsFromBam.R")
+  # UMI counts from PROseq bam
+  file.edit("R/cmd_umiCollapsingProseq.R") # Wrapper
+  file.edit("inst/Rscript/umiCollapsingProseq.R") # R subscript
 }
 
 # bedtools ---------------------------------
@@ -23,8 +36,10 @@ if(F)
 # bwtools ---------------------------------
 if(F)
 {
+  # Check content
+  file.edit("R/bwGetSeqlengths.R")
+
   # Coverage
-  file.edit("R/bwGetSeqnames.R")
   file.edit("R/bwCoverage.R")
   file.edit("R/bwBinnedCoverage.R")
 
@@ -35,6 +50,25 @@ if(F)
   # Average tracks and heatmap
   file.edit("R/bwAverageTrack.R")
   file.edit("R/bwHeatmap.R")
+
+  # Commands
+  # Merge bigwig files
+  file.edit("R/cmd_mergeBigwig.R") # Wrapper
+  # Bedgraph to bigwig
+  file.edit("R/cmd_bedgraphToBigwig.R") # Wrapper
+  file.edit("inst/Rscript/bedgraph_to_bigwig.R") # R subscript
+  # BAM to bigwig
+  file.edit("R/cmd_bamToBigwig.R") # Wrapper
+  file.edit("inst/Rscript/bam_to_bigwig.R") # R subscript
+  # BED to bigwig
+  file.edit("R/cmd_bedToBigwig.R") # Wrapper
+  file.edit("inst/Rscript/bed_to_bigwig.R") # R subscript
+  # PROSeq UMI counts to bigwig
+  file.edit("R/cmd_umiToBigwigProseq.R") # Wrapper
+  file.edit("inst/Rscript/umiToBigwigProseq.R") # R subscript
+  # log2 Ratio bigwig
+  file.edit("R/cmd_logRatioBigwig.R") # Wrapper
+  file.edit("inst/Rscript/logRatioBigwig.R") # Wrapper
 }
 
 # BSgenomes tools -------------------------
@@ -104,16 +138,18 @@ if(F)
   file.edit("inst/perl/vbc_bam_demultiplexing.pl") # Perl subscript
 }
 
-# Pipelines commands -----------------------
+# Trimming commands ------------------
 if(F)
 {
-  # Trimming ----
   # Illumina adaptors
   file.edit("R/cmd_trimIlluminaAdaptors.R")
   # Custom adaptors (PROseq)
   file.edit("R/cmd_trimProseqAdaptors.R")
+}
 
-  # Alignment ----
+# Alignment commands -----------------------
+if(F)
+{
   # Bowtie1 alignment
   file.edit("R/cmd_alignBowtie.R")
   # Bowtie2 alignment
@@ -121,20 +157,11 @@ if(F)
   # Rsubread alignment (RNA-Seq)
   file.edit("R/cmd_alignRnaRsubread.R") # Wrapper
   file.edit("inst/Rscript/align_rna_Rsubread.R") # R subscript
+}
 
-  # BAM post-processing ----
-  # Collapse bam file unique mapping positions (ORFtag)
-  file.edit("R/cmd_collapseBam.R")
-  # UMI collapsing from bam (human STARR-Seq, ...)
-  file.edit("R/cmd_umiCountsFromBam.R") # Wrapper
-  file.edit("inst/Rscript/umiCountsFromBam.R") # R subscript
-  # Extract unaligned reads from bam (PRO-Seq spike-in)
-  file.edit("R/cmd_extractUnalignedReadsFromBam.R")
-  # UMI counts from PROseq bam
-  file.edit("R/cmd_umiCollapsingProseq.R") # Wrapper
-  file.edit("inst/Rscript/umiCollapsingProseq.R") # R subscript
-
-  # Count reads per feature ----
+# Read counts ------------------------------
+if(F)
+{
   # Rsubread (RNA-Seq)
   file.edit("R/cmd_countRsubread.R") # Wrapper
   file.edit("inst/Rscript/count_Rsubread.R") # R subscript
@@ -147,47 +174,17 @@ if(F)
   # From .rds annotations (PRO-Seq)
   file.edit("R/cmd_countPROseqReads.R") # Wrapper
   file.edit("inst/Rscript/count_PROseq_reads.R") # R subscript
-
-  # Generate bigwigs ----
-  # Merge bigwig files ----
-  file.edit("R/cmd_mergeBigwig.R") # Wrapper
-  # Bedgraph to bigwig
-  file.edit("R/cmd_bedgraphToBigwig.R") # Wrapper
-  file.edit("inst/Rscript/bedgraph_to_bigwig.R") # R subscript
-  # BAM to bigwig
-  file.edit("R/cmd_bamToBigwig.R") # Wrapper
-  file.edit("inst/Rscript/bam_to_bigwig.R") # R subscript
-  # BED to bigwig
-  file.edit("R/cmd_bedToBigwig.R") # Wrapper
-  file.edit("inst/Rscript/bed_to_bigwig.R") # R subscript
-  # PROSeq UMI counts to bigwig
-  file.edit("R/cmd_umiToBigwigProseq.R") # Wrapper
-  file.edit("inst/Rscript/umiToBigwigProseq.R") # R subscript
-  # log2 Ratio bigwig
-  file.edit("R/cmd_logRatioBigwig.R") # Wrapper
-  file.edit("inst/Rscript/logRatioBigwig.R") # Wrapper
 }
 
-# Genomics pipelines -----------------------
-if(F)
-{
-  # Helper functions
-  file.edit("R/helperFunctions_genomicPipelines.R")
-
-  # Pipelines ----
-  file.edit("R/cutnrunProcessing.R")
-  file.edit("R/rnaseqProcessing.R")
-  file.edit("R/orfeomeProcessing.R")
-  file.edit("R/orftagProcessing.R")
-  file.edit("R/proseqProcessing.R")
-}
 
 # Peak calling commands --------------------
 if(F)
 {
+  # MACS2 wrappers
   file.edit("R/cmd_peakCalling.R") # Wrapper
   file.edit("R/cmd_confidentPeaks.R") # Wrapper
   file.edit("inst/Rscript/confident_peaks.R") # R subscript
+  # Home made peak caller
   file.edit("R/cmd_peakCallingFromBw.R") # Wrapper
   file.edit("inst/Rscript/peakCallingFromBw.R") # R subscript
 }
@@ -217,6 +214,20 @@ if(F)
 {
   file.edit("R/callOrfTagHits.R")
   file.edit("R/callOrftagHitsStrandBias.R")
+}
+
+# Genomics pipelines -----------------------
+if(F)
+{
+  # Helper functions
+  file.edit("R/helperFunctions_genomicPipelines.R")
+
+  # Pipelines ----
+  file.edit("R/cutnrunProcessing.R")
+  file.edit("R/rnaseqProcessing.R")
+  file.edit("R/orfeomeProcessing.R")
+  file.edit("R/orftagProcessing.R")
+  file.edit("R/proseqProcessing.R")
 }
 
 # Plots --------------------------------

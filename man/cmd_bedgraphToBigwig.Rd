@@ -7,19 +7,21 @@
 cmd_bedgraphToBigwig(
   bdg,
   output.prefix,
-  bw.output.folder = "db/bw/",
   genome,
+  scaling.factor = 1L,
+  bw.output.folder = "db/bw/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
 )
 }
 \arguments{
 \item{bdg}{Path to the input BedGraph file. Only a single file is allowed.}
 
-\item{output.prefix}{Prefix for the output BigWig file.}
-
-\item{bw.output.folder}{Directory for the BigWig file. Default= "db/bw/".}
+\item{output.prefix}{Prefix for the output BigWig file. If missing, will be constructed from the
+basename of the bdg file.}
 
 \item{genome}{A BSgenome ("mm10", "dm3"...).}
+
+\item{bw.output.folder}{Directory for the BigWig file. Default= "db/bw/".}
 
 \item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }

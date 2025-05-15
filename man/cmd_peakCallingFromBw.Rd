@@ -7,8 +7,7 @@
 cmd_peakCallingFromBw(
   experiment.bw.file,
   input.bw.file = NULL,
-  bed,
-  genome,
+  bed.subset = NULL,
   output.prefix,
   output.folder = "db/peaks/",
   zscore.cutoff = 1.64,
@@ -24,13 +23,10 @@ cmd_peakCallingFromBw(
 
 \item{input.bw.file}{Optional path to input/control bigWig (.bw) file. Must be unique or NULL.}
 
-\item{bed}{Genomic ranges for which peaks will be called, in any format compatible with ?importBed.
-If genome is specified (see below), this argument will be ignored.}
+\item{bed.subset}{Optional path to a bed file. If specified, peak calling will be restricted to these regions.
+Note that the strand is not considered. Default= NULL.}
 
-\item{genome}{A BSgenome name specifying the genome for which peaks should be called. For custom regions,
-see the bed argument.}
-
-\item{output.prefix}{Prefix for output files.}
+\item{output.prefix}{Prefix for output files. If missing, it will be inferred from the name of the experiment.bw.file.}
 
 \item{output.folder}{Output directory for result files. Default: "db/peaks/".}
 
@@ -59,9 +55,7 @@ Outputs a .narrowPeak file and a statistics .txt file.
 \examples{
 cmd <- cmd_peakCallingFromBw(
   experiment.bw.file = "/data/exp.bw",
-  input.bw.file = "/data/input.bw",
-  genome.regions = "/data/regions.bed",
-  output.prefix = "sample1"
+  input.bw.file = "/data/input.bw"
 )
 vl_submit(cmd, execute = FALSE)
 

@@ -8,20 +8,29 @@ cmd_mergeBigwig(
   bw,
   output.prefix,
   bw.output.folder = "db/bw/",
+  tmp.bdg.folder = "db/bw/tmp/",
   genome,
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  bigWigMergePath =
+    "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge"
 )
 }
 \arguments{
-\item{bw}{Character vector of paths to input BigWig files. Only a single file is allowed; if more are provided, only the first is used and a warning is issued.}
+\item{bw}{Character vector of paths to input BigWig files.}
 
-\item{output.prefix}{Prefix for the output merged BigWig file.}
+\item{output.prefix}{Prefix for the output merged BigWig file. If missing, will be constructed from the
+basename of the first provided bw path.}
 
 \item{bw.output.folder}{Directory for the output files. Default is "db/bw/".}
+
+\item{tmp.bdg.folder}{Folder to save temporary .bedgraph files. Default is "db/bw/tmp/".}
 
 \item{genome}{A BSgenome ("mm10", "dm3"...).}
 
 \item{Rpath}{Path to the Rscript binary. Default is "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+
+\item{bigWigMergePath}{Path to the tool executable.
+Default= "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge"}
 }
 \value{
 A `data.table` with:
@@ -30,7 +39,8 @@ A `data.table` with:
 - `cmd`: Shell command to run the BigWig merge and BedGraph to BigWig conversion.
 }
 \description{
-Creates shell commands to merge multiple BigWig files and convert the merged BedGraph to BigWig format using a genome sizes file.
+Creates shell commands to merge multiple BigWig files and convert the merged BedGraph to BigWig format using a
+genome sizes file.
 }
 \examples{
 # Merge BigWig files and convert to a single BigWig

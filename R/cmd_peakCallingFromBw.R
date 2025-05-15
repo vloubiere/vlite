@@ -6,11 +6,9 @@
 #'
 #' @param experiment.bw.file Path to the experiment bigWig (.bw) file. Must be unique.
 #' @param input.bw.file Optional path to input/control bigWig (.bw) file. Must be unique or NULL.
-#' @param bed Path to a bed file containing regions for which peaks should be called.
-#' If genome is specified (see below), this argument will be ignored.
-#' @param genome A BSgenome name specifying the genome for which peaks should be called. For custom regions,
-#' see the bed argument.
-#' @param output.prefix Prefix for output files.
+#' @param bed.subset Optional path to a bed file. If specified, peak calling will be restricted to these regions.
+#' Note that the strand is not considered. Default= NULL.
+#' @param output.prefix Prefix for output files. If missing, it will be inferred from the name of the experiment.bw.file.
 #' @param output.folder Output directory for result files. Default: "db/peaks/".
 #' @param zscore.cutoff Z-score cutoff for putative peaks. Default: 1.64.
 #' @param local.enr.cutoff Local background enrichment cutoff. Default: 1.5.
@@ -27,17 +25,14 @@
 #' @examples
 #' cmd <- cmd_peakCallingFromBw(
 #'   experiment.bw.file = "/data/exp.bw",
-#'   input.bw.file = "/data/input.bw",
-#'   genome.regions = "/data/regions.bed",
-#'   output.prefix = "sample1"
+#'   input.bw.file = "/data/input.bw"
 #' )
 #' vl_submit(cmd, execute = FALSE)
 #'
 #' @export
 cmd_peakCallingFromBw <- function(experiment.bw.file,
                                   input.bw.file= NULL,
-                                  bed,
-                                  genome,
+                                  bed.subset= NULL,
                                   output.prefix,
                                   output.folder= "db/peaks/",
                                   zscore.cutoff= 1.64,
@@ -54,14 +49,17 @@ cmd_peakCallingFromBw <- function(experiment.bw.file,
     stop("If provided, the input bw file should be unique.")
   if(!all(grepl(".bw$", c(experiment.bw.file, input.bw.file))))
     stop("Experiment and optional input bw file should be in .bw extension.")
-  if(!is.null(bed) && length(bed)>1)
-    stop("If specified, bed should be a path to a unique, existing bed file.")
+  if(!is.null(bed.subset) && (length(bed.subset)>1 || !grepl(".bed$", bed.subset)))
+    stop("If specified, bed should be a path to a unique .bed file.")
+  if(missing(output.prefix))
+    output.prefix <- gsub(".bw$", "_peaks", basename(experiment.bw.file))
   if(!is.numeric(c(zscore.cutoff, local.enr.cutoff, local.fdr.cutoff, input.enr.cutoff, input.fdr.cutoff)))
     stop("zscore.cutoff, local.enr.cutoff, local.fdr.cutoff, input.enr.cutoff and input.fdr.cutoff should be numeric.")
 
+
   # Output files paths ----
   peaks.file <- file.path(output.folder, paste0(output.prefix, ".narrowPeak"))
-  stats.file <- file.path(output.folder, paste0(output.prefix, ".txt"))
+  stats.file <- file.path(output.folder, paste0(output.prefix, "_stats.txt"))
 
   # Command ----
   cmd <- paste(
@@ -69,8 +67,7 @@ cmd_peakCallingFromBw <- function(experiment.bw.file,
     system.file("Rscript", "peakCallingFromBw.R", package = "vlite"),
     experiment.bw.file, # Experiment bw file
     ifelse(is.null(input.bw.file), "NULL", input.bw.file), # Optional input bw file
-    ifelse(missing(bed), "NULL", bed), # Path to a bed file containing the regions from which peaks should be called
-    ifelse(missing(genome), "NULL", genome), # A BSgenome name. If specified, overrides bed argument
+    ifelse(is.null(bed.subset), "NULL", bed.subset), # An optional bed file restricting peak calling to certain regions
     peaks.file, # Output .narrowPeak file path
     stats.file, # Output .txt statistics file
     zscore.cutoff, # z-score cutoff to identify putative peaks. Default= 1.64

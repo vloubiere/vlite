@@ -1,15 +1,18 @@
 #' Call Peaks from bigWig Files
 #'
 #' @description
-#' Generates a shell command to generate log2 ratio bw file to compared an experiment be track
-#'  to an input/control track.
+#' Generates a shell command to compute log2 ratio between two bed files, using a sliding window.
 #'
-#' @param experiment.bw.file Path to the experiment bigWig (.bw) file. Must be unique.
-#' @param input.bw.file Path to input/control bigWig (.bw) file. Must be unique.
-#' @param bed Optional path to a bed file to which the ratio calulation will be restricted.
-#' If missing, all chromosomes present in experiment and input will be considered.
-#' @param pseudocount Pseudocount to use and avoid 0s. If left empty, it will be set to 1% percentile of non-0 values.
-#' @param output.prefix Prefix for output file.
+#' @param experiment.bed.file Path to a bed file containing experiment reads. Must be unique.
+#' @param input.bed.file Path to a bed file containing input/control reads. Must be unique.
+#' @param genome A BS genome name.
+#' @param pseudocount Pseudocount to use and avoid 0s. If set to NULL, it will be set to the minimum
+#' non-0 value. Default= NULL.
+#' @param bed.subset Optional path to a bed file. If provided, only reads overlapping these regions on the same
+#' strand are used. Default= NULL (no filtering).
+#' @param bins.width Integer specifying the width using for the sliding window. Default= 100L.
+#' @param steps.width Integer specifying the distance between consecutive bins. Default= 50L.
+#' @param output.prefix Prefix for output file. If not provided, it is derived from the experiment bed filename.
 #' @param output.folder Output directory for the log2 ratio bw file. Default: "db/bw/".
 #'
 #' @return A data.table with:
@@ -19,40 +22,50 @@
 #'
 #' @examples
 #' cmd <- cmd_logRatioBigwig(
-#'   experiment.bw.file = "/data/exp.bw",
-#'   input.bw.file = "/data/input.bw",
+#'   experiment.bed.file = "/data/exp.bed",
+#'   input.bed.file = "/data/input.bed",
 #' )
 #' vl_submit(cmd, execute = FALSE)
 #'
 #' @export
-cmd_logRatioBigwig <- function(experiment.bw.file,
-                               input.bw.file,
-                               bed,
-                               pseudocount,
+cmd_logRatioBigwig <- function(experiment.bed.file,
+                               input.bed.file,
+                               genome,
+                               pseudocount= NULL,
+                               bed.subset= NULL,
+                               bins.width= 100L,
+                               steps.width= 50L,
                                output.prefix,
                                output.folder= "db/bw/",
                                Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Check (!Do not check if files exist to allow wrapping!) ----
-  if(length(experiment.bw.file)!=1)
-    stop("A unique experiment bw file should be provided.")
-  if(length(input.bw.file)!=1)
-    stop("A unique input bw file should be provided.")
-  if(!missing(pseudocount) && !is.numeric(pseudocount))
+  if(length(experiment.bed.file)!=1)
+    stop("A unique experiment bed file should be provided.")
+  if(length(input.bed.file)!=1)
+    stop("A unique input bed file should be provided.")
+  if(!is.null(pseudocount) && !is.numeric(pseudocount))
     stop("pseudocount should be numeric.")
+  if(any(c(bins.width, steps.width) %% 1 != 0))
+    stop("bins.width and steps.width should be integers.")
+  if(missing(output.prefix))
+    output.prefix <- gsub(".bw$", "", basename(experiment.bw.file))
 
   # Output files paths ----
-  output.file <- file.path(output.folder, paste0(output.prefix, ".bw"))
+  output.file <- file.path(output.folder, paste0(output.prefix, "_log2_input_ratio.bw"))
 
   # Command ----
   cmd <- paste(
     Rpath,
     system.file("Rscript", "logRatioBigwig.R", package = "vlite"),
-    experiment.bw.file, # Experiment bw file
-    input.bw.file, # Input bw file
-    ifelse(missing(bed), "NULL", bed), # An option bed file containing the regions for which log ratio will be computed
-    ifelse(missing(pseudocount), "NULL", pseudocount), # The pseudocount to be used
-    output.file # Output file
+    experiment.bed.file, # Experiment bed file
+    input.bed.file, # Input bed file
+    genome,
+    ifelse(is.null(bed.subset), "NULL", bed.subset), # An optional bed file restricting the regions
+    ifelse(is.null(pseudocount), "NULL", pseudocount), # Pseudocount to be used
+    output.file, # Output file
+    bins.width, # Bins width
+    steps.width # Steps width
   )
 
   # Wrap commands output ----

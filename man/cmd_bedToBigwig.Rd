@@ -7,6 +7,7 @@
 cmd_bedToBigwig(
   bed,
   genome,
+  bed.subset = NULL,
   output.prefix = NULL,
   bw.output.folder = "db/bw/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
@@ -15,9 +16,12 @@ cmd_bedToBigwig(
 \arguments{
 \item{bed}{Path to the input BED file. Only a single BED file is allowed.}
 
-\item{genome}{Path to the genome sizes file.}
+\item{genome}{A BS genome name use to retrieve seqnames.}
 
-\item{output.prefix}{Prefix for the output BigWig file. If not provided, it is derived from the input BED filename.}
+\item{bed.subset}{Optional path to a bed file. If provided, only reads overlapping these regions on the same
+strand are used. Default= NULL (no filtering).}
+
+\item{output.prefix}{Prefix for the output BigWig file. If not provided, it is derived from the input bed filename.}
 
 \item{bw.output.folder}{Directory for the BigWig file. Default= "db/bw/".}
 
@@ -36,7 +40,7 @@ Creates shell commands to convert a BED file to BigWig format using a genome siz
 # Convert a BED file to BigWig format
 cmd <- cmd_bedToBigwig(
   bed = "/data/bed/sample.bed",
-  genome = "/data/genome/mm10.chrom.sizes"
+  genome = "mm11"
 )
 vl_submit(cmd, execute= FALSE)
 
