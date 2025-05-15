@@ -2,16 +2,15 @@
 
 # Check whether required arguments are provided ----
 args <- commandArgs(trailingOnly = TRUE)
-if(length(args) != 8) {  # Fix the condition to match required arguments
+if(length(args) != 7) {  # Fix the condition to match required arguments
   stop("Please specify:\n",
        "[required] 1/ Bed file containing experiment reads. \n",
        "[required] 2/ Bed file containing input/control reads. \n",
        "[required] 3/ A BS genome name. \n",
        "[required] 4/ Optional path to a bed file. If provided, only reads overlapping these regions on the same strand are used. \n",
-       "[required] 5/ Pseudocount. If set to NULL empty, it will be set to the smallest non-0 value \n",
+       "[required] 5/ Pseudocount. If set to NULL empty, it will be set to the 0.01 percentile of non-0 value \n",
        "[required] 6/ Output .bw file path \n",
-       "[required] 7/ Bins width \n",
-       "[required] 8/ Bins steps \n")
+       "[required] 7/ Bins width \n")
 }
 
 # Load packges ----
@@ -27,7 +26,6 @@ regions <- if(args[4] == "NULL") NULL else args[4] # ifelse does not work here!
 pseudocount <- if(args[5] == "NULL") NULL else as.numeric(args[5]) # ifelse does not work here!
 output.file <- args[6]
 bins.width <- as.integer(args[7])
-steps.width <- as.integer(args[8])
 
 # Checks
 stopifnot(grepl(".bed$", track))

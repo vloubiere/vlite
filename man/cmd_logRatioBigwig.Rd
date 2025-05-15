@@ -11,7 +11,6 @@ cmd_logRatioBigwig(
   pseudocount = NULL,
   bed.subset = NULL,
   bins.width = 100L,
-  steps.width = 50L,
   output.prefix,
   output.folder = "db/bw/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
@@ -24,15 +23,13 @@ cmd_logRatioBigwig(
 
 \item{genome}{A BS genome name.}
 
-\item{pseudocount}{Pseudocount to use and avoid 0s. If set to NULL, it will be set to the minimum
-non-0 value. Default= NULL.}
+\item{pseudocount}{Pseudocount to use and avoid 0s. If set to NULL, it will be set to the 0.01 percentile
+of non-0 values. Default= NULL.}
 
 \item{bed.subset}{Optional path to a bed file. If provided, only reads overlapping these regions on the same
 strand are used. Default= NULL (no filtering).}
 
 \item{bins.width}{Integer specifying the width using for the sliding window. Default= 100L.}
-
-\item{steps.width}{Integer specifying the distance between consecutive bins. Default= 50L.}
 
 \item{output.prefix}{Prefix for output file. If not provided, it is derived from the experiment bed filename.}
 

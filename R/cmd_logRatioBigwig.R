@@ -6,12 +6,11 @@
 #' @param experiment.bed.file Path to a bed file containing experiment reads. Must be unique.
 #' @param input.bed.file Path to a bed file containing input/control reads. Must be unique.
 #' @param genome A BS genome name.
-#' @param pseudocount Pseudocount to use and avoid 0s. If set to NULL, it will be set to the minimum
-#' non-0 value. Default= NULL.
+#' @param pseudocount Pseudocount to use and avoid 0s. If set to NULL, it will be set to the 0.01 percentile
+#' of non-0 values. Default= NULL.
 #' @param bed.subset Optional path to a bed file. If provided, only reads overlapping these regions on the same
 #' strand are used. Default= NULL (no filtering).
 #' @param bins.width Integer specifying the width using for the sliding window. Default= 100L.
-#' @param steps.width Integer specifying the distance between consecutive bins. Default= 50L.
 #' @param output.prefix Prefix for output file. If not provided, it is derived from the experiment bed filename.
 #' @param output.folder Output directory for the log2 ratio bw file. Default: "db/bw/".
 #'
@@ -34,7 +33,6 @@ cmd_logRatioBigwig <- function(experiment.bed.file,
                                pseudocount= NULL,
                                bed.subset= NULL,
                                bins.width= 100L,
-                               steps.width= 50L,
                                output.prefix,
                                output.folder= "db/bw/",
                                Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
@@ -46,8 +44,8 @@ cmd_logRatioBigwig <- function(experiment.bed.file,
     stop("A unique input bed file should be provided.")
   if(!is.null(pseudocount) && !is.numeric(pseudocount))
     stop("pseudocount should be numeric.")
-  if(any(c(bins.width, steps.width) %% 1 != 0))
-    stop("bins.width and steps.width should be integers.")
+  if(any(bins.width %% 1 != 0))
+    stop("bins.width should be an integer value.")
   if(missing(output.prefix))
     output.prefix <- gsub(".bw$", "", basename(experiment.bw.file))
 
@@ -64,8 +62,7 @@ cmd_logRatioBigwig <- function(experiment.bed.file,
     ifelse(is.null(bed.subset), "NULL", bed.subset), # An optional bed file restricting the regions
     ifelse(is.null(pseudocount), "NULL", pseudocount), # Pseudocount to be used
     output.file, # Output file
-    bins.width, # Bins width
-    steps.width # Steps width
+    bins.width # Bins width
   )
 
   # Wrap commands output ----
