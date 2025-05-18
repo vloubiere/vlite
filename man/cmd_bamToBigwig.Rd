@@ -34,6 +34,7 @@ A data.table with:
 - `file.type`: Output file label ("bw").
 - `path`: Path to the BigWig file.
 - `cmd`: Shell command to run the BAM to BigWig conversion.
+- `job.name`: Default name for the job = "bamToBw".
 }
 \description{
 Creates shell commands to convert a BAM file to BigWig format. Supports single-end and paired-end sequencing data,

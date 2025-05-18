@@ -28,6 +28,7 @@ A data.table with:
 - `file.type`: Output file label ("confident.peaks").
 - `path`: Path to the confident peaks file.
 - `cmd`: Shell command to run the confident peaks pipeline.
+- `job.name`: Default name for the job = "confPeaks".
 }
 \description{
 Creates shell commands to identify confident peaks across replicates using merged peak files.

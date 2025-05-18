@@ -25,6 +25,7 @@ A data.table with:
 - `file.type`: Output file labels ("ps.bw", "ns.bw").
 - `path`: Paths to the positive strand and negative strand BigWig files.
 - `cmd`: Shell command to run the UMI to BigWig conversion.
+- `job.name`: Default name for the job = "umiToBwProseq".
 }
 \description{
 Creates shell commands to convert UMI counts from PRO-Seq data into positive strand and negative strand BigWig files.

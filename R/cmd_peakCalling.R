@@ -22,6 +22,7 @@
 #' - `file.type`: Output file labels (e.g: "peaks", "bedgraph").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the peak calling pipeline.
+#' - `job.name`: Default name for the job = "MACS2".
 #'
 #' @examples
 #' # Basic peak calling without input controls
@@ -96,7 +97,8 @@ cmd_peakCalling <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("peaks", "bedgraph"),
                     path= c(peaks.file, bdg.file),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "MACS2")
 
   # Return ----
   return(cmd)

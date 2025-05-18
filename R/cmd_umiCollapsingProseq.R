@@ -14,6 +14,7 @@
 #' - `file.type`: Output file labels ("umi.counts", "umi.stats").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the UMI counting pipeline.
+#' - `job.name`: Default name for the job = "umiCollProseq".
 #'
 #' @examples
 #' # Count UMIs in a PRO-Seq BAM file
@@ -48,7 +49,8 @@ cmd_umiCollapsingProseq <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("umi.counts", "umi.stats"),
                     path= c(counts.file, umi.stats),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "umiCollProseq")
 
   # Return ----
   return(cmd)

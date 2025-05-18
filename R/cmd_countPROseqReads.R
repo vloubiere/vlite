@@ -16,6 +16,7 @@
 #' - `file.type`: Label for the output file ("count.table").
 #' - `path`: Path to the output counts table.
 #' - `cmd`: Shell command to run the PRO-seq read counting pipeline.
+#' - `job.name`: Default name for the job = "countProseqReads".
 #'
 #' @examples
 #' # Example usage
@@ -66,7 +67,8 @@ cmd_countPROseqReads <- function(umi.count.file,
   # Wrap commands output ----
   cmd <- data.table(file.type= "count.table",
                     path= count.table,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "countProseqReads")
 
   # Return ----
   return(cmd)

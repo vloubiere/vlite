@@ -6,7 +6,12 @@
 #' @param output.file.type The type of output file (fq...). Default= NA.
 #' @param gzip Should the output file be gzipped? Default= FALSE
 #'
-#' @return
+#' @return A `data.table` with:
+#' - `file.type`: Output file labels.
+#' - `path`: Paths to trimmed FASTQ files.
+#' - `cmd`: Shell command to run Trim Galore.
+#' - `job.name`: Default name for the job = "download".
+#'
 #' @examples
 #' cmd <- cmd_download(url= "url/to/data")
 #' vl_submit(cmd, execute= FALSE)
@@ -37,7 +42,8 @@ cmd_download <- function(url,
   # Wrap commands output ----
   cmd <- data.table(file.type= output.file.type,
                     path= output.file.path,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "download")
 
   # Return
   return(cmd)

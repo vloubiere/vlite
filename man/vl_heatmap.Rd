@@ -39,7 +39,9 @@ vl_heatmap(
   col.annotations.col = rainbow(9)[1:7],
   na.col = "lightgrey",
   legend.cex = 1,
-  numbers.cex = 0.7
+  numbers.cex = 0.7,
+  show.grid = FALSE,
+  grid.lwd = 0.25
 )
 }
 \arguments{
@@ -122,6 +124,10 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 \item{legend.cex}{Numeric scaling factor for the legend. Default= 1.}
 
 \item{numbers.cex}{Numeric scaling factor for the size of displayed numbers. Default= 0.7.}
+
+\item{show.grid}{Should the matric grid be shown? Default= FALSE.}
+
+\item{grid.lwd}{Line width used for the grid.}
 }
 \value{
 Invisibly returns a list with two `data.table` objects:

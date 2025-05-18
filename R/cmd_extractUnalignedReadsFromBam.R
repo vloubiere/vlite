@@ -12,6 +12,8 @@
 #' - `file.type`: Output file label ("fq1.unaligned").
 #' - `path`: Path to the output FASTQ file.
 #' - `cmd`: Shell command to extract unaligned reads.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = "extractUnal".
 #'
 #' @examples
 #' # Extract unaligned reads from a BAM file
@@ -39,7 +41,9 @@ cmd_exractUnalignedReadsFromBam <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= "fq1.unaligned",
                     path= fq1.unaligned,
-                    cmd= cmd)
+                    cmd= cmd,
+                    cores= cores,
+                    job.name= "extractUnal")
 
   # Return ----
   return(cmd)

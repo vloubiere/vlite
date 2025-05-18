@@ -18,6 +18,7 @@
 #' - `file.type`: Output file labels ("count.stats", "counts").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the RNA-Seq read counting pipeline.
+#' - `job.name`: Default name for the job = "countRsubReads".
 #'
 #' @examples
 #' # Count reads for a single-end RNA-Seq BAM file
@@ -89,7 +90,8 @@ cmd_countRsubread <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("count.stats", "counts"),
                     path= c(stats.file, counts.file),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "countRsubReads")
 
   # Return ----
   return(cmd)

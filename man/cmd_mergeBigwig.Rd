@@ -37,6 +37,7 @@ A `data.table` with:
 - `file.type`: Output file label ("bw").
 - `path`: Path to the merged BigWig file.
 - `cmd`: Shell command to run the BigWig merge and BedGraph to BigWig conversion.
+- `job.name`: Default name for the job = "bwMerge".
 }
 \description{
 Creates shell commands to merge multiple BigWig files and convert the merged BedGraph to BigWig format using a

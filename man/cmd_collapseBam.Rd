@@ -28,6 +28,8 @@ A data.table with:
 - `file.type`: Output file labels ("collapsed.bam", "collapsed.stats").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the collapsing and statistics generation pipeline.
+- `cores`: The number of CPU cores to use.
+- `job.name`: Default name for the job = "collBam".
 }
 \description{
 Creates shell commands to collapse duplicate reads, sort alignments, and generate alignment statistics

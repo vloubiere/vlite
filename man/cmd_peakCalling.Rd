@@ -45,6 +45,7 @@ A data.table with:
 - `file.type`: Output file labels (e.g: "peaks", "bedgraph").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the peak calling pipeline.
+- `job.name`: Default name for the job = "MACS2".
 }
 \description{
 Creates shell commands to perform peak calling on BAM files using MACS2.

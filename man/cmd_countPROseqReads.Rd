@@ -32,6 +32,7 @@ A data.table with the following columns:
 - `file.type`: Label for the output file ("count.table").
 - `path`: Path to the output counts table.
 - `cmd`: Shell command to run the PRO-seq read counting pipeline.
+- `job.name`: Default name for the job = "countProseqReads".
 }
 \description{
 This function generates shell commands to count PRO-seq reads from a UMI count file using a .rds genomic annotation file.

@@ -20,6 +20,8 @@
 #' - `file.types`: Types of output files.
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell commands for each step in the pipeline.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = paste0("ORF_", output.prefix).
 #'
 #' @examples
 #' # Process ORFeome sequencing data
@@ -78,5 +80,7 @@ orfeomeProcessing <- function(fq1,
   cmd <- rbind(cmd, counts.cmd)
 
   # Return ----
+  cmd[, cores:= cores]
+  cmd[, job.name:= paste0("ORF_", output.prefix)]
   return(cmd)
 }

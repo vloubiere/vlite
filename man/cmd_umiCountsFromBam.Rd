@@ -31,6 +31,7 @@ A data.table with:
 - `file.type`: Output file labels ("umi.counts", "umi.bed").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the UMI counting pipeline.
+- `job.name`: Default name for the job = "umiCountBam".
 }
 \description{
 Creates shell commands to count unique molecular identifiers (UMIs) from a BAM file.

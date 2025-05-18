@@ -20,6 +20,8 @@
 #' - `file.type`: Types of output files (`"bam"`, `"stats"`, `"mapq.stats"`).
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell commands for the alignment pipeline.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = "alnBwt2".
 #'
 #' @examples
 #' # Single-end alignment using mm10 genome
@@ -109,7 +111,9 @@ cmd_alignBowtie2 <- function(fq1,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("bam", "align.stats"),
                     path= c(bam, stats),
-                    cmd= cmd)
+                    cmd= cmd,
+                    cores= cores,
+                    job.name= "alnBwt2")
 
   # add mapq sorting stats ----
   if(!is.null(mapq))

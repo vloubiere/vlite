@@ -47,6 +47,7 @@ A data.table with:
 - `file.type`: Output file label ("peaks", "stats").
 - `path`: Path to the output file.
 - `cmd`: Shell command to run the peak calling pipeline.
+- `job.name`: Default name for the job = "peakCalling".
 }
 \description{
 Generates a shell command to call peaks from a ChIP-seq experiment bigWig file, with optional input control, over specified genomic regions.

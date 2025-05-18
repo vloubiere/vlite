@@ -15,6 +15,7 @@
 #' - `file.type`: Output file label ("bw").
 #' - `path`: Path to the BigWig file.
 #' - `cmd`: Shell command to run the BED to BigWig conversion.
+#' - `job.name`: Default name for the job = "bedToBw".
 #'
 #' @examples
 #' # Convert a BED file to BigWig format
@@ -54,7 +55,8 @@ cmd_bedToBigwig <- function(bed,
   # Wrap commands output ----
   cmd <- data.table(file.type= "bw",
                     path= bw.file,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "bedToBw")
 
   # Return ----
   return(cmd)

@@ -27,6 +27,8 @@
 #'   \item `file.type`: Labels for output files (e.g.: "fq1", "fq2").
 #'   \item `path`: Full paths to the output files.
 #'   \item `cmd`: Shell command(s) to generate the output files.
+#'   \item `cores`: The number of CPU cores to use.
+#'   \item `job.name`: Default name for the job = "demultVBC".
 #' }
 #'
 #' @details
@@ -191,7 +193,9 @@ cmd_demultiplexVBCfile <- function(vbcFile,
   # Wrap commands output ----
   cmd <- data.table(file.type= if(layout=="PAIRED") c("fq1", "fq2") else "fq1",
                     path= if(layout=="PAIRED") c(fq1, fq2) else fq1,
-                    cmd= cmd)
+                    cmd= cmd,
+                    cores= cores,
+                    job.name= "demultVBC")
 
   # Return ----
   return(cmd)

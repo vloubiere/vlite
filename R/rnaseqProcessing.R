@@ -27,6 +27,8 @@
 #' - `file.types`: Types of output files.
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell commands for each step in the pipeline.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = paste0("RNA_", output.prefix).
 #'
 #' @examples
 #' # Process paired-end RNA-Seq data
@@ -111,8 +113,10 @@ rnaseqProcessing <- function(fq1,
                             Rpath = Rpath)
   cmd <- rbind(cmd, bw.cmd)
 
-  # DESeq2 should be performed separately, as controls cannot be fetched here ----
+  # DESeq2 should be performed separately, as controls cannot be fetched here
 
   # Return ----
+  cmd[, cores:= cores]
+  cmd[, job.name:= paste0("RNA_", output.prefix)]
   return(cmd)
 }

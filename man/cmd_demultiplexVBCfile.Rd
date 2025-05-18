@@ -54,6 +54,8 @@ A data.table with three columns:
   \item `file.type`: Labels for output files (e.g.: "fq1", "fq2").
   \item `path`: Full paths to the output files.
   \item `cmd`: Shell command(s) to generate the output files.
+  \item `cores`: The number of CPU cores to use.
+  \item `job.name`: Default name for the job = "demultVBC".
 }
 }
 \description{

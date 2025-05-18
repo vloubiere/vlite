@@ -40,6 +40,7 @@ A data.table with:
 - `file.type`: Output file label "bw".
 - `path`: Path to the output file.
 - `cmd`: Shell command to run.
+- `job.name`: Default name for the job = "bwLogRatio".
 }
 \description{
 Generates a shell command to compute log2 ratio between two bed files, using a sliding window.

@@ -14,6 +14,8 @@
 #' - `file.type`: Output file labels ("collapsed.bam", "collapsed.stats").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the collapsing and statistics generation pipeline.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = "collBam".
 #'
 #' @examples
 #' # Collapse a BAM file and generate statistics
@@ -49,7 +51,9 @@ cmd_collapseBam <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("collapsed.bam", "collapsed.stats"),
                     path= c(collapsed.bam, collapsed.stats),
-                    cmd= c(collapse.cmd, stats.cmd))
+                    cmd= c(collapse.cmd, stats.cmd),
+                    cores= cores,
+                    job.name= "collBam")
 
   # Return ----
   return(cmd)

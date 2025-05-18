@@ -17,9 +17,11 @@
 #' @param cores Number of CPU cores to use. Default: `8`.
 #'
 #' @return A `data.table` with:
-#' - `file.type`: Output file labels (`"bam"`, `"align.stats"`).
+#' - `file.type`: Output file labels (i.e. "bam", "align.stats").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run Bowtie2.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = "alnBwt".
 #'
 #' @examples
 #' # Align reads to the mm10 genome
@@ -109,7 +111,9 @@ cmd_alignBowtie <- function(fq1,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("bam", "align.stats"),
                     path= c(bam, stats),
-                    cmd= cmd)
+                    cmd= cmd,
+                    cores= cores,
+                    job.name= "alnBwt")
 
   # Return ----
   return(cmd)

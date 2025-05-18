@@ -13,6 +13,7 @@
 #' - `file.type`: Output file label ("counts.BC").
 #' - `path`: Path to the output counts file.
 #' - `cmd`: Shell command to run the barcode counting pipeline.
+#' - `job.name`: Default name for the job = "countBCreads".
 #'
 #' @examples
 #' # Count barcodes in a BAM file
@@ -47,7 +48,8 @@ cmd_countBCreads <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= "counts.BC",
                     path= counts.file,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "countBCreads")
 
   # Return ----
   return(cmd)

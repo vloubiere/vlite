@@ -34,6 +34,7 @@ A data.table with:
 - `file.type`: Output file labels ("bed.file", "counts.file").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the insertion assignment pipeline.
+- `job.name`: Default name for the job = "assignInsert".
 }
 \description{
 Creates shell commands to assign insertions from a BAM file to genomic features using a GTF annotation file.

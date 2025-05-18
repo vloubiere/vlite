@@ -12,6 +12,7 @@
 #' - `file.type`: Output file labels ("ps.bw", "ns.bw").
 #' - `path`: Paths to the positive strand and negative strand BigWig files.
 #' - `cmd`: Shell command to run the UMI to BigWig conversion.
+#' - `job.name`: Default name for the job = "umiToBwProseq".
 #'
 #' @examples
 #' # Convert UMI counts to BigWig files for PRO-Seq data
@@ -47,7 +48,8 @@ cmd_umiToBigwigProseq <- function(umi.counts,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("ps.bw", "ns.bw"),
                     path= c(ps.bw, ns.bw),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "umiToBwProseq")
 
   # Return ----
   return(cmd)

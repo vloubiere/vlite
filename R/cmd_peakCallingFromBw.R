@@ -21,6 +21,7 @@
 #' - `file.type`: Output file label ("peaks", "stats").
 #' - `path`: Path to the output file.
 #' - `cmd`: Shell command to run the peak calling pipeline.
+#' - `job.name`: Default name for the job = "peakCalling".
 #'
 #' @examples
 #' cmd <- cmd_peakCallingFromBw(
@@ -80,7 +81,8 @@ cmd_peakCallingFromBw <- function(experiment.bw.file,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("peaks", "stats"),
                     path= c(peaks.file, stats.file),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "peakCalling")
 
   # Return ----
   return(cmd)

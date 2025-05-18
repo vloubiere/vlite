@@ -20,9 +20,10 @@
 #' @param Rpath Path to the Rscript binary. Default: `/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript`.
 #'
 #' @return A `data.table` with the following columns:
-#' - `file.type`: Labels for the output files (`DESeq2.dds`, `FC.table`, `MA.plot`).
+#' - `file.type`: Labels for the output files (i.e. "DESeq2.dds", "FC.table", "MA.plot").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the DESeq2 analysis pipeline.
+#' - `job.name`: Default name for the job = "DESeq2Proseq".
 #'
 #' @examples
 #' # Example usage
@@ -98,7 +99,8 @@ vl_PROseq_DESeq2 <- function(umi.count.tables,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("DESeq2.dds", "FC.table", "MA.plot"),
                     path= c(dds.file, FC.tables, MA.plots),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "DESeq2Proseq")
 
   # Return ----
   return(cmd)

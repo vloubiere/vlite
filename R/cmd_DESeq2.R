@@ -43,7 +43,8 @@ cmd_DESeq2 <- function(count.files,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("DESeq2.dds", "FC.table", "MA.plot"),
                     path= c(dds.file, FC.tables, MA.plots),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "DESeq2")
 
   # Return ----
   return(cmd)

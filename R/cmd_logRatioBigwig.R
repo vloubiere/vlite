@@ -18,6 +18,7 @@
 #' - `file.type`: Output file label "bw".
 #' - `path`: Path to the output file.
 #' - `cmd`: Shell command to run.
+#' - `job.name`: Default name for the job = "bwLogRatio".
 #'
 #' @examples
 #' cmd <- cmd_logRatioBigwig(
@@ -68,7 +69,8 @@ cmd_logRatioBigwig <- function(experiment.bed.file,
   # Wrap commands output ----
   cmd <- data.table(file.type= "bw",
                     path= output.file,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "bwLogRatio")
 
   # Return ----
   return(cmd)

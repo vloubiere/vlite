@@ -19,6 +19,8 @@
 #' - `file.type`: Types of output files.
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell commands for each step in the pipeline.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = paste0("CR_", output.prefix).
 #'
 #' @examples
 #' # Process paired-end data from FASTQ files
@@ -73,5 +75,7 @@ cutnrunProcessing <- function(fq1,
   cmd <- rbind(cmd, align.cmd)
 
   # Return ----
+  cmd[, cores:= cores]
+  cmd[, job.name:= paste0("CR_", output.prefix)]
   return(cmd)
 }

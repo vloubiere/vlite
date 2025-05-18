@@ -50,9 +50,10 @@ Default: `spikeIn`.}
 }
 \value{
 A `data.table` with the following columns:
-- `file.type`: Labels for the output files (`DESeq2.dds`, `FC.table`, `MA.plot`).
+- `file.type`: Labels for the output files (i.e. "DESeq2.dds", "FC.table", "MA.plot").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the DESeq2 analysis pipeline.
+- `job.name`: Default name for the job = "DESeq2Proseq".
 }
 \description{
 This function generates shell commands to perform differential expression analysis of PRO-seq data using DESeq2.

@@ -32,6 +32,7 @@ A data.table with:
 - `file.type`: Output file label ("bw").
 - `path`: Path to the BigWig file.
 - `cmd`: Shell command to run the BED to BigWig conversion.
+- `job.name`: Default name for the job = "bedToBw".
 }
 \description{
 Creates shell commands to convert a BED file to BigWig format using a genome sizes file.

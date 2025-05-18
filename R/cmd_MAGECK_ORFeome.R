@@ -24,9 +24,10 @@
 #' @param Rpath Path to the Rscript executable. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
 #'
 #' @return A `data.table` with the following columns:
-#' - `file.type`: Labels for the output files (e.g., `"raw.counts.table"`, `"filtered.counts.table"`, `"gene.summary"`, `"volcano.plot"`, `"gene.summary.master"`).
+#' - `file.type`: Labels for the output files (i.e., "raw.counts.table", "filtered.counts.table", "gene.summary", "volcano.plot", "gene.summary.master").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell commands to run the MAGeCK analysis pipeline.
+#' - `job.name`: Default name for the job = "MAGECK".
 #'
 #' @examples
 #' # Example usage
@@ -149,5 +150,6 @@ cmd_MAGeCK_ORFeome <- function(sample.counts,
                           cmd= cmd3))
 
   # Return ----
+  cmd[, job.name:= "MAGECK"]
   return(cmd)
 }

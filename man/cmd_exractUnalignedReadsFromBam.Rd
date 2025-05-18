@@ -25,6 +25,8 @@ A data.table with:
 - `file.type`: Output file label ("fq1.unaligned").
 - `path`: Path to the output FASTQ file.
 - `cmd`: Shell command to extract unaligned reads.
+- `cores`: The number of CPU cores to use.
+- `job.name`: Default name for the job = "extractUnal".
 }
 \description{
 Creates shell commands to extract unaligned reads from a BAM file and output them as a FASTQ file.

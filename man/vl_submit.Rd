@@ -6,40 +6,39 @@
 \usage{
 vl_submit(
   cmd,
-  cores = 8,
+  cores,
   mem = 16,
   time = "08:00:00",
-  job.name = "myJob",
+  job.name,
   logs = "db/logs",
   overwrite = FALSE,
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
   execute = TRUE
 )
 }
 \arguments{
-\item{cmd}{A `data.table` containing the commands to execute, with columns:
+\item{cmd}{A data.table containing the commands to execute, with columns:
 - `file.type`: Type of output file.
 - `path`: Path to the output file.
-- `cmd`: Shell command to execute.}
+- `cmd`: Shell command to execute.
+- `cores`: (Optional) The number of CPU cores to allocate to the job, specified by the first value.
+- `job.name`: (Optional) The name of the job, specified by the first value in this column.}
 
-\item{cores}{Number of CPU cores to allocate. Default: `8`.}
+\item{cores}{Number of CPU cores to allocate. If not specified, the first value of the optional
+'core' column will be used. Otherwise, default= 8.}
 
-\item{mem}{Memory allocation in GB. Default: `16`.}
+\item{mem}{Memory allocation in GB. Default= 16.}
 
-\item{time}{Maximum runtime for the job (HH:MM:SS). Default: `"08:00:00"`.}
+\item{time}{Maximum runtime for the job (HH:MM:SS). Default= '08:00:00'.}
 
-\item{job.name}{Name of the job. Default: `"myJob"`.}
+\item{job.name}{Name of the job. If not specified, the first value of the optional 'job.name'
+column will be used. otherwise, default= "myJob".}
 
-\item{logs}{Directory for log files. Default: `"db/logs"`.}
+\item{logs}{Directory for log files. Default: 'db/logs'.}
 
-\item{overwrite}{Logical. If `TRUE`, overwrites existing output files. Default: `FALSE`.}
+\item{overwrite}{If set to TRUE, overwrites existing output files. Default= FALSE.}
 
-\item{Rpath}{Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.}
-
-\item{execute}{Logical. If `TRUE`, submits the command to the server. If `FALSE`, returns the constructed command. Default: `TRUE`.}
-}
-\value{
-If `execute = FALSE`, returns the constructed shell command as a string. Otherwise, submits the job and returns nothing.
+\item{execute}{If set to FALSE, the command is returned and is not submitted to the cluster.
+Default= TRUE.}
 }
 \description{
 Submits shell commands to a server using resource management (e.g., LSF). Handles job submission,

@@ -49,6 +49,8 @@
 #' @param na.col Color for NA values. Default= "ligthgrey".
 #' @param legend.cex Numeric scaling factor for the legend. Default= 1.
 #' @param numbers.cex Numeric scaling factor for the size of displayed numbers. Default= 0.7.
+#' @param show.grid Should the matric grid be shown? Default= FALSE.
+#' @param grid.lwd Line width used for the grid.
 #'
 #' @return
 #' Invisibly returns a list with two `data.table` objects:
@@ -110,7 +112,9 @@ vl_heatmap <- function(x,
                        col.annotations.col= rainbow(9)[1:7],
                        na.col= "lightgrey",
                        legend.cex= 1,
-                       numbers.cex= .7)
+                       numbers.cex= .7,
+                       show.grid= FALSE,
+                       grid.lwd= .25)
 {
   # Coerce x to numeric matrix (useful for factors) ----
   if(!is.matrix(x)) {
@@ -292,6 +296,20 @@ vl_heatmap <- function(x,
             axes= FALSE,
             useRaster= useRaster,
             add= TRUE)
+      if(show.grid) {
+        x <- seq(x.pos[1]-0.5, rev(x.pos)[1]+0.5)
+        segments(x,
+                 rev(y.pos)[1]+0.5,
+                 x,
+                 y.pos[1]-0.5,
+                 lwd= grid.lwd)
+        y <- seq(y.pos[1]-0.5, rev(y.pos)[1]+0.5)
+        segments(x.pos[1]-0.5,
+                 y,
+                 rev(x.pos)[1]+0.5,
+                 y,
+                 lwd= grid.lwd)
+      }
       rect(xleft = x.pos[1]-0.5,
            ybottom = rev(y.pos)[1]+0.5,
            xright = rev(x.pos)[1]+0.5,

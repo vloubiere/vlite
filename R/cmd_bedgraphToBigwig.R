@@ -14,6 +14,7 @@
 #' - `file.type`: Output file label ("bw").
 #' - `path`: Path to the BigWig file.
 #' - `cmd`: Shell command to run the BedGraph to BigWig conversion.
+#' - `job.name`: Default name for the job = "bdgToBw".
 #'
 #' @examples
 #' # Convert a BedGraph file to BigWig format
@@ -54,7 +55,8 @@ cmd_bedgraphToBigwig <- function(bdg,
   # Wrap commands output ----
   cmd <- data.table(file.type= "bw",
                     path= bw.file,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "bdgToBw")
 
   # Return ----
   return(cmd)

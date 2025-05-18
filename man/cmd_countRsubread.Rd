@@ -40,6 +40,7 @@ A data.table with:
 - `file.type`: Output file labels ("count.stats", "counts").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run the RNA-Seq read counting pipeline.
+- `job.name`: Default name for the job = "countRsubReads".
 }
 \description{
 Creates shell commands to count RNA-Seq reads from a BAM file using the Rsubread ?Rsubread::featureCounts() function.

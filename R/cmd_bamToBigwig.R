@@ -16,6 +16,7 @@
 #' - `file.type`: Output file label ("bw").
 #' - `path`: Path to the BigWig file.
 #' - `cmd`: Shell command to run the BAM to BigWig conversion.
+#' - `job.name`: Default name for the job = "bamToBw".
 #'
 #' @examples
 #' # Convert a BAM file to BigWig format for single-end data
@@ -69,7 +70,8 @@ cmd_bamToBigwig <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= "bw",
                     path= bw.file,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "bamToBw")
 
   # Return ----
   return(cmd)

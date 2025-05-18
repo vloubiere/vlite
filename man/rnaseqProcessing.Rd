@@ -58,6 +58,8 @@ A data.table with:
 - `file.types`: Types of output files.
 - `path`: Paths to the output files.
 - `cmd`: Shell commands for each step in the pipeline.
+- `cores`: The number of CPU cores to use.
+- `job.name`: Default name for the job = paste0("RNA_", output.prefix).
 }
 \description{
 Implements a pipeline for processing RNA-Seq data, including:

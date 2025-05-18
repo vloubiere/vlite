@@ -12,6 +12,7 @@
 #' - `file.type`: Output file labels.
 #' - `path`: Paths to trimmed FASTQ files.
 #' - `cmd`: Shell command to run Trim Galore.
+#' - `job.name`: Default name for the job = "trimGal".
 #'
 #' @examples
 #' # Single-end
@@ -58,7 +59,8 @@ cmd_trimIlluminaAdaptors <- function(fq1,
   # Wrap commands output ----
   cmd <- data.table(file.type= if(is.null(fq2)) "fq1.trim" else c("fq1.trim", "fq2.trim"),
                     path= if(is.null(fq2)) fq1.trim else c(fq1.trim, fq2.trim),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "trimGal")
 
   # Return ----
   return(cmd)

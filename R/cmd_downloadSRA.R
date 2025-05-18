@@ -9,10 +9,11 @@
 #' @param threads Number of threads (default: 4)
 #' @param mem Memory in MB (default: 2048)
 #'
-#' @return data.table with columns:
-#'   \item{file.type}{Type of output file (fq1 or fq2)}
-#'   \item{path}{Full path to output file}
-#'   \item{cmd}{Command to execute}
+#'#' @return A `data.table` with:
+#' - `file.type`: Output file labels. "fq1" or "fq2".
+#' - `path`: Paths to the fastq files.
+#' - `cmd`: Shell command to download and process SRA file.
+#' - `job.name`: Default name for the job = "dlSRA".
 #'
 #' @examples
 #' cmd <- cmd_downloadSRA("SRR123456",
@@ -76,7 +77,8 @@ cmd_downloadSRA <- function(SRR,
   # Wrap commands output ----
   cmd <- data.table(file.type= if(layout=="PAIRED") c("fq1", "fq2") else "fq1",
                     path= if(layout=="PAIRED") c(fq1.new, fq2.new) else fq1.new,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "dlSRA")
 
   # Return
   return(cmd)

@@ -4,20 +4,22 @@
 #' Submits shell commands to a server using resource management (e.g., LSF). Handles job submission,
 #' resource allocation, and optional directory creation for output files.
 #'
-#' @param cmd A `data.table` containing the commands to execute, with columns:
+#' @param cmd A data.table containing the commands to execute, with columns:
 #'   - `file.type`: Type of output file.
 #'   - `path`: Path to the output file.
 #'   - `cmd`: Shell command to execute.
-#' @param cores Number of CPU cores to allocate. Default: `8`.
-#' @param mem Memory allocation in GB. Default: `16`.
-#' @param time Maximum runtime for the job (HH:MM:SS). Default: `"08:00:00"`.
-#' @param job.name Name of the job. Default: `"myJob"`.
-#' @param logs Directory for log files. Default: `"db/logs"`.
-#' @param overwrite Logical. If `TRUE`, overwrites existing output files. Default: `FALSE`.
-#' @param Rpath Path to the Rscript binary. Default: `"/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"`.
-#' @param execute Logical. If `TRUE`, submits the command to the server. If `FALSE`, returns the constructed command. Default: `TRUE`.
-#'
-#' @return If `execute = FALSE`, returns the constructed shell command as a string. Otherwise, submits the job and returns nothing.
+#'   - `cores`: (Optional) The number of CPU cores to allocate to the job, specified by the first value.
+#'   - `job.name`: (Optional) The name of the job, specified by the first value in this column.
+#' @param cores Number of CPU cores to allocate. If not specified, the first value of the optional
+#' 'core' column will be used. Otherwise, default= 8.
+#' @param mem Memory allocation in GB. Default= 16.
+#' @param time Maximum runtime for the job (HH:MM:SS). Default= '08:00:00'.
+#' @param job.name Name of the job. If not specified, the first value of the optional 'job.name'
+#' column will be used. otherwise, default= "myJob".
+#' @param logs Directory for log files. Default: 'db/logs'.
+#' @param overwrite If set to TRUE, overwrites existing output files. Default= FALSE.
+#' @param execute If set to FALSE, the command is returned and is not submitted to the cluster.
+#' Default= TRUE.
 #'
 #' @examples
 #' # Submit a command to the server
@@ -33,18 +35,27 @@
 #'
 #' @export
 vl_submit <- function(cmd,
-                      cores= 8,
+                      cores,
                       mem= 16,
                       time= '08:00:00',
-                      job.name= "myJob",
+                      job.name,
                       logs= "db/logs",
                       overwrite= FALSE,
-                      Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
                       execute= TRUE)
 {
   # Checks ----
   if(!is.data.table(cmd) || !all(c("file.type", "path", "cmd") %in% names(cmd)))
     stop("cmd should be a data.table containing columns 'file.type', 'path' and 'cmd'.")
+  if(missing(job.name)) {
+    job.name <- if("job.name" %in% names(cmd))
+      cmd$job.name[1] else
+        "myJob"
+  }
+  if(missing(cores)) {
+    job.name <- if("cores" %in% names(cmd))
+      cmd$cores[1] else
+        8
+  }
 
   # Check existing files ----
   if(!overwrite) {

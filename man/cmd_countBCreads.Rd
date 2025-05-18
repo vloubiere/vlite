@@ -25,6 +25,7 @@ A data.table with:
 - `file.type`: Output file label ("counts.BC").
 - `path`: Path to the output counts file.
 - `cmd`: Shell command to run the barcode counting pipeline.
+- `job.name`: Default name for the job = "countBCreads".
 }
 \description{
 Creates shell commands to count barcode reads from a BAM file using a predefined barcode dictionary.

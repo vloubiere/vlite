@@ -17,6 +17,8 @@
 #' - `file.type`: Output file labels ("bam", "align.stats").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run Rsubread.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = "alnRsub".
 #'
 #' @examples
 #' # Align single-end reads to the mm10 genome
@@ -88,7 +90,9 @@ cmd_alignRnaRsubread <- function(fq1,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("bam", "align.stats"),
                     path= c(bam, stats.new),
-                    cmd= cmd)
+                    cmd= cmd,
+                    cores= cores,
+                    job.name= "alnRsub")
 
   # Return ----
   return(cmd)

@@ -14,6 +14,7 @@
 #' - `file.type`: Output file label ("confident.peaks").
 #' - `path`: Path to the confident peaks file.
 #' - `cmd`: Shell command to run the confident peaks pipeline.
+#' - `job.name`: Default name for the job = "confPeaks".
 #'
 #' @examples
 #' # Identify confident peaks across replicates
@@ -55,7 +56,8 @@ cmd_confidentPeaks <- function(replicates.peaks.files,
   # Wrap commands output ----
   cmd <- data.table(file.type= "confident.peaks",
                     path= peaks.file,
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "confPeaks")
 
   # Return ----
   return(cmd)

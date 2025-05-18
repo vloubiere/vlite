@@ -23,6 +23,13 @@ cmd_download(
 
 \item{file.typename}{The output file name (default= keep url basename).}
 }
+\value{
+A `data.table` with:
+- `file.type`: Output file labels.
+- `path`: Paths to trimmed FASTQ files.
+- `cmd`: Shell command to run Trim Galore.
+- `job.name`: Default name for the job = "download".
+}
 \description{
 Download files
 }

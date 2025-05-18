@@ -30,13 +30,13 @@ cmd_downloadSRA(
 
 \item{threads}{Number of threads (default: 4)}
 
-\item{mem}{Memory in MB (default: 2048)}
-}
-\value{
-data.table with columns:
-  \item{file.type}{Type of output file (fq1 or fq2)}
-  \item{path}{Full path to output file}
-  \item{cmd}{Command to execute}
+\item{mem}{Memory in MB (default: 2048)
+
+#' @return A `data.table` with:
+- `file.type`: Output file labels. "fq1" or "fq2".
+- `path`: Paths to the fastq files.
+- `cmd`: Shell command to download and process SRA file.
+- `job.name`: Default name for the job = "dlSRA".}
 }
 \description{
 Download and Process SRA Files

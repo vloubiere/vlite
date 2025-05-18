@@ -24,6 +24,8 @@
 #' - `file.types`: Types of output files.
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell commands for each step in the pipeline.
+#' - `cores`: The number of CPU cores to use.
+#' - `job.name`: Default name for the job = paste0("ORFtag_", output.prefix).
 #'
 #' @examples
 #' # Process ORFtag sequencing data
@@ -99,5 +101,7 @@ orftagProcessing <- function(fq1,
   cmd <- rbind(cmd, assign.cmd)
 
   # Return ----
+  cmd[, cores:= cores]
+  cmd[, job.name:= paste0("ORFtag_", output.prefix)]
   return(cmd)
 }

@@ -16,6 +16,7 @@
 #' - `file.type`: Output file labels ("bed.file", "counts.file").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the insertion assignment pipeline.
+#' - `job.name`: Default name for the job = "assignInsert".
 #'
 #' @examples
 #' # Assign insertions for a BAM file using the mm10 genome
@@ -75,7 +76,8 @@ cmd_assignInsertions <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("bed.file", "fw.counts.file", "rev.counts.file"),
                     path= c(bed.file, fw.counts.file, rev.counts.file),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "assignInsert")
 
   # Return ----
   return(cmd)

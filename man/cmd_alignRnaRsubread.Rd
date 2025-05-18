@@ -37,6 +37,8 @@ A `data.table` with:
 - `file.type`: Output file labels ("bam", "align.stats").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run Rsubread.
+- `cores`: The number of CPU cores to use.
+- `job.name`: Default name for the job = "alnRsub".
 }
 \description{
 Creates shell commands to align sequencing reads to a reference genome using the Rsubread aligner.

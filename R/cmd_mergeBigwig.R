@@ -18,6 +18,7 @@
 #' - `file.type`: Output file label ("bw").
 #' - `path`: Path to the merged BigWig file.
 #' - `cmd`: Shell command to run the BigWig merge and BedGraph to BigWig conversion.
+#' - `job.name`: Default name for the job = "bwMerge".
 #'
 #' @examples
 #' # Merge BigWig files and convert to a single BigWig
@@ -73,5 +74,6 @@ cmd_mergeBigwig <- function(bw,
   }
 
   # Return ----
+  cmd[, job.name= "bwMerge"]
   return(cmd)
 }

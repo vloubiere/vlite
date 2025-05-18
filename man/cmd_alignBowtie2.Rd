@@ -43,6 +43,8 @@ A `data.table` with:
 - `file.type`: Types of output files (`"bam"`, `"stats"`, `"mapq.stats"`).
 - `path`: Paths to the output files.
 - `cmd`: Shell commands for the alignment pipeline.
+- `cores`: The number of CPU cores to use.
+- `job.name`: Default name for the job = "alnBwt2".
 }
 \description{
 Creates shell commands to align FASTQ files to a reference genome using Bowtie2,

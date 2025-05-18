@@ -15,6 +15,7 @@
 #' - `file.type`: Output file labels ("umi.counts", "umi.bed").
 #' - `path`: Paths to the output files.
 #' - `cmd`: Shell command to run the UMI counting pipeline.
+#' - `job.name`: Default name for the job = "umiCountBam".
 #'
 #' @examples
 #' # Count UMIs for a single-end BAM file
@@ -64,7 +65,8 @@ cmd_umiCountsFromBam <- function(bam,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("umi.counts", "umi.bed"),
                     path= c(umi.counts.file, umi.bed.file),
-                    cmd= cmd)
+                    cmd= cmd,
+                    job.name= "umiCountBam")
 
   # Return ----
   return(cmd)

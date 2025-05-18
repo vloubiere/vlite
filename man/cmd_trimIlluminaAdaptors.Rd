@@ -18,6 +18,7 @@ A `data.table` with:
 - `file.type`: Output file labels.
 - `path`: Paths to trimmed FASTQ files.
 - `cmd`: Shell command to run Trim Galore.
+- `job.name`: Default name for the job = "trimGal".
 }
 \description{
 Creates shell commands to trim Illumina adapters from gzipped FASTQ files using Trim Galore.

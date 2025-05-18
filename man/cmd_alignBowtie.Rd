@@ -41,9 +41,11 @@ If not provided, `genome.idx` must be specified.}
 }
 \value{
 A `data.table` with:
-- `file.type`: Output file labels (`"bam"`, `"align.stats"`).
+- `file.type`: Output file labels (i.e. "bam", "align.stats").
 - `path`: Paths to the output files.
 - `cmd`: Shell command to run Bowtie2.
+- `cores`: The number of CPU cores to use.
+- `job.name`: Default name for the job = "alnBwt".
 }
 \description{
 Creates shell commands to align sequencing reads to a reference genome using Bowtie2.
