@@ -10,6 +10,7 @@ cutnrunProcessing(
   output.prefix,
   genome,
   genome.idx = NULL,
+  max.ins = 1000,
   fq.output.folder = "db/fq/CUTNRUN/",
   bam.output.folder = "db/bam/CUTNRUN/",
   alignment.stats.output.folder = "db/alignment_stats/CUTNRUN/",
@@ -26,6 +27,8 @@ cutnrunProcessing(
 \item{genome}{Reference genome identifier (e.g., "mm10", "hg38").}
 
 \item{genome.idx}{Path to Bowtie2 index. If NULL, derived from genome. Default= NULL.}
+
+\item{max.ins}{The maximum insert size for Bowtie2. Default= 1000.}
 
 \item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/CUTNRUN/".}
 

@@ -8,7 +8,8 @@ cmd_assignInsertions(
   bam,
   output.prefix = NULL,
   genome,
-  gtf,
+  gtf = NULL,
+  ins.coverage.bam = NULL,
   bed.output.folder = "db/bed/",
   counts.output.folder = "db/counts/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
@@ -22,6 +23,9 @@ cmd_assignInsertions(
 \item{genome}{Reference genome name (e.g., "mm10", "hg38"). If not provided, gtf must be specified.}
 
 \item{gtf}{Path to the GTF annotation file. Default= NULL.}
+
+\item{ins.coverage.bam}{Optional path to the bam file containing reads before collapsing. If specified, the coverage will
+be reported in the bed and count output files (in columns 'score' and 'ins_cov', respectively). Default= NULL.}
 
 \item{bed.output.folder}{Directory for the BED file of unique insertions. Default= "db/bed/".}
 

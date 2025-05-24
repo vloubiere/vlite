@@ -14,9 +14,12 @@
 #'    Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default= 200L.
 #' @param shift Integer value by which reads will be shifted.
 #'    Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default= 0L.
-#' @param genome.macs2 Genome size parameter for MACS2 (e.g., "mm", "hs").
-#' @param peaks.output.folder Directory for peak files. Default= "db/peaks/".
 #' @param broad Logical. Whether to call broad peaks. Default= FALSE.
+#' @param genome.macs2 Genome size parameter for MACS2 (e.g., "dm, "mm", "hs").
+#' @param genome A BSgenome name (e.g. "mm10", "dm6"...).
+#' @param peaks.output.folder Directory where MACS2 output files should be saved. Default= "db/peaks/".
+#' @param bw.output.folder Directory where bigwig files should be saved. Default= "db/bw/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file labels (e.g: "peaks", "bedgraph").
@@ -52,9 +55,13 @@ cmd_peakCalling <- function(bam,
                             keep.dup= 1,
                             extsize= 200,
                             shift= 0,
+                            broad= FALSE,
                             genome.macs2,
+                            genome,
                             peaks.output.folder= "db/peaks/",
-                            broad= FALSE)
+                            bw.output.folder= "db/bw/",
+                            Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+
 {
   # Check (!Do not check if bam file(s) exist to allow wrapping!) ----
   bam <- unique(bam)
@@ -74,8 +81,8 @@ cmd_peakCalling <- function(bam,
   # Output files paths ----
   peaks.file <- file.path(peaks.output.folder,
                           paste0(output.prefix, ifelse(broad, "_peaks.broadPeak", "_peaks.narrowPeak")))
-  bdg.file <- file.path(peaks.output.folder,
-                        paste0(output.prefix, "_treat_pileup.bdg"))
+  bdg.file <- file.path(peaks.output.folder, paste0(output.prefix, "_treat_pileup.bdg"))
+  bw.file <- file.path(bw.output.folder, paste0(output.prefix, ".bw"))
 
   # Command ----
   cmd <- paste("macs2 callpeak -B --SPMR -g", genome.macs2, # Normalize tracks
@@ -94,12 +101,24 @@ cmd_peakCalling <- function(bam,
   if(shift!=0) # shift
     cmd <- paste(cmd, "--shift", shift)
 
+  # Bedgraph to bigwig ----
+  cmd1 <- cmd_bedgraphToBigwig(bdg.file,
+                               output.prefix = output.prefix,
+                               bw.output.folder = bw.output.folder,
+                               genome = genome.macs2,
+                               scaling.factor = 1,
+                               Rpath = Rpath)
+
   # Wrap commands output ----
-  cmd <- data.table(file.type= c("peaks", "bedgraph"),
-                    path= c(peaks.file, bdg.file),
-                    cmd= cmd,
-                    job.name= "MACS2")
+  cmd <- rbind(
+    data.table(file.type= c("peaks", "bedgraph"),
+               path= c(peaks.file, bdg.file),
+               cmd= cmd),
+    cmd1,
+    fill= TRUE
+  )
 
   # Return ----
+  cmd$job.name <- "MACS2"
   return(cmd)
 }

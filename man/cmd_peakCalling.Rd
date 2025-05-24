@@ -12,9 +12,12 @@ cmd_peakCalling(
   keep.dup = 1,
   extsize = 200,
   shift = 0,
+  broad = FALSE,
   genome.macs2,
+  genome,
   peaks.output.folder = "db/peaks/",
-  broad = FALSE
+  bw.output.folder = "db/bw/",
+  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
 )
 }
 \arguments{
@@ -34,11 +37,17 @@ Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default= 200L.}
 \item{shift}{Integer value by which reads will be shifted.
 Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default= 0L.}
 
-\item{genome.macs2}{Genome size parameter for MACS2 (e.g., "mm", "hs").}
-
-\item{peaks.output.folder}{Directory for peak files. Default= "db/peaks/".}
-
 \item{broad}{Logical. Whether to call broad peaks. Default= FALSE.}
+
+\item{genome.macs2}{Genome size parameter for MACS2 (e.g., "dm, "mm", "hs").}
+
+\item{genome}{A BSgenome name (e.g. "mm10", "dm6"...).}
+
+\item{peaks.output.folder}{Directory where MACS2 output files should be saved. Default= "db/peaks/".}
+
+\item{bw.output.folder}{Directory where bigwig files should be saved. Default= "db/bw/".}
+
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \value{
 A data.table with:
