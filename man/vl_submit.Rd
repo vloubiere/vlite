@@ -49,9 +49,10 @@ resource allocation, and optional directory creation for output files.
 cmd <- data.table(
   file.type = "bam",
   path = "output.bam",
-  cmd = "echo 'Hello world'"
+  cmd = "echo 'Hello world'",
+  job.name= "test"
 )
-vl_submit(cmd, job.name = "Hello")
+vl_submit(cmd)
 
 # Return the constructed command without submitting
 vl_submit(cmd, execute = FALSE)

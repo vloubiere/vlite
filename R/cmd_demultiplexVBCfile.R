@@ -12,6 +12,7 @@
 #' @param i5 A character vector of i5 index sequence(s). If set to "none" (default), no i5 filtering is performed
 #' @param i7.column Column number in the BAM file containing the i7 index. Default= 14L.
 #' @param i5.column Column number in the BAM file containing the i5 index. Default= 12L.
+#' @param umi If set to TRUE, the i7 index will be appended to the read id (separate by a '_' underscore ).
 #' @param output.prefix Output files prefix. If not provided,
 #'        constructed from the input file name and index sequences.
 #' @param proseq.eBC For PRO-Seq reads, the experimental barcode (eBC) sequence that must be found at the start of the
@@ -88,9 +89,9 @@ cmd_demultiplexVBCfile <- function(vbcFile,
                                    layout,
                                    i7= "none",
                                    i5= "none",
-                                   umi= FALSE,
                                    i7.column= 14,
                                    i5.column= 12,
+                                   umi= FALSE,
                                    output.prefix,
                                    fq.output.folder= "db/fq/",
                                    proseq.eBC= NULL,
@@ -117,6 +118,9 @@ cmd_demultiplexVBCfile <- function(vbcFile,
     if(!all(unlist(strsplit(i5, "")) %in% c("A", "C", "G", "T")))
       stop("Some characters in i5 are not one of 'A', 'C', 'G', 'T'")
     i5 <- paste(i5, collapse = ",")
+  }
+  if(umi && (i7!="none" | !is.null(proseq.eBC))) {
+    stop("When umi is set to TRUE, i7 should be set to 'none' and proseq.eBC to NULL.")
   }
   if(length(i7.column)>1 | length(i5.column)>1)
     stop("Several i7 or i5 column number were provided.")
@@ -150,6 +154,7 @@ cmd_demultiplexVBCfile <- function(vbcFile,
     cmd <- paste(
       decompress,
       "perl", system.file("perl", "vbc_bam_demultiplexing.pl", package = "vlite"), # perl script
+      ifelse(umi, "--umi", ""),
       paste0("'", layout, "'"),
       paste0("'", i7, "'"), # i7 barcode sequence
       paste0("'", i5, "'"), # i5 index sequence

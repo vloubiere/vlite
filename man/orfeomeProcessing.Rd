@@ -62,10 +62,3 @@ vl_submit(cmd, execute= FALSE)
 # Then, peaks should be called using ?cmd_MAGeCK_ORFeome()
 
 }
-\seealso{
-\itemize{
-  \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
-  \item \code{\link{cmd_alignBowtie2}} for alignment
-  \item \code{\link{cmd_countBCreads}} for barcode counting
-}
-}

@@ -34,13 +34,6 @@
 #'
 #' # Then, peaks should be called using ?cmd_MAGeCK_ORFeome()
 #'
-#' @seealso
-#' \itemize{
-#'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
-#'   \item \code{\link{cmd_alignBowtie2}} for alignment
-#'   \item \code{\link{cmd_countBCreads}} for barcode counting
-#' }
-#'
 #' @export
 orfeomeProcessing <- function(fq1,
                               output.prefix,
@@ -65,22 +58,22 @@ orfeomeProcessing <- function(fq1,
                                 fq2= NULL, # Second reads are not used
                                 output.prefix= output.prefix,
                                 genome= NULL,
-                                genome_idx= bowtie2.lib.idx,
+                                genome.idx= bowtie2.lib.idx,
                                 mapq= 30,
                                 bam.output.folder= bam.output.folder,
                                 alignment.stats.output.folder= alignment.stats.output.folder,
                                 cores= cores)
-  cmd <- rbind(cmd, align.cmd)
+  cmd <- rbind(cmd, align.cmd, fill= TRUE)
 
   # BC counts ----
   count.cmd <- cmd_countBCreads(bam = align.cmd[file.type=="bam", path],
                                 output.prefix = NULL, # From bam file
                                 counts.output.folder = counts.output.folder,
                                 Rpath = Rpath)
-  cmd <- rbind(cmd, counts.cmd)
+  cmd <- rbind(cmd, count.cmd, fill= TRUE)
 
   # Return ----
-  cmd[, cores:= cores]
-  cmd[, job.name:= paste0("ORF_", output.prefix)]
+  cmd$cores <- cores
+  cmd$job.name <- paste0("ORF_", output.prefix)
   return(cmd)
 }

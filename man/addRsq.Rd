@@ -4,18 +4,10 @@
 \alias{addRsq}
 \title{Plots Rsq or PCC coeff}
 \usage{
-addRsq(
-  x,
-  pos = "topleft",
-  type = "rsq",
-  adjusted = F,
-  bty = "n",
-  digits = 2,
-  ...
-)
+addRsq(rsq, pos = "topleft", adjusted = F, bty = "n", digits = 2, ...)
 }
 \arguments{
-\item{x}{Rsquare value. If numeric, will be rounded, while characters will be printed as is}
+\item{rsq}{Rsquare value. If numeric, will be rounded, while characters will be printed as is}
 
 \item{pos}{Position. Default= "topleft" (see x argument in ?legend for more detail).}
 
@@ -28,7 +20,7 @@ addRsq(
 \item{...}{}
 }
 \value{
-Add Rsquare x as a legend on aplot
+Add Rsquare as a legend on aplot
 }
 \description{
 Plots Rsq or PCC coeff

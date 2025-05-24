@@ -8,7 +8,7 @@ cmd_alignBowtie2(
   fq1,
   fq2 = NULL,
   output.prefix,
-  genome,
+  genome = NULL,
   genome.idx = NULL,
   mapq = NULL,
   max.ins = 500,

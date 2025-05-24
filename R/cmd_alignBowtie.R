@@ -56,8 +56,8 @@ cmd_alignBowtie <- function(fq1,
   fq1 <- unique(fq1)
   if(!is.null(fq2))
     fq2 <- unique(fq2)
-  if(any(!grepl(".fq$|.fq.gz$", c(fq1, fq2))))
-    stop("fq1 and fq2 file paths should end up with `.fq` or `.fq.gz`")
+  if(any(!grepl(".fq$|.fastq$|.fq.gz$|.fastq.gz$", c(fq1, fq2))))
+    stop("fq1 and fq2 file paths should end up with `.fq`, `.fastq`, `.fq.gz` or `.fastq.gz`")
   if(!is.null(fq2) && length(fq1) != length(fq2))
     stop("When provided, fq2 files should match fq1 files.")
   if(missing(genome) && is.null(genome.idx))
@@ -79,8 +79,8 @@ cmd_alignBowtie <- function(fq1,
   stats <- file.path(alignment.stats.output.folder, paste0(output.prefix, "_", genome, "_stats.txt"))
 
   # Decompress gzipped files (bowtie only takes .fq as input) ----
-  comp.files <- grep(".fq.gz$", c(fq1, fq2), value= TRUE)
-  decomp.files <- gsub(".fq.gz$", ".fq", comp.files)
+  comp.files <- grep(".gz$", c(fq1, fq2), value= TRUE)
+  decomp.files <- gsub(".gz$", "", comp.files)
   cmd <- ""
   for(i in seq(comp.files))
     cmd <- paste0(cmd, "zcat ", comp.files[i], " > ", decomp.files[i], "; ")

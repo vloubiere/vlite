@@ -12,6 +12,8 @@
 #' @param genome Reference genome identifier (e.g., "mm10", "hg38").
 #' @param genome.idx Path to the Bowtie2 genome index. If NULL, derived from genome. Default= NULL.
 #' @param gtf Path to the GTF annotation file. Default= NULL.
+#' @param compute.ins.cov If set to TRUE, the number of supporting reads for each insertion will be reported
+#' in the collapsed bed and count output files (in columns 'score' and 'ins_cov', respectively). Default= FALSE.
 #' @param fq.output.folder Directory for trimmed FASTQ files. Default= "db/fq/ORFtag/".
 #' @param bam.output.folder Directory for aligned BAM files. Default= "db/bam/ORFtag/".
 #' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/ORFtag/".
@@ -54,6 +56,7 @@ orftagProcessing <- function(fq1,
                              genome,
                              genome.idx= NULL,
                              gtf= NULL,
+                             compute.ins.cov= FALSE,
                              fq.output.folder= "db/fq/ORFtag/",
                              bam.output.folder= "db/bam/ORFtag/",
                              alignment.stats.output.folder= "db/alignment_stats/ORFtag/",
@@ -80,7 +83,7 @@ orftagProcessing <- function(fq1,
                                 bam.output.folder= bam.output.folder,
                                 alignment.stats.output.folder= alignment.stats.output.folder,
                                 cores= cores)
-  cmd <- rbind(cmd, align.cmd)
+  cmd <- rbind(cmd, align.cmd, fill= TRUE)
 
   # Collapse bam file (unique insertions) ----
   collapse.cmd <- cmd_collapseBam(bam = cmd[file.type=="bam", path],
@@ -88,20 +91,21 @@ orftagProcessing <- function(fq1,
                                   collapsed.bam.output.folder = bam.output.folder,
                                   collapsed.stats.output.folder = alignment.stats.output.folder,
                                   cores = cores)
-  cmd <- rbind(cmd, collapse.cmd)
+  cmd <- rbind(cmd, collapse.cmd, fill= TRUE)
 
   # Assign insertions to closest downstream exon ----
   assign.cmd <- cmd_assignInsertions(bam = cmd[file.type=="collapsed.bam", path],
                                      output.prefix = NULL, # From bam file
                                      genome = genome,
                                      gtf = gtf,
+                                     ins.coverage.bam= if(compute.ins.cov) cmd[file.type=="bam", path] else NULL, # No ifelse here!
                                      bed.output.folder = bed.output.folder,
                                      counts.output.folder = counts.output.folder,
                                      Rpath = Rpath)
-  cmd <- rbind(cmd, assign.cmd)
+  cmd <- rbind(cmd, assign.cmd, fill= TRUE)
 
   # Return ----
-  cmd[, cores:= cores]
-  cmd[, job.name:= paste0("ORFtag_", output.prefix)]
+  cmd$cores <- cores
+  cmd$job.name <- paste0("ORFtag_", output.prefix)
   return(cmd)
 }

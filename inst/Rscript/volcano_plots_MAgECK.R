@@ -1,12 +1,10 @@
 #!/usr/bin/env Rscript
 args = commandArgs(trailingOnly=TRUE)
 
-if (length(args)!=4) {
+if (length(args) != 2) {
   stop("Please specify:\n
-       [required] 1/ Gene summary output file from mageck \n
-       [required] 2/ logFC cutoff for hits \n
-       [required] 3/ FDR cutoff for hits \n
-       [required] 4/ pdf output file \n")
+       [required] 1/ Merged FC table (.txt). \n
+       [required] 2/ pdf output file (.pdf). \n")
 }
 
 require(ggplot2)
@@ -14,39 +12,33 @@ require(ggrepel)
 require(data.table)
 
 # Import data ----
-gene_summary <- args[1]
-dat <- fread(gene_summary)
-logFCcutoff <- args[2]
-FDRcutoff <- args[3]
-pdf <- args[4]
+FC_table <- args[1]
+pdf <- args[2]
 
-# Identify hits and save ----
-setnames(dat, "id", "ORF")
-dat[, hit:= `pos|lfc`>logFCcutoff & `pos|fdr`<FDRcutoff]
-dat[, hitFDR5:= `pos|fdr`<1e-5]
-fwrite(dat,
-       gsub(".gene_summary.txt$", "_FC_MAGeCK.txt", gene_summary),
-       na = NA,
-       sep= "\t")
+# Checks ----
+stopifnot(grepl(".txt$", FC_table))
+stopifnot(grepl(".pdf$", pdf))
+
+# Import FC data
+FC <- fread(FC_table)
 
 # Prepare for plotting ----
-pl <- data.table::copy(dat)
-pl[, logFDR:= -log10(`pos|fdr`)]
-yMax <- quantile(pl$`pos|lfc`, .999, na.rm= T)
-pl[, shape:= ifelse(logFDR > yMax, "triangle", "circle")]
-pl[logFDR>yMax, logFDR:= yMax]
-pl[, col:= fcase(hit, "Hit", hitFDR5, "FDR<1e-5", default = "None")]
-plMageck <- ggplot(pl, aes(x = `pos|lfc`, y = logFDR)) +
+FC[, logFDR:= -log10(fdr)]
+yMax <- quantile(FC$lfc, .999, na.rm= T)
+FC[, shape:= ifelse(logFDR > yMax, "triangle", "circle")]
+FC[logFDR>yMax, logFDR:= yMax]
+FC[, col:= ifelse(hit, "Hit", "None")]
+plMageck <- ggplot(FC, aes(x = lfc, y = logFDR)) +
   geom_point(aes(color = col, shape = shape)) +
-  geom_text_repel(data = pl[(col!="None")],
-                  aes(label = ORF, col= col),
+  geom_text_repel(data = FC[(col!="None")],
+                  aes(label = id, col= col),
                   max.overlaps = Inf,
                   size = 2) +
   theme_minimal() +
-  labs(title = "Mageck method",
+  labs(title = gsub("_FC_MAGeCK.txt$", "", basename(FC_table)),
        x = "Fold Change (log)",
        y = "FDR (-log10)") +
-  scale_color_manual(values = c("Hit" = "red", "FDR<1e-5" = "blue", "None" = "lightgrey"), name = "Significant")+
+  scale_color_manual(values = c("Hit" = "red", "None" = "lightgrey"), name = "Significant")+
   ylim(0, yMax) +
   guides(shape = "none")  # Remove shape legend
 

@@ -5,8 +5,9 @@
 #' @param file A character string specifying the path to the BAM file.
 #' @param sel A character vector specifying the columns to import. Defaults to Rsamtools::scanBamWhat().
 #' @param new.col.names A character vector specifying the new column names for the imported data.
-#' Defaults to `c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "cigar",
-#' "mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore", "groupID", "mate_status")`.
+#' If set to NULL (default), 'sel' will be matched to: "readID", "samFlag", "seqnames", "strand", "leftStart",
+#' "width", "mapq", "cigar", "mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore", "groupID",
+#' "mate_status".
 #'
 #' @return
 #' A data.table containing the content of the BAM file with the specified columns and column names.
@@ -21,23 +22,33 @@
 #' @export
 importBam <- function(file,
                       sel= Rsamtools::scanBamWhat(),
-                      new.col.names= c("readID",
-                                       "samFlag",
-                                       "seqnames",
-                                       "strand",
-                                       "leftStart",
-                                       "width",
-                                       "mapq",
-                                       "cigar",
-                                       "mateSeqnames",
-                                       "mateLeftStart",
-                                       "insertSize",
-                                       "seq",
-                                       "qualScore",
-                                       "groupID",
-                                       "mate_status"))
+                      new.col.names= NULL)
 {
-  # Checks ----
+  # Checks
+  if(length(file)!=1)
+    stop("file should be unique.")
+
+  # Default col.names ----
+  if(is.null(new.col.names)) {
+    new.col.names <- sapply(sel, function(x) {
+      switch(x,
+             "qname"= "readID",
+             "flag"= "samFlag",
+             "rname"= "seqnames",
+             "strand"= "strand",
+             "pos"= "leftStart",
+             "qwidth"= "width",
+             "mapq"= "mapq",
+             "cigar"= "cigar",
+             "mrnm"= "mateSeqnames",
+             "mpos"= "mateLeftStart",
+             "isize"= "insertSize",
+             "seq"= "seq",
+             "qual"= "qualScore",
+             "groupid"= "groupID",
+             "mate_status"= "mate_status")
+    })
+  }
   if(length(sel) != length(new.col.names))
     stop("'sel' and 'new.col.names' should have the same length.")
 

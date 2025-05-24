@@ -2,14 +2,23 @@
 
 # Script: vbc_bam_demultiplexing.pl
 # Description: Process and filter sequencing reads based on index sequences and read properties
-# Version: 1.0.3 (January 2024)
+# Version: 1.0.4 (May 2025)
 
 use strict;
 use warnings;
 use IO::Compress::Gzip qw(gzip $GzipError);
+use Getopt::Long;
 
-# Print help if --help or -h is provided
-if (@ARGV == 0 || grep {$_ eq '--help' || $_ eq '-h'} @ARGV) {
+my $append_umi = 0;
+my $help = 0;
+
+# Parse --umi and --help, leave @ARGV with positional arguments
+GetOptions(
+    'umi!' => \$append_umi,
+    'help|h' => \$help,
+) or die "Error in command line arguments\n";
+
+if ($help) {
     print_help();
     exit;
 }
@@ -21,12 +30,11 @@ NAME
     vbc_bam_demultiplexing.pl - Process and filter sequencing reads based on index sequences and read properties
 
 SYNOPSIS
-    ./vbc_bam_demultiplexing.pl <PAIRED|SINGLE> <i7 index(es)> <i5 index(es)> <i7_column> <i5_column> <output_prefix> [start_seq] [trim_length]
+    ./vbc_bam_demultiplexing.pl [--umi] <PAIRED|SINGLE> <i7 index(es)> <i5 index(es)> <i7_column> <i5_column> <output_prefix> [start_seq] [trim_length]
 
 DESCRIPTION
-    This script processes SAM/BAM format sequencing data from standard input, filtering reads based on
-    index sequences (i7 and i5) and optionally processing read sequences for specific protocols like PROseq.
-    It can handle both paired-end and single-end data.
+    This script processes queryname-sorted BAM files from the VBC facility, filtering reads based on i7 and i5
+    index sequences + optional PRO-seq-specific arguments. It can handle both paired-end and single-end data.
     For paired-end data, index information is expected only in the first read of each pair.
 
 REQUIRED ARGUMENTS
@@ -55,6 +63,9 @@ REQUIRED ARGUMENTS
                        '.fq.gz' for single-end data
 
 OPTIONAL ARGUMENTS
+    --umi              Append the i7 index (UMI) to the read ID in the output FASTQ, separated by an underscore (_).
+                       Applies to both mates in paired-end mode and all reads in single-end mode.
+
     [start_seq]        Sequence that must be present at the start of reads
                        If provided, only reads starting with this sequence will be kept
                        The sequence will be trimmed from matching reads
@@ -81,6 +92,9 @@ unless ($read_type eq 'PAIRED' || $read_type eq 'SINGLE') {
 # Process i7 indexes (now first)
 my @i7_indexes = ();
 if ($ARGV[1] && $ARGV[1] ne 'none') {
+    unless ($ARGV[1] =~ /^[ACGT,]+$/i) {
+        die "Error: i7 indexes must only contain DNA letters (A, C, G, T) and commas.\n";
+    }
     @i7_indexes = split(',', $ARGV[1]);
     @i7_indexes = map { "^BC:Z:" . $_ } @i7_indexes;
 }
@@ -89,6 +103,9 @@ if ($ARGV[1] && $ARGV[1] ne 'none') {
 my $i5_input = $ARGV[2];
 my @i5_indexes = ();
 if ($i5_input && $i5_input ne 'none') {
+    unless ($ARGV[2] =~ /^[ACGT,]+$/i) {
+        die "Error: i5 indexes must only contain DNA letters (A, C, G, T) and commas.\n";
+    }
     @i5_indexes = split(',', $i5_input);
     @i5_indexes = map { "^B2:Z:" . $_ } @i5_indexes;
 }
@@ -193,6 +210,17 @@ while (my $line = <STDIN>) {
             my $qual = $fields[10];
             my $read_id = $fields[0];
 
+            # Prepare UMI (i7 index) for both mates or single-end
+            my $umi = '';
+            if ($append_umi) {
+                my $i7_field = $fields[$i7_column];
+                if ($i7_field && $i7_field =~ /BC:Z:([ACGTN]+)/) {
+                    $umi = $1;
+                } else {
+                    warn "Warning: --umi specified but i7 field missing or malformed for read $read_id (line $.)\n";
+                }
+            }
+
             # Handle sequence processing if start_seq and trim_length are provided
             if ($start_seq && $trim_length) {
                 # First trim the start sequence if it matches
@@ -216,19 +244,26 @@ while (my $line = <STDIN>) {
             # Output reads based on read type
             if ($read_type eq 'PAIRED') {
                 # Write first mate
-                print $out1 "\@$read_id\n$seq\n+\n$qual\n";
+                my $read_id1 = $read_id;
+                $read_id1 .= "_$umi" if $umi ne '';
+                print $out1 "\@$read_id1\n$seq\n+\n$qual\n";
 
                 # Process and write second mate
                 my $second_mate = <STDIN>;
                 chomp $second_mate;
                 my @second_fields = split("\t", $second_mate);
-                print $out2 "\@" . $second_fields[0] . "\n";
+
+                my $read_id2 = $second_fields[0];
+                $read_id2 .= "_$umi" if $umi ne '';
+                print $out2 "\@$read_id2\n";
                 print $out2 $second_fields[9] . "\n";
                 print $out2 "+\n";
                 print $out2 $second_fields[10] . "\n";
             } else {
                 # Write single-end read
-                print $out1 "\@$read_id\n$seq\n+\n$qual\n";
+                my $read_id1 = $read_id;
+                $read_id1 .= "_$umi" if $umi ne '';
+                print $out1 "\@$read_id1\n$seq\n+\n$qual\n";
             }
         }
     }

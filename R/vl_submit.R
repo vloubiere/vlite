@@ -26,9 +26,10 @@
 #' cmd <- data.table(
 #'   file.type = "bam",
 #'   path = "output.bam",
-#'   cmd = "echo 'Hello world'"
+#'   cmd = "echo 'Hello world'",
+#'   job.name= "test"
 #' )
-#' vl_submit(cmd, job.name = "Hello")
+#' vl_submit(cmd)
 #'
 #' # Return the constructed command without submitting
 #' vl_submit(cmd, execute = FALSE)
@@ -46,13 +47,15 @@ vl_submit <- function(cmd,
   # Checks ----
   if(!is.data.table(cmd) || !all(c("file.type", "path", "cmd") %in% names(cmd)))
     stop("cmd should be a data.table containing columns 'file.type', 'path' and 'cmd'.")
+
+  # Default job name and cores ----
   if(missing(job.name)) {
     job.name <- if("job.name" %in% names(cmd))
       cmd$job.name[1] else
         "myJob"
   }
   if(missing(cores)) {
-    job.name <- if("cores" %in% names(cmd))
+    cores <- if("cores" %in% names(cmd))
       cmd$cores[1] else
         8
   }
@@ -84,15 +87,16 @@ vl_submit <- function(cmd,
                    unique(cmd$cmd)), collapse = "; ")
     if(execute) {
       # Submit ----
-      bsub(cmd= cmd,
-           cores= cores,
-           mem = mem,
-           time = time,
-           name = job.name,
-           logs= logs)
+      jobID <- bsub(cmd= cmd,
+                    cores= cores,
+                    mem = mem,
+                    time = time,
+                    name = job.name,
+                    logs= logs)
+      print(jobID)
     } else {
       return(cmd)
     }
   } else
-    message("All output files already existed! No command submitted ;). Consider overwrite= T if convenient.")
+    message("All output files exist and overwrite= FALSE. No command submitted.")
 }

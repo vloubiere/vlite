@@ -48,7 +48,7 @@
 cmd_alignBowtie2 <- function(fq1,
                              fq2= NULL,
                              output.prefix,
-                             genome,
+                             genome= NULL,
                              genome.idx= NULL,
                              mapq= NULL,
                              max.ins= 500,
@@ -60,8 +60,8 @@ cmd_alignBowtie2 <- function(fq1,
   fq1 <- unique(fq1)
   if(!is.null(fq2))
     fq2 <- unique(fq2)
-  if(any(!grepl(".fq$|.fq.gz$", c(fq1, fq2))))
-    stop("fq1 and fq2 file paths should end up with `.fq` or `.fq.gz`")
+  if(any(!grepl(".fq$|.fastq$|.fq.gz$|.fastq.gz$", c(fq1, fq2))))
+    stop("fq1 and fq2 file paths should end up with `.fq`, `.fastq`, `.fq.gz` or `.fastq.gz`")
   if(!is.null(fq2) && length(fq1) != length(fq2))
     stop("When provided, fq2 files should match fq1 files.")
   if(missing(genome) && is.null(genome.idx))
@@ -70,7 +70,7 @@ cmd_alignBowtie2 <- function(fq1,
     stop("max.ins should be a unique integer value.")
 
   # Retrieve index ----
-  if(!missing(genome)) {
+  if(!is.null(genome)) {
     genome.idx <- switch(genome,
                          "mm10" = "/groups/stark/vloubiere/genomes/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome",
                          "mm9" = "/groups/stark/indices/bowtie2/mm9/mm9",
@@ -111,9 +111,7 @@ cmd_alignBowtie2 <- function(fq1,
   # Wrap commands output ----
   cmd <- data.table(file.type= c("bam", "align.stats"),
                     path= c(bam, stats),
-                    cmd= cmd,
-                    cores= cores,
-                    job.name= "alnBwt2")
+                    cmd= cmd)
 
   # add mapq sorting stats ----
   if(!is.null(mapq))
@@ -123,5 +121,7 @@ cmd_alignBowtie2 <- function(fq1,
                             cmd= cmd$cmd[1]))
 
   # Return ----
+  cmd$cores <- cores
+  cmd$job.name <- "alnBwt2"
   return(cmd)
 }

@@ -32,19 +32,26 @@ cmd_trimIlluminaAdaptors <- function(fq1,
   fq1 <- unique(fq1)
   if(!is.null(fq2))
     fq2 <- unique(fq2)
-  if(any(!grepl(".fq$|.fq.gz$", c(fq1, fq2))))
-    stop("fq1 and fq2 file paths should end up with `.fq` or `.fq.gz`")
+  if(any(!grepl(".fq$|.fastq$|.fq.gz$|.fastq.gz$", c(fq1, fq2))))
+    stop("fq1 and fq2 file paths should end up with `.fq`, `.fastq`, `.fq.gz` or `.fastq.gz`")
   if(!is.null(fq2) && length(fq1) != length(fq2))
     stop("When provided, fq2 files should match fq1 files.")
 
   # Output file paths ----
   if(is.null(fq2)) {
     # Single-end reads
-    fq1.trim <- file.path(fq.output.folder, gsub("(.*)(.f.*q.*)", "\\1_trimmed\\2", basename(fq1)))
+    fq1.trim <- file.path(fq.output.folder,
+                          paste0(sub("\\.(fq|fastq)(\\.gz)?$", "", basename(fq1)), "_trimmed.fq.gz"))
   } else {
     # Paired-end reads
-    fq1.trim <- file.path(fq.output.folder, gsub("(.*)(.f.*q.*)", "\\1_val_1\\2", basename(fq1)))
-    fq2.trim <- file.path(fq.output.folder, gsub("(.*)(.f.*q.*)", "\\1_val_2\\2", basename(fq2)))
+    fq1.trim <- file.path(
+      fq.output.folder,
+      paste0(sub("\\.(fq|fastq)(\\.gz)?$", "", basename(fq1)), "_val_1.fq.gz")
+    )
+    fq2.trim <- file.path(
+      fq.output.folder,
+      paste0(sub("\\.(fq|fastq)(\\.gz)?$", "", basename(fq2)), "_val_2.fq.gz")
+    )
   }
 
   # Trimming commands ----

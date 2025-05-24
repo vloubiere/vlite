@@ -4,13 +4,7 @@
 \alias{importBam}
 \title{Import BAM File Using Rsamtools}
 \usage{
-importBam(
-  file,
-  sel = Rsamtools::scanBamWhat(),
-  new.col.names = c("readID", "samFlag", "seqnames", "strand", "leftStart", "width",
-    "mapq", "cigar", "mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore",
-    "groupID", "mate_status")
-)
+importBam(file, sel = Rsamtools::scanBamWhat(), new.col.names = NULL)
 }
 \arguments{
 \item{file}{A character string specifying the path to the BAM file.}
@@ -18,8 +12,9 @@ importBam(
 \item{sel}{A character vector specifying the columns to import. Defaults to Rsamtools::scanBamWhat().}
 
 \item{new.col.names}{A character vector specifying the new column names for the imported data.
-Defaults to `c("readID", "samFlag", "seqnames", "strand", "leftStart", "width", "mapq", "cigar",
-"mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore", "groupID", "mate_status")`.}
+If set to NULL (default), 'sel' will be matched to: "readID", "samFlag", "seqnames", "strand", "leftStart",
+"width", "mapq", "cigar", "mateSeqnames", "mateLeftStart", "insertSize", "seq", "qualScore", "groupID",
+"mate_status".}
 }
 \value{
 A data.table containing the content of the BAM file with the specified columns and column names.

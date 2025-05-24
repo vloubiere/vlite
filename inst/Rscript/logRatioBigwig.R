@@ -2,30 +2,33 @@
 
 # Check whether required arguments are provided ----
 args <- commandArgs(trailingOnly = TRUE)
-if(length(args) != 7) {  # Fix the condition to match required arguments
+if(length(args) != 8) {  # Fix the condition to match required arguments
   stop("Please specify:\n",
        "[required] 1/ Bed file containing experiment reads. \n",
        "[required] 2/ Bed file containing input/control reads. \n",
        "[required] 3/ A BS genome name. \n",
        "[required] 4/ Optional path to a bed file. If provided, only reads overlapping these regions on the same strand are used. \n",
-       "[required] 5/ Pseudocount. If set to NULL empty, it will be set to the 0.01 percentile of non-0 value \n",
-       "[required] 6/ Output .bw file path \n",
-       "[required] 7/ Bins width \n")
+       "[required] 5/ Should a gaussian smoothing be applied? \n",
+       "[required] 6/ Pseudocount. If set to NULL empty, it will be set to the 0.01 percentile of non-0 value \n",
+       "[required] 7/ Output .bw file path \n",
+       "[required] 8/ Bins width \n")
 }
 
 # Load packges ----
 suppressMessages(library(data.table, warn.conflicts = FALSE))
 suppressMessages(library(rtracklayer, warn.conflicts = FALSE))
 suppressMessages(library(GenomeInfoDb, warn.conflicts = FALSE))
+devtools::load_all("/groups/stark/vloubiere/vlite/")
 
 # Parse arguments
 track <- args[1]
 input.track <- args[2]
 genome <- args[3]
 regions <- if(args[4] == "NULL") NULL else args[4] # ifelse does not work here!
-pseudocount <- if(args[5] == "NULL") NULL else as.numeric(args[5]) # ifelse does not work here!
-output.file <- args[6]
-bins.width <- as.integer(args[7])
+gaussian <- as.logical(args[5])
+pseudocount <- if(args[6] == "NULL") NULL else as.numeric(args[5]) # ifelse does not work here!
+output.file <- args[7]
+bins.width <- as.integer(args[8])
 
 # Checks
 stopifnot(grepl(".bed$", track))
@@ -59,13 +62,21 @@ bins <- unlist(bins)
 bins$signal <- GenomicRanges::countOverlaps(bins, signal, ignore.strand= TRUE) / length(signal) * 1e6
 bins$input <- GenomicRanges::countOverlaps(bins, input, ignore.strand= TRUE) / length(input) * 1e6
 
-# Compute pseudocount
-if(is.null(pseudocount)) {
-  pseudocount <- c(bins$signal, bins$input)
-  pseudocount <- quantile(pseudocount[pseudocount>0], 0.01)
+# Gaussian smoothing ----
+if(gaussian) {
+  bins$signal <- vlite::gaussianBlur(bins$signal, size = 5, sigma = 1)
+  bins$input <- vlite::gaussianBlur(bins$input, size = 5, sigma = 1)
 }
-bins$signal <- bins$signal+pseudocount
-bins$input <- bins$input+pseudocount
+
+# Add pseudocount if 0s in the data ----
+if(any(c(bins$signal, bins$input)==0)) {
+  if(is.null(pseudocount)) {
+    pseudocount <- c(bins$signal, bins$input)
+    pseudocount <- quantile(pseudocount[pseudocount>0], 0.01)
+  }
+  bins$signal <- bins$signal+pseudocount
+  bins$input <- bins$input+pseudocount
+}
 
 # Calculate log2 ratio
 bins$score <- log2(bins$signal / bins$input)

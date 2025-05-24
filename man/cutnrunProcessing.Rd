@@ -62,9 +62,3 @@ vl_submit(cmd, execute= FALSE)
 # Then, peaks should be called using ?cmd_peakCalling() and ?cmd_confidentPeaks()
 
 }
-\seealso{
-\itemize{
-  \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
-  \item \code{\link{cmd_alignBowtie2}} for alignment
-}
-}

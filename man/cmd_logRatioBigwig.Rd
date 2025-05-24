@@ -8,6 +8,7 @@ cmd_logRatioBigwig(
   experiment.bed.file,
   input.bed.file,
   genome,
+  gaussian.smoothing = FALSE,
   pseudocount = NULL,
   bed.subset = NULL,
   bins.width = 100L,
@@ -17,14 +18,16 @@ cmd_logRatioBigwig(
 )
 }
 \arguments{
-\item{experiment.bed.file}{Path to a bed file containing experiment reads. Must be unique.}
+\item{experiment.bed.file}{Path to the bed file with experiment reads (must be unique).}
 
-\item{input.bed.file}{Path to a bed file containing input/control reads. Must be unique.}
+\item{input.bed.file}{Path to the bed file with input/control reads (must be unique).}
 
-\item{genome}{A BS genome name.}
+\item{genome}{BSgenome name.}
 
-\item{pseudocount}{Pseudocount to use and avoid 0s. If set to NULL, it will be set to the 0.01 percentile
-of non-0 values. Default= NULL.}
+\item{gaussian.smoothing}{If set to TRUE, applies Gaussian smoothing after read-depth normalization. Default= FALSE.}
+
+\item{pseudocount}{Numeric value to add as a pseudocount if zeros are present after read-depth normalization and
+optional smoothing. If NULL, the 0.01 percentile of non-zero values is used. Default is NULL.}
 
 \item{bed.subset}{Optional path to a bed file. If provided, only reads overlapping these regions on the same
 strand are used. Default= NULL (no filtering).}
@@ -43,7 +46,9 @@ A data.table with:
 - `job.name`: Default name for the job = "bwLogRatio".
 }
 \description{
-Generates a shell command to compute log2 ratio between two bed files, using a sliding window.
+Generates a shell command to compute the log2 ratio between two bed files using a sliding window.
+Coverage is computed and normalized for sequencing depth, followed by optional Gaussian smoothing.
+A pseudocount is added if zeros are present, and log2 ratios are then calculated.
 }
 \examples{
 cmd <- cmd_logRatioBigwig(

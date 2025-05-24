@@ -4,10 +4,10 @@
 args <- commandArgs(trailingOnly=TRUE)
 if(!length(args) %in% 4:5) {  # Fix the condition to match required arguments
   stop("Please specify:\n",
-       "[required] 1/ Input bam file\n",
-       "[required] 2/ Layout ('SINGLE' or 'PAIRED')\n",
-       "[required] 3/ Should the fragments be extended? (TRUE/FALSE)\n",
-       "[required] 4/ bw output file path\n",
+       "[required] 1/ Input bam file \n",
+       "[required] 2/ Layout ('SINGLE' or 'PAIRED') \n",
+       "[required] 3/ Should the fragments be extended? (TRUE/FALSE) \n",
+       "[required] 4/ bw output file path \n",
        "[optional] 5/ Integer. Number of nt by which the reads should be extended before computing coverage.")
 }
 
@@ -43,25 +43,28 @@ setnames(reads,
 rm(param)
 gc()
 
-# Identify unambiguously mapped paired-end or single-end reads ----
-if(layout=="PAIRED") {
-  reads[, check:= (bitwAnd(flag, 0x4) == 0) & (bitwAnd(flag, 0x2) != 0)]
-} else if(layout=="SINGLE") {
-  reads[, check:=
-          (bitwAnd(flag, 0x4) == 0) &
-          (bitwAnd(flag, 0x100) == 0) &
-          (bitwAnd(flag, 0x800) == 0)]
+# Filter mapped paired-end or single-end reads ----
+if (layout == "PAIRED") {
+  reads[, check := (bitwAnd(flag, 0x4) == 0) &    # mapped
+                   (bitwAnd(flag, 0x2) == 0x2) &  # properly paired
+                   (bitwAnd(flag, 0x100) == 0) &  # not secondary
+                   (bitwAnd(flag, 0x800) == 0)]   # not supplementary
+} else if (layout == "SINGLE") {
+  reads[, check := (bitwAnd(flag, 0x4) == 0) &   # mapped
+                   (bitwAnd(flag, 0x100) == 0) & # not secondary
+                   (bitwAnd(flag, 0x800) == 0)]  # not supplementary
 }
 reads <- reads[(check)]
 reads$check <- NULL
+setkeyv(reads, "readID")
 
 # Extend reads ----
 reads[, end:= start+width-1]
 if(layout=="PAIRED" && extend.fragment) {
   # Make sure the two mates are on the same chromosome
-  reads[, sameChr:= .N == 2, .(seqnames, readID)]
+  reads[, Nchr:= .N, .(seqnames, readID)]
   # Extend fragment
-  reads <- reads[(sameChr), .(start= min(start), end= max(end)), .(seqnames, readID)]
+  reads <- reads[(Nchr==2), .(start= min(start), end= max(end)), .(seqnames, readID)]
 } else if(extsize>0) {
   # Add extsize depending on strand
   reads[strand!="-", end:= end+extsize]
@@ -76,7 +79,7 @@ reads[as.data.table(chr_sizes, keep.rownames = "seqnames"), max:= i.chr_sizes, o
 reads[start<1, start:= 1]
 reads[end>max, end:= max]
 
-# Create GRange ----
+# Create GRanges ----
 gr <- GenomicRanges::GRanges(
   seqnames = reads$seqnames,
   ranges = IRanges::IRanges(start = reads$start, end = reads$end),

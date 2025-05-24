@@ -47,8 +47,8 @@ filtered_output <- args[10]
 counts <- lapply(c(sample_files, input_files), fread)
 names(counts) <- c(sample_names, input_names)
 counts <- rbindlist(counts, idcol = "sampleID")
-counts <- dcast(counts, ID~sampleID, value.var = "count")
-setnames(counts, "ID", "sgRNA")
+counts <- dcast(counts, seqnames~sampleID, value.var = "count")
+setnames(counts, "seqnames", "sgRNA")
 counts[, sgRNA:= gsub(",", "_", sgRNA)]
 counts[, `gene name`:= tstrsplit(sgRNA, "__", keep= 1)]
 setcolorder(counts,
@@ -64,6 +64,9 @@ fwrite(counts,
        na = NA)
 total <- nrow(counts)
 
+# Remove rows where all values are 0 ----
+counts <- counts[rowSums(counts[, -c(1,2)])>0,]
+
 # Apply user-defined cutoffs ----
 sample.sel <- apply(counts[, sample_names, with= F], 1, sample.cutoff.FUN)
 input.sel <- apply(counts[, input_names, with= F], 1, input.cutoff.FUN)
@@ -74,11 +77,14 @@ print(paste0(formatC(fil, big.mark = ","), " / ", formatC(total, big.mark = ",")
 
 # Apply user-defined pseudocount ----
 cols <- c(sample_names, input_names)
-readDepth <- apply(counts[, (cols), with= F], 2, sum)
-normPseudo <- readDepth/min(readDepth)*pseudocount
-normPseudo <- round(normPseudo, 3)
-print(paste("Normalized pseudocounts:", paste0(normPseudo, collapse = ", ")))
-counts[, (cols):= lapply(seq(.SD), function(i) ifelse(.SD[[i]]==0, .SD[[i]]+normPseudo[i], .SD[[i]])) , .SDcols= cols]
+counts[, (cols):= lapply(.SD, function(x) x+pseudocount), .SDcols= cols]
+
+# Normalize pseudocount for sequencing depth (not used)
+# readDepth <- apply(counts[, (cols), with= F], 2, sum)
+# normPseudo <- readDepth/min(readDepth)*pseudocount
+# normPseudo <- round(normPseudo, 3)
+# print(paste("Normalized pseudocounts:", paste0(normPseudo, collapse = ", ")))
+# counts[, (cols):= lapply(seq(.SD), function(i) ifelse(.SD[[i]]==0, .SD[[i]]+normPseudo[i], .SD[[i]])) , .SDcols= cols]
 
 # Save filtered counts file ----
 fwrite(counts,

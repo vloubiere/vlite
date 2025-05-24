@@ -4,22 +4,12 @@
 \alias{addPcc}
 \title{Plots Rsq or PCC coeff}
 \usage{
-addPcc(
-  x,
-  pos = "topleft",
-  type = "rsq",
-  adjusted = F,
-  bty = "n",
-  digits = 2,
-  ...
-)
+addPcc(pcc, pos = "topleft", bty = "n", digits = 2, ...)
 }
 \arguments{
-\item{x}{Rsquare value. If numeric, will be rounded, while characters will be printed as is}
+\item{pcc}{PCC value. If numeric, will be rounded, while characters will be printed as is}
 
 \item{pos}{Position. Default= "topleft" (see x argument in ?legend for more detail).}
-
-\item{adjusted}{Is the Rsq adjusted? Default= FALSE.}
 
 \item{bty}{Box around the legend? Default= FALSE.}
 
@@ -28,7 +18,7 @@ addPcc(
 \item{...}{}
 }
 \value{
-Add Rsquare x as a legend on aplot
+Add PCC as a legend on aplot
 }
 \description{
 Plots Rsq or PCC coeff

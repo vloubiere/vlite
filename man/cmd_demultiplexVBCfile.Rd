@@ -9,9 +9,9 @@ cmd_demultiplexVBCfile(
   layout,
   i7 = "none",
   i5 = "none",
-  umi = FALSE,
   i7.column = 14,
   i5.column = 12,
+  umi = FALSE,
   output.prefix,
   fq.output.folder = "db/fq/",
   proseq.eBC = NULL,
@@ -32,6 +32,8 @@ cmd_demultiplexVBCfile(
 \item{i7.column}{Column number in the BAM file containing the i7 index. Default= 14L.}
 
 \item{i5.column}{Column number in the BAM file containing the i5 index. Default= 12L.}
+
+\item{umi}{If set to TRUE, the i7 index will be appended to the read id (separate by a '_' underscore ).}
 
 \item{output.prefix}{Output files prefix. If not provided,
 constructed from the input file name and index sequences.}

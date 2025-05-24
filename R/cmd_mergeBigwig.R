@@ -74,6 +74,6 @@ cmd_mergeBigwig <- function(bw,
   }
 
   # Return ----
-  cmd[, job.name= "bwMerge"]
+  cmd$job.name <- "bwMerge"
   return(cmd)
 }

@@ -64,29 +64,27 @@ sink(stat.file, split = TRUE)
 peaks <- regions[, {
   print(paste0("Starting with -> ", seqnames, ":", start, "-", end))
   t0 <- Sys.time()
-  # Identify putative peaks using zscore ----
-  # Bin Region
+
+  # Bin the whole region (step= 1) and compute signal ----
   bins <- vlite::binBed(.SD, bins.width = 100, steps.width = 1)
-  # Compute signal
   bins[, signal:= vlite::bwCoverage(.SD, track)]
-  # Subset non-overlapping bins
+
+  # Subset non-overlapping bins (step= 100) to infer pseudocount, mean and sd ----
   non.overlapping <- bins[start %% 100 == 0]
-  # Compute pseudocount
-  pseudo <- quantile(non.overlapping$signal[non.overlapping$signal > 0], 0.01)
-  # Compute mean and sd
+  pseudo <- if(any(bins$signal==0))
+    quantile(non.overlapping$signal[non.overlapping$signal > 0], 0.01) else
+      0
   mu <- mean(log2(non.overlapping$signal+pseudo))
   sigma <- sd(log2(non.overlapping$signal+pseudo))
-  # Compute z-score
+
+  # Identify candidate peaks using z-score ----
   bins[, zscore := (log2(signal+pseudo) - mu) / sigma]
-  # Retrieve putative peaks
   cand <- bins[signal>0 & zscore>zscore.cutoff]
   cand <- vlite::collapseBed(cand, min.gapwidth = 101)
   cand[, name:= paste0("peak_", .I, "_region_", region.idx)]
 
-  # Test peaks enrichment using smaller bins with larger step ----
-  # Compute bins with large step
+  # Compute signal in smaller bins (width= 50) with larger step (step= 25) ----
   large.bins <- vlite::binBed(.SD, bins.width = 50, steps.width = 25)
-  # Compute signal
   large.bins[, signal:= vlite::bwCoverage(.SD, track)]
   if(!is.null(input)) large.bins[, input:= bwCoverage(.SD, input)]
   # Remove empty bins
@@ -96,36 +94,38 @@ peaks <- regions[, {
   large.bins[, signal:= signal/sum(signal)*1e6]
   if(!is.null(input)) large.bins[, input:= input/sum(input)*1e6]
 
-  # Retrieve signal for candidate peaks ----
-  # Compute overlap large.bins / candidate peaks
+  # Compute overlaps between large.bins and candidate peaks ----
   ov <- vlite::overlapBed(cand, large.bins, minoverlap = 40)
   # Remove candidate peaks with not overlaps
   cand <- cand[unique(ov$idx.a)]
-  # Add signal to candidate peaks
+  # Retrieve signal
   cand$signal <- ov[, large.bins[idx.b, .(.(signal))], keyby= idx.a]$V1
   if(!is.null(input))
     cand$input <- ov[, large.bins[idx.b, .(.(input))], keyby= idx.a]$V1
-  # Select closest bins to use as local background
+
+  # Select closest bins to use as local background ----
   bg.bins <- vlite::intersectBed(large.bins, cand, maxgap = 500, invert = T)
   closest <- vlite::closestBed(
     a = cand,
     b = bg.bins,
     k = max(lengths(cand$signal)) # Max number of bins within peak
   )
-  # Subset local background bins to match the number of bins within peaks
+
+  # Sample closest local background bins to match the number of large.bins per peak ----
   closest[, Nbins:= lengths(cand$signal)[idx.a]]
   closest <- closest[order(abs(dist))]
   closest <- closest[, .SD[1:Nbins], .(idx.a, Nbins)]
   # Retrieve local bg signal from k closest non-overlapping bins
   cand$local.sig <- closest[, .(.(bg.bins$signal[idx.b])), keyby= idx.a]$V1
-  # Return
+
+  # Return----
   t1 <- Sys.time()
   print(paste0("Done -> ", round(t1-t0, 2), "s"))
   cand
 }, region.idx]
 print(paste(nrow(peaks), "candidate peaks found."))
 
-# Compute enrichment compared to local background
+# Compute enrichment compared to local background ----
 peaks[, c("signalValue", "pValue"):= {
   .(mean(signal[[1]])/mean(local.sig[[1]]),
     wilcox.test(signal[[1]],
@@ -137,7 +137,7 @@ peaks[, hit:= signalValue>=local.enr.cutoff & qValue<=local.fdr.cutoff]
 peaks <- peaks[(hit)]
 print(paste(nrow(peaks), "candidate peaks were enriched vs. local background."))
 
-# Compute enrichment compared to input
+# Compute enrichment compared to input ----
 if(!is.null(input) && nrow(peaks)) {
   peaks[, c("signalValue", "pValue"):= {
     .(mean(signal[[1]])/mean(input[[1]]),

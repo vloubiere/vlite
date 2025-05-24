@@ -47,6 +47,7 @@ cmd_collapseBam <- function(bam,
                "| samtools fixmate -m - - | samtools sort -@", cores-1, "-T", collapsed.bam.output.folder,
                "| samtools markdup -r - - | samtools view -b -o",  collapsed.bam)
   stats.cmd <- paste("samtools stats", collapsed.bam, "-@", cores-1, "| grep ^SN>", collapsed.stats)
+  # bedtools bamtobed -i input.bam | sort | uniq -c > bed_counts.txt
 
   # Wrap commands output ----
   cmd <- data.table(file.type= c("collapsed.bam", "collapsed.stats"),

@@ -88,14 +88,14 @@ proseqProcessing <- function(fq1,
                                    alignment.stats.output.folder = alignment.stats.output.folder,
                                    cores = cores)
   align.ref.cmd[, file.type:= paste0(file.type, ".ref")] # Make file types unique (see spike in below)
-  cmd <- rbind(cmd, align.ref.cmd)
+  cmd <- rbind(cmd, align.ref.cmd, fill= TRUE)
 
   # Extract unaligned reads (spike-in) ----
   extract.cmd <- cmd_exractUnalignedReads(bam = bam.ref,
                                           fq.output.folder = fq.output.folder,
                                           alignment.stats.output.folder = alignment.stats.output.folder,
                                           cores = cores)
-  cmd <- rbind(cmd, extract.cmd)
+  cmd <- rbind(cmd, extract.cmd, fill= TRUE)
 
   # Align spike-in reads (bowtie1) ----
   align.spike.cmd <- cmd_alignBowtie(fq1= cmd[file.type=="fq1.unaligned", path],
@@ -107,7 +107,7 @@ proseqProcessing <- function(fq1,
                                      alignment.stats.output.folder = alignment.stats.output.folder,
                                      cores = cores)
   align.spike.cmd[, file.type:= paste0(file.type, ".spike")] # Make file types unique (see ref genome above)
-  cmd <- rbind(cmd, align.spike.cmd)
+  cmd <- rbind(cmd, align.spike.cmd, fill= TRUE)
 
   # Collapse and count total UMIs reference genome ----
   umi.ref.cmd <- cmd_umiCollapsingProseq(bam = cmd[file.type=="bam.ref", path],
@@ -115,7 +115,7 @@ proseqProcessing <- function(fq1,
                                          counts.output.folder = counts.output.folder,
                                          stats.output.folder = counts.stats.output.folder)
   umi.ref.cmd[, file.type:= paste0(file.type, ".ref")] # Make file types unique (see spike in below)
-  cmd <- rbind(cmd, umi.ref.cmd)
+  cmd <- rbind(cmd, umi.ref.cmd, fill= TRUE)
 
   # Collapse and count total UMIs spike-in genome ----
   umi.spike.cmd <- cmd_umiCollapsingProseq(bam = cmd[file.type=="bam.spike", path],
@@ -123,17 +123,17 @@ proseqProcessing <- function(fq1,
                                            counts.output.folder = counts.output.folder,
                                            stats.output.folder = counts.stats.output.folder)
   umi.spike.cmd[, file.type:= paste0(file.type, ".spike")] # Make file types unique (see ref genome above below)
-  cmd <- rbind(cmd, umi.spike.cmd)
+  cmd <- rbind(cmd, umi.spike.cmd, fill= TRUE)
 
   # Generate bw files ----
   bw.cmd <- cmd_umiToBigwigProseq(umi.counts = cmd[file.type=="umi.counts.ref"],
                                   output.prefix = NULL, # From UMI counts file name
                                   bw.output.folder = bw.output.folder,
                                   Rpath = Rpath)
-  cmd <- rbind(cmd, bw.cmd)
+  cmd <- rbind(cmd, bw.cmd, fill= TRUE)
 
   # Return ----
-  cmd[, cores:= cores]
-  cmd[, job.name:= paste0("PRO_", output.prefix)]
+  cmd$cores <- cores
+  cmd$job.name <- paste0("PRO_", output.prefix)
   return(cmd)
 }

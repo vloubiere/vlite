@@ -2,10 +2,9 @@
 
 # Check whether required arguments are provided ----
 args <- commandArgs(trailingOnly=TRUE)
-if(!length(args) == 3) {
+if(length(args) != 2) {
   stop("Please specify:\n
        [required] 1/ Aligned BCs bam\n
-       [required] 2/ Dictionary file (.rds)\n
        [required] 3/ Output counts file (.txt)\n")
 }
 
@@ -17,8 +16,7 @@ suppressMessages(library(data.table, warn.conflicts = FALSE))
 
 # Variables ----
 bam <- args[1]
-BC <- args[2]
-output_counts <- args[3]
+output_counts <- args[2]
 
 # Import bam ----
 .c <- Rsamtools::scanBam(bam,
@@ -32,11 +30,10 @@ output_counts <- args[3]
 # Count ----
 .c <- .c[, .(count= .N), rname]
 
-# Import dictionary ----
-dic <- readRDS(BC)
-setnames(dic, "bcID", "ID")
-dic <- unique(dic[, .(ID, BC)])
-dic[.c, count:= i.count, on= "ID==rname"]
+# Order based on alignment index ----
+hdr <- Rsamtools::scanBamHeader(bam)
+dic <- data.table(seqnames = names(hdr[[1]]$targets))
+dic[.c, count:= i.count, on= "seqnames==rname"]
 dic[is.na(count), count:= 0]
 
 # Save ----

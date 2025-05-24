@@ -4,14 +4,17 @@
 \alias{revCompDNA}
 \title{reverseComplement}
 \usage{
-revCompDNA(DNA_char, complement = TRUE, reverse = TRUE)
+revCompDNA(DNA_char, reverse = TRUE, complement = TRUE, as.character = TRUE)
 }
 \arguments{
-\item{DNA_char}{Input DNA character string.}
+\item{DNA_char}{Character vector, DNAString or DNAStringSet.}
+
+\item{reverse}{Should the DNA sequence be reversed? Default= TRUE}
 
 \item{complement}{Should the DNA sequence be complemented? Default= TRUE}
 
-\item{reverse}{Should the DNA sequence be reversed? Default= TRUE}
+\item{as.character}{Should the sequences be returned as a character vector? Otherwise,
+it will be returned as a DNAString or a DNAStringSet. Default= TRUE}
 }
 \value{
 Reverse Complemented DNA sequence

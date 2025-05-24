@@ -2,16 +2,22 @@
 % Please edit documentation in R/gaussianBlur.R
 \name{gaussianBlur}
 \alias{gaussianBlur}
-\title{applies a gasussian blur}
+\title{Apply a Gaussian blur to a numeric vector}
 \usage{
-gaussianBlur(x)
+gaussianBlur(x, size = 5, sigma = 1, padding_value = 0)
 }
 \arguments{
-\item{x}{A numeric vector of the signal to be blurred}
+\item{x}{Numeric vector containing signal to be blurred.}
+
+\item{size}{Integer specifying the size of the Gaussian kernel (must be odd, default is 5).}
+
+\item{sigma}{Numeric value specifying the standard deviation of the Gaussian kernel (default is 1).}
+
+\item{padding_value}{Numeric calue used to pad the signal at both ends and avoid NAs (default is 0).}
 }
 \value{
-Smoothed signal
+A numeric vector of the same length as x, containing the blurred signal.
 }
 \description{
-radius= +/- 10 bins
+Smooths a numeric vector using a Gaussian kernel.
 }

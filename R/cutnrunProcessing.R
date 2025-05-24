@@ -10,6 +10,7 @@
 #' @param output.prefix Prefix for output files.
 #' @param genome Reference genome identifier (e.g., "mm10", "hg38").
 #' @param genome.idx Path to Bowtie2 index. If NULL, derived from genome. Default= NULL.
+#' @param max.ins The maximum insert size for Bowtie2. Default= 1000.
 #' @param fq.output.folder Directory for trimmed FASTQ files. Default= "db/fq/CUTNRUN/".
 #' @param bam.output.folder Directory for aligned BAM files. Default= "db/bam/CUTNRUN/".
 #' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/CUTNRUN/".
@@ -35,18 +36,13 @@
 #'
 #' # Then, peaks should be called using ?cmd_peakCalling() and ?cmd_confidentPeaks()
 #'
-#' @seealso
-#' \itemize{
-#'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
-#'   \item \code{\link{cmd_alignBowtie2}} for alignment
-#' }
-#'
 #' @export
 cutnrunProcessing <- function(fq1,
                               fq2= NULL,
                               output.prefix,
                               genome,
                               genome.idx= NULL,
+                              max.ins= 1000,
                               fq.output.folder= "db/fq/CUTNRUN/",
                               bam.output.folder= "db/bam/CUTNRUN/",
                               alignment.stats.output.folder= "db/alignment_stats/CUTNRUN/",
@@ -59,8 +55,9 @@ cutnrunProcessing <- function(fq1,
 
   # * If several fq1/fq2 files provided, they will be merged during alignment ----
   fq1.trim <- cmd[file.type=="fq1.trim", path]
-  if(!is.null(fq2))
-    fq2.trim <- cmd[file.type=="fq2.trim", path]
+  fq2.trim <- if(!is.null(fq2))
+    cmd[file.type=="fq2.trim", path] else
+      NULL
 
   # Alignment ----
   align.cmd <- cmd_alignBowtie2(fq1= fq1.trim,
@@ -69,13 +66,14 @@ cutnrunProcessing <- function(fq1,
                                 genome= genome,
                                 genome.idx= genome.idx,
                                 mapq= 30,
+                                max.ins = 1000,
                                 bam.output.folder= bam.output.folder,
                                 alignment.stats.output.folder= alignment.stats.output.folder,
                                 cores= cores)
-  cmd <- rbind(cmd, align.cmd)
+  cmd <- rbind(cmd, align.cmd, fill= TRUE)
 
   # Return ----
-  cmd[, cores:= cores]
-  cmd[, job.name:= paste0("CR_", output.prefix)]
+  cmd$cores <- cores
+  cmd$job.name <- paste0("CR_", output.prefix)
   return(cmd)
 }

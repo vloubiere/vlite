@@ -8,6 +8,8 @@
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
 #' @param genome Reference genome name (e.g., "mm10", "hg38"). If not provided, gtf must be specified.
 #' @param gtf Path to the GTF annotation file. Default= NULL.
+#' @param ins.coverage.bam Optional path to the bam file containing reads before collapsing. If specified, the coverage will
+#' be reported in the bed and count output files (in columns 'score' and 'ins_cov', respectively). Default= NULL.
 #' @param bed.output.folder Directory for the BED file of unique insertions. Default= "db/bed/".
 #' @param counts.output.folder Directory for the counts file. Default= "db/counts/".
 #' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
@@ -37,7 +39,8 @@
 cmd_assignInsertions <- function(bam,
                                  output.prefix= NULL,
                                  genome,
-                                 gtf,
+                                 gtf= NULL,
+                                 ins.coverage.bam= NULL,
                                  bed.output.folder= "db/bed/",
                                  counts.output.folder= "db/counts/",
                                  Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
@@ -71,7 +74,8 @@ cmd_assignInsertions <- function(bam,
                bam,
                gtf,
                bed.file,
-               counts.file.prefix)
+               counts.file.prefix,
+               ifelse(is.null(ins.coverage.bam), "", ins.coverage.bam))
 
   # Wrap commands output ----
   cmd <- data.table(file.type= c("bed.file", "fw.counts.file", "rev.counts.file"),

@@ -77,8 +77,9 @@ rnaseqProcessing <- function(fq1,
 
   # * If several fq1/fq2 files provided, they will be merged during alignment ----
   fq1.trim <- cmd[file.type=="fq1.trim", path]
-  if(!is.null(fq2))
-    fq2.trim <- cmd[file.type=="fq2.trim", path]
+  fq2.trim <- if(!is.null(fq2))
+    cmd[file.type=="fq2.trim", path] else
+      NULL
 
   # Alignment ----
   align.cmd <- cmd_alignRnaRsubread(fq1= fq1.trim,
@@ -89,7 +90,7 @@ rnaseqProcessing <- function(fq1,
                                     bam.output.folder= bam.output.folder,
                                     alignment.stats.output.folder = alignment.stats.output.folder,
                                     Rpath= Rpath)
-  cmd <- rbind(cmd, align.cmd)
+  cmd <- rbind(cmd, align.cmd, fill= TRUE)
 
   # Gene counts ----
   count.cmd <- cmd_countRsubread(bam= cmd[file.type=="bam", path],
@@ -101,7 +102,7 @@ rnaseqProcessing <- function(fq1,
                                  counts.stats.output.folder= counts.stats.output.folder,
                                  counts.output.folder= counts.output.folder,
                                  Rpath= Rpath)
-  cmd <- rbind(cmd, count.cmd)
+  cmd <- rbind(cmd, count.cmd, fill= TRUE)
 
   # bw tracks ----
   bw.cmd <- cmd_bamToBigwig(bam = align.cmd[file.type=="bam", path],
@@ -111,12 +112,12 @@ rnaseqProcessing <- function(fq1,
                             extsize = 0,
                             bw.output.folder = bw.output.folder,
                             Rpath = Rpath)
-  cmd <- rbind(cmd, bw.cmd)
+  cmd <- rbind(cmd, bw.cmd, fill= TRUE)
 
   # DESeq2 should be performed separately, as controls cannot be fetched here
 
   # Return ----
-  cmd[, cores:= cores]
-  cmd[, job.name:= paste0("RNA_", output.prefix)]
+  cmd$cores <- cores
+  cmd$job.name <- paste0("RNA_", output.prefix)
   return(cmd)
 }

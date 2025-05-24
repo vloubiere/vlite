@@ -54,13 +54,12 @@ importBed <- function(bed, col.names= NULL)
 {
   # Import as data.table ----
   if(is.character(bed)) {
-    if(all(grepl("\\.(bed|narrowPeak|broadPeak)$", bed))) {
-      # Import file using rtracklayer
+    if(any(grepl("\\.(bed|narrowPeak|broadPeak)$", bed))) {
+      # Import bed file using rtracklayer
       current <- as.data.table(rtracklayer::import(bed))
     } else {
-      # Remove potential comas in coor
-      gr <- gsub(",", "", bed)
-      # Character coordinates to data.table
+      # Import character coordinates using GenomicRanges
+      gr <- gsub(",", "", bed) # Remove potential comas
       gr <- GenomicRanges::GRanges(gr)
       check.col <- names(mcols(gr))
       current <- as.data.table(gr)
