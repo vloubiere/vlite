@@ -89,7 +89,8 @@ rnaseqProcessing <- function(fq1,
                                     genome.idx= genome.idx,
                                     bam.output.folder= bam.output.folder,
                                     alignment.stats.output.folder = alignment.stats.output.folder,
-                                    Rpath= Rpath)
+                                    Rpath= Rpath,
+                                    cores= cores)
   cmd <- rbind(cmd, align.cmd, fill= TRUE)
 
   # Gene counts ----
@@ -101,7 +102,8 @@ rnaseqProcessing <- function(fq1,
                                  GTF.attrType.extra= GTF.attrType.extra,
                                  counts.stats.output.folder= counts.stats.output.folder,
                                  counts.output.folder= counts.output.folder,
-                                 Rpath= Rpath)
+                                 Rpath= Rpath,
+                                 cores= cores)
   cmd <- rbind(cmd, count.cmd, fill= TRUE)
 
   # bw tracks ----
@@ -111,7 +113,8 @@ rnaseqProcessing <- function(fq1,
                             extend.PE.fragments = FALSE,
                             extsize = 0,
                             bw.output.folder = bw.output.folder,
-                            Rpath = Rpath)
+                            Rpath = Rpath,
+                            cores= cores)
   cmd <- rbind(cmd, bw.cmd, fill= TRUE)
 
   # DESeq2 should be performed separately, as controls cannot be fetched here

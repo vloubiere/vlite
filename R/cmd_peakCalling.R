@@ -10,10 +10,14 @@
 #' @param layout Sequencing layout, either "SINGLE" or "PAIRED".
 #' @param output.prefix Prefix for the output files.
 #' @param keep.dup Number of duplicates to keep or "all". Default= 1L.
-#' @param extsize Integer value by which reads should be extended.
-#'    Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default= 200L.
-#' @param shift Integer value by which reads will be shifted.
-#'    Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default= 0L.
+#' @param compute.model Should MACS2 peak model be computed? Of note, for paired-end reads,
+#' modelling will be skipped. Default= FALSE.
+#' @param extsize If compute.model is set to TRUE and single-end reads are provided, integer value
+#' specifying by how many bases the reads should be extended.
+#' Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default= 200L.
+#' @param shift If compute.model is set to TRUE and single-end reads are provided, integer value
+#' specifying by how many bases the reads should be extended.
+#' Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default= 0L.
 #' @param broad Logical. Whether to call broad peaks. Default= FALSE.
 #' @param genome.macs2 Genome size parameter for MACS2 (e.g., "dm, "mm", "hs").
 #' @param genome A BSgenome name (e.g. "mm10", "dm6"...).
@@ -53,6 +57,7 @@ cmd_peakCalling <- function(bam,
                             layout,
                             output.prefix,
                             keep.dup= 1,
+                            compute.model= FALSE,
                             extsize= 200,
                             shift= 0,
                             broad= FALSE,
@@ -96,10 +101,9 @@ cmd_peakCalling <- function(bam,
     cmd <- paste(cmd, "-c", paste(bam.input, collapse = " "))
   if(broad) # broad or narrow
     cmd <- paste(cmd, "--broad")
-  if(!is.na(extsize)) # extsize (skip model)
-    cmd <- paste(cmd, "--nomodel --extsize", extsize)
-  if(shift!=0) # shift
-    cmd <- paste(cmd, "--shift", shift)
+  if(!compute.model && layout=="SINGLE") {
+    cmd <- paste(cmd, "--nomodel --extsize", extsize, "--shift", shift)
+  }
 
   # Bedgraph to bigwig ----
   cmd1 <- cmd_bedgraphToBigwig(bdg.file,

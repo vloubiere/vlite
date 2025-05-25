@@ -44,6 +44,6 @@ Rsubread::align(index= idx,
                 input_format = "gzFASTQ",
                 output_format = "BAM",
                 maxMismatches = 3,
-                nthreads = data.table::getDTthreads()-1,
+                nthreads = max(c(data.table::getDTthreads()-1, 1)),
                 unique = T,
                 output_file= bam)

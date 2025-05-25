@@ -71,7 +71,7 @@ peaks <- regions[, {
 
   # Subset non-overlapping bins (step= 100) to infer pseudocount, mean and sd ----
   non.overlapping <- bins[start %% 100 == 0]
-  pseudo <- if(any(bins$signal==0))
+  pseudo <- if(any(bins$signal==0)) # If 0s in the signal
     quantile(non.overlapping$signal[non.overlapping$signal > 0], 0.01) else
       0
   mu <- mean(log2(non.overlapping$signal+pseudo))

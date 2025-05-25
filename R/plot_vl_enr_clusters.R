@@ -1,34 +1,27 @@
 #' Plot Clustered Enrichment Results for vl_enr_cl Objects
 #'
-#' This function generates a balloon plot to visualize clustered enrichment results from an object of class `vl_enr_cl`.
+#' This function generates a balloon plot to visualize clustered enrichment results from an object of class 'vl_enr_cl'.
 #' The balloons represent the log2 odds ratio (log2OR) of enrichment, with their size corresponding to the odds ratio
 #' and their color representing the adjusted p-values (-log10 transformed).
 #'
-#' @param obj An object of class `vl_enr_cl`. This should be a data table containing clustered enrichment results,
-#' including columns for `padj` (adjusted p-values), `log2OR` (log2 odds ratio), `set_hit` (counts),
-#' `name` (feature names), and `cl` (clusters).
-#' @param padj.cutoff Numeric. The adjusted p-value cutoff to filter enrichments before plotting.
-#' Default is `0.05`.
-#' @param top.enrich Integer. The maximum number of top enrichments to plot per cluster, based on the `order` parameter.
-#' Default is `Inf` (plot all enrichments that pass the cutoffs).
-#' @param min.counts Integer. The minimum number of counts (`set_hit`) required to include an enrichment
-#' in the plot. Default is `3L`.
-#' @param order Character. The metric used to order enrichments before selecting the top enrichments.
-#' Possible values are `padj` (adjusted p-value) or `log2OR` (log2 odds ratio). Default is `log2OR`.
-#' @param color.breaks Numeric vector. The color breaks to use for the color scale. Defaults to the range of
-#' filtered `padj` values (-log10 transformed).
-#' @param size.legend.breaks Numeric vector. Breakpoints for the size legend in the balloon plot. Default is `NULL`.
-#' @param cex Numeric. Scaling factor for the plot. Default is `1`.
-#' @param col Character vector. The color scale to use for the balloon plot. Default is `c("blue", "red")`.
-#' @param main Character. The main title for the plot. Default is `NA` (no title).
-#' @param plot.empty.clusters Logical. Whether to include clusters with no enrichments in the plot.
-#' Default is `TRUE`.
-#'
-#' @details
-#' The function filters the input data based on the specified `padj.cutoff`, `min.counts`, and `log2OR > 0` thresholds.
-#' It then orders the data based on the `order` parameter and selects the top enrichments per cluster.
-#' The balloon plot displays the log2 odds ratio (log2OR) as the size of the balloons, with colors representing
-#' the adjusted p-values (-log10 transformed). Clusters with no enrichments can be optionally excluded from the plot.
+#' @param obj A data.table of class 'vl_enr_cl' containing columns 'padj', 'log2OR', 'set_hit', 'name' and 'cl'.
+#' @param log2OR.cutoff Numeric cutoff used to filter positive log2OR values before plotting.
+#' @param padj.cutoff Numeric cutoff used to filter adjusted p-values before plotting.
+#' Default= 0.05.
+#' @param top.enrich Integer specifying the maximum number of top enrichments to plot, based on the
+#' 'order' parameter. Default= Inf (no selection).
+#' @param min.counts Integer speifying the minimum number of counts required to include an enrichment
+#' in the plot ('set_hit' column). Default= 3.
+#' @param order The metric that should be used to order enrichments before selecting the top enrichments.
+#' Possible values are 'padj' or 'log2OR'. Default= 'log2OR'.
+#' @param color.breaks Color breaks to use for the color scale. Defaults to the range of filtered
+#' -log10(adjusted p-values).
+#' @param col The color scale to use for the balloon plot. Default= c('blue', 'red').
+#' @param size.legend.breaks Breakpoints for the size legend in the balloon plot. Defaults to the range
+#' of filtered log2OR values.
+#' @param cex Numeric expansion factor used to adjust balloons' sizes. Default= 1.
+#' @param main Character. The main title for the plot. Default= NA.
+#' @param plot.empty.clusters Should empty clusters be plotted? Default= TRUE.
 #'
 #' @return Invisibly returns the filtered and plotted data table.
 #'
@@ -42,6 +35,7 @@
 #'
 #' @export
 plot.vl_enr_cl <- function(obj,
+                           log2OR.cutoff= 0,
                            padj.cutoff= 0.05,
                            top.enrich= Inf,
                            min.counts= 3L,
@@ -61,7 +55,7 @@ plot.vl_enr_cl <- function(obj,
 
   # Import and select based on padj and min.counts
   DT <- data.table::copy(obj)
-  DT <- DT[set_hit>=min.counts & padj <= padj.cutoff & log2OR > 0]
+  DT <- DT[set_hit >= min.counts & padj <= padj.cutoff & log2OR >= log2OR.cutoff]
 
   # Checks
   if(any(is.infinite(DT$log2OR)))

@@ -10,6 +10,7 @@ cmd_peakCalling(
   layout,
   output.prefix,
   keep.dup = 1,
+  compute.model = FALSE,
   extsize = 200,
   shift = 0,
   broad = FALSE,
@@ -31,10 +32,15 @@ cmd_peakCalling(
 
 \item{keep.dup}{Number of duplicates to keep or "all". Default= 1L.}
 
-\item{extsize}{Integer value by which reads should be extended.
+\item{compute.model}{Should MACS2 peak model be computed? Of note, for paired-end reads,
+modelling will be skipped. Default= FALSE.}
+
+\item{extsize}{If compute.model is set to TRUE and single-end reads are provided, integer value
+specifying by how many bases the reads should be extended.
 Typically 200 for ChIP-Seq, DNAse, CutNrun; 75 for ATAC-Seq. Default= 200L.}
 
-\item{shift}{Integer value by which reads will be shifted.
+\item{shift}{If compute.model is set to TRUE and single-end reads are provided, integer value
+specifying by how many bases the reads should be extended.
 Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default= 0L.}
 
 \item{broad}{Logical. Whether to call broad peaks. Default= FALSE.}

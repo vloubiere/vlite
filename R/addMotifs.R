@@ -8,11 +8,11 @@
 #' @examples
 #' For vl_enr object
 #' pl <- plot(vl_enr)
-#' vl_add_motif(pl)
+#' addMotifs(pl, pwms = vl_motifs_DB_v2$pwms_perc)
 #'
 #' For vl_enr_cl object
 #' pl <- plot(vl_enr)
-#' vl_add_motif(pl$plot.DT)
+#' addMotifs(pl$plot.DT, pwms = vl_motifs_DB_v2$pwms_perc)
 #'
 #' @export
 addMotifs <- function(plot.DT,

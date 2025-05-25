@@ -13,6 +13,7 @@
 #' @param counts.stats.output.folder Directory for the alignment statistics file. Default= "db/count_stats/".
 #' @param counts.output.folder Directory for the counts file. Default= "db/counts/".
 #' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param cores Number of CPU cores to use. Default= 8.
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file labels ("count.stats", "counts").
@@ -46,7 +47,8 @@ cmd_countRsubread <- function(bam,
                               GTF.attrType.extra= NULL,
                               counts.stats.output.folder= "db/count_stats/",
                               counts.output.folder= "db/counts/",
-                              Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                              Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+                              cores= cores)
 {
   # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)
@@ -91,6 +93,7 @@ cmd_countRsubread <- function(bam,
   cmd <- data.table(file.type= c("count.stats", "counts"),
                     path= c(stats.file, counts.file),
                     cmd= cmd,
+                    cores= cores,
                     job.name= "countRsubReads")
 
   # Return ----

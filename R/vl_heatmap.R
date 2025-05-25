@@ -9,7 +9,9 @@
 #'   * TRUE: perform clustering (default).
 #'   * FALSE: no clustering.
 #'   * vector: pre-defined clustering. Will be coerced to factors.
-#' @param cluster.cols Similar to cluster.rows but for columns. Default= FALSE.
+#'   * matrix: clustering will be performed on this matrix instead of x.
+#' @param cluster.cols Similar to cluster.rows but for columns, except for the matrix option which is not available.
+#' Default= FALSE.
 #' @param kmeans.k Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).
 #' @param breaks A numeric vector specifying the breakpoints for color mapping.
 #'   Can either be the length of col (centered breaks) or one element longer (in which case breaks will correspond to edges).
@@ -146,6 +148,13 @@ vl_heatmap <- function(x,
     cluster.rows <- FALSE
   if(ncol(x)==1)
     cluster.cols <- FALSE
+  if(is.matrix(cluster.rows)) {
+    cx <- cluster.rows
+    if(nrow(cx)!=nrow(x))
+      stop("If cluster.rows is a matrix, if should have the same number of rows as x.")
+    rownames(cx) <- rownames(x)
+    cluster.rows <- TRUE
+  }
   if(isTRUE(show.row.clusters))
     show.row.clusters <- "left"
   if(!show.row.clusters %in% c(FALSE, "left", "right"))
@@ -232,7 +241,7 @@ vl_heatmap <- function(x,
 
   # Cluster rows object ----
   rows <- heatmap.get.clusters(dim= "row",
-                               x = x,
+                               x = if(exists("cx")) cx else x,
                                annot = row.annotations,
                                clusters = cluster.rows,
                                distance = clustering.distance.rows,

@@ -1,29 +1,24 @@
 #' Plot Enrichment Results for vl_enr Objects
 #'
-#' This function generates a barplot to visualize enrichment results from an object of class `vl_enr`.
+#' This function generates a barplot to visualize enrichment results from an object of class 'vl_enr'.
 #' The bars represent the log2 odds ratio (log2OR) of enrichment, and the color scale corresponds to
 #' the adjusted p-values (-log10 transformed).
 #'
-#' @param obj An object of class `vl_enr`. This should be a data table containing enrichment results,
-#' including columns for `padj` (adjusted p-values), `log2OR` (log2 odds ratio), and `set_hit` (counts).
-#' @param padj.cutoff Numeric. The adjusted p-value cutoff to filter enrichments before plotting.
-#' Default is `0.05`.
-#' @param top.enrich Integer. The maximum number of top enrichments to plot, based on the `order` parameter.
-#' Default is `Inf` (plot all enrichments that pass the cutoffs).
-#' @param min.counts Integer. The minimum number of counts (`set_hit`) required to include an enrichment
-#' in the plot. Default is `3L`.
-#' @param order Character. The metric used to order enrichments before selecting the top enrichments.
-#' Possible values are `padj` (adjusted p-value) or `log2OR` (log2 odds ratio). Default is `log2OR`.
-#' @param xlab Character. The label for the x-axis of the barplot. Default is `Odd Ratio (log2)`.
-#' @param col Character vector. The color scale to use for the barplot. Default is `c("blue", "red")`.
-#' @param breaks Numeric vector. The color breaks to use for the color scale. Defaults to the range of
-#' filtered `padj` values (-log10 transformed).
-#'
-#' @details
-#' The function filters the input data based on the specified `padj.cutoff` and `min.counts` thresholds.
-#' It then orders the data based on the `order` parameter and selects the top enrichments to plot.
-#' The barplot displays the log2 odds ratio (log2OR) for each enrichment, with colors representing
-#' the adjusted p-values (-log10 transformed). A heat key is also displayed to indicate the color scale.
+#' @param obj A data.table of class 'vl_enr' containing columns 'padj', 'log2OR' and 'set_hit'.
+#' See ?vl_motifEnrich for an example.
+#' @param log2OR.abs.cutoff Numeric cutoff used to filter absolute log2OR values before plotting.
+#' @param padj.cutoff Numeric cutoff used to filter adjusted p-values before plotting.
+#' Default= 0.05.
+#' @param top.enrich Integer specifying the maximum number of top enrichments to plot, based on the
+#' 'order' parameter. Default= Inf (no selection).
+#' @param min.counts Integer speifying the minimum number of counts required to include an enrichment
+#' in the plot ('set_hit' column). Default= 3.
+#' @param order The metric that should be used to order enrichments before selecting the top enrichments.
+#' Possible values are 'padj' or 'log2OR'. Default= 'log2OR'.
+#' @param xlab Label for the x-axis of the barplot. Default= 'Odd Ratio (log2)'.
+#' @param col Color scale to use for the barplot. Default= c('blue', 'red').
+#' @param breaks Numeric vector specifying the color breaks to use for the color scale. Defaults to the range of
+#' filtered -log10(adjusted p-values).
 #'
 #' @return Invisibly returns the filtered and plotted data table.
 #'
@@ -37,6 +32,7 @@
 #'
 #' @export
 plot.vl_enr <- function(obj,
+                        log2OR.abs.cutoff= 0,
                         padj.cutoff= 0.05,
                         top.enrich= Inf,
                         min.counts= 3L,
@@ -53,7 +49,7 @@ plot.vl_enr <- function(obj,
 
   # Import and select based on padj and min.counts cutoff
   DT <- data.table::copy(obj)
-  DT <- DT[padj<=padj.cutoff & set_hit>=min.counts]
+  DT <- DT[padj<=padj.cutoff & set_hit>=min.counts & abs(log2OR) >= abs(log2OR.abs.cutoff)]
 
   # Checks
   if(any(is.infinite(DT$log2OR)))
@@ -99,10 +95,7 @@ plot.vl_enr <- function(obj,
   # Plot heatkey
   hk.breaks <- seq(breaks[1], breaks[2], length.out= 100)
   heatkey(breaks = hk.breaks,
-          top = DT[.N, y],
-          left = par("usr")[2]+strwidth("M"),
-          col = Cc(hk.breaks),
-          main = "FDR (-log10)")
+          col = Cc(hk.breaks))
 
   # Return
   invisible(DT)

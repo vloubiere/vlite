@@ -18,8 +18,8 @@ suppressMessages(library(GenomicRanges, warn.conflicts = FALSE))
 suppressMessages(library(data.table, warn.conflicts = FALSE))
 
 # Tests ----
-# bam <- "db/bam/ORFtag/CpG1_input_rep2.2_mm10_collapsed.bam"
-# bam.file <- "db/bam/ORFtag/CpG1_input_rep2.2_mm10.bam"
+# bam <- "/groups/stark/vloubiere/projects/sebastian/db/bam/ORFtag/CpG1_input_rep2.2_mm10_collapsed.bam"
+# bam.file <- "/groups/stark/vloubiere/projects/sebastian/db/bam/ORFtag/CpG1_input_rep2.2_mm10.bam"
 
 # Variables ----
 bam <- args[1]
@@ -28,43 +28,41 @@ bed_file <- args[3]
 assignment_table <- args[4]
 
 # Import and parse bam file ----
-.c <- Rsamtools::scanBam(bam,
-                         param = Rsamtools::ScanBamParam(what=c("rname", "strand", "pos", "qwidth")))[[1]]
+params <- Rsamtools::ScanBamParam(what=c("rname", "strand", "pos", "qwidth"))
+par.names <- c("seqnames", "strand", "start", "width")
+.c <- Rsamtools::scanBam(bam, param = params)[[1]]
 .c <- as.data.table(.c)
-setnames(.c, c("seqnames", "strand", "start", "width"))
+setnames(.c, par.names)
+
+# Compute insertions' starting position, upstream of read1 ----
+.c[strand=="+", start:= start] # Insertion on - strand! See below
+.c[strand=="-", start:= start+width-1] # Insertion on + strand! See below
+.c[, end:= start]
+
+# Reverse strand (inverse PCR) ----
+if("*" %in% .c$strand)
+  stop("Error: reads with strand '*' were detected, which can't be assigned.")
+.c[, strand:= ifelse(strand=="+", "-", "+")]
+
+# Remove non unique insertions (there shouldn't be any) ----
+.c <- na.omit(unique(.c))
+setorderv(.c,
+          c("seqnames", "start", "end"))
 
 # If bam file is specified, add the coverage ----
 if(length(args)==5) {
-  # Check bam file exists
   bam.file <- args[5]
-  if(!file.exists(bam.file))
-    stop("Specified bam.file file could not be found to compute coverage.")
-  # Save bed as temp file
-  tmp <- tempfile(tmpdir = dirname(bed_file), fileext = ".tmp.bed")
-  rtracklayer::export(.c[, .(seqnames, start, end= start, strand)],
-                      con = tmp)
-  # Compute coverage
-  cmd <- paste("/software/2020/software/bedtools/2.27.1-foss-2018b/bin/bedtools coverage -s -a", tmp, "-b", bam.file)
-  # Coverage is in column 7
-  .c$score <- data.table::fread(cmd = cmd, header = FALSE)$V7
-  # Check that it worked
-  if(any(.c$score)==0)
-    stop("Some scores were equal to 0, which happens when the job got OOM killed.
-         Increase RAM and try again.")
-  file.remove(tmp)
+  # Import full bam file
+  bam.file <- Rsamtools::scanBam(bam.file, param = params)[[1]]
+  bam.file <- as.data.table(bam.file)
+  setnames(bam.file, par.names)
+  # Compute start and reverse strand (similarly to input bam, see above)
+  bam.file[strand=="+", start:= start]
+  bam.file[strand=="-", start:= start+width-1]
+  bam.file[, strand:= ifelse(strand=="+", "-", "+")]
+  # Compute duplicate counts
+  .c$score <- bam.file[.c, .N, .EACHI, on= c("seqnames", "start", "strand")]$N
 }
-
-# Compute start ----
-.c[strand=="+", start:= start-1]
-.c[strand=="-", start:= start+width]
-.c[, strand:= ifelse(strand=="+", "-", "+")] # Reverse strand (iPCR)
-.c[, end:= start]
-
-# Remove non unique insertions ----
-.c <- unique(.c)
-.c <- na.omit(.c)
-setorderv(.c,
-          c("seqnames", "start", "end"))
 
 # Save bed file ----
 .c <- GenomicRanges::GRanges(.c)
@@ -83,12 +81,12 @@ for(.strand in c("same_strand", "rev_strand"))
   if("score" %in% names(curr))
     setnames(curr, "score", "ins_cov")
   if(.strand=="rev_strand")
-    strand(curr) <- sapply(strand(curr), switch,  "-"="+", "+"="-", "*"="*")
-  idx <- precede(curr, exons)
+    strand(curr) <- sapply(strand(curr), switch,  "-"="+", "+"="-")
+  idx <- IRanges::precede(curr, exons, ignore.strand= FALSE)
   mcols(curr) <- NULL
   mcols(curr) <- mcols(exons)[idx,]
   mcols(curr)$dist <- NA
-  curr$dist[!is.na(idx)] <- distance(curr[!is.na(idx)], exons[idx[!is.na(idx)]])
+  curr$dist[!is.na(idx)] <- IRanges::distance(curr[!is.na(idx)], exons[idx[!is.na(idx)]])
   # SAVE
   curr <- as.data.table(curr)
   curr$width <- NULL
