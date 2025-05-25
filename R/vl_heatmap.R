@@ -10,7 +10,7 @@
 #'   * FALSE: no clustering.
 #'   * vector: pre-defined clustering. Will be coerced to factors.
 #'   * matrix: clustering will be performed on this matrix instead of x.
-#' @param cluster.cols Similar to cluster.rows but for columns, except for the matrix option which is not available.
+#' @param cluster.cols Similar to cluster.rows but for columns (of note, 'matrix' option is not available here).
 #' Default= FALSE.
 #' @param kmeans.k Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).
 #' @param breaks A numeric vector specifying the breakpoints for color mapping.
@@ -151,7 +151,7 @@ vl_heatmap <- function(x,
   if(is.matrix(cluster.rows)) {
     cx <- cluster.rows
     if(nrow(cx)!=nrow(x))
-      stop("If cluster.rows is a matrix, if should have the same number of rows as x.")
+      stop("cluster.rows matrix should have the same number of rows as x.")
     rownames(cx) <- rownames(x)
     cluster.rows <- TRUE
   }

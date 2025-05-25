@@ -32,7 +32,7 @@ heatmap.get.clusters <- function(dim= "row",
   obj <- data.table(name= rownames(x),
                     idx= seq(nrow(x)),
                     annot = annot,
-                    cluster = if(length(clusters) == nrow(x)) clusters else NA_character_,
+                    cluster = if(length(clusters) == nrow(x)) clusters else factor(NA),
                     order = seq(nrow(x)))
 
   # Clustering ----
@@ -42,6 +42,8 @@ heatmap.get.clusters <- function(dim= "row",
     # Kmeans clustering
     if(!is.na(kmeans.k)) {
       obj[, cluster:= kmeans(x, centers = kmeans.k)$cluster]
+      obj[, cluster:= factor(cluster, sort(unique(cluster)))]
+      obj[, order:= order(cluster)]
 
     # Hierachical clustering
     } else {
@@ -60,6 +62,7 @@ heatmap.get.clusters <- function(dim= "row",
       # Cutree
       if(!missing(cutree)) {
         obj[, cluster:= cutree(hcl, cutree)]
+        obj[, cluster:= factor(cluster, sort(unique(cluster)))]
       }
 
       # Extract dendrograms
@@ -69,10 +72,6 @@ heatmap.get.clusters <- function(dim= "row",
       dend <- data.table::as.data.table(dend$segments)
     }
   }
-
-  # Coerce to factors and compute order ----
-  obj[, cluster:= factor(cluster, sort(unique(cluster)))]
-  obj[, order:= order(cluster)]
 
   # Add clusters and annotations colors ----
   obj[, cluster.col:= colorRampPalette(cluster.col)(nlevels(cluster))[cluster]]
@@ -116,8 +115,8 @@ heatmap.get.clusters <- function(dim= "row",
     dend <- NULL
   }
 
-  # Back to original order (don't do it earlier!) ----
-  obj <- obj[order(idx)]
+  # Order based on position ----
+  obj <- obj[order(pos)]
 
   # Set rownames ----
   if(dim=="row") {
