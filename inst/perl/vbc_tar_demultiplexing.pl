@@ -71,14 +71,15 @@ END_HELP
 # Parse command line arguments
 #------------------------------------------------------------------------------
 my ($tar_file, $i7_list, $i5_list, $fq_prefix, $layout) = @ARGV;
-$layout = defined($layout) ? uc($layout) : 'PAIRED';
+die "Usage: $0 <tar_file> <i7_list> <i5_list> <fq_prefix> <layout>\n" unless defined $layout;
 
 # Input validation
-if (lc($i7_list) eq 'none' && lc($i5_list) eq 'none') {
-    die "Error: Both i7 and i5 indices cannot be set to 'none'. At least one index must be specified for filtering.\n";
-}
-die "Error: Invalid layout '$layout'\n" if $layout ne 'PAIRED' && $layout ne 'SINGLE';
 die "Error: Tar file '$tar_file' not found\n" if !-e $tar_file;
+if (lc($i7_list) eq 'none' && lc($i5_list) eq 'none') {
+    die "Error: i7 and i5 are both set to 'none'.\n";
+}
+$layout = uc($layout); # Layout to upper case
+die "Error: Invalid layout '$layout'\n" if $layout ne 'PAIRED' && $layout ne 'SINGLE';
 
 # Check if i7 or i5 is 'none' and set them to empty strings
 if (lc($i7_list) eq 'none') {
@@ -102,10 +103,10 @@ my @i5_indices = split(/,/, $i5_list);
 #------------------------------------------------------------------------------
 # Build regex patterns for i7 and i5
 #------------------------------------------------------------------------------
-my $i7_pattern = join('|', map { quotemeta($_) } @i7_indices);
+my $i7_pattern = join('|', map { quotemeta($_) } @i7_indices); #join indices with a pipe, e.g 'ATCG|TCCA'...
 my $i5_pattern = join('|', map { quotemeta($_) } @i5_indices);
 
-# Determine if filtering/import is needed for i7 and i5
+# Determine if filtering is needed for i7 and i5
 my $use_i7 = $i7_pattern ne '' || $add_umi;  # True if i7_pattern is not empty or --umi is set
 my $use_i5 = $i5_pattern ne '';  # True if i5_pattern is not empty
 
@@ -222,12 +223,12 @@ while (1) {
         last if scalar(@r2_chunk) < 4;
     }
 
-    $total_reads++;
+    $total_reads++; # One read has been succesfully imported
 
     # Extract sequences from I1 and I2
     my $current_i7_seq = '';
     if ($use_i7) {
-        chomp($current_i7_seq = $i1_chunk[1]);
+        chomp($current_i7_seq = $i1_chunk[1]); # chomp removes any trailing newline
     }
     my $current_i5_seq = '';
     if ($use_i5) {
@@ -236,7 +237,7 @@ while (1) {
 
     # Check for matches at the start of reads
     my $i7_ok = 1;  # Default to pass if not using i7
-    if ($use_i7 && !$add_umi) {
+    if ($use_i7 && !$add_umi) { # If i7 is a UMI, this regexpr matching is skipped here
         $i7_ok = ($current_i7_seq =~ /^(?:$i7_pattern)/) ? 1 : 0;
     }
     my $i5_ok = 1;  # Default to pass if not using i5
@@ -246,13 +247,13 @@ while (1) {
 
     # If both indices match, write the reads
     if ($i7_ok && $i5_ok) {
-        $matched_reads++;
+        $matched_reads++; # Increment matching read counts
 
         # Append i7 to read ID if --umi is set
         if ($add_umi) {
-            $r1_chunk[0] =~ s/^(\S+)/$1_$current_i7_seq/;  # Append i7 (UMI) to R1 ID
+            $r1_chunk[0] =~ s/^(\S+)/$1_$current_i7_seq/;  # Append i7 (UMI) to the first block of R1 ID
             if ($layout eq 'PAIRED') {
-                $r2_chunk[0] =~ s/^(\S+)/$1_$current_i7_seq/;  # Append i7 (UMI) to R2 ID
+                $r2_chunk[0] =~ s/^(\S+)/$1_$current_i7_seq/;  # Append i7 (UMI) to the first block of R2 ID
             }
         }
 
