@@ -3,13 +3,15 @@ devtools::load_all("./")
 
 # Tests/wip --------------------------------
 if(F) {
+  file.edit("inst/test/repelLabels.R")
   file.edit("inst/test/newUmiCollapsingStrat.R")
-  file.edit("inst/test/new_closestBed.R")
 }
 
 # bedtools ---------------------------------
 if(F) {
   file.edit("R/bedTools.R")
+  file.edit("R/randomRegionsBed.R")
+  file.edit("R/bedEnrich.R")
 }
 
 # Gene ontologies --------------------------
@@ -26,7 +28,6 @@ if(F) {
 
 # BSgenomes tools -------------------------
 if(F) {
-  file.edit("R/helperFunction_randomRegionsBSgenome.R")
   file.edit("R/BSgenomeTools.R")
 }
 
@@ -62,12 +63,14 @@ if(F) {
   file.edit("R/revCompDNA.R")
 
   # pwm converion
+  file.edit("R/importJASPAR.R")
   file.edit("R/pwmPercToLog.R")
 
   # Motif counts and positions
   file.edit("R/vl_motifCount.R")
   file.edit("R/vl_motifPos.R")
   file.edit("R/motifPosToMatrix.R")
+  file.edit("R/motifPosToBed.R")
 
   # Motif enrichment
   file.edit("R/vl_motifEnrich.R")
@@ -257,7 +260,10 @@ if(F) {
   # Scatterplot
   file.edit("R/rasterScatterplot.R")
   file.edit("R/densityScatterplot.R")
-  file.edit("R/repelScatterplot.R") # I couldnt completely figure this out yet, careful!
+
+  # Add repel labels (imperfect, but the best I can do)
+  file.edit("R/helperFunctionRepelLabels.R")
+  file.edit("R/addRepelLabels.R")
 
   # Upset plot
   file.edit("R/upsetPlot.R")
@@ -267,7 +273,7 @@ if(F) {
 if(F) {
   # Deep learning contrib
   file.edit("R/importContrib.R")
-  file.edit("R/contribEnrich.R")
+  file.edit("R/contribSeqlets.R")
   file.edit("R/contribPlotLogo.R")
 
   # Modelling diagnostics

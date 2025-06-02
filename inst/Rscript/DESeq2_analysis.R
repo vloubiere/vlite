@@ -2,7 +2,7 @@
 args = commandArgs(trailingOnly=TRUE)
 
 # Test if there are 12 args: if not, return an error
-if (length(args)!=8) {
+if (!length(args) %in% c(8, 9)) {
   stop("Please specify:\n
        [required] 1/ A comma-separated list of .txt count files (ref genome)\n
        [required] 2/ A comma-separated list of sample names \n
@@ -11,7 +11,8 @@ if (length(args)!=8) {
        [required] 5/ dds output folder \n
        [required] 6/ FC tables output folder \n
        [required] 7/ PDF output folder \n
-       [required] 8/ Experiment \n")
+       [required] 8/ Experiment \n
+       [required] 9/ A comma-separated vector of spike-in or libsize counts for normalization (matching the number of count files being provided)\n")
 }
 
 # Load libraries
@@ -45,6 +46,9 @@ dds_output_folder <- args[5]
 FC_output_folder <- args[6]
 PDF_output_folder <- args[7]
 experiment <- args[8]
+norm.counts <- if(length(args)==9)
+  as.numeric(unlist(tstrsplit(args[9], ","))) else
+    NULL
 
 # Import data ----
 dat <- lapply(counts, fread)
@@ -66,6 +70,9 @@ print(paste("Start DESeq2 analysis normalization"))
 dds <- DESeqDataSetFromMatrix(countData = DF,
                               colData = sampleTable,
                               design = ~ condition)
+# sizeFactors (normalization) ----
+if(!is.null(norm.counts))
+  sizeFactors(dds) <- norm.counts/min(norm.counts)
 
 # Compute model and save object ----
 dds <- DESeq(dds)

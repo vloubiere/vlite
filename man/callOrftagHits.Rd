@@ -8,12 +8,12 @@ callOrftagHits(
   sorted.forward.counts,
   unsorted.forward.counts,
   genome,
-  name,
+  output.prefix,
   padj.cutoff = 0.001,
   log2OR.cutoff = 1,
   log2OR.pseudocount = 1,
-  output.suffix = "_vs_unsorted.txt",
-  output.folder.FC.file = "db/FC_tables/ORFtag/"
+  min.ins.cov = NULL,
+  output.folder = "db/FC_tables/ORFtag/"
 )
 }
 \arguments{
@@ -24,20 +24,17 @@ Counts from all provided files will be merged.}
 Counts from all provided files will be merged.}
 
 \item{genome}{Genome annotation to be used.
-For now, only "mm10" and "hg38" are supported, and the corresponding non-first-exon .gtf will be used for sorting.
-See at the bottom of the ?vl_ORFtag_pipeline help page to see how to generate custom non-first-exon start .gtf files for other genomes.}
+For now, only "mm10" and "hg38" are supported, and the corresponding non-first-exon .gtf will be used for sorting.}
 
-\item{name}{Name prefix appended to output file names.}
+\item{output.prefix}{Prefix used for output file names.}
 
 \item{padj.cutoff}{The p.adjust cutoff to be used to call hits (>=). Default= 0.001}
 
 \item{log2OR.cutoff}{The log2OR cutoff to be used to call hits (>=). Default= 1}
 
-\item{log2OR.pseudocount}{The pseudocount to be added to avoid infinite values. Note that only the log2OR will be affected, not the fisher p.values. Default= 1}
+\item{log2OR.pseudocount}{Pseudocount used to avoid infinite values. Note that only the log2OR will be affected, not the fisher p.values. Default= 1.}
 
-\item{output.suffix}{Name suffix appended to output file names. Default= "_vs_unsorted.txt".}
-
-\item{output.folder.FC.file}{Output folder for FC files. Default= "db/FC_tables/ORFtag".}
+\item{output.folder}{Output folder for FC files. Default= "db/FC_tables/ORFtag".}
 }
 \value{
 Returns FC tables containing DESeq2-like columns.
@@ -53,8 +50,7 @@ callOrftagHits(sorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_s
                      unsorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_input_rep1_same_strand.txt",
                                                  "db/exon_assignment/ORFtag/Activator2_input_rep2_same_strand.txt"),
                      genome = "mm10",
-                     name = "Activator_2",
-                     output.suffix = "_vs_input.txt")
+                     output.prefix = "Activator_2_vs_input")
 
 # Call hits using revese strand (sanity check -> be cautious with the hits that are also found here!) ----
 # 81 hits should be identified with the reverse strand
@@ -63,8 +59,7 @@ callOrftagHits(sorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_s
                      unsorted.forward.counts = c("db/exon_assignment/ORFtag/Activator2_input_rep1_rev_strand.txt",
                                                  "db/exon_assignment/ORFtag/Activator2_input_rep2_rev_strand.txt"),
                      genome = "mm10",
-                     name = "Activator_2",
-                     output.suffix = "_vs_input_rev_strand.txt")
+                     output.prefix = "Activator_2_vs_input_rev_strand")
 
 # 4 of the hits should be identified with the reverse strand and should be considered carefully
 hits <- fread("db/FC_tables/ORFtag/Activator_2_vs_input.txt")[(hit), gene_name]

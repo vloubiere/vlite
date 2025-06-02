@@ -5,7 +5,7 @@
 #' for scientific visualization. Automatically positions the legend in the
 #' top-right corner of the plot with clean, minimal styling.
 #'
-#' @param x Numeric x-coordinate for legend position. Default= par("usr")[2].
+#' @param x Numeric x-coordinate for legend position or a keyword. Default= par("usr")[2].
 #' @param y Numeric y-coordinate for legend position. Default= par("usr")[4].
 #' @param legend Character vector of legend labels.
 #' @param fill Vector of colors for legend key boxes.
@@ -57,6 +57,8 @@ vl_legend <- function(x,
     x <- par("usr")[2]
   if(is.numeric(x) && missing(y))
     y <- par("usr")[4]
+  if(is.character(x) && (x.adj!=0 | y.adj!=0))
+    message("x.adj and y.adj are not used when x is a keyword.")
 
   # Adjust x and y positions ----
   if(is.numeric(x)) {

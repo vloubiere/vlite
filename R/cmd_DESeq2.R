@@ -1,14 +1,27 @@
 #' Generate Commands for 'default' DESeq2 analysis
 #'
+#' @param count.files A comma-separated vector of .txt count files.
+#' @param sample.names A comma-separated vector of sample names.
+#' @param conditions A comma-separated vector of condition names.
+#' @param ctl.conditions comma-separated list of control conditions names.
+#' @param norm.counts A comma-separated vector of spike-in/libsize counts that will be used for normalization.
+#' Default = NULL (use default method to degine sizeFactors).
+#' @param output.prefix Output prefix to be used for output files.
+#' @param dds.output.folder Output folder where DESeq2 dds files ill be same output folder. Default= "db/dds/".
+#' @param FC.tables.output.folder Output folder where FC tables will be saved. Default= "db/FC_tables/".
+#' @param MAplots.output.folder Output folder where MA plot pdf files will be saved. Default= "pdf/MAplots/".
+#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#'
 #' @export
 cmd_DESeq2 <- function(count.files,
                        sample.names,
                        conditions,
                        ctl.conditions= unique(conditions),
+                       norm.counts= NULL,
                        output.prefix,
-                       dds.output.folder= "db/dds/RNASeq/",
-                       FC.tables.output.folder= "db/FC_tables/RNASeq/",
-                       MAplots.output.folder= "pdf/MAplots/RNASeq/",
+                       dds.output.folder= "db/dds/",
+                       FC.tables.output.folder= "db/FC_tables/",
+                       MAplots.output.folder= "pdf/MAplots/",
                        Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Check (!Do not check if count.files exist to allow wrapping!) ----
@@ -20,9 +33,14 @@ cmd_DESeq2 <- function(count.files,
     stop("count.files, sample.names and conditions should all have the same length.")
   if(any(!ctl.conditions %in% conditions))
     stop("All ctl.conditions should exist in conditions")
+  if(!is.null(norm.counts)) {
+    if(length(norm.counts)!=length(count.files) | !is.numeric(norm.counts))
+      stop("norm.counts should be a numeric vector of the same length as count.files.")
+    norm.counts <- paste0(norm.counts, collapse = ",")
+  }
 
   # Output files paths ----
-  dds.file <- file.path(dds.output.folder, paste0(output.prefix, ".dds"))
+  dds.file <- file.path(dds.output.folder, paste0(output.prefix, "_DESeq2.dds"))
   MA.plots <- file.path(MAplots.output.folder, paste0(output.prefix, "_MAplots.pdf"))
   FC.tables <- file.path(FC.tables.output.folder, paste0(output.prefix, "_DESeq2_FC.txt"))
 
@@ -37,7 +55,8 @@ cmd_DESeq2 <- function(count.files,
     dds.output.folder, # dds output folder
     FC.tables.output.folder, # FC tables output folder
     MAplots.output.folder, # PDF output folder
-    output.prefix # Experiment name
+    output.prefix, # Experiment name
+    norm.counts # An optiona, comma-separated vector of spike-in/libsize counts for normalization
   )
 
   # Wrap commands output ----

@@ -21,7 +21,7 @@ vl_legend(
 )
 }
 \arguments{
-\item{x}{Numeric x-coordinate for legend position. Default= par("usr")[2].}
+\item{x}{Numeric x-coordinate for legend position or a keyword. Default= par("usr")[2].}
 
 \item{y}{Numeric y-coordinate for legend position. Default= par("usr")[4].}
 

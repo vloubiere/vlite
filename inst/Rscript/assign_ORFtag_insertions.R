@@ -77,19 +77,24 @@ mcols(exons) <- mcols(exons[, cols])
 # For each strand, assign insertions to closest downstream, non-first exon ----
 for(.strand in c("same_strand", "rev_strand"))
 {
-  curr <- data.table::copy(.c)
-  if("score" %in% names(curr))
-    setnames(curr, "score", "ins_cov")
+  # Copy
+  curr <- .c
+  # Retrieve insertions coverage
+  if("score" %in% names(mcols(curr)))
+    names(mcols(curr)) <- "ins_cov"
+  # Reverse strand
   if(.strand=="rev_strand")
     strand(curr) <- sapply(strand(curr), switch,  "-"="+", "+"="-")
+  # Add nearest upstream exon
   idx <- IRanges::precede(curr, exons, ignore.strand= FALSE)
-  mcols(curr) <- NULL
-  mcols(curr) <- mcols(exons)[idx,]
+  mcols(curr) <- cbind(mcols(curr), mcols(exons)[idx,])
+  # Compute distance
   mcols(curr)$dist <- NA
   curr$dist[!is.na(idx)] <- IRanges::distance(curr[!is.na(idx)], exons[idx[!is.na(idx)]])
-  # SAVE
+  # Format and clean
   curr <- as.data.table(curr)
   curr$width <- NULL
+  # SAVE
   fwrite(curr,
          paste0(assignment_table, "_", .strand, ".txt"),
          col.names = T,

@@ -8,6 +8,8 @@ covBam(
   bed,
   bam,
   ignore.strand = TRUE,
+  output.prefix = NULL,
+  output.folder = "db/counts/",
   bedtools_path = "/software/2020/software/bedtools/2.27.1-foss-2018b/bin/bedtools"
 )
 }
@@ -19,6 +21,12 @@ covBam(
 \item{ignore.strand}{If set to FALSE, only the reads features that are on the same strand
 as the bed regions will be counted. If set to TRUE (default), reads are counted irrespective
 of their strand.}
+
+\item{output.prefix}{Prefix for the output file name. If specified, a 'cmd' object compatible with
+?vl_submit will be returned. If set to NULL (default), the command will be submitted to the system
+using fread(cmd= cmd).}
+
+\item{output.folder}{Directory for the output count files. Default: "db/counts/".}
 
 \item{bedtools_path}{Path to the bedtools bin folder.
 Default= "/software/2020/software/bedtools/2.27.1-foss-2018b/bin/bedtools".}

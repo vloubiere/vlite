@@ -1,3 +1,30 @@
+# Coerce x to numeric matrix (useful for factors) ----
+toNumMatrix <-  function(x)
+{
+  if(!is.matrix(x)) {
+    checkClass <- unique(sapply(x, class))
+    if(length(checkClass)>1)
+      stop("x cannot contain mixed classes.")
+    if(checkClass=="factor") {
+      allLvls <- unique(c(sapply(x, levels)))
+      # Factors to numeric
+      x <- lapply(x, function(x) as.numeric(factor(x, allLvls)))
+      x <- do.call(cbind, lapply(x, as.numeric))
+    }
+    # Numeric matrix
+    x <- as.matrix(x)
+  } else {
+    checkClass <- "non-factor"
+  }
+  if(is.logical(x))
+    x <- apply(x, 2, as.numeric)
+  if(!is.numeric(x))
+    stop("x should contain numeric values, factors or logical values.")
+
+  # Return matrix and checkClass
+  list(x= x, checkClass= checkClass)
+}
+
 # Take rows and columns names/idx/annot and makes an object containing
 # clusters, colors, positions...
 heatmap.get.clusters <- function(dim= "row",
@@ -16,17 +43,23 @@ heatmap.get.clusters <- function(dim= "row",
   # Checks ----
   if(!dim %in% c("row", "col"))
     stop("dim should be one of row or col")
-  if(dim=="col" & !is.na(kmeans.k))
-    stop("Kmeans is only implemented for rows, not columns")
-  if(dim=="col")
+  if(dim=="col") {
+    if(!is.na(kmeans.k))
+      stop("Kmeans is only implemented for rows, not columns")
     x <- t(x)
+  }
+  if(!isFALSE(clusters) && !isTRUE(clusters)) {
+    if(length(clusters) != nrow(x))
+      stop("Row and col clusters should match the dimensions of x or be logical vectors of length 1.")
+    if(!is.factor(clusters))
+      clusters <- factor(clusters, sort(unique(clusters)))
+  }
   if(!is.null(annot)) {
     if(is.numeric(annot) && any(annot %% 1) != 0)
-      stop("Row and col annotations can only contain integer or non-numeric values that will be coerced to factors.")
-    annot <- factor(annot, sort(unique(annot)))
+      stop("Row and col annotations can should either be integers, factors or non-numeric values.")
+    if(!is.factor(annot))
+      annot <- factor(annot, sort(unique(annot)))
   }
-  if(length(clusters) != nrow(x) && !(isFALSE(clusters) | isTRUE(clusters)))
-    stop("Row and col clusters should match the dimensions of x or be logical vectors of length 1.")
 
   # Initiate object ----
   obj <- data.table(name= rownames(x),
@@ -34,6 +67,7 @@ heatmap.get.clusters <- function(dim= "row",
                     annot = annot,
                     cluster = if(length(clusters) == nrow(x)) clusters else factor(NA),
                     order = seq(nrow(x)))
+  obj[, order:= order(cluster)]
 
   # Clustering ----
   if(isTRUE(clusters)) {
@@ -82,7 +116,7 @@ heatmap.get.clusters <- function(dim= "row",
   obj <- obj[(order)]
   obj[, pos:= .I+(.GRP-1)*gap.width, cluster]
 
-  # For dendrogram, compute plotting positions ----
+  # Compute dendrograms' plotting positions ----
   if(exists("dend")) {
     # interpolate cluster gaps
     dend[, s.start := {
@@ -116,7 +150,7 @@ heatmap.get.clusters <- function(dim= "row",
   }
 
   # Order based on position ----
-  obj <- obj[order(pos)]
+  obj <- obj[order(pos)] # Don't do it earlier!
 
   # Set rownames ----
   if(dim=="row") {

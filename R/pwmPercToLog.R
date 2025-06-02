@@ -16,10 +16,10 @@ pwmPercToLog <- function(perc_pwm,
                          bg= c("A"= .25, "C"= .25, "G"= .25, "T"= .25))
 {
   # Checks
-  if(!all(colSums(perc_pwm)==1)) {
-    warning("Some of the columns did not sum to 1 and were adjusted!")
-   perc_pwm <- apply(perc_pwm, 2, function(x) x/sum(x))
-  }
+  if(!is.numeric(pseudocount))
+    stop("pseudocount should be numeric.")
+  if(!is.numeric(bg) | !identical(c("A", "C", "G", "T"), names(bg)))
+    stop("bg should be a numeric vector  with names 'A', 'C', 'G', 'T'")
 
   # Make background matrix
   bg <- as.matrix(bg)

@@ -109,7 +109,7 @@ cmd_peakCalling <- function(bam,
   cmd1 <- cmd_bedgraphToBigwig(bdg.file,
                                output.prefix = output.prefix,
                                bw.output.folder = bw.output.folder,
-                               genome = genome.macs2,
+                               genome = genome,
                                scaling.factor = 1,
                                Rpath = Rpath)
 

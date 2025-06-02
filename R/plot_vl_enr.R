@@ -42,9 +42,11 @@ plot.vl_enr <- function(obj,
                         col= c("blue", "red"))
 {
   # Checks
+  if(!all(c("name", "log2OR", "padj", "set_hit") %in% names(obj)))
+    stop("object should contain columns: 'name', 'log2OR', 'padj', 'set_hit'")
   if(!(order %in% c("padj", "log2OR")))
     stop("Possible values for order are 'padj', 'log2OR'")
-  if(any(obj[, .N, .(name, cl)]$N > 1))
+  if(any(obj[, .N, name]$N > 1))
     stop("Several lines were found with similar name.")
 
   # Import and select based on padj and min.counts cutoff
@@ -95,7 +97,8 @@ plot.vl_enr <- function(obj,
   # Plot heatkey
   hk.breaks <- seq(breaks[1], breaks[2], length.out= 100)
   heatkey(breaks = hk.breaks,
-          col = Cc(hk.breaks))
+          col = Cc(hk.breaks),
+          main = "p.adjust (-log10)")
 
   # Return
   invisible(DT)

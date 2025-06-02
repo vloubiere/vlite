@@ -9,12 +9,35 @@ cmd_DESeq2(
   sample.names,
   conditions,
   ctl.conditions = unique(conditions),
+  norm.counts = NULL,
   output.prefix,
-  dds.output.folder = "db/dds/RNASeq/",
-  FC.tables.output.folder = "db/FC_tables/RNASeq/",
-  MAplots.output.folder = "pdf/MAplots/RNASeq/",
+  dds.output.folder = "db/dds/",
+  FC.tables.output.folder = "db/FC_tables/",
+  MAplots.output.folder = "pdf/MAplots/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
 )
+}
+\arguments{
+\item{count.files}{A comma-separated vector of .txt count files.}
+
+\item{sample.names}{A comma-separated vector of sample names.}
+
+\item{conditions}{A comma-separated vector of condition names.}
+
+\item{ctl.conditions}{comma-separated list of control conditions names.}
+
+\item{norm.counts}{A comma-separated vector of spike-in/libsize counts that will be used for normalization.
+Default = NULL (use default method to degine sizeFactors).}
+
+\item{output.prefix}{Output prefix to be used for output files.}
+
+\item{dds.output.folder}{Output folder where DESeq2 dds files ill be same output folder. Default= "db/dds/".}
+
+\item{FC.tables.output.folder}{Output folder where FC tables will be saved. Default= "db/FC_tables/".}
+
+\item{MAplots.output.folder}{Output folder where MA plot pdf files will be saved. Default= "pdf/MAplots/".}
+
+\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
 \description{
 Generate Commands for 'default' DESeq2 analysis

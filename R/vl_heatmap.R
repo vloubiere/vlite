@@ -9,7 +9,7 @@
 #'   * TRUE: perform clustering (default).
 #'   * FALSE: no clustering.
 #'   * vector: pre-defined clustering. Will be coerced to factors.
-#'   * matrix: clustering will be performed on this matrix instead of x.
+#'   * data.table/matrix: clustering will be performed on this subset instead of x.
 #' @param cluster.cols Similar to cluster.rows but for columns (of note, 'matrix' option is not available here).
 #' Default= FALSE.
 #' @param kmeans.k Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).
@@ -119,25 +119,9 @@ vl_heatmap <- function(x,
                        grid.lwd= .25)
 {
   # Coerce x to numeric matrix (useful for factors) ----
-  if(!is.matrix(x)) {
-    checkClass <- unique(sapply(x, class))
-    if(length(checkClass)>1)
-      stop("x cannot contain mixed classes.")
-    if(checkClass=="factor") {
-      allLvls <- unique(c(sapply(x, levels)))
-      # Factors to numeric
-      x <- lapply(x, function(x) as.numeric(factor(x, allLvls)))
-      x <- do.call(cbind, lapply(x, as.numeric))
-    }
-    # Numeric matrix
-    x <- as.matrix(x)
-  } else {
-    checkClass <- "non-factor"
-  }
-  if(is.logical(x))
-    x <- apply(x, 2, as.numeric)
-  if(!is.numeric(x))
-    stop("x should contain numeric values, factors or logical values.")
+  x <- toNumMatrix(x)
+  checkClass <- x$checkClass
+  x <- x$x
   if(is.null(colnames(x)))
     colnames(x) <- seq(ncol(x))
   if(is.null(rownames(x)))
@@ -148,8 +132,8 @@ vl_heatmap <- function(x,
     cluster.rows <- FALSE
   if(ncol(x)==1)
     cluster.cols <- FALSE
-  if(is.matrix(cluster.rows)) {
-    cx <- cluster.rows
+  if(!isTRUE(cluster.rows) & !isFALSE(cluster.rows) & !is.vector(cluster.rows) & !is.factor(cluster.rows)) {
+    cx <- toNumMatrix(cluster.rows)$x
     if(nrow(cx)!=nrow(x))
       stop("cluster.rows matrix should have the same number of rows as x.")
     rownames(cx) <- rownames(x)
@@ -272,8 +256,8 @@ vl_heatmap <- function(x,
   cols <- cols$obj
 
   # Clip outlier values to min/max color breaks ----
-  x[x<min(breaks)] <- min(x, na.rm= TRUE)
-  x[x>max(breaks)] <- max(x, na.rm= TRUE)
+  x[x<min(breaks)] <- min(breaks, na.rm= TRUE)
+  x[x>max(breaks)] <- max(breaks, na.rm= TRUE)
   # Set NA values to min(breaks)-1
   x[is.na(x)] <- min(breaks)-1
   # Adjust breaks to afford NAs
@@ -331,7 +315,7 @@ vl_heatmap <- function(x,
   if(!isFALSE(show.numbers)) {
     text(x= rep(cols$x.pos, each= nrow(rows)),
          y= rep(rows$y.pos, nrow(cols)),
-         labels = c(show.numbers),
+         labels = c(show.numbers[rows$line.idx, cols$column.idx, drop= FALSE]),
          cex= numbers.cex)
   }
 

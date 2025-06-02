@@ -8,13 +8,10 @@
 #' @param ignore.strand If set to FALSE, only the reads features that are on the same strand
 #' as the bed regions will be counted. If set to TRUE (default), reads are counted irrespective
 #' of their strand.
-#' @param output.file.txt Path to a file with a .txt extension where output will be saved.
-#' If this is specified, the job will be submitted to the server and the submitted command will
-#' be returned. Useful for big files.
-#' @param mem When output.file.txt is specified, memory to use for the job in G. Default= 32.
-#' @param logs When output.file.txt is specified, folder where log files should be saved.
-#' @param overwrite In case where output.file.txt is specified and a file with this name already
-#' exists, should it be overwritten? Default= FALSE.
+#' @param output.prefix Prefix for the output file name. If specified, a 'cmd' object compatible with
+#' ?vl_submit will be returned. If set to NULL (default), the command will be submitted to the system
+#' using fread(cmd= cmd).
+#' @param output.folder Directory for the output count files. Default: "db/counts/".
 #' @param bedtools_path Path to the bedtools bin folder.
 #' Default= "/software/2020/software/bedtools/2.27.1-foss-2018b/bin/bedtools".
 #'
@@ -28,10 +25,8 @@
 covBam <- function(bed,
                    bam,
                    ignore.strand= TRUE,
-                   output.file.txt= NULL,
-                   mem= 32,
-                   logs= "db/logs/bamCov/",
-                   overwrite= FALSE,
+                   output.prefix= NULL,
+                   output.folder= "db/counts/",
                    bedtools_path= "/software/2020/software/bedtools/2.27.1-foss-2018b/bin/bedtools")
 {
   # Checks ----
@@ -45,34 +40,31 @@ covBam <- function(bed,
     rtracklayer::export(bed, tmp)
     bed <- tmp
   }
-  if(!is.null(output.file) && !grepl(".txt$", output.file))
-    stop("output.file should be in .txt format.")
+
+  # Output file path ----
+  output.file <- if(!is.null(output.prefix))
+    file.path(output.folder, paste0(output.prefix, "_counts.txt")) else
+      NULL
 
   # Compose the bedtools command ---
   cmd <- paste(bedtools_path,
                "coverage -counts",
                ifelse(!ignore.strand, "-s", ""),
                "-a", bed, "-b", bam,
-               ifelse(is.null(output.file.txt), "", paste(">", output.file.txt)))
+               ifelse(is.null(output.file), "", paste(">", output.file)))
 
   # If output file is specified ----
-  if(!is.null(output.file.txt)) {
+  if(!is.null(output.prefix)) {
     # Command object
     cmd <- data.table(file.type= "counts.file",
-                      path= output.file.txt,
+                      path= output.file,
                       cmd= cmd,
                       cores= 1,
                       job.name= "covBam")
-    # Submit
-    vl_submit(cmd,
-              mem= mem,
-              logs = logs,
-              overwrite = overwrite,
-              execute = TRUE)
     # Return cmd
     return(cmd)
   } else {
-    # Compute and import tmp output ----
+    # Compute and import counts ----
     cov <- data.table::fread(cmd = cmd, header = FALSE)[[7]] # Counts stored in column 7
     # Remove temp file
     if(exists("tmp"))

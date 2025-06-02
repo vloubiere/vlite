@@ -17,88 +17,6 @@ getBSgenomeSize <- function(genome)
   return(gSize)
 }
 
-#' Randomly Sample Control Genomic Regions
-#'
-#' @description
-#' Generates random genomic regions from a BSgenome, matching specified widths or the distribution of an input BED file.
-#'
-#' @param genome BSgenome name: "dm6", "mm10"...
-#' @param widths Integer vector specifying the width of the regions to sample. The length of the vector determines the number of regions.
-#' @param bed Optional genomic ranges. If provided, the widths arguments will be ignored, and control regions will match be sampled to match
-#' the number of regions in bed, as well as their widths and seqnames distribution.
-#' @param restrict.seqnames Optional character vector. Restrict sampling to these seqnames.
-#' @param no.overlap If set to TRUE (default), ensures that there is no overlap between sampled and bed regions (if provided).
-#' Stops after 10 iterations.
-#'
-#' @return A gr data.table of sampled control regions.
-#'
-#' @examples
-#' # Sample using widths
-#' test <- randomRegionsBSgenome("dm6", widths= rep(5000, 1e3))
-#'
-#' Sampling using bed
-#' randomRegionsBSgenome(genome = "dm6", bed = test)
-#'
-#' @export
-randomRegionsBSgenome <- function(genome,
-                                  widths= rep(100, 1000),
-                                  bed,
-                                  restrict.seqnames= NULL,
-                                  no.overlap= TRUE)
-{
-  # Checks ----
-  if(!is.null(restrict.seqnames) & !missing(bed))
-    stop("When bed is provided, restrict.seqnames should be set to NULL.")
-  if(!missing(bed)) {
-    bed <- importBed(bed)
-    widths <- bed[, end-start+1]
-  }
-
-  # Retrieve chromosome sizes ----
-  gSize <- getBSgenomeSize(genome= genome)
-
-  # Remove chromosomes that are too short ----
-  too.short <- gSize$end < max(widths)
-  if(any(too.short)) {
-    message(paste(sum(too.short), "/", nrow(gSize), "chromosomes shorter than max.width -> removed!"))
-    gSize <- gSize[!(too.short)]
-  }
-
-  # Restrict seqnames ----
-  if(!is.null(restrict.seqnames))
-    gSize <- gSize[seqnames %in% restrict.seqnames]
-
-  # Compute chromosome probabilities ----
-  prob <- if(missing(bed)) gSize$end else gSize[, sum(bed$seqnames==seqnames), seqnames]$V1
-
-  # Random sampling ----
-  rdm <- rdmSamplingBS(gSize= gSize,
-                       prob= prob,
-                       widths= widths)
-
-  # Avoid overlaps ----
-  if(no.overlap && !missing(bed)) {
-    remove <- covBed(rdm, bed)>0
-    nTries <- 1
-    while(any(remove) & nTries<10) {
-      add <- rdmSamplingBS(gSize= gSize,
-                           prob= prob,
-                           widths= rdm$width[remove])
-      rdm <- rbind(rdm[!(remove)], add)
-      remove <- covBed(rdm, bed)>0
-      remaining <- sum(remove)
-      nTries <- nTries+1
-    }
-    if(remaining>0)
-      warning(paste(remaining, "overlaps could not be fixed after 10 attemps and will me missing"))
-    rdm <- intersectBed(rdm, bed, invert = T)
-  }
-
-  # Return result ----
-  rdm <- rdm[, .(seqnames, start, end, strand)]
-  return(rdm)
-}
-
 #' Get genomic sequence
 #'
 #' Returns the sequences of a bed.
@@ -135,4 +53,60 @@ getBSsequence <- function(bed,
   # Add names and return ----
   names(sequences) <- bed$name
   return(sequences)
+}
+
+#' Randomly Sample Control Genomic Regions
+#'
+#' @description
+#' Randomly sample genomic regions from a BSgenome, matching specified widths and seqnames.
+#'
+#' @param genome BSgenome name: "dm6", "mm10"...
+#' @param widths Integer vector specifying the width of the regions to sample. The length of the vector
+#' determines the number of sampled regions.
+#' @param restrict.seqnames If specified, restricts random sampling to the corresponding seqnames.
+#' @param no.overlaps Genomic ranges for which overlaps should be avoided dhring sampling, in any format compatible
+#' with ?importBed. Default= NULL.
+#' @param ignore.strand If genomic ranges are provided in no.overlaps, only overlaps on the same strand will be
+#' avoided. If set to TRUE (default), overlaps on both strands are avoided.
+#'
+#' @return A gr data.table of sampled control regions.
+#'
+#' @examples
+#' # Sample using widths
+#' test <- randomRegionsBSgenome(genome= "dm6",
+#' widths= sample(c(1000, 2000, 5000), 1e3, replace= T),
+#' restrict.seqnames= c("chr2L", "chr2R", "chr3L", "chr3R"))
+#'
+#' Sampling using bed
+#' rdm <- randomRegionsBSgenome(genome = "dm6", no.overlaps = test)
+#'
+#' @export
+randomRegionsBSgenome <- function(genome,
+                                  widths,
+                                  restrict.seqnames= NULL,
+                                  no.overlaps= NULL,
+                                  ignore.strand= TRUE)
+{
+  # Checks ----
+  if(!is.null(restrict.seqnames) && length(restrict.seqnames)==0)
+    stop("restrict.seqnames should contain at least one seqname.")
+
+  # Retrieve chromosome sizes ----
+  bed <- getBSgenomeSize(genome= genome)
+
+  # Restrict seqnames ----
+  if(!is.null(restrict.seqnames)) {
+    if(!all(restrict.seqnames %in% bed$seqnames))
+      stop("All provided restrict.seqnames should exist in the provided genome.")
+    bed <- bed[seqnames %in% restrict.seqnames]
+  }
+
+  # Random sampling ----
+  rdm <- randomRegionsBed(bed= bed,
+                          widths= widths,
+                          no.overlaps= no.overlaps,
+                          ignore.strand= ignore.strand)
+
+  # Return ----
+  return(rdm)
 }

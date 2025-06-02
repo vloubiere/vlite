@@ -13,7 +13,8 @@ cmd_countRsubread(
   GTF.attrType.extra = NULL,
   counts.stats.output.folder = "db/count_stats/",
   counts.output.folder = "db/counts/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  cores = cores
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ cmd_countRsubread(
 \item{counts.output.folder}{Directory for the counts file. Default= "db/counts/".}
 
 \item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+
+\item{cores}{Number of CPU cores to use. Default= 8.}
 }
 \value{
 A data.table with:

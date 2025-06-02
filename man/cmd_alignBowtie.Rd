@@ -33,11 +33,11 @@ If not provided, `genome.idx` must be specified.}
 
 \item{max.ins}{Maximum insert size for PAIRED reads. Default= 500.}
 
-\item{bam.output.folder}{Directory for the output BAM file. Default: `"db/bam/"`.}
+\item{bam.output.folder}{Directory for the output BAM file. Default= "db/bam/".}
 
-\item{alignment.stats.output.folder}{Directory for alignment statistics. Default: `"db/alignment_stats/"`.}
+\item{alignment.stats.output.folder}{Directory for alignment statistics. Default= "db/alignment_stats/".}
 
-\item{cores}{Number of CPU cores to use. Default: `8`.}
+\item{cores}{Number of CPU cores to use. Default= 8.}
 }
 \value{
 A `data.table` with:

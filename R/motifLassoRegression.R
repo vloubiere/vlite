@@ -108,23 +108,23 @@ motifLassoRegression <- function(response,
 
   # Setting alpha = 1 implements lasso regression
   lambdas <- 10^seq(2, -3, by = -0.1)
-  lasso_reg <- cv.glmnet(x = trainX,
-                         y = trainY,
-                         alpha = 1,
-                         lambda = lambdas,
-                         standardize = TRUE, # Let glmnet handle scaling
-                         nfolds = 5,
-                         family = "gaussian")
+  lasso_reg <- glmnet::cv.glmnet(x = trainX,
+                                 y = trainY,
+                                 alpha = 1,
+                                 lambda = lambdas,
+                                 standardize = TRUE, # Let glmnet handle scaling
+                                 nfolds = 5,
+                                 family = "gaussian")
   # Best lambda
   lambda_best <- lasso_reg$lambda.min
 
   # Modelling
-  model <- glmnet(x = trainX,
-                  y = trainY,
-                  alpha = 1,
-                  lambda = lambda_best,
-                  standardize = TRUE, # Let glmnet handle scaling
-                  family = "gaussian")
+  model <- glmnet::glmnet(x = trainX,
+                          y = trainY,
+                          alpha = 1,
+                          lambda = lambda_best,
+                          standardize = TRUE, # Let glmnet handle scaling
+                          family = "gaussian")
 
   # Predicted values
   predict_test <- predict(model,

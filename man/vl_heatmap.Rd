@@ -50,9 +50,11 @@ vl_heatmap(
 \item{cluster.rows}{Logical or vector specifying row clustering:
 * TRUE: perform clustering (default).
 * FALSE: no clustering.
-* vector: pre-defined clustering. Will be coerced to factors.}
+* vector: pre-defined clustering. Will be coerced to factors.
+* data.table/matrix: clustering will be performed on this subset instead of x.}
 
-\item{cluster.cols}{Similar to cluster.rows but for columns. Default= FALSE.}
+\item{cluster.cols}{Similar to cluster.rows but for columns (of note, 'matrix' option is not available here).
+Default= FALSE.}
 
 \item{kmeans.k}{Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).}
 

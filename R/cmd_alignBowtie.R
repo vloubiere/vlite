@@ -12,9 +12,9 @@
 #' @param genome.idx Path to the Bowtie2 genome index. Default= NULL.
 #' @param max.mismatch Maximum number of mismatches allowed. Default= 2.
 #' @param max.ins Maximum insert size for PAIRED reads. Default= 500.
-#' @param bam.output.folder Directory for the output BAM file. Default: `"db/bam/"`.
-#' @param alignment.stats.output.folder Directory for alignment statistics. Default: `"db/alignment_stats/"`.
-#' @param cores Number of CPU cores to use. Default: `8`.
+#' @param bam.output.folder Directory for the output BAM file. Default= "db/bam/".
+#' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/".
+#' @param cores Number of CPU cores to use. Default= 8.
 #'
 #' @return A `data.table` with:
 #' - `file.type`: Output file labels (i.e. "bam", "align.stats").

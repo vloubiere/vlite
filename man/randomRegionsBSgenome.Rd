@@ -6,36 +6,41 @@
 \usage{
 randomRegionsBSgenome(
   genome,
+  sample.bed,
+  no.overlaps = TRUE,
   widths = rep(100, 1000),
-  bed,
-  restrict.seqnames = NULL,
-  no.overlap = TRUE
+  restrict.seqnames = NULL
 )
 }
 \arguments{
 \item{genome}{BSgenome name: "dm6", "mm10"...}
 
-\item{widths}{Integer vector specifying the width of the regions to sample. The length of the vector determines the number of regions.}
+\item{sample.bed}{Optional genomic ranges. If provided, the widths arguments will be ignored,
+and control regions will be sampled to match the number of regions in bed, as well as their
+widths and seqnames distribution.}
 
-\item{bed}{Optional genomic ranges. If provided, the widths arguments will be ignored, and control regions will match be sampled to match
-the number of regions in bed, as well as their widths and seqnames distribution.}
+\item{no.overlaps}{If set to TRUE (default), ensures that there is no overlap between sampled
+regions and sample.bed.}
 
-\item{restrict.seqnames}{Optional character vector. Restrict sampling to these seqnames.}
+\item{widths}{Integer vector specifying the width of the regions to sample. The length of the vector
+determines the number of sampled regions.}
 
-\item{no.overlap}{If set to TRUE (default), ensures that there is no overlap between sampled and bed regions (if provided).
-Stops after 10 iterations.}
+\item{restrict.seqnames}{If specified, restricts random sampling to the corresponding seqnames.}
 }
 \value{
 A gr data.table of sampled control regions.
 }
 \description{
-Generates random genomic regions from a BSgenome, matching specified widths or the distribution of an input BED file.
+Randomly sample genomic regions from a BSgenome, matching specified widths or the distribution
+of an input bed file.
 }
 \examples{
 # Sample using widths
-test <- randomRegionsBSgenome("dm6", widths= rep(5000, 1e3))
+test <- randomRegionsBSgenome(genome= "dm6",
+widths= sample(c(1000, 2000, 5000), 1e3, replace= T),
+restrict.seqnames= c("chr2L", "chr2R", "chr3L", "chr3R"))
 
 Sampling using bed
-randomRegionsBSgenome(genome = "dm6", bed = test)
+rdm <- randomRegionsBSgenome(genome = "dm6", sample.bed = test)
 
 }
