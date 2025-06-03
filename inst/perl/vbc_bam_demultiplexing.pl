@@ -2,7 +2,6 @@
 
 # Script: vbc_bam_demultiplexing.pl
 # Description: Process and filter sequencing reads based on index sequences and read properties
-# Version: 1.0.4 (May 2025)
 
 use strict;
 use warnings;
@@ -30,50 +29,45 @@ NAME
     vbc_bam_demultiplexing.pl - Process and filter sequencing reads based on index sequences and read properties
 
 SYNOPSIS
-    ./vbc_bam_demultiplexing.pl [--umi] <PAIRED|SINGLE> <i7 index(es)> <i5 index(es)> <i7_column> <i5_column> <output_prefix> [start_seq] [trim_length]
+    samtools view -h <input.bam> | ./vbc_bam_demultiplexing.pl [--umi] <PAIRED|SINGLE> <i7 index(es)> <i5 index(es)> <i7_column> <i5_column> <output_prefix> [start_seq] [trim_length]
 
 DESCRIPTION
-    This script processes queryname-sorted BAM files from the VBC facility, filtering reads based on i7 and i5
-    index sequences + optional PRO-seq-specific arguments. It can handle both paired-end and single-end data.
-    For paired-end data, index information is expected only in the first read of each pair.
+    This script processes queryname-sorted BAM files from the VBC facility, filtering reads based on i7 and i5 index sequences and optional PRO-seq-specific arguments. It supports both
+    paired-end and single-end data, and expects SAM input from standard input (stdin), typically piped from samtools view as shown in the SYNOPSIS above.
+
 
 REQUIRED ARGUMENTS
     <PAIRED|SINGLE>    Specify the read type:
-                       PAIRED - for paired-end sequencing data
-                       SINGLE - for single-end sequencing data
+                       PAIRED - for paired-end sequencing data.
+                       SINGLE - for single-end sequencing data.
 
-    <i7 index(es)>     The i7 index sequence(s) to match. Multiple indexes should be comma-separated (this is only useful to analyze ORFtag).
+    <i7 index(es)>     The i7 index sequence(s) to match. Multiple indexes should be comma-separated.
                        Use 'none' if no i7 index filtering is needed.
-                       Example: "AAGGCCTT" or "AAGGCCTT,CCTTAAGG" or "none"
-                       Note: BC:Z: prefix is automatically added
+                       Examples: "none", "AAGGCCTT", "AAGGCCTT,CCTTAAGG"
 
-    <i5 index(es)>     The i5 index sequence(s) to match. Multiple indexes should be comma-separated (this is only useful to analyze ORFtag).
+    <i5 index(es)>     The i5 index sequence(s) to match. Multiple indexes should be comma-separated.
                        Use 'none' if no i5 index filtering is needed.
-                       Example: "ACGTACGT" or "ACGTACGT,TGCATGCA" or "none"
-                       Note: B2:Z: prefix is automatically added
+                       Example: "none", "ACGTACGT", "ACGTACGT,TGCATGCA"
 
-    <i7_column>        1-based column number in the SAM file containing the i7 index
-                       Typically 14 in standard format
+    <i7_column>        1-based column number in the SAM file containing the i7 index.
+                       Standard value: 14
 
-    <i5_column>        1-based column number in the SAM file containing the i5 index
-                       Typically 12 in standard format
+    <i5_column>        1-based column number in the SAM file containing the i5 index.
+                       Standard value: 12
 
     <output_prefix>    Prefix for output files. The script will append:
-                       '_1.fq.gz' and '_2.fq.gz' for paired-end data
-                       '.fq.gz' for single-end data
+                       '_1.fq.gz' and '_2.fq.gz' for paired-end data.
+                       '.fq.gz' for single-end data.
 
 OPTIONAL ARGUMENTS
-    --umi              Append the i7 index (UMI) to the read ID in the output FASTQ, separated by an underscore (_).
+    --umi              Append the i7 index (UMI) to the first block of the read ID in the output FASTQ, separated by an underscore.
                        Applies to both mates in paired-end mode and all reads in single-end mode.
 
-    [start_seq]        Sequence that must be present at the start of reads
-                       If provided, only reads starting with this sequence will be kept
-                       The sequence will be trimmed from matching reads
+    [start_seq]        For PRO-seq reads, the eBC sequence that must be present at the start of the read.
 
-    [trim_length]      Number of nucleotides to extract after trimming start_seq
-                       Only applied if start_seq is provided
-                       The extracted sequence will be added to the read ID
-                       Remaining sequence will be kept as the read
+    [trim_length]      For PRO-Seq reads, the number of nucleotides to extract after trimming the start_seq (only applied if start_seq
+                       is provided). The extracted UMI sequence will be appended to the first block of the read ID, separated by an 
+                       underscore.
 
 END_HELP
 }
@@ -84,18 +78,19 @@ if (@ARGV < 6) {
 }
 
 # Get and validate read type (PAIRED or SINGLE)
-my $read_type = uc($ARGV[0]);
+my $read_type = uc($ARGV[0]); # uc -> upper case
 unless ($read_type eq 'PAIRED' || $read_type eq 'SINGLE') {
     die "First argument must be either PAIRED or SINGLE\n";
 }
 
 # Process i7 indexes (now first)
+my $i7_input = $ARGV[1];
 my @i7_indexes = ();
-if ($ARGV[1] && $ARGV[1] ne 'none') {
-    unless ($ARGV[1] =~ /^[ACGT,]+$/i) {
+if ($i7_input && $i7_input ne 'none') {
+    unless ($i7_input =~ /^[ACGT,]+$/i) {
         die "Error: i7 indexes must only contain DNA letters (A, C, G, T) and commas.\n";
     }
-    @i7_indexes = split(',', $ARGV[1]);
+    @i7_indexes = split(',', $i7_input);
     @i7_indexes = map { "^BC:Z:" . $_ } @i7_indexes;
 }
 
@@ -103,7 +98,7 @@ if ($ARGV[1] && $ARGV[1] ne 'none') {
 my $i5_input = $ARGV[2];
 my @i5_indexes = ();
 if ($i5_input && $i5_input ne 'none') {
-    unless ($ARGV[2] =~ /^[ACGT,]+$/i) {
+    unless ($i5_input =~ /^[ACGT,]+$/i) {
         die "Error: i5 indexes must only contain DNA letters (A, C, G, T) and commas.\n";
     }
     @i5_indexes = split(',', $i5_input);
@@ -173,7 +168,7 @@ while (my $line = <STDIN>) {
             }
 
             # Check i7 indexes first if provided
-            if (@i7_indexes > 0) {
+            if (@i7_indexes > 0) { # Only match regexpr if i7_indexes were specified
                 my $i7_match = 0;
                 foreach my $i7_index (@i7_indexes) {
                     if ($fields[$i7_column] =~ /$i7_index/) {
@@ -185,7 +180,7 @@ while (my $line = <STDIN>) {
             }
 
             # Check i5 indexes if i7 matched and i5 indexes are provided
-            if ($matches && @i5_indexes > 0) {
+            if ($matches && @i5_indexes > 0) { # Only match regexpr if i5_indexes were specified and i7 matched (if relevant)
                 my $i5_match = 0;
                 foreach my $i5_index (@i5_indexes) {
                     if ($fields[$i5_column] =~ /$i5_index/) {
@@ -225,19 +220,19 @@ while (my $line = <STDIN>) {
             if ($start_seq && $trim_length) {
                 # First trim the start sequence if it matches
                 if ($seq =~ /^$start_seq/) {
-                    # Remove the start sequence
+                    # Remove the start sequence (PRO-Seq eBC)
                     $seq =~ s/^$start_seq//;
                     $qual = substr($qual, length($start_seq));
 
-                    # Extract the next trim_length nucleotides
+                    # Extract the next trim_length nucleotides (PRO-Seq UMI)
                     my $extracted_seq = substr($seq, 0, $trim_length);
 
                     # Keep the remaining sequence (after trim_length nucleotides)
                     $seq = substr($seq, $trim_length);
                     $qual = substr($qual, $trim_length);
 
-                    # Append the extracted sequence to the read ID
-                    $read_id .= ":" . $extracted_seq;
+                    # Append the extracted sequence to the first blokc of the read ID
+                    $read_id =~ s/^(\S+)/$1_$extracted_seq/;
                 }
             }
 
@@ -245,7 +240,7 @@ while (my $line = <STDIN>) {
             if ($read_type eq 'PAIRED') {
                 # Write first mate
                 my $read_id1 = $read_id;
-                $read_id1 .= "_$umi" if $umi ne '';
+                $read_id1 =~ s/^(\S+)/$1_$umi/ if defined $umi && $umi ne '';
                 print $out1 "\@$read_id1\n$seq\n+\n$qual\n";
 
                 # Process and write second mate
@@ -254,7 +249,7 @@ while (my $line = <STDIN>) {
                 my @second_fields = split("\t", $second_mate);
 
                 my $read_id2 = $second_fields[0];
-                $read_id2 .= "_$umi" if $umi ne '';
+                $read_id2 =~ s/^(\S+)/$1_$umi/ if defined $umi && $umi ne '';
                 print $out2 "\@$read_id2\n";
                 print $out2 $second_fields[9] . "\n";
                 print $out2 "+\n";
@@ -262,7 +257,7 @@ while (my $line = <STDIN>) {
             } else {
                 # Write single-end read
                 my $read_id1 = $read_id;
-                $read_id1 .= "_$umi" if $umi ne '';
+                $read_id1 =~ s/^(\S+)/$1_$umi/ if defined $umi && $umi ne '';
                 print $out1 "\@$read_id1\n$seq\n+\n$qual\n";
             }
         }
