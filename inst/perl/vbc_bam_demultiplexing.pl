@@ -66,7 +66,7 @@ OPTIONAL ARGUMENTS
     [start_seq]        For PRO-seq reads, the eBC sequence that must be present at the start of the read.
 
     [trim_length]      For PRO-Seq reads, the number of nucleotides to extract after trimming the start_seq (only applied if start_seq
-                       is provided). The extracted UMI sequence will be appended to the first block of the read ID, separated by an 
+                       is provided). The extracted UMI sequence will be appended to the first block of the read ID, separated by an
                        underscore.
 
 END_HELP
@@ -109,14 +109,23 @@ if ($i5_input && $i5_input ne 'none') {
 my $i7_column = $ARGV[3] - 1;
 my $i5_column = $ARGV[4] - 1;
 my $output_prefix = $ARGV[5];
+if ($i7_column < 0 || $i5_column < 0) {
+    die "Column numbers must be positive integers\n";
+}
 
-# Process optional arguments
+# Process optional arguments and check
 my $start_seq = $ARGV[6] if @ARGV > 6;
 my $trim_length = $ARGV[7] if @ARGV > 7;
 
-# Validate inputs
-if ($i7_column < 0 || $i5_column < 0) {
-    die "Column numbers must be positive integers\n";
+# Check if UMI arguments are compatible
+if ($append_umi && $i7_input && $i7_input ne 'none') {
+    die "Error: --umi and i7 index filtering cannot be used together. The i7 index is a sample index, not a UMI.\n";
+}
+if ($start_seq && !$trim_length) {
+    die "Error: If start_seq is specified, you must also specify trim_length.\n";
+}
+if ($append_umi && $start_seq && $trim_length) {
+    die "Error: You cannot specify both --umi and start_seq/trim_length. Choose only one UMI extraction method.\n";
 }
 
 # Open output file(s) based on read type
@@ -155,41 +164,36 @@ while (my $line = <STDIN>) {
         # Initialize match flag
         my $matches = 1;
 
-        # Only check indexes on first mate in paired-end mode or all reads in single-end mode
-        my $should_check_indexes = ($read_type eq 'PAIRED') ? ($fields[1] & 0x40) : 1;
+        # Validate column existence for index checking
+        if (@i7_indexes > 0 && @fields <= $i7_column) {
+            die "Error: i7 column (${\($i7_column + 1)}) exceeds number of fields in input. Line: $.\n";
+        }
+        if (@i5_indexes > 0 && @fields <= $i5_column) {
+            die "Error: i5 column (${\($i5_column + 1)}) exceeds number of fields in input. Line: $.\n";
+        }
 
-        if ($should_check_indexes) {
-            # Validate column existence for index checking
-            if (@i7_indexes > 0 && @fields <= $i7_column) {
-                die "Error: i7 column (${\($i7_column + 1)}) exceeds number of fields in input. Line: $.\n";
-            }
-            if (@i5_indexes > 0 && @fields <= $i5_column) {
-                die "Error: i5 column (${\($i5_column + 1)}) exceeds number of fields in input. Line: $.\n";
-            }
-
-            # Check i7 indexes first if provided
-            if (@i7_indexes > 0) { # Only match regexpr if i7_indexes were specified
-                my $i7_match = 0;
-                foreach my $i7_index (@i7_indexes) {
-                    if ($fields[$i7_column] =~ /$i7_index/) {
-                        $i7_match = 1;
-                        last;
-                    }
+        # Check i7 indexes first if provided
+        if (@i7_indexes > 0) { # Only match regexpr if i7_indexes were specified
+            my $i7_match = 0;
+            foreach my $i7_index (@i7_indexes) {
+                if ($fields[$i7_column] =~ /$i7_index/) {
+                    $i7_match = 1;
+                    last;
                 }
-                $matches = $i7_match;
             }
+            $matches = $i7_match;
+        }
 
-            # Check i5 indexes if i7 matched and i5 indexes are provided
-            if ($matches && @i5_indexes > 0) { # Only match regexpr if i5_indexes were specified and i7 matched (if relevant)
-                my $i5_match = 0;
-                foreach my $i5_index (@i5_indexes) {
-                    if ($fields[$i5_column] =~ /$i5_index/) {
-                        $i5_match = 1;
-                        last;
-                    }
+        # Check i5 indexes if i7 matched and i5 indexes are provided
+        if ($matches && @i5_indexes > 0) { # Only match if i5_indexes were specified and i7 matched (if relevant)
+            my $i5_match = 0;
+            foreach my $i5_index (@i5_indexes) {
+                if ($fields[$i5_column] =~ /$i5_index/) {
+                    $i5_match = 1;
+                    last;
                 }
-                $matches = $i5_match;
             }
+            $matches = $i5_match;
         }
 
         # Check start sequence if provided
@@ -205,60 +209,52 @@ while (my $line = <STDIN>) {
             my $qual = $fields[10];
             my $read_id = $fields[0];
 
-            # Prepare UMI (i7 index) for both mates or single-end
+            # Extract UMI from either i7 index (if --umi is specified) or from the sequence (if start_seq/trim_length is specified)
             my $umi = '';
             if ($append_umi) {
+                # Extract UMI from i7 index (BC:Z: tag)
                 my $i7_field = $fields[$i7_column];
                 if ($i7_field && $i7_field =~ /BC:Z:([ACGTN]+)/) {
                     $umi = $1;
                 } else {
                     warn "Warning: --umi specified but i7 field missing or malformed for read $read_id (line $.)\n";
                 }
-            }
-
-            # Handle sequence processing if start_seq and trim_length are provided
-            if ($start_seq && $trim_length) {
-                # First trim the start sequence if it matches
+            } elsif ($start_seq && $trim_length) {
+                # For PRO-Seq, trim start_seq from read sequence and extract UMI (trim_length)
                 if ($seq =~ /^$start_seq/) {
-                    # Remove the start sequence (PRO-Seq eBC)
+                    # Trim the eBC from the beginning of the read and quality string
                     $seq =~ s/^$start_seq//;
                     $qual = substr($qual, length($start_seq));
-
-                    # Extract the next trim_length nucleotides (PRO-Seq UMI)
-                    my $extracted_seq = substr($seq, 0, $trim_length);
-
-                    # Keep the remaining sequence (after trim_length nucleotides)
+                    # Extract the next trim_length nucleotides (UMI)
+                    $umi = substr($seq, 0, $trim_length);
+                    # Trim seq and quality string accordingly
                     $seq = substr($seq, $trim_length);
                     $qual = substr($qual, $trim_length);
-
-                    # Append the extracted sequence to the first blokc of the read ID
-                    $read_id =~ s/^(\S+)/$1_$extracted_seq/;
                 }
             }
 
             # Output reads based on read type
             if ($read_type eq 'PAIRED') {
-                # Write first mate
-                my $read_id1 = $read_id;
-                $read_id1 =~ s/^(\S+)/$1_$umi/ if defined $umi && $umi ne '';
-                print $out1 "\@$read_id1\n$seq\n+\n$qual\n";
+                # Append UMI to the first block of the first mate read ID
+                $read_id =~ s/^(\S+)/$1_$umi/ if defined $umi && $umi ne '';
+                # Save
+                print $out1 "\@$read_id\n$seq\n+\n$qual\n";
 
-                # Process and write second mate
+                # Import and parse second mate
                 my $second_mate = <STDIN>;
                 chomp $second_mate;
                 my @second_fields = split("\t", $second_mate);
-
                 my $read_id2 = $second_fields[0];
+
+                # Append UMI to the first block of the second mate read ID
                 $read_id2 =~ s/^(\S+)/$1_$umi/ if defined $umi && $umi ne '';
-                print $out2 "\@$read_id2\n";
-                print $out2 $second_fields[9] . "\n";
-                print $out2 "+\n";
-                print $out2 $second_fields[10] . "\n";
+                # Save
+                print $out2 "\@$read_id2\n$second_fields[9]\n+\n$second_fields[10]\n";
             } else {
-                # Write single-end read
-                my $read_id1 = $read_id;
-                $read_id1 =~ s/^(\S+)/$1_$umi/ if defined $umi && $umi ne '';
-                print $out1 "\@$read_id1\n$seq\n+\n$qual\n";
+                # Append UMI to the first block of the read ID
+                $read_id =~ s/^(\S+)/$1_$umi/ if defined $umi && $umi ne '';
+                # Save
+                print $out1 "\@$read_id\n$seq\n+\n$qual\n";
             }
         }
     }
