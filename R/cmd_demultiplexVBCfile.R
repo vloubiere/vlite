@@ -99,35 +99,38 @@ cmd_demultiplexVBCfile <- function(vbcFile,
                                    cores= 8,
                                    head)
 {
-  options(scipen= 999)
   # Checks ----
-  if(length(vbcFile)!=1)
-    stop("A unique vbcFile path should be provided.")
-  if(!file.exists(vbcFile))
-    stop("vbcFile could not be found.")
+  options(scipen= 999)
+  # Input file
+  if(length(vbcFile)!=1 || !file.exists(vbcFile))
+    stop("A single valid vbcFile path should be provided.")
+  if(!grepl(".bam$|.tar.gz$", vbcFile))
+    stop("vbcFile should be in .bam or .tar.gz format.")
+  # Layout
   if(!layout %in% c("SINGLE", "PAIRED"))
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
+  # Indexes
   i7 <- unique(i7)
-  if(!identical(i7, "none")) {
-    if(!all(unlist(strsplit(i7, "")) %in% c("A", "C", "G", "T")))
-      stop("Some characters in i7 are not one of 'A', 'C', 'G', 'T'")
-    i7 <- paste(i7, collapse = ",")
-  }
+  if(i7!="none" && !all(grepl("^[ATCG]+$", i7)))
+    stop("Some characters in i7 are not one of 'A', 'C', 'G', 'T'")
+  i7 <- paste(i7, collapse = ",")
   i5 <- unique(i5)
-  if(!identical(i5, "none")) {
-    if(!all(unlist(strsplit(i5, "")) %in% c("A", "C", "G", "T")))
-      stop("Some characters in i5 are not one of 'A', 'C', 'G', 'T'")
-    i5 <- paste(i5, collapse = ",")
-  }
-  if(umi && (i7!="none" | !is.null(proseq.eBC))) {
-    stop("When umi is set to TRUE, i7 should be set to 'none' and proseq.eBC to NULL.")
-  }
-  if(length(i7.column)>1 | length(i5.column)>1)
+  if(i5!="none" && !all(grepl("^[ATCG]+$", i5)))
+    stop("Some characters in i5 are not one of 'A', 'C', 'G', 'T'")
+  i5 <- paste(i5, collapse = ",")
+  if(length(i7.column)!=1 | length(i5.column)!=1)
     stop("Several i7 or i5 column number were provided.")
-  if(!is.null(proseq.eBC) && !grepl(".bam$", vbcFile))
-    stop("proseq.eBC is only supported for bam files.")
-  if(!is.null(proseq.eBC) && missing(proseq.umi.length))
-    stop("When proseq.eBC is specified (PRO-Seq reads), proseq.umi.length should also be provided.")
+  # umi
+  if(umi && (i7!="none" | !is.null(proseq.eBC)))
+    stop("When umi is set to TRUE, i7 should be set to 'none' and proseq.eBC to NULL.")
+  # PRO-Seq args
+  if(!is.null(proseq.eBC)) {
+    if(grepl(".tar.gz$", vbcFile))
+      stop("proseq.eBC is not supported for tar files yet :(.")
+    if(missing(proseq.umi.length))
+      stop("When proseq.eBC is specified (PRO-Seq reads), proseq.umi.length should also be provided.")
+  }
+  # Head
   if(!missing(head) && head %% 1!=0)
     stop("head should be a round number.")
 
@@ -146,18 +149,18 @@ cmd_demultiplexVBCfile <- function(vbcFile,
   # Method for bam files ----
   if(grepl(".bam$", vbcFile)) {
     # Decompress command
-    decompress <- paste("samtools view -@", cores-1, vbcFile, "|")
+    samView <- paste("samtools view -@", cores-1, vbcFile, "|")
     if(!missing(head))
-      decompress <- paste(decompress, "head -n", head, "|")
+      samView <- paste(samView, "head -n", head, "|")
 
     # Demultiplexing command
     cmd <- paste(
-      decompress,
+      samView,
       "perl", system.file("perl", "vbc_bam_demultiplexing.pl", package = "vlite"), # perl script
       ifelse(umi, "--umi", ""),
       paste0("'", layout, "'"),
-      paste0("'", i7, "'"), # i7 barcode sequence
-      paste0("'", i5, "'"), # i5 index sequence
+      paste0("'", i7, "'"), # i7 barcode sequence(s)
+      paste0("'", i5, "'"), # i5 index sequence(s)
       i7.column, # i7 column (default= 14)
       i5.column, # i5 column (default= 12)
       paste0("'", output.prefix, "'")
@@ -187,12 +190,6 @@ cmd_demultiplexVBCfile <- function(vbcFile,
                  paste0("'", i5, "'"), # i5 index sequence
                  paste0("'", output.prefix, "'"),
                  paste0("'", layout, "'"))
-
-    # Check PRO-Seq args
-    if(!is.null(proseq.eBC))
-      stop("Optional'proseq.eBC' parameter for PRO-Seq is not supoorted for .tar.gz input files.")
-  } else {
-    stop("vbcFile should be in .bam or .tar.gz format.")
   }
 
   # Wrap commands output ----
