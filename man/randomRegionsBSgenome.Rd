@@ -6,33 +6,31 @@
 \usage{
 randomRegionsBSgenome(
   genome,
-  sample.bed,
-  no.overlaps = TRUE,
-  widths = rep(100, 1000),
-  restrict.seqnames = NULL
+  widths,
+  restrict.seqnames = NULL,
+  no.overlaps = NULL,
+  ignore.strand = TRUE
 )
 }
 \arguments{
 \item{genome}{BSgenome name: "dm6", "mm10"...}
 
-\item{sample.bed}{Optional genomic ranges. If provided, the widths arguments will be ignored,
-and control regions will be sampled to match the number of regions in bed, as well as their
-widths and seqnames distribution.}
-
-\item{no.overlaps}{If set to TRUE (default), ensures that there is no overlap between sampled
-regions and sample.bed.}
-
 \item{widths}{Integer vector specifying the width of the regions to sample. The length of the vector
 determines the number of sampled regions.}
 
 \item{restrict.seqnames}{If specified, restricts random sampling to the corresponding seqnames.}
+
+\item{no.overlaps}{Genomic ranges for which overlaps should be avoided dhring sampling, in any format compatible
+with ?importBed. Default= NULL.}
+
+\item{ignore.strand}{If genomic ranges are provided in no.overlaps, only overlaps on the same strand will be
+avoided. If set to TRUE (default), overlaps on both strands are avoided.}
 }
 \value{
 A gr data.table of sampled control regions.
 }
 \description{
-Randomly sample genomic regions from a BSgenome, matching specified widths or the distribution
-of an input bed file.
+Randomly sample genomic regions from a BSgenome, matching specified widths and seqnames.
 }
 \examples{
 # Sample using widths
@@ -41,6 +39,6 @@ widths= sample(c(1000, 2000, 5000), 1e3, replace= T),
 restrict.seqnames= c("chr2L", "chr2R", "chr3L", "chr3R"))
 
 Sampling using bed
-rdm <- randomRegionsBSgenome(genome = "dm6", sample.bed = test)
+rdm <- randomRegionsBSgenome(genome = "dm6", no.overlaps = test)
 
 }

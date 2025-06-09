@@ -9,7 +9,7 @@ tiltAxis(
   y = NULL,
   labels,
   srt = 45,
-  offset = 0.25,
+  offset = 0.1,
   pos = 2,
   xpd = NA,
   cex = par("cex.axis"),

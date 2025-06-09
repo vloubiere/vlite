@@ -34,6 +34,7 @@ covBam <- function(bed,
     if(length(bed)>1)
       stop("A unique bed file path should be provided.")
   } else {
+    # If bed is is not a file, save it as tmp file ----
     bed <- importBed(bed)
     tmp <- tempfile(tmpdir = dirname(bam),
                     fileext = ".tmp.bed")
@@ -55,7 +56,7 @@ covBam <- function(bed,
 
   # If output file is specified ----
   if(!is.null(output.prefix)) {
-    # Command object
+    # Create command
     cmd <- data.table(file.type= "counts.file",
                       path= output.file,
                       cmd= cmd,
@@ -64,11 +65,14 @@ covBam <- function(bed,
     # Return cmd
     return(cmd)
   } else {
+
     # Compute and import counts ----
-    cov <- data.table::fread(cmd = cmd, header = FALSE)[[7]] # Counts stored in column 7
+    cov <- data.table::fread(cmd = cmd,
+                             header = FALSE)[[7]] # Counts stored in column 7
     # Remove temp file
     if(exists("tmp"))
       file.remove(tmp)
+
     # Return cov
     return(cov)
   }

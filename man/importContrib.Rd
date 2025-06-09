@@ -7,7 +7,8 @@
 importContrib(
   h5,
   bed = list.files(dirname(h5), ".bed$", full.names = TRUE),
-  fa = list.files(dirname(h5), ".fa$", full.names = TRUE)
+  fa = list.files(dirname(h5), ".fa$", full.names = TRUE),
+  FUN = function(x) rowSums(x)
 )
 }
 \arguments{

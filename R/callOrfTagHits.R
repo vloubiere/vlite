@@ -9,10 +9,11 @@
 #' @param genome Genome annotation to be used.
 #' For now, only "mm10" and "hg38" are supported, and the corresponding non-first-exon .gtf will be used for sorting.
 #' @param output.prefix Prefix used for output file names.
-#' @param output.folder Output folder for FC files. Default= "db/FC_tables/ORFtag".
 #' @param padj.cutoff The p.adjust cutoff to be used to call hits (>=). Default= 0.001
 #' @param log2OR.cutoff The log2OR cutoff to be used to call hits (>=). Default= 1
 #' @param log2OR.pseudocount Pseudocount used to avoid infinite values. Note that only the log2OR will be affected, not the fisher p.values. Default= 1.
+#' @param min.ins.cov Minimum number of duplication counts for an insertion to be considered TRUE. Default= 0 (no filtering).
+#' @param output.folder Output folder for FC files. Default= "db/FC_tables/ORFtag".
 #'
 #' @return Returns FC tables containing DESeq2-like columns.
 #'
@@ -53,7 +54,7 @@ callOrftagHits <- function(sorted.forward.counts,
                            padj.cutoff= 0.001,
                            log2OR.cutoff= 1,
                            log2OR.pseudocount= 1,
-                           min.ins.cov= NULL,
+                           min.ins.cov= 0,
                            output.folder= "db/FC_tables/ORFtag/")
 {
   require(rtracklayer)
@@ -77,10 +78,11 @@ callOrftagHits <- function(sorted.forward.counts,
 
   # Filtering ----
   # Insertions count
-  if(!is.null(min.ins.cov)) {
+  if(min.ins.cov>0) {
     if(!"ins_cov" %in% names(dat))
-      stop("min.ins.cov was specified but 'ins_cov' column is missing form count files.")
-    dat <- dat[ins_cov>=min.ins.cov]
+      stop("min.ins.cov was specified but 'ins_cov' column is missing.")
+    dat[, total_ins_cov:= sum(ins_cov), .(cdition, seqnames, start, end, strand)]
+    dat <- dat[total_ins_cov>=min.ins.cov]
   }
   # Distance
   dat <- na.omit(dat[dist<2e5])

@@ -2,20 +2,15 @@
 % Please edit documentation in R/vl_motifPos.R
 \name{vl_motifPos}
 \alias{vl_motifPos}
-\alias{vl_motifPos.data.table}
-\alias{vl_motifPos.default}
 \title{Find Motif Positions in Sequences or Genomic Regions}
 \usage{
-vl_motifPos(sequences = NULL, bed = NULL, ...)
-
-vl_motifPos.data.table(bed, genome, ...)
-
-vl_motifPos.default(
+vl_motifPos(
   sequences,
-  pwm_log_odds = vl_Dmel_motifs_DB_full[collection == "jaspar", pwms_log_odds],
+  bed,
+  pwm_log_odds,
   genome,
   bg = "genome",
-  p.cutoff = 5e-05,
+  p.cutoff = 0.00005,
   pos.strand = FALSE,
   collapse.overlapping = FALSE,
   scratch = "/scratch-cbe/users/vincent.loubiere/motifs/",
@@ -25,11 +20,11 @@ vl_motifPos.default(
 \arguments{
 \item{sequences}{A named character vector of sequences to analyze. This argument takes precedence over the bed argument.}
 
-\item{bed}{Genomic ranges in a format compatible with ?importBed(). Used to retrieve sequences if sequences is not provided.}
-
-\item{genome}{The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified). This argument is required.}
+\item{bed}{Genomic ranges in a format compatible with ?importBed, from which genomic sequences will be retrieved when sequences is set to NULL.}
 
 \item{pwm_log_odds}{A PWMatrixList (in log2 odds ratio format) containing motifs to map. For example, see "/groups/stark/vloubiere/motifs_db/".}
+
+\item{genome}{The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified). This argument is required.}
 
 \item{bg}{The background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".}
 
@@ -53,13 +48,6 @@ A data.table containing motif positions for each sequence, with the following co
 \description{
 Identifies the positions of motifs in a set of sequences or genomic regions using a PWMatrixList.
 }
-\section{Functions}{
-\itemize{
-\item \code{vl_motifPos.data.table()}: Compute motifs position within
-
-\item \code{vl_motifPos.default()}: Identify motif positions within sequences
-
-}}
 \examples{
 # Dm3 coordinates of the two strongest SU(HW) peaks
 suhw <- importBed(c("chr2R:942901-943600", "chrX:1417201-1418000"))
@@ -69,20 +57,19 @@ load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
 sel <- vl_Dmel_motifs_DB_full[c("cisbp__M2328", "flyfactorsurvey__suHw_FlyReg_FBgn0003567", "jaspar__MA0533.1"), pwms_log_odds, on= "motif_ID"]
 
 # Find position of 3 different motifs within two regions
-pos1 <- vl_motifPos.data.table(bed= suhw,
-                               genome= "dm3",
-                               pwm_log_odds= sel,
-                               overwrite= FALSE)
+pos1 <- vl_motifPos(bed= suhw,
+                    genome= "dm3",
+                    pwm_log_odds= sel,
+                    overwrite= FALSE)
 
 # Starting from sequence
 seq <- getBSsequence(suhw, "dm3")
-pos2 <- vl_motifPos(sequence= seq,
+pos2 <- vl_motifPos(sequences= seq,
                     genome= "dm3",
                     pwm_log_odds= sel,
                     overwrite= FALSE)
 
 # Should give similar results
 identical(pos1, pos2)
-
 
 }

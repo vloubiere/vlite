@@ -12,7 +12,7 @@ callOrftagHits(
   padj.cutoff = 0.001,
   log2OR.cutoff = 1,
   log2OR.pseudocount = 1,
-  min.ins.cov = NULL,
+  min.ins.cov = 0,
   output.folder = "db/FC_tables/ORFtag/"
 )
 }
@@ -33,6 +33,8 @@ For now, only "mm10" and "hg38" are supported, and the corresponding non-first-e
 \item{log2OR.cutoff}{The log2OR cutoff to be used to call hits (>=). Default= 1}
 
 \item{log2OR.pseudocount}{Pseudocount used to avoid infinite values. Note that only the log2OR will be affected, not the fisher p.values. Default= 1.}
+
+\item{min.ins.cov}{Minimum number of duplication counts for an insertion to be considered TRUE. Default= 0 (no filtering).}
 
 \item{output.folder}{Output folder for FC files. Default= "db/FC_tables/ORFtag".}
 }

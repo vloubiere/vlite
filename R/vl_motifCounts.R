@@ -3,8 +3,8 @@
 #' @description
 #' Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList.
 #'
-#' @param sequences Named character vector of sequences to analyze. Takes precedence over the bed argument.
-#' @param bed Genomic ranges in a format compatible with importBed(). Used to retrieve sequences if sequences is not provided.
+#' @param sequences A named character vector of sequences to analyze. This argument takes precedence over the bed argument.
+#' @param bed Genomic ranges in a format compatible with ?importBed, from which genomic sequences will be retrieved when sequences is set to NULL.
 #' @param pwm_log_odds A PWMatrixList (in log2 odds ratio format) containing motifs to count.
 #' @param genome Genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified).
 #' @param bg Background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".
@@ -42,42 +42,29 @@
 #' identical(mot1, mot2)
 #'
 #' @export
-vl_motifCounts <- function(sequences = NULL, bed = NULL, ...) {
-  if (!is.null(bed)) {
-    if (!is.data.table(bed)) {
-      bed <- importBed(bed)
-    }
-    return(vl_motifCounts.data.table(bed = bed, ...))
-  }
-  vl_motifCounts.default(sequences = sequences, ...)
-}
-
-#' @describeIn vl_motifCounts Method to extract sequences from BSgenome
-#' @export
-vl_motifCounts.data.table <- function(bed,
-                                      genome,
-                                      ...)
-{
-  sequences <- getBSsequence(bed, genome)
-  vl_motifCounts.default(sequences,
-                         genome= genome,
-                         ...)
-}
-
-#' @describeIn vl_motifCounts Identify motifs in sequences
-#' @export
-vl_motifCounts.default <- function(sequences= NULL,
-                                   pwm_log_odds,
-                                   genome,
-                                   bg= "genome",
-                                   p.cutoff= 5e-5,
-                                   cleanup.cache= FALSE)
+vl_motifCounts <- function(sequences,
+                           bed,
+                           pwm_log_odds,
+                           genome,
+                           bg= "genome",
+                           p.cutoff= 5e-5,
+                           cleanup.cache= FALSE)
 {
   # Checks ----
-  if(bg=="genome" && missing(genome))
-    stop("genome is missing while bg is set to 'genome'")
+  if(!missing(sequences) && !missing(bed))
+     warning("sequences are provided -> input bed will not be used.")
+  if(missing(sequences) && missing(bed))
+    stop("sequences of bed regions should be specified.")
+  if(missing(genome) && (missing(sequences) | bg=="genome"))
+    stop("genome is missing with no default.")
   if(!"PWMatrixList" %in% class(pwm_log_odds))
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
+
+  # Get sequences ----
+  if(missing(sequences)) {
+    bed <- importBed(bed)
+    sequences <- getBSsequence(bed, genome)
+  }
 
   # Use a temp directory for caching motif counts ----
   params <- list(pwm_log_odds,
@@ -90,12 +77,12 @@ vl_motifCounts.default <- function(sequences= NULL,
 
   # Compute counts ----
   if(cleanup.cache | !file.exists(file.cache)) {
-    res <- motifmatchr::matchMotifs(pwm_log_odds,
-                                    sequences,
-                                    genome= genome,
-                                    p.cutoff= p.cutoff,
-                                    bg= bg,
-                                    out= "scores")@assays@data[["motifCounts"]]
+    res <- motifmatchr::matchMotifs(pwms = pwm_log_odds,
+                                    subject = sequences,
+                                    genome = genome,
+                                    p.cutoff = p.cutoff,
+                                    bg = bg,
+                                    out = "scores")@assays@data[["motifCounts"]]
     saveRDS(res, file.cache)
   } else
     res <- readRDS(file.cache)

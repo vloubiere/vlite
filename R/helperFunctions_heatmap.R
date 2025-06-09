@@ -43,29 +43,14 @@ heatmap.get.clusters <- function(dim= "row",
   # Checks ----
   if(!dim %in% c("row", "col"))
     stop("dim should be one of row or col")
-  if(dim=="col") {
-    if(!is.na(kmeans.k))
-      stop("Kmeans is only implemented for rows, not columns")
+  if(dim=="col")
     x <- t(x)
-  }
-  if(!isFALSE(clusters) && !isTRUE(clusters)) {
-    if(length(clusters) != nrow(x))
-      stop("Row and col clusters should match the dimensions of x or be logical vectors of length 1.")
-    if(!is.factor(clusters))
-      clusters <- factor(clusters, sort(unique(clusters)))
-  }
-  if(!is.null(annot)) {
-    if(is.numeric(annot) && any(annot %% 1) != 0)
-      stop("Row and col annotations can should either be integers, factors or non-numeric values.")
-    if(!is.factor(annot))
-      annot <- factor(annot, sort(unique(annot)))
-  }
 
   # Initiate object ----
   obj <- data.table(name= rownames(x),
                     idx= seq(nrow(x)),
                     annot = annot,
-                    cluster = if(length(clusters) == nrow(x)) clusters else factor(NA),
+                    cluster = if(is.factor(clusters)) clusters else factor(NA),
                     order = seq(nrow(x)))
   obj[, order:= order(cluster)]
 
@@ -76,10 +61,10 @@ heatmap.get.clusters <- function(dim= "row",
     # Kmeans clustering
     if(!is.na(kmeans.k)) {
       obj[, cluster:= kmeans(x, centers = kmeans.k)$cluster]
-      obj[, cluster:= factor(cluster, sort(unique(cluster)))]
+      obj[, cluster:= factor(cluster)]
       obj[, order:= order(cluster)]
 
-    # Hierachical clustering
+      # Hierachical clustering
     } else {
       # Compute distances
       .d <- if(distance %in% c("pearson", "spearman")) {
@@ -96,7 +81,7 @@ heatmap.get.clusters <- function(dim= "row",
       # Cutree
       if(!missing(cutree)) {
         obj[, cluster:= cutree(hcl, cutree)]
-        obj[, cluster:= factor(cluster, sort(unique(cluster)))]
+        obj[, cluster:= factor(cluster)]
       }
 
       # Extract dendrograms

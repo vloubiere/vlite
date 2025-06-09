@@ -3,7 +3,6 @@ devtools::load_all("./")
 
 # Tests/wip --------------------------------
 if(F) {
-  file.edit("inst/test/repelLabels.R")
   file.edit("inst/test/newUmiCollapsingStrat.R")
 }
 
@@ -11,7 +10,7 @@ if(F) {
 if(F) {
   file.edit("R/bedTools.R")
   file.edit("R/randomRegionsBed.R")
-  file.edit("R/bedEnrich.R")
+  file.edit("R/enrichBed.R")
 }
 
 # Gene ontologies --------------------------
@@ -62,12 +61,12 @@ if(F) {
   # Reverse complement DNA sequence
   file.edit("R/revCompDNA.R")
 
-  # pwm converion
+  # pwm conversion
   file.edit("R/importJASPAR.R")
   file.edit("R/pwmPercToLog.R")
 
   # Motif counts and positions
-  file.edit("R/vl_motifCount.R")
+  file.edit("R/vl_motifCounts.R")
   file.edit("R/vl_motifPos.R")
   file.edit("R/motifPosToMatrix.R")
   file.edit("R/motifPosToBed.R")
@@ -175,6 +174,7 @@ if(F) {
   # ORFtag -------------------------
   # Pipeline
   file.edit("R/orftagProcessing.R")
+  file.edit("R/orftagQC.R")
   # Collapse bam unique insertions
   file.edit("R/cmd_collapseBam.R")
   # Assign reads to exons
@@ -213,6 +213,7 @@ if(F) {
 if(F) {
   # Plotting parameters
   file.edit("R/vl_par.R")
+  file.edit("R/vl_plot.R")
 
   # Legends
   file.edit("R/tiltAxis.R")
@@ -274,7 +275,7 @@ if(F) {
   # Deep learning contrib
   file.edit("R/importContrib.R")
   file.edit("R/contribSeqlets.R")
-  file.edit("R/contribPlotLogo.R")
+  file.edit("R/contribSeqLogo.R")
 
   # Modelling diagnostics
   file.edit("R/vl_ROC_AUC.R")

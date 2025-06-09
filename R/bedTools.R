@@ -50,15 +50,18 @@
 #' importBed(narrowPeak_file)
 #'
 #' @export
-importBed <- function(bed, col.names= NULL)
+importBed <- function(bed,
+                      col.names= NULL)
 {
-  # Import as data.table ----
   if(is.character(bed)) {
     if(any(grepl("\\.(bed|narrowPeak|broadPeak)$", bed))) {
-      # Import bed file using rtracklayer
+
+      # Import bed file using rtracklayer ----
       current <- as.data.table(rtracklayer::import(bed))
+
     } else {
-      # Import character coordinates using GenomicRanges
+
+      # Import character coordinates using GenomicRanges ----
       gr <- gsub(",", "", bed) # Remove potential comas
       gr <- GenomicRanges::GRanges(gr)
       check.col <- names(mcols(gr))
@@ -70,7 +73,8 @@ importBed <- function(bed, col.names= NULL)
       current$name <- bed
     }
   } else if(is.data.frame(bed)) {
-    # Coerce to data.table
+
+    # Coerce to data.table ----
     current <- if(is.data.table(bed)) data.table::copy(bed) else as.data.table(bed)
     # Check required columns
     if(!all(c("seqnames", "start") %in% names(current)))
@@ -84,14 +88,17 @@ importBed <- function(bed, col.names= NULL)
     # Check strand values
     if(any(!current$strand %in% c("+", "-", "*")))
       stop("All strand values should be one of c('+', '-' or '*') -> malformed genomic ranges!")
+
   } else if(class(bed)[1]=="GRanges") {
-    # Coerce to data.table
+
+    # Coerce to data.table ----
     gr <- GenomicRanges::GRanges(bed)
     check.col <- names(mcols(gr))
     current <- as.data.table(gr)
     # If no 'width' column in mcols, remove it
     if(!length(check.col) || !"width" %in% check.col)
       current$width <- NULL
+
   } else {
     stop("Input format could not be determined. See ?vlite::importBed.")
   }
@@ -138,15 +145,18 @@ importBed <- function(bed, col.names= NULL)
 #' @export
 exportBed <- function(bed, file)
 {
-  # Output type
+  # Output type ----
   type <- gsub(".*[.](.*)$", "\\1", file)
   if(!type %in% c("bed", "narrowPeak", "broadPeak"))
     stop("Path should have .bed, .narrowPeak or .broadPeak extension.")
 
   if(type=="bed") {
+
     # Export using rtracklayer ----
     rtracklayer::export(GenomicRanges::GRanges(bed), file)
+
   } else {
+
     # Custom method for broadPeak/narrowPeak ----
     current <- vlite::importBed(bed)
     # Check if required columns exist
@@ -172,6 +182,7 @@ exportBed <- function(bed, file)
            sep= "\t",
            quote= FALSE,
            na= NA)
+
   }
 }
 
@@ -271,9 +282,6 @@ resizeBed <- function(bed,
 #' @param steps.width Integer specifying the distance between starts of consecutive bins. Used in
 #' combination with bins.width. Default= bins.width, resulting in non-overlapping bins.
 #' Smaller values create overlapping bins.
-#' @param bins.width.min If set to TRUE, only bins matching the size specified in bins.width
-#' are returned. This is useful to exclude shorter bins nearby regions' boundaries.
-#' Default= FALSE.
 #' @param ignore.strand Although bins will always start from the leftmost coordinates, this argument
 #' controls whether bins' indices respect feature's orientation. Default= FALSE (i.e. downstream bins
 #' receive higher indices).
@@ -325,10 +333,9 @@ binBed <- function(bed,
                    genome= NULL,
                    bins.width = NULL,
                    steps.width = bins.width,
-                   bins.width.min= FALSE,
                    ignore.strand= FALSE)
 {
-  # Checks ----
+  # Check method ----
   method <- if(!missing(nbins)) {
     if(nbins %% 1 != 0 | nbins<1) {
       stop("nbins should be an integer >= 1!")
@@ -342,20 +349,13 @@ binBed <- function(bed,
   } else
     stop("nbins or bins.width should be specified!")
   if(center.nbins && method!="nbins")
-    stop("The 'center.nbins' option is only meaningful when 'nbins' is provided.")
+    stop("The 'center.nbins' option only available when 'nbins' is provided.")
   if(any(c("line.idx", "bin.idx") %in% names(bed)))
     warning("'line.idx' or 'bin.idx' column(s) already exist in the input bed and will be overwritten.")
 
   # Import bed for incapsulation ----
   bed <- vlite::importBed(bed)
-
-  # Check if used column name exists ----
-  check.col <- if("res" %in% names(bed)) {
-    new.name <- rev(make.unique(c(names(a), "res")))[1]
-    setnames(bed, "res", new.name)
-    TRUE
-  } else
-    FALSE
+  bed[, line.idx:= .I]
 
   # Resize if bins have to be centered ----
   if(center.nbins) {
@@ -380,28 +380,20 @@ binBed <- function(bed,
                                   step = steps.width)
   }
 
-  # As data.table ----
-  Nbins <- lengths(bins)
-  res <- as.data.table(unlist(bins))
-  res[, line.idx:= rep(seq(nrow(bed)), Nbins)]
+  # Expand list ----
+  cols <- setdiff(names(bed),
+                  c("seqnames", "start", "end", "strand", "line.idx"))
+  res <- bed[, {
+    c(as.data.table(..bins[[line.idx]]), .SD)
+  }, line.idx, .SDcols= cols]
+
+  # Bin indices ----
   res[, bin.idx:= rowid(line.idx)]
   if(!ignore.strand)
     res[strand=="-", bin.idx:= rev(bin.idx), line.idx]
 
-  # Remove short bins ----
-  if(method=="slidingWindow" & !isFALSE(bins.width.min))
-    res <- res[width>=bins.width.min]
-
-  # Add missing any missing column from original bed  ----
-  missing.col <- setdiff(names(bed), names(res))
-  if(length(missing.col)>0)
-    res <- cbind(res, bed[res$line.idx, (missing.col), with= F])
-
   # Order columns and return ----
-  if(check.col)
-    setnames(res, new.name, "res")
-  setcolorder(res,
-              c("line.idx", "bin.idx", "seqnames"))
+  setcolorder(res, c("line.idx", "bin.idx"))
   return(res)
 }
 
@@ -547,10 +539,12 @@ closestBed <- function(a,
   # Find nearest regions (n=1) ----
   if(is.na(k)) {
     closest <- suppressWarnings(
-      GenomicRanges::nearest(GenomicRanges::GRanges(a),
-                             GenomicRanges::GRanges(b),
-                             select= "all",
-                             ignore.strand= ignore.strand)
+      GenomicRanges::nearest(
+        GenomicRanges::GRanges(a),
+        GenomicRanges::GRanges(b),
+        select= "all",
+        ignore.strand= ignore.strand
+      )
     )
     closest <- as.data.table(closest)
     setnames(closest, c("idx.a", "idx.b"))
@@ -566,12 +560,16 @@ closestBed <- function(a,
       .a <- a[seqnames==chr]
       .b <- b[seqnames==chr]
       # Find k nearest neighbors
-      .cl <- GenomicRanges::nearestKNeighbors(GRanges(.a),
-                                              GRanges(.b),
-                                              k= k,
-                                              ignore.strand= ignore.strand)
-      .cl <- data.table(idx.a= rep(seq(.cl), lengths(.cl)),
-                        idx.b= unlist(.cl))
+      .cl <- GenomicRanges::nearestKNeighbors(
+        GRanges(.a),
+        GRanges(.b),
+        k= k,
+        ignore.strand= ignore.strand
+      )
+      .cl <- data.table(
+        idx.a= rep(seq(.cl), lengths(.cl)),
+        idx.b= unlist(.cl)
+      )
       .cl[, idx.a:= .a$idx.a[idx.a]]
       .cl[, idx.b:= .b$idx.b[idx.b]]
       closest[[chr]] <- .cl
@@ -581,9 +579,11 @@ closestBed <- function(a,
   }
 
   # Compute distances ----
-  closest[, dist:= fcase(b$end[idx.b]<a$start[idx.a], b$end[idx.b]-a$start[idx.a],
-                         a$end[idx.a]<b$start[idx.b], b$start[idx.b]-a$end[idx.a],
-                         default = 0L)]
+  closest[, dist:= fcase(
+    b$end[idx.b]<a$start[idx.a], b$end[idx.b]-a$start[idx.a],
+    a$end[idx.a]<b$start[idx.b], b$start[idx.b]-a$end[idx.a],
+    default = 0L
+  )]
 
   # Upstream feature -> neg distance ----
   closest[, dist:= ifelse(a$strand[idx.a]=="-", -dist, dist)]
@@ -632,11 +632,13 @@ covBed <- function(a,
 
   # Compute coverage ----
   cov <- suppressWarnings(
-    GenomicRanges::countOverlaps(query = GRanges(a),
-                                 subject = GRanges(b),
-                                 maxgap = maxgap,
-                                 minoverlap = minoverlap,
-                                 ignore.strand= ignore.strand)
+    GenomicRanges::countOverlaps(
+      query = GRanges(a),
+      subject = GRanges(b),
+      maxgap = maxgap,
+      minoverlap = minoverlap,
+      ignore.strand= ignore.strand
+    )
   )
 
   # Return ----
@@ -692,11 +694,13 @@ overlapBed <- function(a,
 
   # Overlaps ----
   ov <- suppressWarnings(
-    GenomicRanges::findOverlaps(query = GenomicRanges::GRanges(a),
-                                subject = GenomicRanges::GRanges(b),
-                                maxgap = maxgap,
-                                minoverlap = minoverlap,
-                                ignore.strand = ignore.strand)
+    GenomicRanges::findOverlaps(
+      query = GenomicRanges::GRanges(a),
+      subject = GenomicRanges::GRanges(b),
+      maxgap = maxgap,
+      minoverlap = minoverlap,
+      ignore.strand = ignore.strand
+    )
   )
   ov <- as.data.table(ov)
   setnames(ov, c("idx.a", "idx.b"))
@@ -766,33 +770,27 @@ intersectBed <- function(a,
   a <- vlite::importBed(a)
   b <- vlite::importBed(b)
 
-  # Check if used column name exists ----
-  check.col <- if("ov" %in% names(a)) {
-    new.name <- rev(make.unique(c(names(a), "ov")))[1]
-    setnames(a, "ov", new.name)
-    TRUE
-  } else
-    FALSE
-
   # Overlaps ----
-  ov <- suppressWarnings(
-    GenomicRanges::countOverlaps(query = GRanges(a),
-                                 subject = GRanges(b),
-                                 maxgap = maxgap,
-                                 minoverlap = minoverlap,
-                                 ignore.strand= ignore.strand)
+  tmp <- rev(make.unique(c(names(a), "ov")))[1]
+  assign(
+    tmp,
+    GenomicRanges::countOverlaps(
+      query = GRanges(a),
+      subject = GRanges(b),
+      maxgap = maxgap,
+      minoverlap = minoverlap,
+      ignore.strand= ignore.strand
+    )
   )
 
   # Non-intersecting indexes ----
   res <- if(invert) {
-    a[ov==0]
+    a[get(tmp)==0]
   } else {
-    a[ov>0]
+    a[get(tmp)>0]
   }
 
   # Return, preserving original order ----
-  if(check.col)
-    setnames(res, new.name, "ov")
   return(res)
 }
 
@@ -813,7 +811,7 @@ intersectBed <- function(a,
 #'
 #' @examples
 #' # Create example regions
-#' a <- importBed(c("chr1:100-500:-"))
+#' a <- importBed(c("chr1:200-300:-", "chr1:100-500:-"))
 #' b <- importBed(c("chr1:200-300:+", "chr1:400-450:-", "chr1:425-475:-"))
 #'
 #' # Basic example
@@ -832,34 +830,30 @@ subtractBed <- function(a,
   a <- vlite::importBed(a)
   b <- vlite::importBed(b)
 
-  # Check if used column name exists ----
-  check.col <- if("idx.a" %in% names(a)) {
-    new.name <- rev(make.unique(c(names(a), "idx.a")))[1]
-    setnames(a, "idx.a", new.name)
-    TRUE
-  } else
-    FALSE
-
-  # Collapse features to subtract ----
-  res <- suppressWarnings(
-    GenomicRanges::subtract(GenomicRanges::GRanges(a),
-                            GenomicRanges::GRanges(b),
-                            minoverlap= minoverlap,
-                            ignore.strand= ignore.strand)
+  # Subtract features ----
+  sub <- suppressWarnings(
+    GenomicRanges::subtract(
+      GenomicRanges::GRanges(a),
+      GenomicRanges::GRanges(b),
+      minoverlap= minoverlap,
+      ignore.strand= ignore.strand
+    )
   )
-  idx.a <- lengths(res)
-  res <- vlite::importBed(unlist(res))
 
-  # Retrieve extra columns ----
-  missing.cols <- setdiff(names(a), names(res))
-  if(length(missing.cols)) {
-    idx.a <- rep(seq_along(idx.a), idx.a)
-    res <- cbind(res, a[idx.a, (missing.cols), with= F])
-  }
+  # Retrieve row indices from a ----
+  tmp <- rev(make.unique(c(names(a), "idx.a")))[1]
+  assign(
+    tmp,
+    rep(seq(nrow(a)), lengths(sub))
+  )
+
+  # Subtracted result ----
+  res <- cbind(
+    as.data.table(unlist(sub))[, !"width"],
+    a[get(tmp), !c("seqnames", "start", "end", "strand")]
+  )
 
   # Return ----
-  if(check.col)
-    setnames(res, new.name, "idx.a")
   return(res)
 }
 
@@ -897,29 +891,26 @@ clipBed <- function(a,
   a <- vlite::importBed(a)
   b <- vlite::importBed(b)
 
-  # Check if used column name exists ----
-  check.col <- if("ov" %in% names(a)) {
-    new.name <- rev(make.unique(c(names(a), "ov")))[1]
-    setnames(a, "ov", new.name)
-    TRUE
-  } else
-    FALSE
-
   # Collapse regions in b ----
   coll <- collapseBed(b, ignore.strand= ignore.strand)
 
   # Compute overlaps with a ----
-  ov <- vlite::overlapBed(a, coll, ignore.strand= ignore.strand)
+  tmp <- rev(make.unique(c(names(a), "ov")))[1]
+  assign(
+    tmp,
+    vlite::overlapBed(
+      a,
+      coll,
+      ignore.strand= ignore.strand
+    )
+  )
 
   # Resize overlaps ----
-  res <- a[ov$idx.a]
-  res[, idx.a:= ov$idx.a]
-  res[, start:= ov$overlap.start]
-  res[, end:= ov$overlap.end]
+  res <- a[get(tmp)$idx.a]
+  res[, start:= get(tmp)$overlap.start]
+  res[, end:= get(tmp)$overlap.end]
 
   # Return ----
-  if(check.col)
-    setnames(res, new.name, "ov")
   return(res)
 }
 

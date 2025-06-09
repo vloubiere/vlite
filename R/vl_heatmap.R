@@ -128,31 +128,64 @@ vl_heatmap <- function(x,
     rownames(x) <- seq(nrow(x))
 
   # Check clustering parameters values ----
-  if(nrow(x)==1)
+  # Rows
+  if(nrow(x)==1 && isTRUE(cluster.rows))
     cluster.rows <- FALSE
-  if(ncol(x)==1)
-    cluster.cols <- FALSE
-  if(!isTRUE(cluster.rows) & !isFALSE(cluster.rows) & !is.vector(cluster.rows) & !is.factor(cluster.rows)) {
-    cx <- toNumMatrix(cluster.rows)$x
-    if(nrow(cx)!=nrow(x))
-      stop("cluster.rows matrix should have the same number of rows as x.")
-    rownames(cx) <- rownames(x)
-    cluster.rows <- TRUE
+  if(!isTRUE(cluster.rows) && !isFALSE(cluster.rows)) {
+    if(is.vector(cluster.rows))
+      cluster.rows <- factor(cluster.rows)
+    if(is.factor(cluster.rows)) {
+      if(length(cluster.rows) != nrow(x))
+        stop("cluster.rows should match the number of rows in x.")
+    } else if(is.matrix(cluster.rows)) {
+      cx <- toNumMatrix(cluster.rows)$x
+      if(nrow(cx)!=nrow(x))
+        stop("cluster.rows matrix should have the same number of rows as x.")
+      rownames(cx) <- rownames(x)
+      cluster.rows <- TRUE
+    } else
+      stop("cluster.rows format not recognized.")
   }
   if(isTRUE(show.row.clusters))
     show.row.clusters <- "left"
   if(!show.row.clusters %in% c(FALSE, "left", "right"))
     stop("show.row.clusters should be one of TRUE, FALSE, 'left' or 'right'.")
+  # Columns
+  if(ncol(x)==1 && isTRUE(cluster.cols))
+    cluster.cols <- FALSE
+  if(!isTRUE(cluster.cols) && !isFALSE(cluster.cols)) {
+    if(is.vector(cluster.cols))
+      cluster.cols <- factor(cluster.cols)
+    if(is.factor(cluster.cols)) {
+      if(length(cluster.cols) != ncol(x))
+        stop("cluster.cols should match the number of rows in x.")
+    } else
+      stop("cluster.cols format not recognized")
+  }
   if(isTRUE(show.col.clusters))
     show.col.clusters <- "top"
   if(!show.col.clusters %in% c(FALSE, "bottom", "top"))
     stop("show.col.clusters should be one of TRUE, FALSE, 'bottom' or 'top'.")
 
   # Check annotations ----
-  if(!is.null(row.annotations) && length(row.annotations) != nrow(x))
-    stop("row.annotations should be a non-numeric vector of length nrow(x)")
-  if(!is.null(col.annotations) && length(col.annotations) != ncol(x))
-    stop("col.annotations should be a non-numeric vector of length ncol(x)")
+  if(!is.null(row.annotations)){
+    if(is.vector(row.annotations))
+      row.annotations <- factor(row.annotations)
+    if(is.factor(row.annotations)) {
+      if(length(row.annotations) != nrow(x))
+        stop("row.annotations should match the number of rows in x.")
+    } else
+      stop("row.annotations format not recognized.")
+  }
+  if(!is.null(col.annotations)){
+    if(is.vector(col.annotations))
+      col.annotations <- factor(col.annotations)
+    if(is.factor(col.annotations)) {
+      if(length(col.annotations) != ncol(x))
+        stop("col.annotations should match the number of rows in x.")
+    } else
+      stop("col.annotations format not recognized.")
+  }
 
   # Check legend parameters ----
   if(isTRUE(show.legend))
@@ -247,7 +280,7 @@ vl_heatmap <- function(x,
                                distance = clustering.distance.cols,
                                method = clustering.method,
                                cutree = cutree.cols,
-                               kmeans.k = NA,
+                               kmeans.k = NA, # Kmeans not implemented for columns
                                cluster.seed = cluster.seed,
                                cluster.col = col.clusters.col,
                                annot.col = col.annotations.col,

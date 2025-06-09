@@ -25,9 +25,15 @@
 #' }
 #'
 #' @examples
-#'
+#' peaks <- data.table(seqnames= "chr2R",
+#'                     start= seq(1000, 10000, 1000))
+#' peaks[, end:= start+100]
+#' ctl.peaks <- resizeBed(peaks, "end", -100, 200)
+#' enrichBed(peaks = peaks[1:5],
+#'           ctl.peaks = ctl.peaks,
+#'           regions = peaks)
 #' @export
-bedEnrich <- function(peaks,
+enrichBed <- function(peaks,
                       ctl.peaks,
                       regions,
                       pseudocount= 1,
@@ -54,14 +60,13 @@ bedEnrich <- function(peaks,
 
   # Compute enrichment ----
   enr <- rbind(peaks.ov, ctl.peaks.ov)
-  tab <- table(factor(enr$peak, c(TRUE, FALSE)),
-               factor(enr$region, c(TRUE, FALSE)))
+  tab <- table(peaks= factor(enr$peak, c(TRUE, FALSE)),
+               regions= factor(enr$region, c(TRUE, FALSE)))
   p.value <- fisher.test(tab, alternative = "greater")$p.value
   estimate <- fisher.test(tab+pseudocount, alternative = "greater")$estimate
 
   # Return ----
-  return(list(peaks.total= nrow(peaks),
-              peaks.overlaps= sum(peaks.cov),
+  return(list(tab= tab,
               p.value= p.value,
               estimate= estimate))
 }

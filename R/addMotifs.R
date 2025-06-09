@@ -28,9 +28,6 @@ addMotifs <- function(plot.DT,
   if(anyNA(idx))
     stop("Some motifs in plot.DT$motif could not be found in sapply(pwms, TFBSTools::name)")
 
-  # To matrix ----
-  mats <- lapply(pwms[idx], TFBSTools::as.matrix)
-
   # Compute plotting coordinates ----
   lab.width <- strwidth(plot.DT$name, cex= par("cex.axis"))
   space.plot.lab <- diff(grconvertX(c(0, par("mgp")[2]+0.5), "lines", "user"))
@@ -38,7 +35,7 @@ addMotifs <- function(plot.DT,
   mot.right <- par("usr")[1]-lab.left
 
   # Plot motifs ----
-  coor <- addSeqLogo(pwm = mats,
+  coor <- addSeqLogo(pwm = pwms[idx],
                      x = mot.right,
                      y = plot.DT$y,
                      cex.width = cex.width,

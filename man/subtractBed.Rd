@@ -26,7 +26,7 @@ A wrapper around ?GenomicRanges::setdiff that subtracts the regions in b to the 
 }
 \examples{
 # Create example regions
-a <- importBed(c("chr1:100-500:-"))
+a <- importBed(c("chr1:200-300:-", "chr1:100-500:-"))
 b <- importBed(c("chr1:200-300:+", "chr1:400-450:-", "chr1:425-475:-"))
 
 # Basic example

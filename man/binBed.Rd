@@ -11,7 +11,6 @@ binBed(
   genome = NULL,
   bins.width = NULL,
   steps.width = bins.width,
-  bins.width.min = FALSE,
   ignore.strand = FALSE
 )
 }
@@ -32,10 +31,6 @@ Used only when nbins is not specified.}
 \item{steps.width}{Integer specifying the distance between starts of consecutive bins. Used in
 combination with bins.width. Default= bins.width, resulting in non-overlapping bins.
 Smaller values create overlapping bins.}
-
-\item{bins.width.min}{If set to TRUE, only bins matching the size specified in bins.width
-are returned. This is useful to exclude shorter bins nearby regions' boundaries.
-Default= FALSE.}
 
 \item{ignore.strand}{Although bins will always start from the leftmost coordinates, this argument
 controls whether bins' indices respect feature's orientation. Default= FALSE (i.e. downstream bins

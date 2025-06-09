@@ -4,7 +4,7 @@
 #' Identifies the positions of motifs in a set of sequences or genomic regions using a PWMatrixList.
 #'
 #' @param sequences A named character vector of sequences to analyze. This argument takes precedence over the bed argument.
-#' @param bed Genomic ranges in a format compatible with ?importBed(). Used to retrieve sequences if sequences is not provided.
+#' @param bed Genomic ranges in a format compatible with ?importBed, from which genomic sequences will be retrieved when sequences is set to NULL.
 #' @param pwm_log_odds A PWMatrixList (in log2 odds ratio format) containing motifs to map. For example, see "/groups/stark/vloubiere/motifs_db/".
 #' @param genome The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified). This argument is required.
 #' @param bg The background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".
@@ -29,14 +29,14 @@
 #' sel <- vl_Dmel_motifs_DB_full[c("cisbp__M2328", "flyfactorsurvey__suHw_FlyReg_FBgn0003567", "jaspar__MA0533.1"), pwms_log_odds, on= "motif_ID"]
 #'
 #' # Find position of 3 different motifs within two regions
-#' pos1 <- vl_motifPos.data.table(bed= suhw,
-#'                                genome= "dm3",
-#'                                pwm_log_odds= sel,
-#'                                overwrite= FALSE)
+#' pos1 <- vl_motifPos(bed= suhw,
+#'                     genome= "dm3",
+#'                     pwm_log_odds= sel,
+#'                     overwrite= FALSE)
 #'
 #' # Starting from sequence
 #' seq <- getBSsequence(suhw, "dm3")
-#' pos2 <- vl_motifPos(sequence= seq,
+#' pos2 <- vl_motifPos(sequences= seq,
 #'                     genome= "dm3",
 #'                     pwm_log_odds= sel,
 #'                     overwrite= FALSE)
@@ -44,47 +44,37 @@
 #' # Should give similar results
 #' identical(pos1, pos2)
 #'
-#'
 #' @export
-vl_motifPos <- function(sequences = NULL, bed = NULL, ...) {
-  if (!is.null(bed)) {
-    if (!is.data.table(bed)) {
-      bed <- importBed(bed)
-    }
-    return(vl_motifPos.data.table(bed = bed, ...))
-  }
-  vl_motifPos.default(sequences = sequences, ...)
-}
-
-#' @describeIn vl_motifPos Compute motifs position within
-#' @export
-vl_motifPos.data.table <- function(bed, genome, ...)
-{
-  sequences <- getBSsequence(bed, genome)
-  vl_motifPos.default(sequences= sequences,
-                      genome= genome,
-                      ...)
-}
-
-#' @describeIn vl_motifPos Identify motif positions within sequences
-#' @export
-vl_motifPos.default <- function(sequences,
-                                pwm_log_odds= vl_Dmel_motifs_DB_full[collection=="jaspar", pwms_log_odds],
-                                genome,
-                                bg= "genome",
-                                p.cutoff= 5e-5,
-                                pos.strand= FALSE,
-                                collapse.overlapping= FALSE,
-                                scratch= "/scratch-cbe/users/vincent.loubiere/motifs/",
-                                cleanup.cache= FALSE)
+vl_motifPos <- function(sequences,
+                        bed,
+                        pwm_log_odds,
+                        genome,
+                        bg= "genome",
+                        p.cutoff= 5e-5,
+                        pos.strand= FALSE,
+                        collapse.overlapping= FALSE,
+                        scratch= "/scratch-cbe/users/vincent.loubiere/motifs/",
+                        cleanup.cache= FALSE)
 {
   # Checks ----
-  if(bg=="genome" && missing(genome))
-    stop("genome is missing while bg is set to 'genome'")
-  if(is.null(names(sequences)) || anyDuplicated(names(sequences)))
-    stop("All sequences should have a unique name!")
+  if(!missing(sequences) && !missing(bed))
+    warning("sequences are provided -> input bed will not be used.")
+  if(missing(sequences) && missing(bed))
+    stop("sequences of bed regions should be specified.")
+  if(missing(genome) && (missing(sequences) | bg=="genome"))
+    stop("genome is missing with no default.")
   if(!"PWMatrixList" %in% class(pwm_log_odds))
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
+
+  # Get sequences ----
+  if(missing(sequences)) {
+    bed <- importBed(bed)
+    sequences <- getBSsequence(bed, genome)
+  }
+
+  # Make sure sequence names are unique ----
+  if(is.null(names(sequences)) || anyDuplicated(names(sequences)))
+    stop("All sequences should have a unique name!")
 
   # Create tmp output folder ----
   params <- list(sequences,
@@ -125,12 +115,12 @@ vl_motifPos.default <- function(sequences,
 
       parallel::mcmapply(function(mot, output.file)
       {
-        res <- motifmatchr::matchMotifs(mot,
-                                        sequences,
-                                        genome= genome,
-                                        p.cutoff= p.cutoff,
-                                        bg= bg,
-                                        out= "positions")[[1]]
+        res <- motifmatchr::matchMotifs(pwms = mot,
+                                        subject = sequences,
+                                        genome = genome,
+                                        p.cutoff = p.cutoff,
+                                        bg = bg,
+                                        out = "positions")[[1]]
         saveRDS(res, output.file)
       },
       mot= pwm_log_odds[missing.files],

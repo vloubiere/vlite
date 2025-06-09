@@ -111,11 +111,11 @@ cmd_demultiplexVBCfile <- function(vbcFile,
     stop("Layout should be one of 'SINGLE' or 'PAIRED'")
   # Indexes
   i7 <- unique(i7)
-  if(i7!="none" && !all(grepl("^[ATCG]+$", i7)))
+  if(!identical(i7, "none") && !all(grepl("^[ATCG]+$", i7)))
     stop("Some characters in i7 are not one of 'A', 'C', 'G', 'T'")
   i7 <- paste(i7, collapse = ",")
   i5 <- unique(i5)
-  if(i5!="none" && !all(grepl("^[ATCG]+$", i5)))
+  if(!identical(i5, "none") && !all(grepl("^[ATCG]+$", i5)))
     stop("Some characters in i5 are not one of 'A', 'C', 'G', 'T'")
   i5 <- paste(i5, collapse = ",")
   if(length(i7.column)!=1 | length(i5.column)!=1)
