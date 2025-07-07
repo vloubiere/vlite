@@ -21,6 +21,7 @@ rasterScatterplot(
   xaxs = "r",
   yaxs = "r",
   add = F,
+  tmpdir = tempdir(),
   ...
 )
 }
