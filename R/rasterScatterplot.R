@@ -29,6 +29,7 @@ rasterScatterplot <- function(x,
                               xaxs= "r",
                               yaxs= "r",
                               add= F,
+                              tmpdir= tempdir(),
                               ...)
 {
   # Initialize plot ----
@@ -58,7 +59,8 @@ rasterScatterplot <- function(x,
   ratio <- round(c(width, height)/max(c(width, height))*size)
 
   # Save as png ----
-  tmp <- tempfile(fileext = "png")
+  tmp <- tempfile(fileext = ".png",
+                  tmpdir= tmpdir)
   png(tmp,
       width = ratio[1],
       height = ratio[2],
