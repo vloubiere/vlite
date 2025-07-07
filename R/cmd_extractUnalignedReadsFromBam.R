@@ -33,7 +33,7 @@ cmd_exractUnalignedReadsFromBam <- function(bam,
     stop("A unique bam file should be provided.")
 
   # Output files paths ----
-  fq1.unaligned <- file.path(fq.output.folder, gsub(".bam$", "_unaligned.fq", bam))
+  fq1.unaligned <- file.path(fq.output.folder, gsub(".bam$", "_unaligned.fq", basename(bam)))
 
   # Command ----
   cmd <- paste("samtools view -@", cores-1, "-f 4 -b", bam, "| samtools fastq - >", fq1.unaligned)

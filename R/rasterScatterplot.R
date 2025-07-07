@@ -12,27 +12,42 @@
 #' @export
 #'
 #' @examples
-#' vl_rasterScatterplot(1:3)
+#' rasterScatterplot(1:3)
 rasterScatterplot <- function(x,
                               y= NULL,
+                              pch= 16,
+                              col= adjustcolor("grey", .7),
+                              cex= .8,
                               type= "p",
                               frame= F,
                               res= 600L,
                               size= 2000L,
-                              xlab= ifelse(is.null(y), "Index", deparse1(substitute(x))),
-                              ylab= ifelse(is.null(y), deparse1(substitute(x)), deparse1(substitute(y))),
+                              xlab= NULL,
+                              ylab= NULL,
+                              xaxt= "s",
+                              yaxt= "s",
+                              xaxs= "r",
+                              yaxs= "r",
                               add= F,
                               ...)
 {
   # Initialize plot ----
-  if(!add)
+  if(!add) {
     plot(x= x,
          y= y,
          frame= frame,
          type= "n",
          xlab= xlab,
          ylab= ylab,
+         xaxt= "n",
+         yaxt= yaxt,
+         xaxs= xaxs,
+         yaxs= yaxs,
          ...)
+    if(xaxt!="n")
+      axis(1, padj= -1.25)
+  }
+
 
   # Extract plot area in both user and physical coordinates ----
   coords <- par("usr")
@@ -53,12 +68,18 @@ rasterScatterplot <- function(x,
       bg = "transparent")
   par(mar = c(0,0,0,0))
   plot.new()
-  plot.window(coords[1:2],
-              coords[3:4],
-              xaxs = "i",
-              yaxs = "i")
-  points(x= x, y = y, type = type, ...)
-  lines(x= x, y = y, type = type, ...)
+  plot(x= x,
+       y= y,
+       xlim= coords[1:2],
+       ylim= coords[3:4],
+       pch= pch,
+       col= col,
+       cex= cex,
+       type= type,
+       axes= FALSE,
+       xaxs = "i",
+       yaxs = "i",
+       frame= F)
   dev.off()
 
   # Plot png ----

@@ -2,13 +2,14 @@
 
 # Check whether required arguments are provided ----
 args <- commandArgs(trailingOnly=TRUE)
-if(!length(args) %in% 4:5) {  # Fix the condition to match required arguments
+if(!length(args) %in% 5:6) {  # Fix the condition to match required arguments
   stop("Please specify:\n",
        "[required] 1/ Input bam file \n",
        "[required] 2/ Layout ('SINGLE' or 'PAIRED') \n",
-       "[required] 3/ Should the fragments be extended? (TRUE/FALSE) \n",
-       "[required] 4/ bw output file path \n",
-       "[optional] 5/ Integer. Number of nt by which the reads should be extended before computing coverage.")
+       "[required] 3/ Should the output bigwig be CPM normalized? \n",
+       "[required] 4/ Should the fragments be extended? (TRUE/FALSE) \n",
+       "[required] 5/ bw output file path \n",
+       "[optional] 6/ Integer. Number of nt by which the reads should be extended before computing coverage.")
 }
 
 # Load packages ----
@@ -20,9 +21,10 @@ suppressMessages(library(GenomicRanges, warn.conflicts = FALSE))
 # Parse arguments ----
 bam <- args[1]
 layout <- args[2]
-extend.fragment <- args[3]
-bw <- args[4]
-extsize <- ifelse(length(args)==5, args[5], 0)
+libsize.norm <- as.logical(args[3])
+extend.fragment <- as.logical(args[4])
+bw <- args[5]
+extsize <- ifelse(length(args)==6, args[6], 0)
 
 # Input validation
 stopifnot(file.exists(bam))
@@ -86,6 +88,10 @@ gr <- GenomicRanges::GRanges(
   seqlengths = chr_sizes
 )
 
-# Compute coverage and export ----
+# Compute coverage and normalize ----
 cov <- GenomicRanges::coverage(gr)
+if(libsize.norm)
+  cov <- cov/nrow(reads)*1e6
+
+# Export ----
 rtracklayer::export(cov, bw)

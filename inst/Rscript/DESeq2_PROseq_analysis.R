@@ -19,7 +19,7 @@ if (length(args)!=12) {
 }
 
 # Load libraries
-suppressMessages(library(vlfunctions, warn.conflicts = FALSE))
+suppressMessages(library(data.table, warn.conflicts = FALSE))
 suppressMessages(library(DESeq2, warn.conflicts = FALSE))
 
 # Tests ----
@@ -201,7 +201,7 @@ dev.off()
 # Save FC file ----
 FC <- rbindlist(FC)
 setcolorder(FC, c("condition", "control"))
-outputFile <- paste0(FC_output_folder, "/", experiment, "_", feature, "_", norm, "_norm_DESeq2_FC.dds")
+outputFile <- paste0(FC_output_folder, "/", experiment, "_", feature, "_", norm, "_norm_DESeq2_FC.txt")
 fwrite(FC,
        outputFile,
        sep="\t",

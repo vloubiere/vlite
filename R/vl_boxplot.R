@@ -44,7 +44,8 @@ vl_boxplot.default <-
            log = "",
            pars = list(boxwex = ifelse(violin, .2, .4),
                        staplewex = NA,
-                       outwex = NA),
+                       outwex = NA,
+                       outpch= NA),
            horizontal = FALSE,
            add = FALSE,
            at = NULL,
@@ -81,12 +82,12 @@ vl_boxplot.default <-
     # Plot boxplot
     if(plot)
     {
-      boxplot(x, ..., range = range, width = width, varwidth = varwidth,
-              notch = notch, outline = outline,
-              names= if(tilt.names && !horizontal) NA else box$names,
-              plot = plot, border = if(violin) NA else border, col = if(violin) NA else col, log = log,
-              pars = pars, horizontal = horizontal, add = add, at = at,
-              frame= frame, whisklty = if(violin) 0 else whisklty, lwd= lwd, ylim= ylim, xaxt= xaxt)
+      .out <- boxplot(x, ..., range = range, width = width, varwidth = varwidth,
+                      notch = notch, outline = outline,
+                      names= if(tilt.names && !horizontal) NA else box$names,
+                      plot = plot, border = if(violin) NA else border, col = if(violin) NA else col, log = log,
+                      pars = pars, horizontal = horizontal, add = add, at = at,
+                      frame= frame, whisklty = if(violin) 0 else whisklty, lwd= lwd, ylim= ylim, xaxt= xaxt)
       if(violin)
       {
         # Violins
@@ -109,12 +110,26 @@ vl_boxplot.default <-
         })
 
         # Add boxes
-        boxplot(x, ..., range = range, width = width, varwidth = varwidth,
-                notch = notch, outline = outline,
-                names= if(tilt.names && !horizontal) NA else box$names,
-                plot = plot, border = border, col = col, log = log,
-                pars = pars, horizontal = horizontal, add = T, at = at,
-                frame= frame, whisklty = whisklty, lwd= lwd, ylim= ylim, xaxt= "n", yaxt= "n")
+        .out <- boxplot(x, ..., range = range, width = width, varwidth = varwidth,
+                        notch = notch, outline = outline,
+                        names= if(tilt.names && !horizontal) NA else box$names,
+                        plot = plot, border = border, col = col, log = log,
+                        pars = pars, horizontal = horizontal, add = T, at = at,
+                        frame= frame, whisklty = whisklty, lwd= lwd, ylim= ylim, xaxt= "n", yaxt= "n")
+      }
+
+      # Add outliers
+      if(outline && length(.out$out)) {
+        x.out <- if(!missing(at))
+          at[.out$group] else
+            .out$group
+        set.seed(1)
+        x.out <- jitter(x.out, amount = pars$boxwex/2)
+        points(x.out,
+               .out$out,
+               col= adjustcolor("lightgrey", .4),
+               pch= 19,
+               cex= .6)
       }
 
       # Plot pval

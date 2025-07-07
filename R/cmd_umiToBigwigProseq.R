@@ -1,10 +1,12 @@
 #' Convert UMI Counts to BigWig Format for PRO-Seq Data
 #'
 #' @description
-#' Creates shell commands to convert UMI counts from PRO-Seq data into positive strand and negative strand BigWig files.
+#' Creates shell commands to convert UMI counts from PRO-Seq data into positive strand and negative
+#' strand, CPM=-normalized bigwig files.
 #'
 #' @param umi.counts Path to the input UMI counts file. Only a single file is allowed.
-#' @param output.prefix Prefix for the output BigWig files. If not provided, it is derived from the input UMI counts filename.
+#' @param output.prefix Prefix for the output BigWig files. If not provided, it is derived from the
+#' input UMI counts filename.
 #' @param bw.output.folder Directory for the BigWig files. Default= "db/bw/".
 #' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
@@ -42,7 +44,7 @@ cmd_umiToBigwigProseq <- function(umi.counts,
     Rpath,
     system.file("Rscript", "umiToBigwigProseq.R", package = "vlite"),
     umi.counts,
-    output.prefix
+    file.path(bw.output.folder, output.prefix)
   )
 
   # Wrap commands output ----

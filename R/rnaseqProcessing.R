@@ -12,8 +12,10 @@
 #' @param output.prefix Prefix for output files.
 #' @param genome Reference genome identifier (e.g., "mm10", "hg38").
 #' @param genome.idx Path to the Rsubread genome index. If NULL, derived from genome. Default= NULL.
-#' @param gtf Path to the GTF annotation file. If genome is provided, corresponding protein-coding / mRNA genes will be used. Default= NULL.
-#' @param GTF.attrType.extra Additional GTF attribute to include in the output (e.g., gene symbol).
+#' @param annotation.file Path to a '.gtf', '.gtf.gz' or '.saf' annotation file. If genome is specified,
+#' the corresponding gtf file will be used. SAF format should contain: GeneID, Chr, Start, End, Strand. Default= NULL.
+#' @param GTF.attrType.extra Additional GTF attribute to include in the output (e.g., gene symbol). Default= NULL.
+#' @param allowMultiOverlap If a read overlaps more than one feature, should be assigned to all overlapping features? Default= FALSE.
 #' @param fq.output.folder Directory for trimmed FASTQ files. Default= "db/fq/RNASeq/".
 #' @param bam.output.folder Directory for aligned BAM files. Default= "db/bam/RNASeq/".
 #' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/RNASeq/".
@@ -45,22 +47,15 @@
 #'
 #' # Then, differential analysis should be performed using ?cmd_DESeq2()
 #'
-#' @seealso
-#' \itemize{
-#'   \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
-#'   \item \code{\link{cmd_alignRsubread}} for alignment
-#'   \item \code{\link{cmd_countRsubread}} for gene counting
-#'   \item \code{\link{cmd_bamToBigwig}} for BigWig track generation
-#' }
-#'
 #' @export
 rnaseqProcessing <- function(fq1,
                              fq2= NULL,
                              output.prefix,
                              genome,
                              genome.idx= NULL,
-                             gtf= NULL,
-                             GTF.attrType.extra,
+                             annotation.file= NULL,
+                             GTF.attrType.extra= NULL,
+                             allowMultiOverlap= FALSE,
                              fq.output.folder= "db/fq/RNASeq/",
                              bam.output.folder= "db/bam/RNASeq/",
                              alignment.stats.output.folder= "db/alignment_stats/RNASeq/",
@@ -98,7 +93,8 @@ rnaseqProcessing <- function(fq1,
                                  layout= ifelse(is.null(fq2), "SINGLE", "PAIRED"),
                                  output.prefix = NULL, # bam file basename
                                  genome= genome,
-                                 gtf= gtf,
+                                 annotation.file= annotation.file,
+                                 allowMultiOverlap = allowMultiOverlap,
                                  GTF.attrType.extra= GTF.attrType.extra,
                                  counts.stats.output.folder= counts.stats.output.folder,
                                  counts.output.folder= counts.output.folder,
@@ -111,6 +107,7 @@ rnaseqProcessing <- function(fq1,
                             layout = ifelse(is.null(fq2), "SINGLE", "PAIRED"),
                             output.prefix = NULL, # bam file basename
                             extend.PE.fragments = FALSE,
+                            libsize.normalize = TRUE,
                             extsize = 0,
                             bw.output.folder = bw.output.folder,
                             Rpath = Rpath,

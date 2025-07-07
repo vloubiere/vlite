@@ -29,7 +29,8 @@ vl_boxplot(x, ...)
   border = par("fg"),
   col = NULL,
   log = "",
-  pars = list(boxwex = ifelse(violin, 0.2, 0.4), staplewex = NA, outwex = NA),
+  pars = list(boxwex = ifelse(violin, 0.2, 0.4), staplewex = NA, outwex = NA, outpch =
+    NA),
   horizontal = FALSE,
   add = FALSE,
   at = NULL,

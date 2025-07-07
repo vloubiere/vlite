@@ -9,6 +9,7 @@ cmd_confidentPeaks(
   merge.peaks.file,
   output.prefix,
   conf.peaks.output.folder = "db/peaks/",
+  pdf.output.folder = "db/peaks/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
 )
 }
@@ -20,6 +21,8 @@ cmd_confidentPeaks(
 \item{output.prefix}{Prefix for the output file.}
 
 \item{conf.peaks.output.folder}{Directory for the confident peaks file. Default= "db/peaks/".}
+
+\item{pdf.output.folder}{Directory for the pdf containing diagnostic plots. Default= "db/peaks/".}
 
 \item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }

@@ -14,6 +14,7 @@
 #' @param xaxt See ?par(). Default= "s".
 #' @param yaxt See ?par(). Default= "s".
 #' @param gap.axis See ?par(). Default= 0
+#' @param positive.only If set to TRUE, only positive values are shownd. Default= FALSE.
 #' @examples
 #' color.var <- size.var <- matrix(-3:5, ncol= 3)
 #' rownames(size.var) <- c("r1", "r2", "r3")
@@ -31,6 +32,7 @@ balloons_plot <- function(size.var,
                           xlab= NULL,
                           ylab= NULL,
                           gap.axis= 0,
+                          positive.only= FALSE,
                           legend.left.pos= NULL,
                           size.legend.title= "Size",
                           size.legend.breaks= NULL,
@@ -43,6 +45,12 @@ balloons_plot <- function(size.var,
     } else {
       seq(ncol(size.var))
     }
+  }
+
+  # Remove negative values ----
+  if(positive.only) {
+    color.var[size.var<0] <- NA
+    size.var[size.var<0] <- NA
   }
 
   # Default color.breaks ----
@@ -79,8 +87,12 @@ balloons_plot <- function(size.var,
        type= "n",
        xaxt= "n",
        yaxt= "n",
+       xlim= c(0.5, ncol(size.var)+0.5),
+       ylim= c(0.5, nrow(size.var)+0.5),
        xlab= NA,
        ylab= NA,
+       xaxs= "i",
+       yaxs= "i",
        frame= FALSE)
 
   # Lines ----
@@ -109,8 +121,8 @@ balloons_plot <- function(size.var,
   points(x,
          y,
          col= b.col,
-         pch= ifelse(sizes>0, 19, 15),
-         cex= abs(sizes)*cex, # Multiply by expansion factor
+         pch= ifelse(sizes>=0, 19, 15), # Positive values round, neg are squared
+         cex= abs(sizes*cex)+.1, # Multiply by expansion factor and avoid 0
          xpd= T)
 
   # Axes ----
@@ -144,7 +156,7 @@ balloons_plot <- function(size.var,
   # Compute size breaks (only affects the legend) ----
   if(is.null(size.legend.breaks)) {
     size.legend.breaks <- range(unlist(size.var), na.rm= TRUE)
-    size.legend.breaks <- axisTicks(size.legend.breaks, log= F, nint = 4)
+    size.legend.breaks <- axisTicks(size.legend.breaks, log= F)
   }
 
   # Add sizes legend ----

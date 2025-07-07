@@ -138,6 +138,8 @@ cmd_demultiplexVBCfile <- function(vbcFile,
   if(missing(output.prefix)) {
     output.prefix <- paste0(gsub(".bam$|.tar.gz$", "", basename(vbcFile)),
                             "_", gsub(",", ".", i7), "_", gsub(",", ".", i5))
+    if(!is.null(proseq.eBC))
+      output.prefix <- paste0(output.prefix, "_eBC", proseq.eBC)
   }
 
   # Output files paths ----

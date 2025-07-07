@@ -14,7 +14,8 @@ cmd_umiToBigwigProseq(
 \arguments{
 \item{umi.counts}{Path to the input UMI counts file. Only a single file is allowed.}
 
-\item{output.prefix}{Prefix for the output BigWig files. If not provided, it is derived from the input UMI counts filename.}
+\item{output.prefix}{Prefix for the output BigWig files. If not provided, it is derived from the
+input UMI counts filename.}
 
 \item{bw.output.folder}{Directory for the BigWig files. Default= "db/bw/".}
 
@@ -28,7 +29,8 @@ A data.table with:
 - `job.name`: Default name for the job = "umiToBwProseq".
 }
 \description{
-Creates shell commands to convert UMI counts from PRO-Seq data into positive strand and negative strand BigWig files.
+Creates shell commands to convert UMI counts from PRO-Seq data into positive strand and negative
+strand, CPM=-normalized bigwig files.
 }
 \examples{
 # Convert UMI counts to BigWig files for PRO-Seq data

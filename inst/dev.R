@@ -96,6 +96,7 @@ if(F) {
 
   # Average tracks and heatmap
   file.edit("R/bwAverageTrack.R")
+  file.edit("R/plot.bwAverageTrack.R")
   file.edit("R/bwHeatmap.R")
 }
 
@@ -163,8 +164,12 @@ if(F) {
   # CUT&RUN -----------------------
   # Pipeline
   file.edit("R/cutnrunProcessing.R")
+  # QC
+  file.edit("inst/Rscript/cutnrunQC.R") # R subscript
+  file.edit("R/cmd_cutnrunQC.R") # Wrapper
   # MACS2 peak calling
   file.edit("R/cmd_peakCalling.R") # Wrapper
+  # Confident peaks
   file.edit("R/cmd_confidentPeaks.R") # Wrapper
   file.edit("inst/Rscript/confident_peaks.R") # R subscript
   # Home made peak caller
@@ -207,6 +212,9 @@ if(F) {
   # log2 Ratio bigwig
   file.edit("R/cmd_logRatioBigwig.R") # Wrapper
   file.edit("inst/Rscript/logRatioBigwig.R") # R subscript
+
+  # sc-RNA-Seq ---------------------
+  file.edit("R/cmd_alignCellRanger.R")
 }
 
 # Plots --------------------------------
@@ -260,7 +268,7 @@ if(F) {
 
   # Scatterplot
   file.edit("R/rasterScatterplot.R")
-  file.edit("R/densityScatterplot.R")
+  file.edit("R/addDensity.R")
 
   # Add repel labels (imperfect, but the best I can do)
   file.edit("R/helperFunctionRepelLabels.R")

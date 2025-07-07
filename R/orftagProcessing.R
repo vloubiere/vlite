@@ -12,8 +12,9 @@
 #' @param genome Reference genome identifier (e.g., "mm10", "hg38").
 #' @param genome.idx Path to the Bowtie2 genome index. If NULL, derived from genome. Default= NULL.
 #' @param gtf Path to the GTF annotation file. Default= NULL.
-#' @param compute.ins.cov If set to TRUE, the number of supporting reads for each insertion will be reported
-#' in the collapsed bed and count output files (in columns 'score' and 'ins_cov', respectively). Default= FALSE.
+#' @param compute.ins.cov If set to TRUE (default), the number of supporting reads for each insertion will be reported
+#' in the collapsed bed and count output files (in columns 'score' and 'ins_cov', respectively). If set to FALSE,
+#' counting will be a bit faster.
 #' @param fq.output.folder Directory for trimmed FASTQ files. Default= "db/fq/ORFtag/".
 #' @param bam.output.folder Directory for aligned BAM files. Default= "db/bam/ORFtag/".
 #' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/ORFtag/".
@@ -56,7 +57,7 @@ orftagProcessing <- function(fq1,
                              genome,
                              genome.idx= NULL,
                              gtf= NULL,
-                             compute.ins.cov= FALSE,
+                             compute.ins.cov= TRUE,
                              fq.output.folder= "db/fq/ORFtag/",
                              bam.output.folder= "db/bam/ORFtag/",
                              alignment.stats.output.folder= "db/alignment_stats/ORFtag/",

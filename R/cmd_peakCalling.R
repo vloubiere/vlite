@@ -114,13 +114,10 @@ cmd_peakCalling <- function(bam,
                                Rpath = Rpath)
 
   # Wrap commands output ----
-  cmd <- rbind(
-    data.table(file.type= c("peaks", "bedgraph"),
-               path= c(peaks.file, bdg.file),
-               cmd= cmd),
-    cmd1,
-    fill= TRUE
-  )
+  cmd <- data.table(file.type= c("peaks", "bedgraph"),
+                    path= c(peaks.file, bdg.file),
+                    cmd= cmd)
+  cmd <- rbind(cmd, cmd1, fill= TRUE)
 
   # Return ----
   cmd$job.name <- "MACS2"

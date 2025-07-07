@@ -71,7 +71,7 @@ heatkey <- function(breaks,
   if(is.null(labels))
     labels <- axisTicks(range(breaks),
                         log= F,
-                        nint = 3)
+                        nint = 4)
   if(length(labels)!=length(col) && !is.numeric(labels))
     stop("labels should either be the length of col vector or be numeric.")
   if(is.numeric(labels))
@@ -126,7 +126,9 @@ heatkey <- function(breaks,
 
   # Add title ----
   text(x = ifelse(position=="top", mean(pos), xleft[1])+xadj,
-       y = rev(ytop)[1]+ifelse(position=="top", line.height*0.75*cex, line.height*cex/2)+yadj,
+       y = rev(ytop)[1]+ifelse(position=="top",
+                               line.height*0.75*cex,
+                               line.height*cex/2)+yadj,
        labels = main,
        pos = ifelse(position=="top", 3, 4),
        cex = cex,

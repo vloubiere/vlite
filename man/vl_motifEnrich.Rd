@@ -4,7 +4,13 @@
 \alias{vl_motifEnrich}
 \title{Motif enrichment analysis}
 \usage{
-vl_motifEnrich(counts, control.counts, names = NULL, log2OR.pseudocount = 1L)
+vl_motifEnrich(
+  counts,
+  control.counts,
+  names = NULL,
+  log2OR.pseudocount = 1L,
+  countFUN = function(motifCount) sum(motifCount >= 1)
+)
 }
 \arguments{
 \item{counts}{A data.table or a list of data.tables containing motif counts for the regions of interest.}
@@ -17,6 +23,10 @@ By default, column names are used as is.}
 
 \item{log2OR.pseudocount}{Numeric. A pseudocount added to the contingency table to avoid infinite values
 in the log2 odds ratio calculation. Default= 1L.}
+
+\item{countFUN}{The function to be used for each motif, in order to compute the number of positive sequences.
+By default, a sequence will be considered positive if it contains at least one motif.
+Default= function(motifCount) sum(motifCount>=1).}
 }
 \value{
 DT of enrichment values which can be plot using ?plot.vl_GO_enr

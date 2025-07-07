@@ -14,6 +14,7 @@ balloons_plot(
   xlab = NULL,
   ylab = NULL,
   gap.axis = 0,
+  positive.only = FALSE,
   legend.left.pos = NULL,
   size.legend.title = "Size",
   size.legend.breaks = NULL,
@@ -37,6 +38,8 @@ or a sequential viridis-like palette.}
 \item{main}{Title. Default= NA}
 
 \item{gap.axis}{See ?par(). Default= 0}
+
+\item{positive.only}{If set to TRUE, only positive values are shownd. Default= FALSE.}
 
 \item{xaxt}{See ?par(). Default= "s".}
 

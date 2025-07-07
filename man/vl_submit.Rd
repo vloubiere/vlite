@@ -7,10 +7,18 @@
 vl_submit(
   cmd,
   cores,
-  mem = 16,
-  time = "08:00:00",
+  mem,
+  time,
   job.name,
-  logs = "db/logs",
+  logs,
+  modules = c("module load build-env/2020",
+    "module load cutadapt/1.18-foss-2018b-python-2.7.15",
+    "module load trim_galore/0.6.0-foss-2018b-python-2.7.15",
+    "module load samtools/1.9-foss-2018b", "module load bowtie/1.2.2-foss-2018b",
+    "module load bowtie2/2.3.4.2-foss-2018b",
+    "module load macs2/2.1.2.1-foss-2018b-python-2.7.15",
+    "module load mageck/0.5.9-foss-2018b",
+    "module load macs2/2.1.2.1-foss-2018b-python-2.7.15"),
   overwrite = FALSE,
   execute = TRUE
 )
@@ -21,24 +29,26 @@ vl_submit(
 - `path`: Path to the output file.
 - `cmd`: Shell command to execute.
 - `cores`: (Optional) The number of CPU cores to allocate to the job, specified by the first value.
-- `job.name`: (Optional) The name of the job, specified by the first value in this column.}
+- `mem`: (Optional) Memory allocation in GB.
+- `time`: (Optional) Maximum runtime for the job (HH:MM:SS).
+- `job.name`: (Optional) The name of the job, specified by the first value in this column.
+- `logs`: (Optional) Directory for log files.}
 
-\item{cores}{Number of CPU cores to allocate. If not specified, the first value of the optional
-'core' column will be used. Otherwise, default= 8.}
+\item{cores}{Number of CPU cores to allocate. If not specified, the first value of cmd$cores column will be used. Default= 8.}
 
-\item{mem}{Memory allocation in GB. Default= 16.}
+\item{mem}{Memory allocation in GB. If not specified, the first value of cmd$mem column will be used. Default= 32.}
 
-\item{time}{Maximum runtime for the job (HH:MM:SS). Default= '08:00:00'.}
+\item{time}{Maximum runtime for the job (HH:MM:SS). If not specified, the first value of cmd$time column will be used. Default= '08:00:00'.}
 
-\item{job.name}{Name of the job. If not specified, the first value of the optional 'job.name'
-column will be used. otherwise, default= "myJob".}
+\item{job.name}{Name of the job. If not specified, the first value of cmd$job.name column will be used. Default= "myJob".}
 
-\item{logs}{Directory for log files. Default: 'db/logs'.}
+\item{logs}{Directory for log files. If not specified, the first value of cmd$job.name column will be used. Default= 'db/logs'.}
+
+\item{modules}{A character vector of modules to be loaded before executing the command. By default, the most used modules are loaded.}
 
 \item{overwrite}{If set to TRUE, overwrites existing output files. Default= FALSE.}
 
-\item{execute}{If set to FALSE, the command is returned and is not submitted to the cluster.
-Default= TRUE.}
+\item{execute}{If set to FALSE, the command is returned and is not submitted to the cluster. Default= TRUE.}
 }
 \description{
 Submits shell commands to a server using resource management (e.g., LSF). Handles job submission,

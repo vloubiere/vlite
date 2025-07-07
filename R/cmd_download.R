@@ -1,7 +1,9 @@
 #' Download files
 #'
 #' @param url URL to download
-#' @param file.typename The output file name (default= keep url basename).
+#' @param output.name The output file name (default= keep url basename).
+#' @param submit If set to TRUE, the command will directly be submitted. If set to FALSE,
+#' a 'cmd' object compatible with ?vl_submit will be returned. Default= TRUE.
 #' @param output.folder Path where the output file will be saved.
 #' @param output.file.type The type of output file (fq...). Default= NA.
 #' @param gzip Should the output file be gzipped? Default= FALSE
@@ -19,6 +21,7 @@
 #' @export
 cmd_download <- function(url,
                          output.name= basename(url),
+                         submit= TRUE,
                          output.folder,
                          output.file.type= NA,
                          gzip= FALSE)
@@ -45,6 +48,11 @@ cmd_download <- function(url,
                     cmd= cmd,
                     job.name= "download")
 
-  # Return
-  return(cmd)
+  # Submit or return command ----
+  if(submit) {
+    vl_submit(cmd, cores = 1, mem = 1, job.name = "dl", logs = "~/")
+  } else {
+    # Return
+    return(cmd)
+  }
 }

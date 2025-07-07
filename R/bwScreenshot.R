@@ -11,9 +11,9 @@
 #'   \item BigWig (.bw) files for continuous signal tracks
 #'   \item BED files for discrete regions (any format compatible with importBed)
 #' }
-#' @param col Colors for tracks. Default is a grey gradient from grey60 to grey10.
 #' @param track.names Function or character vector for track labels. Default extracts names
 #'   from file basenames.
+#' @param col Colors for tracks. Default is a grey gradient from grey60 to grey10.
 #' @param bw.max Numeric. Maximum signal value for BigWig tracks. Values above this
 #'   will be clipped. Default (NA) uses track maximum.
 #' @param bw.n.breaks The number of breaks to which the signal will be simplified, to avoid polygon vector with too many points.
@@ -86,8 +86,10 @@
 #' @export
 bwScreenshot <- function(bed,
                          tracks= character(),
-                         col= colorRampPalette(c("grey60", "grey10"))(length(tracks)),
                          track.names= function(x) gsub("(.*)[.].*$", "\\1", x),
+                         col= colorRampPalette(c("grey60", "grey10"))(length(tracks)),
+                         border.col= NA,
+                         border.lwd= .5,
                          bw.max= NA,
                          bw.min= NA,
                          bw.n.breaks= 100,
@@ -155,7 +157,7 @@ bwScreenshot <- function(bed,
     meta[track.class=="bw", c("track.cutoff.min", "track.cutoff.max"):= .(bw.min, bw.max)]
     # Add plot limits
     meta[, ytop:= rev(cumsum(rev(track.height+space.height)))]
-    if(exists("genes") && nrow(genes)>0) # Adjust if genes are plotted
+    if(exists("genes", inherits= FALSE) && nrow(genes)>0) # Adjust if genes are plotted
       meta[, ytop:= ytop+max(genes$ytop)+gene.space.height]
     meta[, ybottom:= ytop-track.height]
   }
@@ -165,7 +167,7 @@ bwScreenshot <- function(bed,
   {
     # y maximum limit
     y.max <- if(nrow(meta))
-      max(meta$ytop) else if(exists("genes"))
+      max(meta$ytop) else if(exists("genes", inherits= F))
         max(genes$ytop) else
           0
     # Empty plot
@@ -186,7 +188,7 @@ bwScreenshot <- function(bed,
     axis(1,
          at = (xleft+xright)/2,
          labels = .name,
-         tcl= 0)
+         tick = FALSE)
   }, (regions)]
 
   # Plot tracks if specified ----
@@ -212,15 +214,40 @@ bwScreenshot <- function(bed,
                              track.file= track.file[1],
                              track.col= track.col[1],
                              track.height= track.height[1],
-                             track.name= track.name,
+                             track.name= track.name[1],
                              ybottom= ybottom[1],
-                             ytop= ytop[1])
+                             ytop= ytop[1],
+                             border.col= border.col,
+                             border.lwd= border.lwd)
       }
       .SD
     }, track.idx]
 
+  # Plot scale bar ----
+  regions[, {
+    # Compute ideal scale bar
+    bar <- 10^floor(log10(width))
+    x0 <- xright-(bar/width*(xright-xleft))
+    segments(x0,
+             par("usr")[4],
+             xright[1],
+             par("usr")[4],
+             xpd= T)
+    # Simplif label
+    bar <- if(bar>1e3)
+      paste0(bar/1000, "kb") else if(bar>1e6)
+        paste0(bar/1000, "Mb") else
+          paste(bar, "bp")
+    text((x0+xright)/2,
+         par("usr")[4],
+         bar,
+         pos= 3,
+         xpd= T)
+  }, .(width, xright)]
+
+
   # Plot genes if genome specified ----
-  if(exists("genes") && nrow(genes)>0)
+  if(exists("genes", inherits = F) && nrow(genes)>0)
   {
     .screenshotGtfMethod(regions= regions,
                          genes= genes,

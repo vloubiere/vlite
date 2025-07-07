@@ -2,74 +2,78 @@
 % Please edit documentation in R/vl_barplot.R
 \name{vl_barplot}
 \alias{vl_barplot}
-\title{Barplot allowing to add points and sd}
+\title{Barplot}
 \usage{
 vl_barplot(
-  height,
-  individual.var = NULL,
-  show.sd = !is.null(individual.var),
-  bar.top.labels = NULL,
-  compute.bar.diff = NULL,
+  x,
+  names.arg = NULL,
+  top.labels = NULL,
+  show.sd = TRUE,
+  show.points = TRUE,
+  beside = FALSE,
   xlim = NULL,
   ylim = NULL,
   tilt.names = TRUE,
-  individual.var.pch = 16,
-  individual.var.col = adjustcolor("lightgrey", 0.7),
-  individual.var.jitter = 0.2,
-  individual.var.cex = 0.5,
+  top.labels.cex = 0.7,
   sd.arrow.lwd = 0.5,
-  sd.arrow.length = ifelse(length(height) > 1, diff(bar[c(1, 2)])/8, 0.2),
-  bar.top.labels.cex = 0.7,
-  compute.bar.diff.digits = 2,
-  compute.bar.diff.cex = 0.8,
-  xpd = NA,
-  horiz = F,
+  sd.arrow.length = ifelse(length(x) > 1, diff(bar[c(1, 2)])/8, 0.2),
+  pch = 16,
+  pch.col = adjustcolor("grey20", 0.7),
+  pch.cex = 0.5,
+  pch.jitter = 0.2,
   xaxt = "s",
-  names.arg = names(height),
+  width = 0.6,
+  space = NULL,
+  horiz = FALSE,
   ...
 )
 }
 \arguments{
-\item{height}{A vector of values describing the bars which make up the plot.}
+\item{x}{A vector, matrix, data.frame, or a list of numeric variables to plot.}
 
-\item{individual.var}{List of individual variables to be plotted as points.}
+\item{names.arg}{Names to plot on the x-axis.}
 
-\item{show.sd}{Should sd from individual var be shown as whiskers around bars?}
+\item{top.labels}{Labels to plot on the top of each bar.}
 
-\item{bar.top.labels}{Labels to be shown on the top or each bar.}
+\item{show.sd}{If x is a list, should the SD be shown? Default = TRUE.}
 
-\item{compute.bar.diff}{List of pairwise bar pairs to be compared (V2/V11 ratio)}
+\item{show.points}{If x is a list, should the points be shown? Default = TRUE.}
 
-\item{individual.var.pch}{pch value for individual variables}
+\item{beside}{If TRUE and x is a matrix or data.frame, bars are juxtaposed. Default = FALSE (stacked bars).}
 
-\item{individual.var.col}{color value for individual variables}
+\item{xlim}{X-axis limits. Default = NULL.}
 
-\item{individual.var.jitter}{jitter value for individual variables}
+\item{ylim}{Y-axis limits. Default = NULL.}
 
-\item{individual.var.cex}{cex factor for points}
+\item{tilt.names}{Should bar names be tilted? Default = TRUE.}
 
-\item{sd.arrow.lwd}{Line width of sd arrows Default= .5.}
+\item{top.labels.cex}{Expansion factor for top.labels.}
 
-\item{sd.arrow.length}{Length of sd arrow length. defaults to 1/8 of distance between bar centers.}
+\item{sd.arrow.lwd}{Line width of SD arrows. Default = 0.5.}
 
-\item{bar.top.labels.cex}{Expansion factor for bar.top.labels.}
+\item{sd.arrow.length}{Length of SD arrows. Defaults to 1/8 of the distance between bar centers.}
 
-\item{compute.bar.diff.digits}{Number of compute.bar.diff.digits for the computed diff. Default= 2}
+\item{pch}{Plotting character for points. Default = 16.}
 
-\item{compute.bar.diff.cex}{cex value for pairwise comparisons}
+\item{pch.col}{Color for points.}
 
-\item{xpd}{xpd value for individual.var, sd, pairwaise comparisons...}
+\item{pch.cex}{Expansion factor for points.}
 
-\item{horiz}{Not supported atm}
+\item{pch.jitter}{Jitter amount for points. Default = 0.2.}
 
-\item{...}{Extra arguments to be passed to barplot}
+\item{xaxt}{If tilt.names is set to FALSE, style to be used for the x-axis. Default = "s".}
+
+\item{horiz}{Not supported at the moment.}
+
+\item{...}{Additional arguments passed to \code{barplot()}.}
 }
 \value{
-A simple barplot
+A barplot.
 }
 \description{
-Barplot allowing to add points and sd
+A wrapper around barplot with nicer default settings, allowing input as a list to show both SD and/or individual points.
 }
 \examples{
-vl_barplot(1:3, rep(.2, 3))
+vl_barplot(list(1:3, 5:8), top.labels = c("A", "B"), show.sd = FALSE)
+vl_barplot(matrix(1:6, ncol = 2), top.labels = c("A", "B"), beside = TRUE)
 }

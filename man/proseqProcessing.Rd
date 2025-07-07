@@ -19,7 +19,9 @@ proseqProcessing(
   counts.stats.output.folder = "db/stats/PROSeq/",
   bw.output.folder = "db/bw/PROSeq/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
-  cores = 8
+  cores = 8,
+  mem = 64,
+  time = "2-00:00:00"
 )
 }
 \arguments{
@@ -52,6 +54,10 @@ proseqProcessing(
 \item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 
 \item{cores}{Number of CPU cores to use. Default= 8.}
+
+\item{mem}{Memory to use. Default= 64.}
+
+\item{time}{Max time for job. Default= '2-00:00:00'.}
 }
 \value{
 A data.table with:

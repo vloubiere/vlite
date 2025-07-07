@@ -17,6 +17,9 @@ importContrib(
 \item{bed}{Bed file(s) containing the regions for which contributions were computed. By default, the file is searched in the same folder as the h5 file.}
 
 \item{fa}{fasta file(s) containing the sequences for which contributions were computed. By default, the file is searched in the same folder as the h5 file.}
+
+\item{FUN}{The function to apply to each layer of the h5 object to retrieve the contribution scores. By default, each layer is a
+matrix of dimensions nchar(sequence)*4. Thus, default= function(x) rowSums(x).}
 }
 \value{
 A contribution data.table containing, for each region, the contribution scores (as list) and the corresponding sequence.
@@ -25,6 +28,8 @@ A contribution data.table containing, for each region, the contribution scores (
 Import contributions object
 }
 \examples{
-dat <- importContrib(h5= list.files("db/model_PH18/contributions/", "h5$", recursive = TRUE, full.names = TRUE))
+folder <- "/groups/stark/vloubiere/projects/epiDeepCancer/db/model_PH18/contributions/"
+files <- list.files(folder, "h5$", recursive = TRUE, full.names = TRUE)
+dat <- importContrib(h5= files)
 
 }

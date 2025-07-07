@@ -40,7 +40,7 @@ addSeqLogo <- function(pwm,
   classes <- unique(sapply(pwm, class))
   if(length(classes)>1)
     stop(paste("Several classes found in pwm:", paste0(classes, collapse = ";")))
-  if(class(pwm)=="PWMatrixList" | classes=="PWMatrix")
+  if(class(pwm) %in% c("PFMatrixList", "PWMatrixList") | classes=="PWMatrix")
     pwm <- lapply(pwm, TFBSTools::as.matrix)
 
   # Make object and index
@@ -52,8 +52,11 @@ addSeqLogo <- function(pwm,
 
   # For each base, compute xleft, xright, ytop, ybottom
   pl <- obj[, {
-    # Import PWM and melt
-    .c <- as.data.table(pwm[[1]], keep.rownames= "base")
+    # Import PWM and remove potential colnames
+    .c <- pwm[[1]]
+    colnames(.c) <- NULL
+    # Melt
+    .c <- as.data.table(.c, keep.rownames= "base")
     .c <- melt(.c, id.vars = "base")
     # Compute Information Content
     .c[, IC := 2 + sum(ifelse(value > 0, value * log2(value), 0)), by = variable]
@@ -84,11 +87,11 @@ addSeqLogo <- function(pwm,
 
   # Plot
   pl[, plotDNAletter(
-    base[1],
-    xleft[1],
-    ytop[1],
-    width[1],
-    height[1]
+    letter = base[1],
+    xleft = xleft[1],
+    ytop = ytop[1],
+    width = width[1],
+    height= height[1]
   ), .(base, xleft, ytop, width, height)]
 
   # Return object containing limits of each motif

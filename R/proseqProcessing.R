@@ -22,6 +22,8 @@
 #' @param bw.output.folder Directory for BigWig files. Default= "db/bw/PROSeq/".
 #' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #' @param cores Number of CPU cores to use. Default= 8.
+#' @param mem Memory to use. Default= 64.
+#' @param time Max time for job. Default= '2-00:00:00'.
 #'
 #' @return A data.table with:
 #' - `file.types`: Types of output files.
@@ -68,11 +70,12 @@ proseqProcessing <- function(fq1,
                              counts.stats.output.folder= "db/stats/PROSeq/",
                              bw.output.folder= "db/bw/PROSeq/",
                              Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
-                             cores= 8)
+                             cores= 8,
+                             mem= 64,
+                             time= '2-00:00:00')
 {
   # Trimming illumina adaptors ----
   cmd <- cmd_trimProseqAdaptors(fq1= fq1,
-                                fq2= NULL, # Second reads are not used
                                 fq.output.folder= fq.output.folder)
 
   # * If several fq1 files provided, they will be merged during alignment ----
@@ -83,7 +86,6 @@ proseqProcessing <- function(fq1,
                                    output.prefix= output.prefix,
                                    genome= ref.genome,
                                    genome.idx= ref.genome.idx,
-                                   mapq = NULL,
                                    bam.output.folder= bam.output.folder,
                                    alignment.stats.output.folder = alignment.stats.output.folder,
                                    cores = cores)
@@ -91,10 +93,10 @@ proseqProcessing <- function(fq1,
   cmd <- rbind(cmd, align.ref.cmd, fill= TRUE)
 
   # Extract unaligned reads (spike-in) ----
-  extract.cmd <- cmd_exractUnalignedReads(bam = bam.ref,
-                                          fq.output.folder = fq.output.folder,
-                                          alignment.stats.output.folder = alignment.stats.output.folder,
-                                          cores = cores)
+  extract.cmd <- cmd_exractUnalignedReadsFromBam(bam = cmd[file.type=="bam.ref", path],
+                                                 fq.output.folder = fq.output.folder,
+                                                 alignment.stats.output.folder = alignment.stats.output.folder,
+                                                 cores = cores)
   cmd <- rbind(cmd, extract.cmd, fill= TRUE)
 
   # Align spike-in reads (bowtie1) ----
@@ -102,7 +104,6 @@ proseqProcessing <- function(fq1,
                                      output.prefix= output.prefix,
                                      genome= spike.genome,
                                      genome.idx= spike.genome.idx,
-                                     mapq = NULL,
                                      bam.output.folder= bam.output.folder,
                                      alignment.stats.output.folder = alignment.stats.output.folder,
                                      cores = cores)
@@ -126,7 +127,7 @@ proseqProcessing <- function(fq1,
   cmd <- rbind(cmd, umi.spike.cmd, fill= TRUE)
 
   # Generate bw files ----
-  bw.cmd <- cmd_umiToBigwigProseq(umi.counts = cmd[file.type=="umi.counts.ref"],
+  bw.cmd <- cmd_umiToBigwigProseq(umi.counts = cmd[file.type=="umi.counts.ref", path],
                                   output.prefix = NULL, # From UMI counts file name
                                   bw.output.folder = bw.output.folder,
                                   Rpath = Rpath)
@@ -135,5 +136,7 @@ proseqProcessing <- function(fq1,
   # Return ----
   cmd$cores <- cores
   cmd$job.name <- paste0("PRO_", output.prefix)
+  cmd$mem <- mem
+  cmd$time <- time
   return(cmd)
 }

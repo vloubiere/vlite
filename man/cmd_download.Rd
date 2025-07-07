@@ -7,6 +7,7 @@
 cmd_download(
   url,
   output.name = basename(url),
+  submit = TRUE,
   output.folder,
   output.file.type = NA,
   gzip = FALSE
@@ -15,13 +16,16 @@ cmd_download(
 \arguments{
 \item{url}{URL to download}
 
+\item{output.name}{The output file name (default= keep url basename).}
+
+\item{submit}{If set to TRUE, the command will directly be submitted. If set to FALSE,
+a 'cmd' object compatible with ?vl_submit will be returned. Default= TRUE.}
+
 \item{output.folder}{Path where the output file will be saved.}
 
 \item{output.file.type}{The type of output file (fq...). Default= NA.}
 
 \item{gzip}{Should the output file be gzipped? Default= FALSE}
-
-\item{file.typename}{The output file name (default= keep url basename).}
 }
 \value{
 A `data.table` with:

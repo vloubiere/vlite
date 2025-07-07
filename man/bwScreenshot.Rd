@@ -7,8 +7,10 @@
 bwScreenshot(
   bed,
   tracks = character(),
-  col = colorRampPalette(c("grey60", "grey10"))(length(tracks)),
   track.names = function(x) gsub("(.*)[.].*$", "\\\\1", x),
+  col = colorRampPalette(c("grey60", "grey10"))(length(tracks)),
+  border.col = NA,
+  border.lwd = 0.5,
   bw.max = NA,
   bw.min = NA,
   bw.n.breaks = 100,
@@ -44,10 +46,10 @@ bwScreenshot(
   \item BED files for discrete regions (any format compatible with importBed)
 }}
 
-\item{col}{Colors for tracks. Default is a grey gradient from grey60 to grey10.}
-
 \item{track.names}{Function or character vector for track labels. Default extracts names
 from file basenames.}
+
+\item{col}{Colors for tracks. Default is a grey gradient from grey60 to grey10.}
 
 \item{bw.max}{Numeric. Maximum signal value for BigWig tracks. Values above this
 will be clipped. Default (NA) uses track maximum.}

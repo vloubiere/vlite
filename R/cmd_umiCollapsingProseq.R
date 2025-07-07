@@ -44,11 +44,12 @@ cmd_umiCollapsingProseq <- function(bam,
   cmd <- paste(Rpath,
                system.file("Rscript", "umiCollapsingProseq.R", package = "vlite"),
                bam,
-               counts.file)
+               umi.counts,
+               umi.stats)
 
   # Wrap commands output ----
   cmd <- data.table(file.type= c("umi.counts", "umi.stats"),
-                    path= c(counts.file, umi.stats),
+                    path= c(umi.counts, umi.stats),
                     cmd= cmd,
                     job.name= "umiCollProseq")
 

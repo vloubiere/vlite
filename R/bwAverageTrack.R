@@ -14,6 +14,7 @@
 #' @param downstream Integer. Distance downstream of center to plot (default: 5000)
 #' @param nbins Integer vector. Number of bins for signal averaging. For center="region", expects c(upstream_bins, body_bins, downstream_bins). For center="center", single integer (default: 251)
 #' @param ignore.strand Logical. If TRUE, ignores strand information (default: FALSE)
+#' @param plot Should the plot be generated? Default= TRUE.
 #' @param add Logical. If TRUE, adds to existing plot (default: FALSE)
 #' @param col.palette Vector of colors for the tracks (default: rainbow palette)
 #' @param adj.mean.color Numeric. Adjustment factor for mean line color transparency (default: 0.8)
@@ -82,6 +83,7 @@ bwAverageTrack <- function(bed,
                            downstream= 5000L,
                            nbins= if(center=="region") c(50L, 150L, 50L) else 251L,
                            ignore.strand= FALSE,
+                           plot= TRUE,
                            add= FALSE,
                            col.palette= rainbow(7)[-7],
                            adj.mean.color= .8,
@@ -142,62 +144,27 @@ bwAverageTrack <- function(bed,
   # Melt data ----
   dat <- dat[, lapply(.SD, unlist), .(name, col)]
 
-  # Initiate plot ----
-  if(!add)
-  {
-    if(is.null(xlim))
-      xlim <- range(dat$bin.x.pos)
-    if(is.null(ylim))
-      ylim <- range(dat[, c(signalMean-signalSe, signalMean+signalSe)])
-    plot(NA,
-         xlim= xlim,
-         ylim= ylim,
-         type= "n",
-         xlab= NA,
-         xaxt= "n",
-         ylab= NA)
-    if(!is.na(xlab))
-      title(xlab = xlab, line = .65)
-    if(!is.na(ylab))
-      title(ylab = ylab, line = 1.5)
-    # Add x axis
-    if(center!="region") {
-      axis(1,
-           at = c(-upstream, 0, downstream),
-           labels = c(-upstream, center.name, downstream),
-           xpd= NA,
-           padj= -1.25)
-    } else {
-      axis(1,
-           at = unlist(bin.x.pos)[c(1, nbins[1], sum(nbins[1:2])+1, sum(nbins))],
-           labels = c(-upstream, center.name, "End", downstream),
-           xpd= NA,
-           padj= -1.25)
-    }
+  # Plot ----
+  setattr(dat, "class", c("bwAverageTrack", "data.table", "data.frame"))
+  if(plot) {
+    plot.bwAverageTrack(dat,
+                        center= center,
+                        upstream= upstream,
+                        downstream= downstream,
+                        add= add,
+                        col.palette= col.palette,
+                        adj.mean.color= adj.mean.color,
+                        adj.se.color= adj.se.color,
+                        xlim= xlim,
+                        ylim= ylim,
+                        xlab= xlab,
+                        ylab= ylab,
+                        center.name= center.name,
+                        legend= legend,
+                        legend.x= legend.x,
+                        legend.y= legend.y,
+                        legend.cex= legend.cex)
   }
-
-  # Plot standard error and mean values ----
-  dat[, {
-    # SE
-    polygon(c(bin.x.pos, rev(bin.x.pos)),
-            c(signalMean-signalSe, rev(signalMean+signalSe)),
-            border= NA,
-            col= adjustcolor(col[1], adj.se.color))
-    # Mean
-    lines(bin.x.pos,
-          signalMean[1:.N],
-          col= adjustcolor(col[1], adj.mean.color))
-  }, .(name, col)]
-
-  # Legend ----
-  if(legend)
-    vl_legend(x= legend.x,
-              y= legend.y,
-              legend= unique(dat$name),
-              text.col= unique(dat$col),
-              cex = legend.cex,
-              bty= "n",
-              xpd= NA)
 
   # Return mean signal ----
   invisible(dat)

@@ -7,12 +7,19 @@
 rasterScatterplot(
   x,
   y = NULL,
+  pch = 16,
+  col = adjustcolor("grey", 0.7),
+  cex = 0.8,
   type = "p",
   frame = F,
   res = 600L,
   size = 2000L,
-  xlab = ifelse(is.null(y), "Index", deparse1(substitute(x))),
-  ylab = ifelse(is.null(y), deparse1(substitute(x)), deparse1(substitute(y))),
+  xlab = NULL,
+  ylab = NULL,
+  xaxt = "s",
+  yaxt = "s",
+  xaxs = "r",
+  yaxs = "r",
   add = F,
   ...
 )
@@ -37,5 +44,5 @@ Raster scatterplot
 Title
 }
 \examples{
-vl_rasterScatterplot(1:3)
+rasterScatterplot(1:3)
 }

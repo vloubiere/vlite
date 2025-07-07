@@ -60,6 +60,8 @@ plot.vl_enr_cl <- function(obj,
   # Checks
   if(any(is.infinite(DT$log2OR)))
     stop("Infinite enrichment values should be capped before plotting.")
+  if(any(DT$padj==0))
+    stop("Some padjust are equal to 0 and should be set to a minimum positive value before plotting.")
   if(!nrow(DT))
     stop("No enrichment found with current cutoffs!")
 
@@ -98,6 +100,7 @@ plot.vl_enr_cl <- function(obj,
                 size.legend.title = "OR (log2)",
                 color.legend.title = "padj (-log10)",
                 size.legend.breaks = size.legend.breaks,
+                col = col,
                 cex= cex,
                 main= main)
 

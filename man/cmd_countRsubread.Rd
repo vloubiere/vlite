@@ -9,8 +9,9 @@ cmd_countRsubread(
   layout,
   output.prefix = NULL,
   genome,
-  gtf = NULL,
+  annotation.file = NULL,
   GTF.attrType.extra = NULL,
+  allowMultiOverlap = FALSE,
   counts.stats.output.folder = "db/count_stats/",
   counts.output.folder = "db/counts/",
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
@@ -24,11 +25,14 @@ cmd_countRsubread(
 
 \item{output.prefix}{Prefix for the output files. If not provided, it is derived from the input BAM filename.}
 
-\item{genome}{Reference genome name (e.g., "mm10", "dm6"). If not provided, gtf must be specified.}
+\item{genome}{Reference genome name (e.g., "mm10", "dm6"). If not provided, an annotation.file must be specified.}
 
-\item{gtf}{Path to the GTF annotation file. Default= NULL.}
+\item{annotation.file}{Path to a '.gtf', '.gtf.gz' or '.saf' annotation file. If genome is specified,
+the corresponding gtf file will be used. SAF format should contain: GeneID, Chr, Start, End, Strand. Default= NULL.}
 
 \item{GTF.attrType.extra}{Additional GTF attribute to include in the output (e.g., gene symbol). Default= NULL.}
+
+\item{allowMultiOverlap}{If a read overlaps more than one feature, should be assigned to all overlapping features? Default= FALSE.}
 
 \item{counts.stats.output.folder}{Directory for the alignment statistics file. Default= "db/count_stats/".}
 
@@ -62,7 +66,7 @@ vl_submit(cmd, execute= FALSE)
 cmd <- cmd_countRsubread(
   bam = "/data/bam/sample.bam",
   layout = "PAIRED",
-  gtf = "/path/to/custom.gtf"
+  annotation.file = "/path/to/custom.gtf"
 )
 vl_submit(cmd, execute= FALSE)
 

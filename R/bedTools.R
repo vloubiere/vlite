@@ -379,13 +379,15 @@ binBed <- function(bed,
                                   width= bins.width,
                                   step = steps.width)
   }
+  bins <- as.data.table(bins)
+  bins$group_name <- bins$width <- NULL
 
   # Expand list ----
-  cols <- setdiff(names(bed),
-                  c("seqnames", "start", "end", "strand", "line.idx"))
-  res <- bed[, {
-    c(as.data.table(..bins[[line.idx]]), .SD)
-  }, line.idx, .SDcols= cols]
+  res <- data.table::copy(bed)
+  res <- res[, setdiff(names(bed), names(bins)), with= F]
+  res <- res[(bins$group)]
+  bins$group <- NULL
+  res <- cbind(bins, res)
 
   # Bin indices ----
   res[, bin.idx:= rowid(line.idx)]

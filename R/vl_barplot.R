@@ -1,183 +1,170 @@
-#' Barplot allowing to add points and sd
+#' Barplot
 #'
-#' @param height A vector of values describing the bars which make up the plot.
-#' @param individual.var List of individual variables to be plotted as points.
-#' @param show.sd Should sd from individual var be shown as whiskers around bars?
-#' @param bar.top.labels Labels to be shown on the top or each bar.
-#' @param bar.top.labels.cex Expansion factor for bar.top.labels.
-#' @param xlim
-#' @param ylim
-#' @param sd.arrow.length Length of sd arrow length. defaults to 1/8 of distance between bar centers.
-#' @param sd.arrow.lwd Line width of sd arrows Default= .5.
-#' @param individual.var.pch pch value for individual variables
-#' @param individual.var.col color value for individual variables
-#' @param individual.var.jitter jitter value for individual variables
-#' @param individual.var.cex cex factor for points
-#' @param compute.bar.diff List of pairwise bar pairs to be compared (V2/V11 ratio)
-#' @param compute.bar.diff.digits Number of compute.bar.diff.digits for the computed diff. Default= 2
-#' @param compute.bar.diff.cex cex value for pairwise comparisons
-#' @param xpd xpd value for individual.var, sd, pairwaise comparisons...
-#' @param horiz Not supported atm
-#' @param ... Extra arguments to be passed to barplot
+#' A wrapper around barplot with nicer default settings, allowing input as a list to show both SD and/or individual points.
 #'
-#' @return A simple barplot
+#' @param x A vector, matrix, data.frame, or a list of numeric variables to plot.
+#' @param names.arg Names to plot on the x-axis.
+#' @param top.labels Labels to plot on the top of each bar.
+#' @param show.sd If x is a list, should the SD be shown? Default = TRUE.
+#' @param show.points If x is a list, should the points be shown? Default = TRUE.
+#' @param beside If TRUE and x is a matrix or data.frame, bars are juxtaposed. Default = FALSE (stacked bars).
+#' @param xlim X-axis limits. Default = NULL.
+#' @param ylim Y-axis limits. Default = NULL.
+#' @param tilt.names Should bar names be tilted? Default = TRUE.
+#' @param top.labels.cex Expansion factor for top.labels.
+#' @param sd.arrow.lwd Line width of SD arrows. Default = 0.5.
+#' @param sd.arrow.length Length of SD arrows. Defaults to 1/8 of the distance between bar centers.
+#' @param pch Plotting character for points. Default = 16.
+#' @param pch.col Color for points.
+#' @param pch.cex Expansion factor for points.
+#' @param pch.jitter Jitter amount for points. Default = 0.2.
+#' @param xaxt If tilt.names is set to FALSE, style to be used for the x-axis. Default = "s".
+#' @param horiz Not supported at the moment.
+#' @param ... Additional arguments passed to \code{barplot()}.
+#'
+#' @return A barplot.
 #' @export
 #'
 #' @examples
-#' vl_barplot(1:3, rep(.2, 3))
-vl_barplot <- function(height,
-                       individual.var= NULL,
-                       show.sd= !is.null(individual.var),
-                       bar.top.labels= NULL,
-                       compute.bar.diff= NULL,
+#' vl_barplot(list(1:3, 5:8), top.labels = c("A", "B"), show.sd = FALSE)
+#' vl_barplot(matrix(1:6, ncol = 2), top.labels = c("A", "B"), beside = TRUE)
+vl_barplot <- function(x,
+                       names.arg= NULL,
+                       top.labels= NULL,
+                       show.sd= TRUE,
+                       show.points= TRUE,
+                       beside= FALSE,
                        xlim= NULL,
                        ylim= NULL,
                        tilt.names= TRUE,
-                       individual.var.pch= 16,
-                       individual.var.col= adjustcolor("lightgrey", .7),
-                       individual.var.jitter= .2,
-                       individual.var.cex= .5,
+                       top.labels.cex= .7,
                        sd.arrow.lwd= .5,
-                       sd.arrow.length= ifelse(length(height)>1, diff(bar[c(1,2)])/8, .2),
-                       bar.top.labels.cex= .7,
-                       compute.bar.diff.digits= 2,
-                       compute.bar.diff.cex= .8,
-                       xpd= NA,
-                       horiz= F,
+                       sd.arrow.length= ifelse(length(x)>1, diff(bar[c(1,2)])/8, .2),
+                       pch= 16,
+                       pch.col= adjustcolor("grey20", .7),
+                       pch.cex= .5,
+                       pch.jitter= .2,
                        xaxt= "s",
-                       names.arg= names(height),
+                       width= .6,
+                       space= NULL,
+                       horiz= FALSE,
                        ...)
 {
-  # Checks
-  if(is.table(height))
-    height <- c(height)
-  if(!is.vector(height))
-    stop("Only height tables and vectors are supported for now")
+  # Checks ----
   if(horiz)
-    stop("horiz not supported yet ;)")
+    stop("horiz not supported atm.")
+  # Default names ----
+  if(is.null(names.arg))
+    names.arg <- names(x)
 
-  # Compute sd if necessary ----
-  sd <- if(show.sd && !is.null(individual.var))
-    sapply(individual.var, sd, na.rm= T) else
-      rep(0, length(height))
-
-  # Create data table to keep track of all values ----
-  dat <- data.table(height= height,
-                    sd.min= height-sd,
-                    sd.max= height+sd)
-  dat[, min:= apply(.SD, 1, function(x) min(unlist(x), na.rm= T))]
-  dat[, max:= apply(.SD, 1, function(x) max(unlist(x), na.rm= T))]
-
-  # Compute ylim that takes into account outliers ----
-  if(is.null(ylim))
-  {
-    ylim <- range(c(dat$min, dat$max), na.rm = T)
-    if(ylim[1]>0)
-      ylim[1] <- 0
-    if(ylim[2]<0)
-      ylim[2] <- 0
+  # If x is a list, compute stats ----
+  if(is.list(x)) {
+    # Copy
+    x.pts <- x
+    # Compute sd
+    if(show.sd)
+      sd <- sapply(x.pts, sd)
+    # Compute mean
+    x <- sapply(x.pts, mean)
+    # Compute ylim and max var
+    if(show.points) {
+      ylim <- range(c(0, unlist(x.pts)))
+      top.var <- sapply(x.pts, function(x) x[which.max(abs(x))])
+    } else if(show.sd) {
+      ylim <- range(c(0, x+sd, x-sd))
+      top.var <- mapply(function(x, y) ifelse(x>=0, x+y, x-y), x= x, y= sd)
+    }
+  } else {
+    # compute top var
+    top.var <- if(is.vector(x))
+      x else if(beside)
+        unlist(c(x)) else
+          apply(x, 2, sum, na.rm= T)
   }
 
-  # Initiate barplot ----
-  bar <- barplot(height,
+  # Default xlim ----
+  if(is.null(xlim)) {
+    xlim <- if(is.matrix(x)) {
+      if(beside & nrow(x)>1) {
+        c(0.5, ncol(x)*nrow(x)+.5)
+      } else
+        c(0.5, ncol(x)+.5)
+    }else if(is.vector(x))
+      c(0.5, length(x)+0.5)
+  }
+
+  # Compute ideal space ----
+  if(is.null(space)) {
+    space <- if(is.matrix(x)) {
+      if(beside & nrow(x)>0) {
+        width <- width/nrow(x)
+        message("beside= TRUE -> bar width adjusted")
+        .c <- c((1-width/2)/width, rep((1-(width*nrow(x)))/width, ncol(x)-1))
+        c(sapply(.c, function(y) c(y, rep(0, nrow(x)-1))))
+      } else
+        c((1-width/2)/width, rep((1-width)/width, ncol(x)-1))
+    }else if(is.vector(x))
+      c((1-width/2)/width, rep((1-width)/width, length(x)-1))
+  }
+
+  # Plot ----
+  bar <- barplot(x,
                  xlim= xlim,
                  ylim= ylim,
+                 beside= beside,
                  xaxt= ifelse(tilt.names, "n", xaxt),
-                 names.arg= names.arg, ...)
-  if(tilt.names && !is.null(names.arg) && xaxt!="n")
-    tiltAxis(bar, labels= names.arg)
-  dat[, x:= bar]
+                 names.arg= names.arg,
+                 width= width,
+                 space= space,
+                 ...)
 
-  # Add sd arrows if specified ----
-  if(show.sd)
-  {
+  # Add x labels ----
+  if(tilt.names & xaxt!="n")
+    tiltAxis(bar,
+             labels = names.arg)
+
+  # Add sd ----
+  if(show.sd && is.numeric(sd)) {
     segments(bar,
-             height-sd,
+             x-sd,
              bar,
-             height+sd,
+             x+sd,
              lwd= sd.arrow.lwd,
-             xpd= xpd)
+             xpd= NA)
     segments(bar-sd.arrow.length,
-             height+sd,
+             x+sd,
              bar+sd.arrow.length,
-             height+sd,
+             x+sd,
              lwd= sd.arrow.lwd,
-             xpd= xpd)
+             xpd= NA)
     segments(bar-sd.arrow.length,
-             height-sd,
+             x-sd,
              bar+sd.arrow.length,
-             height-sd,
+             x-sd,
              lwd= sd.arrow.lwd,
-             xpd= xpd)
+             xpd= NA)
   }
 
-  # Add individual measurements if specified ----
-  if(!is.null(individual.var))
-  {
-    if(!is.list(individual.var))
-      individual.var <- as.list(individual.var)
-    if(length(individual.var)!=length(height))
-      stop("individual.var should be a vector or a list of the same length as height")
-    x <- rep(bar, lengths(individual.var))
-    y <- unlist(individual.var)
-    points(jitter(x, amount = individual.var.jitter),
+  # Add points ----
+  if(show.points & exists("x.pts")) {
+    x <- rep(bar, lengths(x.pts))
+    y <- unlist(x.pts)
+    points(jitter(x, amount = pch.jitter),
            y,
-           pch= individual.var.pch,
-           col= unlist(individual.var.col),
-           xpd= xpd,
-           cex= individual.var.cex)
-  }
-
-  # Add mean diff if specified ----
-  if(!is.null(compute.bar.diff))
-  {
-    # Pairs to compare
-    comp <- do.call(rbind, compute.bar.diff)
-    comp <- data.table(V1= comp[,1],
-                       V2= comp[,2],
-                       var1= dat$height[comp[,1]],
-                       var2= dat$height[comp[,2]],
-                       x0= bar[comp[,1]],
-                       x1= bar[comp[,2]])
-    comp[, x:= rowMeans(.SD), .SDcols= c("x0", "x1")]
-    # Compute FC and max/ values (y position)
-    comp[, var:= paste0("x", formatC(var2/var1, compute.bar.diff.digits = compute.bar.diff.digits, format= "f"))]
-    comp[, max:= max(dat$max[V1:V2]), .(V1, V2)]
-    setorderv(comp, "max")
-    comp[, y:= max(dat[.BY, max, on= c("x>=x0", "x<=x1")]), .(x0, x1)]
-    # Adjust based on overlaps
-    data.table::setorderv(comp, c("y", "x0", "x1"))
-    comp[, idx:= .I] # Index to check previous bars
-    adj <- strheight("M")*1.2
-    for(i in seq(nrow(comp)))
-    {
-      .c <- sort(comp[comp[i], y, on= c("x0<=x1", "x1>=x0", "idx<=idx")]) # y pos overlapping lines
-      .c <- .c[diff(c(.c, Inf))>2*adj  & .c>=comp[i,y]] # y values with enough space
-      comp[i, y:= data.table::first(.c)+adj] # Smaller y value + adj
-    }
-    comp[, {
-      segments(x0, y, x1, y, xpd= xpd)
-      text(x,
-           y,
-           var,
-           cex= compute.bar.diff.cex,
-           offset= 0.1,
-           xpd= xpd,
-           pos= 3)
-    }]
+           pch= pch,
+           col= unlist(pch.col),
+           xpd= NA,
+           cex= pch.cex)
   }
 
   # Add bar labels ----
-  if(!is.null(bar.top.labels))
+  if(!is.null(top.labels))
   {
     text(bar,
-         dat$max,
-         bar.top.labels,
-         pos= 3,
-         cex= bar.top.labels.cex,
+         top.var,
+         top.labels,
+         pos= ifelse(top.var>=0, 3, 1),
+         cex= top.labels.cex,
          xpd= NA)
   }
-
-  # Return bar positions ----
-  invisible(bar)
 }

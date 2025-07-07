@@ -11,6 +11,7 @@ vl_plot(
   cex = 0.8,
   col = adjustcolor("grey", 0.7),
   xaxt = "s",
+  frame = F,
   ...
 )
 }

@@ -1,7 +1,7 @@
 #' Convert BED to BigWig Format
 #'
 #' @description
-#' Creates shell commands to convert a BED file to BigWig format using a genome sizes file.
+#' Creates shell commands to convert a BED file to a CPM-normalized bigwig file.
 #'
 #' @param bed Path to the input BED file. Only a single BED file is allowed.
 #' @param genome A BS genome name use to retrieve seqnames.

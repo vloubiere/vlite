@@ -34,7 +34,13 @@
          gtf.exon= "exon",
          gtf.symbol= "gene_name",
          gtf.transcript.id= "transcript_id")
-  }else
+  } else if(genome=="mm10") {
+    list(gtf= "/groups/stark/vloubiere/genomes/Mus_musculus/GENCODE/gencode.vM25.basic.annotation_for_viewer.gtf.gz",
+         gtf.transcript= "transcript",
+         gtf.exon= "exon",
+         gtf.symbol= "gene_name",
+         gtf.transcript.id= "transcript_id")
+  } else
     stop("Genome not supported")
 
   # Return parameters
@@ -198,7 +204,9 @@
                                  track.height,
                                  track.name,
                                  ybottom,
-                                 ytop)
+                                 ytop,
+                                 border.col,
+                                 border.lwd)
 {
   # bed method
   var <- importBed(track.file)
@@ -218,7 +226,8 @@
              end,
              ytop,
              col= track.col,
-             border= NA)
+             border= border.col,
+             lwd = border.lwd)
       }]
     }
   }, region.idx]

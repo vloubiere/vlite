@@ -46,7 +46,8 @@ cutnrunProcessing <- function(fq1,
                               fq.output.folder= "db/fq/CUTNRUN/",
                               bam.output.folder= "db/bam/CUTNRUN/",
                               alignment.stats.output.folder= "db/alignment_stats/CUTNRUN/",
-                              cores= 8)
+                              cores= 8,
+                              mem= 32)
 {
   # Trimming illumina adaptors ----
   cmd <- cmd_trimIlluminaAdaptors(fq1= fq1,
@@ -74,6 +75,7 @@ cutnrunProcessing <- function(fq1,
 
   # Return ----
   cmd$cores <- cores
+  cmd$mem <- mem
   cmd$job.name <- paste0("CR_", output.prefix)
   return(cmd)
 }

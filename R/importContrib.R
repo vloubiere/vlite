@@ -47,7 +47,7 @@ importContrib <- function(h5,
   # Message ----
   if(any(nchar(dat$seq)>20))
   {
-    options(datatable.prettyprint.char = 10)
+    options(datatable.prettyprint.char = 50)
     message("Printing option set to 10. To reset it to default, use options(datatable.prettyprint.char = NULL)")
   }
 

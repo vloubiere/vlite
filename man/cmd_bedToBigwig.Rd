@@ -35,7 +35,7 @@ A data.table with:
 - `job.name`: Default name for the job = "bedToBw".
 }
 \description{
-Creates shell commands to convert a BED file to BigWig format using a genome sizes file.
+Creates shell commands to convert a BED file to a CPM-normalized bigwig file.
 }
 \examples{
 # Convert a BED file to BigWig format

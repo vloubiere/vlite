@@ -16,6 +16,7 @@ bwAverageTrack(
   downstream = 5000L,
   nbins = if (center == "region") c(50L, 150L, 50L) else 251L,
   ignore.strand = FALSE,
+  plot = TRUE,
   add = FALSE,
   col.palette = rainbow(7)[-7],
   adj.mean.color = 0.8,
@@ -53,6 +54,8 @@ bwAverageTrack(
 \item{nbins}{Integer vector. Number of bins for signal averaging. For center="region", expects c(upstream_bins, body_bins, downstream_bins). For center="center", single integer (default: 251)}
 
 \item{ignore.strand}{Logical. If TRUE, ignores strand information (default: FALSE)}
+
+\item{plot}{Should the plot be generated? Default= TRUE.}
 
 \item{add}{Logical. If TRUE, adds to existing plot (default: FALSE)}
 

@@ -24,7 +24,7 @@ cmd_trimProseqAdaptors <- function(fq1,
 {
   # Check (!Do not check if fq1 or fq2 files exist to allow wrapping!) ----
   fq1 <- unique(fq1)
-  if(!grepl(".fq$|.fastq$|.fq.gz$|.fastq.gz$", fq1))
+  if(any(!grepl(".fq$|.fastq$|.fq.gz$|.fastq.gz$", fq1)))
     stop("fq1 file paths should end up with `.fq`, `.fastq`, `.fq.gz` or `.fastq.gz`")
 
   # Output trimmed fq files paths ----

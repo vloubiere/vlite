@@ -35,6 +35,8 @@ orftagQC <- function(sampleIDs,
   meta <- unique(meta)
 
   # For each cutoff ----
+  output.files <- list(counts_table= c(),
+                       pdf.qc= c())
   for(min.dc in dc.cutoff) {
 
     # Create output file names ----
@@ -110,9 +112,12 @@ orftagQC <- function(sampleIDs,
                numbers.cex = .4,
                main= rev(names(res))[2])
     dev.off()
+
+    # Save output files ----
+    output.files$counts_table[as.character(min.dc)] <- counts.table
+    output.files$pdf.qc[as.character(min.dc)] <- QC.pdf
   }
 
   # Return output files
-  list(counts.table= counts.table,
-       pdf.qc= QC.pdf)
+  return(output.files)
 }

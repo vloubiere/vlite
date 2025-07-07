@@ -7,7 +7,9 @@
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
 #' @param layout Sequencing layout, either "SINGLE" or "PAIRED".
 #' @param output.prefix Prefix for the output BigWig file. If not provided, it is derived from the input BAM filename.
-#' @param extend.PE.fragments Logical. Whether to extend paired-end fragments. Default= FALSE.
+#' @param libsize.normalize Should the signal be CPM normalized? Default= FALSE.
+#' @param extend.PE.fragments When paired reads are provided, should they be extended to fragments before computing the coverage?
+#' Default= TRUE (single-end reads will not be affected).
 #' @param extsize Numeric. Read extension size. Default= 0 (no extension).
 #' @param bw.output.folder Directory for the BigWig file. Default= "db/bw/".
 #' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
@@ -39,11 +41,12 @@
 cmd_bamToBigwig <- function(bam,
                             layout,
                             output.prefix= NULL,
-                            extend.PE.fragments= FALSE,
+                            libsize.normalize= FALSE,
+                            extend.PE.fragments= TRUE,
                             extsize= 0,
                             bw.output.folder= "db/bw/",
                             Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
-                            cores= cores)
+                            cores= 6)
 {
   # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)
@@ -64,6 +67,7 @@ cmd_bamToBigwig <- function(bam,
     system.file("Rscript", "bam_to_bigwig.R", package = "vlite"),
     bam,
     layout,
+    libsize.normalize,
     extend.PE.fragments,
     bw.file,
     extsize

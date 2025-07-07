@@ -14,7 +14,8 @@ cutnrunProcessing(
   fq.output.folder = "db/fq/CUTNRUN/",
   bam.output.folder = "db/bam/CUTNRUN/",
   alignment.stats.output.folder = "db/alignment_stats/CUTNRUN/",
-  cores = 8
+  cores = 8,
+  mem = 32
 )
 }
 \arguments{

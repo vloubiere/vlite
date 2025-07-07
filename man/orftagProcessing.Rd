@@ -10,7 +10,7 @@ orftagProcessing(
   genome,
   genome.idx = NULL,
   gtf = NULL,
-  compute.ins.cov = FALSE,
+  compute.ins.cov = TRUE,
   fq.output.folder = "db/fq/ORFtag/",
   bam.output.folder = "db/bam/ORFtag/",
   alignment.stats.output.folder = "db/alignment_stats/ORFtag/",
@@ -31,8 +31,9 @@ orftagProcessing(
 
 \item{gtf}{Path to the GTF annotation file. Default= NULL.}
 
-\item{compute.ins.cov}{If set to TRUE, the number of supporting reads for each insertion will be reported
-in the collapsed bed and count output files (in columns 'score' and 'ins_cov', respectively). Default= FALSE.}
+\item{compute.ins.cov}{If set to TRUE (default), the number of supporting reads for each insertion will be reported
+in the collapsed bed and count output files (in columns 'score' and 'ins_cov', respectively). If set to FALSE,
+counting will be a bit faster.}
 
 \item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/ORFtag/".}
 

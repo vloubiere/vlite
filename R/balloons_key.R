@@ -41,8 +41,8 @@ balloonskey <- function(breaks,
   # Plotting points
   points(rep(left+width/2, length(breaks)),
          y,
-         cex= abs(breaks)+0.1,
-         pch= ifelse(breaks>=0, 21, 22),
+         pch= ifelse(breaks>=0, 21, 22), # Positive values round, neg are squared
+         cex= abs(breaks)+.1, # Absolute pervent neg. values from being removed, avoid 0s
          xpd= T)
 
   # Add break labels

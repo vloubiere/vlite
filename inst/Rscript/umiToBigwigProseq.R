@@ -8,6 +8,7 @@ if (length(args)!=2) {
        [required] 2/ Output prefix (.ps.bw; .ns.bw)\n")
 }
 
+suppressMessages(library(data.table, warn.conflicts = FALSE))
 suppressMessages(library(rtracklayer, warn.conflicts = FALSE))
 suppressMessages(library(GenomicRanges, warn.conflicts = FALSE))
 
@@ -34,10 +35,11 @@ setorderv(counts,
           c("seqnames", "start", "end"))
 
 # Compute coverage and export ----
+total_reads <- nrow(counts)
 counts[, {
   gr <- GenomicRanges::GRanges(.SD)
-  cov <- GenomicRanges::coverage(gr)
-  outputFile <- paste0(outputPrefix, ifelse(strand=="+", ".ps", ".ns"), ".bw")
+  cov <- GenomicRanges::coverage(gr)/total_reads*1e6
+  outputFile <- paste0(outputPrefix, ifelse(strand=="+", ".ps.bw", ".ns.bw"))
   rtracklayer::export(cov,
                       outputFile)
   print(outputFile)

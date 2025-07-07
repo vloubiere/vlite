@@ -9,6 +9,10 @@
 #' By default, column names are used as is.
 #' @param log2OR.pseudocount Numeric. A pseudocount added to the contingency table to avoid infinite values
 #' in the log2 odds ratio calculation. Default= 1L.
+#' @param countFUN The function to be used for each motif, in order to compute the number of positive sequences.
+#' By default, a sequence will be considered positive if it contains at least one motif.
+#' Default= function(motifCount) sum(motifCount>=1).
+#'
 #' @examples
 #' # Download Dev/Hk enhancers from pe-STARR-Seq paper
 #' tmp <- tempfile(fileext = ".xlsx")
@@ -78,7 +82,8 @@
 vl_motifEnrich <- function(counts,
                            control.counts,
                            names= NULL,
-                           log2OR.pseudocount= 1L)
+                           log2OR.pseudocount= 1L,
+                           countFUN= function(motifCount) sum(motifCount>=1))
 {
   if(is.data.table(counts))
     counts <- list(set= counts)
@@ -101,7 +106,7 @@ vl_motifEnrich <- function(counts,
   ctl <- melt(control.counts,
               measure.vars = names(control.counts),
               variable.name= "motif")
-  ctl <- ctl[, .(ctl_hit= sum(value>=1), ctl_total= .N), motif]
+  ctl <- ctl[, .(ctl_hit= countFUN(value), ctl_total= .N), motif]
 
   # Add names ----
   add.names <- data.table(motif= colnames(control.counts),

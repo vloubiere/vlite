@@ -12,7 +12,10 @@
 #' @param padj.cutoff The p.adjust cutoff to be used to call hits (>=). Default= 0.001
 #' @param log2OR.cutoff The log2OR cutoff to be used to call hits (>=). Default= 1
 #' @param log2OR.pseudocount Pseudocount used to avoid infinite values. Note that only the log2OR will be affected, not the fisher p.values. Default= 1.
-#' @param min.ins.cov Minimum number of duplication counts for an insertion to be considered TRUE. Default= 0 (no filtering).
+#' @param min.ins.cov.unsorted Minimum number of duplication counts for an insertion to be considered TRUE in the unsorted sample.
+#' Default= 0 (no filtering).
+#' @param min.ins.cov.sorted Minimum number of duplication counts for an insertion to be considered TRUE in the sorted sample.
+#' Default= 0 (no filtering).
 #' @param output.folder Output folder for FC files. Default= "db/FC_tables/ORFtag".
 #'
 #' @return Returns FC tables containing DESeq2-like columns.
@@ -54,7 +57,8 @@ callOrftagHits <- function(sorted.forward.counts,
                            padj.cutoff= 0.001,
                            log2OR.cutoff= 1,
                            log2OR.pseudocount= 1,
-                           min.ins.cov= 0,
+                           min.ins.cov.sorted= 0,
+                           min.ins.cov.unsorted= 0,
                            output.folder= "db/FC_tables/ORFtag/")
 {
   require(rtracklayer)
@@ -70,22 +74,72 @@ callOrftagHits <- function(sorted.forward.counts,
     stop("Duplicated filenames in unsorted.forward.counts")
 
   # Import counts ----
-  input <- rbindlist(lapply(unsorted.forward.counts, fread))
-  sample <- rbindlist(lapply(sorted.forward.counts, fread))
+  input <- rbindlist(lapply(unsorted.forward.counts, fread), idcol= "sample.idx")
+  sample <- rbindlist(lapply(sorted.forward.counts, fread), idcol= "sample.idx")
   dat <- rbindlist(list(count.input= input, count.sample= sample),
                    idcol= "cdition",
                    fill = T)
+  dat[, sample.name:= paste0(cdition, ".", sample.idx)]
+  dat[, sample.name:= factor(sample.name, unique(sample.name))]
 
-  # Filtering ----
-  # Insertions count
-  if(min.ins.cov>0) {
-    if(!"ins_cov" %in% names(dat))
-      stop("min.ins.cov was specified but 'ins_cov' column is missing.")
-    dat[, total_ins_cov:= sum(ins_cov), .(cdition, seqnames, start, end, strand)]
-    dat <- dat[total_ins_cov>=min.ins.cov]
-  }
-  # Distance
+  # Output file names ----
+  dir.create(output.folder, showWarnings = F, recursive = T)
+  output.file <- file.path(output.folder, paste0(output.prefix, ".txt"))
+  output.pdf <- file.path(output.folder, paste0(output.prefix, ".pdf"))
+
+  # Distance cutoff ----
+  # Initiate pdf
+  pdf(output.pdf, 4.5, 4.5)
+  # Plot
+  vl_par()
+  vl_boxplot(log10(dist+1)~sample.name,
+             dat,
+             ylab= "log10+(Distance to closest exon + 1)",
+             violin= T,
+             tilt.names = TRUE)
+  leg <- dat[, paste0(sample.name, "= ", round(sum(dist<2e5, na.rm = T)/.N*100, 1), "%"), keyby= sample.name]
+  vl_legend(legend = leg$V1,
+            title= "Insertions < 2e5",
+            x.adj = -2)
+  # Cutoff
+  abline(h= log10(2e5+1),
+         lty= 3)
+  # Filtering
   dat <- na.omit(dat[dist<2e5])
+
+  # Filtering duplication counts ----
+  if(min.ins.cov.unsorted>0 | min.ins.cov.sorted>0) {
+    if(!"ins_cov" %in% names(dat)) {
+      warning("min.ins.cov is provided but 'ins_cov' is missing -> filtering step is skipped.")
+    } else {
+      # Plot
+      Cc <- rainbow(length(unique(dat$sample.name)))
+      dens <- dat[, density(log2(ins_cov+1))[c("x", "y")], keyby= sample.name]
+      dens <- dens[, .(x= .(x), y= .(y), col= rainbow(.NGRP)[.GRP]), sample.name]
+      plot(0,
+           type= "n",
+           xlim= range(unlist(dens$x)),
+           ylim= range(unlist(dens$y)),
+           xlab= "log2(insertions DC+1)",
+           ylab= "Density")
+      dens[, {
+        lines(unlist(x), unlist(y), col= col[1], lwd= 2)
+      }, .(sample.name, col)]
+      vl_legend(legend= c(levels(dens$sample.name), "sorted.cutoff", "unsorted.cutoff"),
+                col= c(dens$col, "black", "red"),
+                lty= c(rep(1, length(dens$sample.name)), 3, 3),
+                x.adj = -2)
+      # Cutoff
+      abline(v= log2(c(min.ins.cov.sorted, min.ins.cov.unsorted)+1),
+             lty= 3,
+             col= c("black", "red"))
+      # Filtering
+      dat <- dat[(ins_cov>=min.ins.cov.unsorted & cdition=="count.input")
+                 | (ins_cov>=min.ins.cov.sorted & cdition=="count.sample")]
+      if(!nrow(dat))
+        stop("No insertions left after min.ins.cov cutoffs.")
+    }
+  }
 
   # Count insertions per condition and per gene ----
   total <- dat[, .N, .(cdition)]
@@ -121,14 +175,38 @@ callOrftagHits <- function(sorted.forward.counts,
   dat[count.sample>=3, log2OR:= log2(OR)]
   dat[count.sample>=3, padj:= p.adjust(pval, "fdr")]
   dat[, hit:= padj<=padj.cutoff & log2OR>=log2OR.cutoff]
-
-  # Clean table ----
+  # Clean table
   dat <- genes[dat, on= c("gene_id", "gene_name")]
   dat$OR <- dat$pval <- NULL
 
+  # Volcano plot ----
+  pl <- dat[order(hit)]
+  pl[, class:= fcase(hit, "Hit",
+                     !is.na(padj), "N.S",
+                     default = "NA")]
+  pl[, {
+    vl_plot(log2OR,
+            -log10(padj),
+            col= ifelse(hit, "tomato", "lightgrey"),
+            xlab= "Odd ratio (log2)",
+            ylab= "FDR (-log10)")
+    .SD[(hit), {
+      text(log2OR,
+           -log10(padj),
+           gene_name,
+           pos= 3,
+           cex= .5,
+           xpd= T)
+    }]
+  }]
+  leg <- pl[, paste0(class, " (n= ", formatC(.N, big.mark = ","), ")"), class]
+  vl_legend("topleft",
+            legend= leg$V1,
+            col= c("tomato", "lightgrey", NA),
+            pch= 19)
+  dev.off()
+
   # Save ----
-  dir.create(output.folder, showWarnings = F, recursive = T)
-  output.file <- file.path(output.folder, paste0(output.prefix, ".txt"))
   fwrite(dat,
          output.file,
          col.names = T,
@@ -136,5 +214,5 @@ callOrftagHits <- function(sorted.forward.counts,
          sep= "\t",
          quote= F,
          na= NA)
-  cat(paste0(output.prefix, ": ", sum(dat$hit, na.rm = T), " hits were called!\nFC file -> ", output.file, "\n"))
+  cat(paste0(output.prefix, ": ", sum(dat$hit, na.rm = T), " hits were called!\nFC file -> ", output.file, "\nPDF -> ", output.pdf, "\n"))
 }

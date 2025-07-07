@@ -9,6 +9,7 @@ if (length(args)!=3) {
        [required] 3/ Output stats file (.txt)\n")
 }
 
+suppressMessages(library(data.table, warn.conflicts = FALSE))
 suppressMessages(library(Rsamtools, warn.conflicts = FALSE))
 suppressMessages(library(rtracklayer, warn.conflicts = FALSE))
 suppressMessages(library(GenomicRanges, warn.conflicts = FALSE))
@@ -20,17 +21,32 @@ counts.output <- args[2]
 stats.output <- args[3]
 
 # Import data ----
-dat <- vl_importBam(bam,
-                    sel= c("qname", "rname", "pos", "strand", "qwidth", "mapq"),
-                    col.names = c("read", "seqnames", "start", "strand", "width", "mapq"))
+param <- Rsamtools::ScanBamParam(what= c("qname", "rname", "pos", "strand", "qwidth", "mapq"))
+dat <- Rsamtools::scanBam(bam,
+                          param = param)[[1]]
+dat <- as.data.table(dat)
+setnames(dat,
+         c("qname", "rname", "pos", "strand", "qwidth", "mapq"),
+         c("read", "seqnames", "start", "strand", "width", "mapq"))
+
+# Resize to single nucleotide and flip strand! ----
 dat[, strand:= as.character(strand)]
-dat[!is.na(strand), start:= ifelse(strand=="+", start, start+width-1)]
-dat[!is.na(strand), strand:= ifelse(strand=="+", "-", "+")] # Invert strand
+dat[strand=="-", start:= start+width-1]
+dat[!is.na(strand), strand:= ifelse(strand=="+", "-", "+")]
 dat[, coor:= paste0(seqnames, ":", start, ":", strand)]
 
 # Extract UMIs ----
-dat[!is.na(seqnames), UMI:= gsub(".*:", "", read)]
+dat[!is.na(seqnames), UMI:= sub(".*_(.*)$", "\\1", read)]
 dat[is.na(seqnames), UMI:= "GGGGGGGGGG"] # Unaligned reads (not collapsed, keep for total reads)
+umi_length <- nchar(dat$UMI)
+if(any(umi_length<10)) {
+  stop("Some UMIs are shorter than 10nt")
+} else if(any(umi_length>10)) {
+  warning("Some UMIs were longer than 10nt and will be trimmed.")
+  dat[umi_length>10, UMI:= substr(UMI, 1, 10)]
+}
+
+# Compute total counts ----
 dat <- dat[, .(umi_N= .N), .(coor, UMI)]
 dat[, total_counts:= sum(umi_N), coor]
 setorderv(dat, "umi_N", order = -1)

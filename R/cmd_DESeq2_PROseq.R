@@ -56,11 +56,13 @@ vl_PROseq_DESeq2 <- function(umi.count.tables,
                              Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Check (!Do not check if umi.count.tables exist to allow wrapping!) ----
-  if(!all(grepl(".txt$", umi.count.files)))
-    stop("umi.count.files should all be in .txt format.")
-  if(any(!file.exists(umi.count.files)))
-    stop("Some file(s) in umi.count.files count not be found.")
-  if(uniqueN(lengths(list(umi.count.files, sample.names, conditions, ref.genome.stat.files, spikein.stat.files)))!=1)
+  if(any(duplicated(umi.count.tables)))
+    stop("Some umi.count.tables are duplicated.")
+  if(!all(grepl(".txt$", umi.count.tables)))
+    stop("umi.count.tables should all be in .txt format.")
+  if(any(!file.exists(umi.count.tables)))
+    stop("Some file(s) in umi.count.tables count not be found.")
+  if(uniqueN(lengths(list(umi.count.tables, sample.names, conditions, ref.genome.stat.files, spikein.stat.files)))!=1)
     stop("count.files, sample.names, conditions, ref.genome.stat.files and spikein.stat.files should all have the same length.")
   if(!all(grepl(".txt$", ref.genome.stat.files)))
     stop("ref.genome.stat.files should all be in .txt format.")
@@ -70,13 +72,15 @@ vl_PROseq_DESeq2 <- function(umi.count.tables,
     stop("All ctl.conditions should exist in conditions")
   if(length(normalization)!=1)
     stop("normalization should be unique")
+  if(length(feature)!=1)
+    stop("feature should be unique")
   if(!normalization %in% c("default", "libsize", "spikeIn"))
     stop("normalization should be one of 'default', 'libsize', 'spikeIn'")
 
   # Output files paths ----
-  dds.file <- file.path(dds.output.folder, paste0(output.prefix, "_", feature, "_", normalization, "_norm.dds"))
-  MA.plots <- file.path(MAplots.output.folder, paste0(output.prefix, "_", feature, "_", normalization, "_MAplots.pdf"))
-  FC.tables <- file.path(FC.tables.output.folder, paste0(output.prefix, "_", feature, "_", normalization, "_DESeq2_FC.txt"))
+  dds.file <- file.path(dds.output.folder, paste0(output.prefix, "_", feature, "_", normalization, "_norm_DESeq2.dds"))
+  MA.plots <- file.path(MAplots.output.folder, paste0(output.prefix, "_", feature, "_", normalization, "_norm_MAplots.pdf"))
+  FC.tables <- file.path(FC.tables.output.folder, paste0(output.prefix, "_", feature, "_", normalization, "_norm_DESeq2_FC.txt"))
 
   # DESeq2 command ----
   cmd <- paste(

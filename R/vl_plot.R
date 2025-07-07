@@ -21,6 +21,7 @@ vl_plot <- function(x,
                     cex= .8,
                     col= adjustcolor("grey", .7),
                     xaxt= "s",
+                    frame= F,
                     ...)
 {
   plot(x= x,
@@ -29,6 +30,7 @@ vl_plot <- function(x,
        cex= cex,
        col= col,
        xaxt= "n",
+       frame= frame,
        ...)
   if(xaxt!="n")
     axis(1,

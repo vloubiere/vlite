@@ -10,8 +10,9 @@ rnaseqProcessing(
   output.prefix,
   genome,
   genome.idx = NULL,
-  gtf = NULL,
-  GTF.attrType.extra,
+  annotation.file = NULL,
+  GTF.attrType.extra = NULL,
+  allowMultiOverlap = FALSE,
   fq.output.folder = "db/fq/RNASeq/",
   bam.output.folder = "db/bam/RNASeq/",
   alignment.stats.output.folder = "db/alignment_stats/RNASeq/",
@@ -33,9 +34,12 @@ rnaseqProcessing(
 
 \item{genome.idx}{Path to the Rsubread genome index. If NULL, derived from genome. Default= NULL.}
 
-\item{gtf}{Path to the GTF annotation file. If genome is provided, corresponding protein-coding / mRNA genes will be used. Default= NULL.}
+\item{annotation.file}{Path to a '.gtf', '.gtf.gz' or '.saf' annotation file. If genome is specified,
+the corresponding gtf file will be used. SAF format should contain: GeneID, Chr, Start, End, Strand. Default= NULL.}
 
-\item{GTF.attrType.extra}{Additional GTF attribute to include in the output (e.g., gene symbol).}
+\item{GTF.attrType.extra}{Additional GTF attribute to include in the output (e.g., gene symbol). Default= NULL.}
+
+\item{allowMultiOverlap}{If a read overlaps more than one feature, should be assigned to all overlapping features? Default= FALSE.}
 
 \item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/RNASeq/".}
 
@@ -83,12 +87,4 @@ vl_submit(cmd, execute= FALSE)
 
 # Then, differential analysis should be performed using ?cmd_DESeq2()
 
-}
-\seealso{
-\itemize{
-  \item \code{\link{cmd_trimIlluminaAdaptors}} for adapter trimming
-  \item \code{\link{cmd_alignRsubread}} for alignment
-  \item \code{\link{cmd_countRsubread}} for gene counting
-  \item \code{\link{cmd_bamToBigwig}} for BigWig track generation
-}
 }
