@@ -145,15 +145,25 @@ vl_motifPos <- function(sequences,
       # If specified, collapsed motifs that overlap >70%, ignore.strand
       if(collapse.overlapping & nrow(.c))
       {
-        min.gap <- -ceiling(mean(.c$width)*0.7)
+        # Compute width 70% motif
+        mot.width <- ceiling(mean(.c$width)*0.7)
+        # Collapsing index
         .c$idx <-  collapseBed(bed = .c,
-                               max.gap = min.gap,
                                ignore.strand = TRUE,
                                return.idx.only = TRUE)
+        # Collapse
         .c <- .c[, {
-          .(start= min(start),
+          coll <- data.table(
+            seqnames,
+            start= min(start),
             end= max(end),
-            score= max(score, na.rm = TRUE))
+            score= max(score, na.rm= TRUE)
+          )
+          # Divide widh by 70% motif width
+          nBins <- coll[, end-start+1]/min.ov
+          # Bin
+          binBed(coll,
+                 nbins = floor(nBins))
         }, .(seqnames, idx)]
         .c[, width:= end-start+1]
       }
