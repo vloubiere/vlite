@@ -9,6 +9,8 @@
 #' all genes are used as the universe.
 #' @param species Character. The species for the analysis. Choose between `Dm` (Drosophila melanogaster)
 #' and `Mm` (Mus musculus).
+#' @param keyType The keyType to be used. Defaults to 'FLYBASE' (when genome= 'Dm') or 'ENSEMBL' (when genome= 'Mm').
+#' For Dm, 'SYMBOL' can be used for gene symbols.
 #' @param select Character vector specifying which GO annotations to consider. Options are `BP`
 #' (Biological Process), `CC` (Cellular Component), and `MF` (Molecular Function). Default= c("BP", "CC", "MF").
 #' @param log2OR.pseudocount Numeric. A pseudocount added to the contingency table to avoid infinite values
@@ -125,6 +127,7 @@
 vl_GOenrich <- function(geneIDs,
                         geneUniverse.IDs,
                         species,
+                        keyType,
                         select= c("BP", "CC", "MF"),
                         log2OR.pseudocount= 1,
                         cleanup.cache= FALSE)
@@ -151,9 +154,11 @@ vl_GOenrich <- function(geneIDs,
   db <- switch(species,
                "Dm"= org.Dm.eg.db::org.Dm.eg.db,
                "Mm"= org.Mm.eg.db::org.Mm.eg.db)
-  keyType <- switch(species,
-                    "Dm"= "FLYBASE",
-                    "Mm"= "ENSEMBL")
+  if(missing(keyType))
+    keyType <- switch(species,
+                      "Dm"= "FLYBASE",
+                      "Mm"= "ENSEMBL")
+
 
   # Use a temp directory for caching GOs associated to gene sets ----
   set.params <- list(geneIDs,
@@ -219,7 +224,7 @@ vl_GOenrich <- function(geneIDs,
     GOs[, set_total:= length(x)]
     # Compute enrichments
     GOs[, c("OR", "pval"):= {
-      # Confusion matrix
+      # Contingency matrix
       mat <- matrix(unlist(.BY), byrow= T, ncol= 2)
       mat[,2] <- mat[, 2]-mat[, 1]
       # pvalue
@@ -233,12 +238,17 @@ vl_GOenrich <- function(geneIDs,
     unique(GOs[, !c("gene_id", "set")])
   })
   enr <- rbindlist(enr, idcol = "cl")
+  enr[, cl:= factor(cl, names(geneIDs))]
+
+  # Add all the associated genes ----
+  associated_genes <- lapply(geneIDs, function(x) set[gene_id %in% x, paste0(sort(unique(gene_id)), collapse = ","), .(GO, annotation)])
+  associated_genes <- rbindlist(associated_genes, idcol = "cl")
+  enr[associated_genes, associated_genes:= i.V1, on= c("cl", "GO", "annotation")]
 
   # Compute log2OR and padj ----
   enr[, log2OR:= log2(OR)]
   enr[, padj:= p.adjust(pval, method = "fdr"), cl]
   enr$OR <- enr$pval <- NULL
-
   # Define class (for plotting methods) ----
   if(length(unique(enr$cl))>1) {
     setattr(enr, "class", c("vl_enr_cl", "data.table", "data.frame"))

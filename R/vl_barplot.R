@@ -47,6 +47,7 @@ vl_barplot <- function(x,
                        xaxt= "s",
                        width= .6,
                        space= NULL,
+                       xaxs= "i",
                        horiz= FALSE,
                        ...)
 {
@@ -86,7 +87,7 @@ vl_barplot <- function(x,
   if(is.null(xlim)) {
     xlim <- if(is.matrix(x)) {
       if(beside & nrow(x)>1) {
-        c(0.5, ncol(x)*nrow(x)+.5)
+        c(0.5, ncol(x)+.5)
       } else
         c(0.5, ncol(x)+.5)
     }else if(is.vector(x))
@@ -112,6 +113,7 @@ vl_barplot <- function(x,
                  xlim= xlim,
                  ylim= ylim,
                  beside= beside,
+                 xaxs= xaxs,
                  xaxt= ifelse(tilt.names, "n", xaxt),
                  names.arg= names.arg,
                  width= width,

@@ -56,6 +56,8 @@ plot.vl_enr <- function(obj,
   # Checks
   if(any(is.infinite(DT$log2OR)))
     stop("Infinite enrichment values should be capped before plotting.")
+  if(any(DT$padj==0))
+    stop("Some padjust are equal to 0 and should be set to a minimum positive value before plotting.")
   if(!nrow(DT))
     stop("No enrichment found with current cutoffs!")
 
@@ -90,14 +92,13 @@ plot.vl_enr <- function(obj,
                    horiz= T,
                    names.arg= name,
                    border= NA,
-                   col= Cc(-log10(padj)),
+                   col= ifelse(padj>0.05, "lightgrey", Cc(-log10(padj))),
                    las= 1,
                    xlab= xlab)]
 
   # Plot heatkey
-  hk.breaks <- seq(breaks[1], breaks[2], length.out= 100)
-  heatkey(breaks = hk.breaks,
-          col = Cc(hk.breaks),
+  heatkey(breaks = breaks,
+          col = Cc(breaks),
           main = "p.adjust (-log10)")
 
   # Return

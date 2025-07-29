@@ -22,14 +22,15 @@ addMotifs <- function(plot.DT,
                       lwd= 0.1)
 {
   # Extract pwms ----
-  idx <- match(plot.DT$motif, sapply(pwms, TFBSTools::name))
+  sel <- unique(pl[order(-y), .(motif, name, y)])
+  idx <- match(unique(sel$motif), sapply(pwms, TFBSTools::name))
 
   # Check ----
   if(anyNA(idx))
     stop("Some motifs in plot.DT$motif could not be found in sapply(pwms, TFBSTools::name)")
 
   # Compute plotting coordinates ----
-  lab.width <- strwidth(plot.DT$name, cex= par("cex.axis"))
+  lab.width <- strwidth(sel$name, cex= par("cex.axis"))
   space.plot.lab <- diff(grconvertX(c(0, par("mgp")[2]+0.5), "lines", "user"))
   lab.left <- max(lab.width)+space.plot.lab
   mot.right <- par("usr")[1]-lab.left
@@ -37,7 +38,7 @@ addMotifs <- function(plot.DT,
   # Plot motifs ----
   coor <- addSeqLogo(pwm = pwms[idx],
                      x = mot.right,
-                     y = plot.DT$y,
+                     y = sel$y,
                      cex.width = cex.width,
                      cex.height = cex.height,
                      min_content= 0.05)

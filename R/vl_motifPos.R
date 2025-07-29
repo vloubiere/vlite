@@ -6,7 +6,8 @@
 #' @param sequences A named character vector of sequences to analyze. This argument takes precedence over the bed argument.
 #' @param bed Genomic ranges in a format compatible with ?importBed, from which genomic sequences will be retrieved when sequences is set to NULL.
 #' @param pwm_log_odds A PWMatrixList (in log2 odds ratio format) containing motifs to map. For example, see "/groups/stark/vloubiere/motifs_db/".
-#' @param genome The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified). This argument is required.
+#' @param genome The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified).
+#' Default= NULL.
 #' @param bg The background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".
 #' @param p.cutoff The p-value cutoff for motif detection. Default= 5e-5.
 #' @param pos.strand If set to TRUE, only motifs on the positive strand are considered (default= FALSE).
@@ -48,7 +49,7 @@
 vl_motifPos <- function(sequences,
                         bed,
                         pwm_log_odds,
-                        genome,
+                        genome= NULL,
                         bg= "genome",
                         p.cutoff= 5e-5,
                         pos.strand= FALSE,
@@ -61,10 +62,14 @@ vl_motifPos <- function(sequences,
     warning("sequences are provided -> input bed will not be used.")
   if(missing(sequences) && missing(bed))
     stop("sequences of bed regions should be specified.")
-  if(missing(genome) && (missing(sequences) | bg=="genome"))
-    stop("genome is missing with no default.")
+  if(is.null(genome) && (missing(sequences) | bg=="genome"))
+    stop("genome is set to NULL.")
   if(!"PWMatrixList" %in% class(pwm_log_odds))
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
+  if(anyDuplicated(sapply(pwm_log_odds, TFBSTools::name)))
+    stop("Duplicated motif names in providin PWMs. Check them using TFBSTools::name().")
+  if(!is.numeric(p.cutoff) || p.cutoff>1)
+    stop("p.cutoff should be a numeric value <= 1")
 
   # Get sequences ----
   if(missing(sequences)) {
@@ -85,7 +90,7 @@ vl_motifPos <- function(sequences,
   tmp.folder <- paste0(scratch, "/", sub.folder, "/")
   print(paste0("Temp files will be stored in '", tmp.folder, "'"))
   dir.create(tmp.folder,
-             showWarnings = FALSE,
+             showWarnings = TRUE,
              recursive = TRUE)
 
   # Create final file cache name ----

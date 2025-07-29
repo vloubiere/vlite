@@ -1,6 +1,7 @@
 #' Return seqLets with high contribution scores
 #'
 #' @param contrib A contribution data.table imported with ?importContrib.
+#' @param zscore.cutoff The zscore cutoff to be use to pre-select candidate regions. Default= 1.5.
 #' @param ext.size The size by which candidate peaks should be extended to retrieve
 #' local background. Default= 50.
 #' @param log2OR.cutoff Only the peaks with |log2OR| >= log2OR.cutoff are returned.
@@ -14,6 +15,7 @@
 #' @return A gr data.table containing significant peaks, based on provided cutoffs.
 #' @export
 contribSeqlets <- function(contrib,
+                           zscore.cutoff= 1.5,
                            ext.size= 50,
                            log2OR.cutoff= 1,
                            FDR.cutoff= 0.05)
@@ -32,7 +34,7 @@ contribSeqlets <- function(contrib,
 
   # Identify candidate peaks using zscore ----
   .m[, zscore:= scale(score), seqlvls]
-  .m[, peak:= !between(zscore, -1.5, 1.5)]
+  .m[, peak:= !between(zscore, -zscore.cutoff, zscore.cutoff)]
   .m[, peak_id:= .GRP, .(seqlvls, rleid(peak))]
   .m[, width:= start[.N]-start[1]+1, peak_id]
   # Cutoff on width

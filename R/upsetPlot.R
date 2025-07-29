@@ -50,6 +50,9 @@ upsetPlot <- function(dat.list,
                              fun.aggregate = function(x) ifelse(any(!is.na(x)), 1, 0),
                              drop = !(show.empty))
   inter <- inter[, .N, setdiff(names(inter), "var")]
+  # Cutoff number of elements in the intersection ----
+  if(intersection.cutoff>max(inter$N))
+    stop(paste("Maximum number of interesctions is =", max(inter$N)))
   inter <- inter[N>=intersection.cutoff]
   data.table::setorderv(inter, "N", -1)
   # sets

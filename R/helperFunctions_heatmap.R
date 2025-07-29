@@ -35,6 +35,7 @@ heatmap.get.clusters <- function(dim= "row",
                                  method,
                                  cutree,
                                  kmeans.k,
+                                 kmeans.cl.names,
                                  cluster.seed,
                                  annot.col,
                                  cluster.col,
@@ -58,14 +59,27 @@ heatmap.get.clusters <- function(dim= "row",
   if(isTRUE(clusters)) {
     set.seed(cluster.seed)
 
-    # Kmeans clustering
+    # Kmeans clustering ----
     if(!is.na(kmeans.k)) {
-      obj[, cluster:= kmeans(x, centers = kmeans.k)$cluster]
-      obj[, cluster:= factor(cluster)]
+      km <- kmeans(x, centers = kmeans.k)
+      obj[, cluster:= km$cluster]
+
+      # Order clusters
+      if(!is.null(kmeans.cl.names)) {
+        # Retrieve centers
+        centers <- km$centers[, kmeans.cl.names]
+        # zscore
+        centers <- t(scale(t(centers)))
+        max.col <- apply(centers, 1, which.max)
+        max.var <- apply(centers, 1, max)
+        ordered <- order(max.col, -max.var)
+        obj[, cluster:= factor(cluster, ordered)]
+      } else
+        obj[, cluster:= factor(cluster)]
       obj[, order:= order(cluster)]
 
-      # Hierachical clustering
     } else {
+      # Hierachical clustering ----
       # Compute distances
       .d <- if(distance %in% c("pearson", "spearman")) {
         as.dist(1 - cor(t(x),
@@ -78,13 +92,14 @@ heatmap.get.clusters <- function(dim= "row",
       # Actual clustering
       hcl <- hclust(.d, method = method)
       obj[, order:= hcl$order]
+
       # Cutree
-      if(!missing(cutree)) {
+      if(!is.null(cutree)) {
         obj[, cluster:= cutree(hcl, cutree)]
         obj[, cluster:= factor(cluster)]
       }
 
-      # Extract dendrograms
+      # Extract dendrograms ----
       dend <- ggdendro::dendro_data(hcl,
                                     type = "rectangle",
                                     rotate= T)
@@ -92,10 +107,17 @@ heatmap.get.clusters <- function(dim= "row",
     }
   }
 
-  # Add clusters and annotations colors ----
-  obj[, cluster.col:= colorRampPalette(cluster.col)(nlevels(cluster))[cluster]]
-  if(!is.null(annot))
-    obj[, annot.col:= colorRampPalette(annot.col)(nlevels(annot))[annot]]
+  # Add clusters colors ----
+  if(length(cluster.col) < nlevels(obj$cluster))
+    cluster.col <- colorRampPalette(cluster.col)(nlevels(obj$cluster))
+  obj[, cluster.col:= cluster.col[cluster]]
+
+  # Add annotations colors ----
+  if(!is.null(annot)) {
+    if(length(annot.col) < nlevels(obj$annot))
+      annot.col <- colorRampPalette(annot.col)(nlevels(obj$annot))
+    obj[, annot.col:= annot.col[annot]]
+  }
 
   # Compute plotting coordinates ----
   obj <- obj[(order)]

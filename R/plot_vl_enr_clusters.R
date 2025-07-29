@@ -52,6 +52,8 @@ plot.vl_enr_cl <- function(obj,
     stop("Possible values for order are 'padj', 'log2OR'")
   if(any(obj[, .N, .(name, cl)]$N > 1))
     stop("Several lines were found with similar name / cl combination.")
+  if(any(is.na(obj$name)))
+    stop("Some names in DT are NA.")
 
   # Import and select based on padj and min.counts
   DT <- data.table::copy(obj)

@@ -36,13 +36,14 @@
 #' @param clustering.distance.rows Character string specifying the distance metric for rows. Default is "euclidean".
 #' @param clustering.distance.cols Similar to clustering.distance.rows but for columns.
 #' @param clustering.method Character string specifying the hierarchical clustering method. Default is "complete".
-#' @param cutree.rows Integer specifying the number of row clusters to cut the tree into.
-#' @param cutree.cols Similar to cutree.rows but for columns.
+#' @param cutree.rows Integer specifying the number of row clusters to cut the tree into. Default= NULL.
+#' @param cutree.cols Similar to cutree.rows but for columns. Default= NULL.
 #' @param show.row.clusters Character specifying the position of row cluster visualization: "right", "left", or FALSE.
 #' @param show.col.clusters Character specifying the position of column cluster visualization: "top", "bottom", or FALSE.
 #' @param show.row.dendro If rows are clustered using hclust, should the dendrogram be shown? Default= TRUE.
 #' @param show.col.dendro If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.
-#' @param gap.width The width of the gap between clusters, expressed as a fraction of the plot limits. Default= 1/80.
+#' @param row.gap.width The height of the gap between row clusters, expressed as a fraction of rows' height. Default= 1/10.
+#' @param col.gap.width The width of the gap between column clusters, expressed as a fraction of columns' height. Default= 1/10.
 #' @param cluster.seed Integer seed for reproducible clustering. Default= 3453.
 #' @param row.clusters.col A vector of two colors for the row cluster gradient. Default is c("grey90", "grey40").
 #' @param col.clusters.col A vector of two colors for the column cluster gradient. Default is c("grey90", "grey40").
@@ -84,6 +85,7 @@ vl_heatmap <- function(x,
                        cluster.rows= TRUE,
                        cluster.cols= FALSE,
                        kmeans.k= NA,
+                       kmeans.order= FALSE,
                        breaks= NULL,
                        col= NULL,
                        row.annotations= NULL,
@@ -100,13 +102,14 @@ vl_heatmap <- function(x,
                        clustering.distance.rows= "euclidean",
                        clustering.distance.cols= "euclidean",
                        clustering.method = "complete",
-                       cutree.rows,
-                       cutree.cols,
+                       cutree.rows= NULL,
+                       cutree.cols= NULL,
                        show.row.clusters= "right",
                        show.col.clusters= "top",
                        show.row.dendro= TRUE,
                        show.col.dendro= TRUE,
-                       gap.width= 1/80,
+                       row.gap.width= 1/10,
+                       col.gap.width= 1/10,
                        cluster.seed= 3453,
                        row.clusters.col= c("grey90", "grey40"),
                        col.clusters.col= c("grey90", "grey40"),
@@ -116,7 +119,8 @@ vl_heatmap <- function(x,
                        legend.cex= 1,
                        numbers.cex= .7,
                        show.grid= FALSE,
-                       grid.lwd= .25)
+                       grid.lwd= .25,
+                       plot= T)
 {
   # Coerce x to numeric matrix (useful for factors) ----
   x <- toNumMatrix(x)
@@ -146,6 +150,8 @@ vl_heatmap <- function(x,
     } else
       stop("cluster.rows format not recognized.")
   }
+  if(!is.logical(kmeans.order) || kmeans.order>1)
+    stop("kmeans.order should be TRUE or FALSE.")
   if(isTRUE(show.row.clusters))
     show.row.clusters <- "left"
   if(!show.row.clusters %in% c(FALSE, "left", "right"))
@@ -158,7 +164,7 @@ vl_heatmap <- function(x,
       cluster.cols <- factor(cluster.cols)
     if(is.factor(cluster.cols)) {
       if(length(cluster.cols) != ncol(x))
-        stop("cluster.cols should match the number of rows in x.")
+        stop("cluster.cols should match the number of columns in x.")
     } else
       stop("cluster.cols format not recognized")
   }
@@ -182,7 +188,7 @@ vl_heatmap <- function(x,
       col.annotations <- factor(col.annotations)
     if(is.factor(col.annotations)) {
       if(length(col.annotations) != ncol(x))
-        stop("col.annotations should match the number of rows in x.")
+        stop("col.annotations should match the number of columns in x.")
     } else
       stop("col.annotations format not recognized.")
   }
@@ -247,31 +253,6 @@ vl_heatmap <- function(x,
     col <- colorRampPalette(col)(length(breaks)-1)
   }
 
-  # Compute row and column gap widths ----
-  if(nrow(x)>=ncol(x)) {
-    row.gap.width <- nrow(x)*gap.width
-    col.gap.width <- row.gap.width*(ncol(x)/nrow(x))
-  } else {
-    col.gap.width <- ncol(x)*gap.width
-    row.gap.width <- col.gap.width*(nrow(x)/ncol(x))
-  }
-
-  # Cluster rows object ----
-  rows <- heatmap.get.clusters(dim= "row",
-                               x = if(exists("cx")) cx else x,
-                               annot = row.annotations,
-                               clusters = cluster.rows,
-                               distance = clustering.distance.rows,
-                               method = clustering.method,
-                               cutree = cutree.rows,
-                               kmeans.k = kmeans.k,
-                               cluster.seed = cluster.seed,
-                               cluster.col = row.clusters.col,
-                               annot.col = row.annotations.col,
-                               gap.width = row.gap.width)
-  rdend <- rows$dend
-  rows <- rows$obj
-
   # Cluster columns object ----
   cols <- heatmap.get.clusters(dim= "col",
                                x = x,
@@ -288,6 +269,23 @@ vl_heatmap <- function(x,
   cdend <- cols$dend
   cols <- cols$obj
 
+  # Cluster rows object ----
+  rows <- heatmap.get.clusters(dim= "row",
+                               x = if(exists("cx")) cx else x,
+                               annot = row.annotations,
+                               clusters = cluster.rows,
+                               distance = clustering.distance.rows,
+                               method = clustering.method,
+                               cutree = cutree.rows,
+                               kmeans.k = kmeans.k,
+                               kmeans.cl.names = if(kmeans.order) cols$name else NULL,
+                               cluster.seed = cluster.seed,
+                               cluster.col = row.clusters.col,
+                               annot.col = row.annotations.col,
+                               gap.width = row.gap.width)
+  rdend <- rows$dend
+  rows <- rows$obj
+
   # Clip outlier values to min/max color breaks ----
   x[x<min(breaks)] <- min(breaks, na.rm= TRUE)
   x[x>max(breaks)] <- max(breaks, na.rm= TRUE)
@@ -297,170 +295,118 @@ vl_heatmap <- function(x,
   NAbreaks <- c(breaks[1]-c(2,1), breaks[-1])
   NAcols <- c(na.col, col)
 
-  # Plot full image frame ----
-  image(x= 1,
-        y= 1,
-        z= matrix(NA),
-        breaks= c(-1,1),
-        col= NA,
-        xlim= range(cols$x.pos)+c(-0.5, 0.5),
-        ylim= rev(range(rows$y.pos))+c(0.5, -0.5), # Firs line at y= 1...
-        xlab= NA,
-        ylab= NA,
-        axes= FALSE)
+  # Plotting ----
+  if(plot) {
+    # Plot heatmap ----
+    image(x= 1,
+          y= 1,
+          z= matrix(NA),
+          breaks= c(-1,1),
+          col= NA,
+          xlim= range(cols$x.pos)+c(-0.5, 0.5),
+          ylim= rev(range(rows$y.pos))+c(0.5, -0.5), # Firs line at y= 1...
+          xlab= NA,
+          ylab= NA,
+          axes= FALSE)
 
-  # Plot clusters iteratively ----
-  rows[, {
-    cols[, {
-      image(x= if(length(x.pos)==1) x.pos+c(-0.5, 0.5) else x.pos,
-            y= if(length(y.pos)==1) y.pos+c(-0.5, 0.5) else y.pos,
-            z= t(x[line.idx, column.idx, drop= FALSE]),
-            breaks= NAbreaks,
-            col= NAcols,
-            xlab= NA,
-            ylab= NA,
-            axes= FALSE,
-            useRaster= useRaster,
-            add= TRUE)
-      if(show.grid) {
-        x <- seq(x.pos[1]-0.5, rev(x.pos)[1]+0.5)
-        segments(x,
-                 rev(y.pos)[1]+0.5,
-                 x,
-                 y.pos[1]-0.5,
-                 lwd= grid.lwd)
-        y <- seq(y.pos[1]-0.5, rev(y.pos)[1]+0.5)
-        segments(x.pos[1]-0.5,
-                 y,
-                 rev(x.pos)[1]+0.5,
-                 y,
-                 lwd= grid.lwd)
-      }
-      rect(xleft = x.pos[1]-0.5,
-           ybottom = rev(y.pos)[1]+0.5,
-           xright = rev(x.pos)[1]+0.5,
-           ytop = y.pos[1]-0.5,
-           xpd= NA)
-    }, cluster]
-  }, cluster]
-
-  # Plot numbers ----
-  if(!isFALSE(show.numbers)) {
-    text(x= rep(cols$x.pos, each= nrow(rows)),
-         y= rep(rows$y.pos, nrow(cols)),
-         labels = c(show.numbers[rows$line.idx, cols$column.idx, drop= FALSE]),
-         cex= numbers.cex)
-  }
-
-  # Plot axes ----
-  # X axis
-  if(show.rownames) {
-    axis(2,
-         rows$y.pos,
-         rows$name,
-         lwd = 0,
-         lwd.ticks = 0)
-  }
-  # Y axis
-  if(show.colnames) {
-    # Check if labels will overlap
-    cn.width <- strwidth(cols$name)/2
-    colnames.ov <- (cols$x.pos-cn.width)[-1] < (cols$x.pos+cn.width)[-length(cn.width)]
-    # If yes, tilt them
-    if(any(colnames.ov)) {
-      tiltAxis(x= cols$x.pos,
-               labels= cols$name)
-    } else {
-      # Otherwise, default axis
-      axis(1,
-           at = cols$x.pos,
-           labels = cols$name,
-           lwd = 0,
-           lwd.ticks = 0,
-           padj= -1.25)
-    }
-  }
-
-  # Compute margins positions and define line width/height (used for plotting) ----
-  right.mar <- par("usr")[2]
-  top.mar <- par("usr")[4]
-  line.width <- diff(grconvertX(c(0,1), "line", "user"))
-  line.height <- diff(grconvertY(c(0,1), "line", "user"))
-
-  # Plot row annotations ----
-  if(!is.null(row.annotations)) {
-    # Adjust margin
-    right.mar <- right.mar+line.width/5
-    # Plot
+    # Plot clusters iteratively ----
     rows[, {
-      rect(xleft = right.mar,
-           ybottom = y.pos[.N]+0.5,
-           xright = right.mar+line.width,
-           ytop = y.pos[1]-0.5,
-           col= annot.col[1],
-           xpd= NA,
-           border= NA)
-    }, rleid(annot, cluster)]
-    # Adjust margin
-    right.mar <- right.mar+line.width
-  }
+      cols[, {
+        image(x= if(length(x.pos)==1) x.pos+c(-0.5, 0.5) else x.pos,
+              y= if(length(y.pos)==1) y.pos+c(-0.5, 0.5) else y.pos,
+              z= t(x[line.idx, column.idx, drop= FALSE]),
+              breaks= NAbreaks,
+              col= NAcols,
+              xlab= NA,
+              ylab= NA,
+              axes= FALSE,
+              useRaster= useRaster,
+              add= TRUE)
+        if(show.grid) {
+          x <- seq(x.pos[1]-0.5, rev(x.pos)[1]+0.5)
+          segments(x,
+                   rev(y.pos)[1]+0.5,
+                   x,
+                   y.pos[1]-0.5,
+                   lwd= grid.lwd)
+          y <- seq(y.pos[1]-0.5, rev(y.pos)[1]+0.5)
+          segments(x.pos[1]-0.5,
+                   y,
+                   rev(x.pos)[1]+0.5,
+                   y,
+                   lwd= grid.lwd)
+        }
+        rect(xleft = x.pos[1]-0.5,
+             ybottom = rev(y.pos)[1]+0.5,
+             xright = rev(x.pos)[1]+0.5,
+             ytop = y.pos[1]-0.5,
+             xpd= NA)
+      }, cluster]
+    }, cluster]
 
-  # Plot col annotations ----
-  if(!is.null(col.annotations)) {
-    # Adjust margin
-    top.mar <- top.mar+line.height/5
-    # Plot
-    cols[, {
-      rect(xleft = x.pos[1]-0.5,
-           ybottom = top.mar,
-           xright = x.pos[.N]+0.5,
-           ytop = top.mar+line.height,
-           col= annot.col[1],
-           xpd= NA,
-           border= NA)
-    }, rleid(annot, cluster)]
-    # Adjust margin
-    top.mar <- top.mar+line.height
-  }
+    # Plot numbers ----
+    if(!isFALSE(show.numbers)) {
+      text(x= rep(cols$x.pos, each= nrow(rows)),
+           y= rep(rows$y.pos, nrow(cols)),
+           labels = c(show.numbers[rows$line.idx, cols$column.idx, drop= FALSE]),
+           cex= numbers.cex)
+    }
 
-  # Plot row clusters ----
-  if(sum(!is.na(rows$cluster)) && !isFALSE(show.row.clusters)) {
-    # Plot on the right side
-    if(show.row.clusters=="right") {
+    # Plot axes ----
+    # X axis
+    if(show.rownames) {
+      axis(2,
+           rows$y.pos,
+           rows$name,
+           lwd = 0,
+           lwd.ticks = 0)
+    }
+    # Y axis
+    if(show.colnames) {
+      # Check if labels will overlap
+      cn.width <- strwidth(cols$name)/2
+      colnames.ov <- (cols$x.pos-cn.width)[-1] < (cols$x.pos+cn.width)[-length(cn.width)]
+      # If yes, tilt them
+      if(any(colnames.ov)) {
+        tiltAxis(x= cols$x.pos,
+                 labels= cols$name)
+      } else {
+        # Otherwise, default axis
+        axis(1,
+             at = cols$x.pos,
+             labels = cols$name,
+             lwd = 0,
+             lwd.ticks = 0,
+             padj= -1.25)
+      }
+    }
+
+    # Compute margins positions and define line width/height (used for plotting) ----
+    right.mar <- par("usr")[2]
+    top.mar <- par("usr")[4]
+    line.width <- diff(grconvertX(c(0,1), "line", "user"))
+    line.height <- diff(grconvertY(c(0,1), "line", "user"))
+
+    # Plot row annotations ----
+    if(!is.null(row.annotations)) {
       # Adjust margin
       right.mar <- right.mar+line.width/5
       # Plot
       rows[, {
         rect(xleft = right.mar,
              ybottom = y.pos[.N]+0.5,
-             xright = right.mar+line.width,
+             xright = right.mar+line.width*.5,
              ytop = y.pos[1]-0.5,
-             col= cluster.col[1],
+             col= annot.col[1],
              xpd= NA,
              border= NA)
-        text(x = right.mar+line.width/2,
-             y = mean(y.pos),
-             labels = cluster[1],
-             cex= par("cex.lab"),
-             xpd= NA,
-             offset= 0,
-             srt= -90)
-      }, cluster]
+      }, rleid(annot, cluster)]
       # Adjust margin
-      right.mar <- right.mar+line.width
-    } else if(show.row.clusters=="left") {
-      # Plot on the left side
-      axis(2,
-           at = rows[, mean(y.pos), cluster]$V1,
-           labels = rows[, paste0(cluster, " (n= ", formatC(.N, big.mark = ","), ")"), cluster]$V1,
-           tick = FALSE)
+      right.mar <- right.mar+line.width*.5
     }
-  }
 
-  # Plot column clusters ----
-  if(sum(!is.na(cols$cluster)) && !isFALSE(show.col.clusters)) {
-    # On the top
-    if(show.col.clusters=="top") {
+    # Plot col annotations ----
+    if(!is.null(col.annotations)) {
       # Adjust margin
       top.mar <- top.mar+line.height/5
       # Plot
@@ -468,110 +414,165 @@ vl_heatmap <- function(x,
         rect(xleft = x.pos[1]-0.5,
              ybottom = top.mar,
              xright = x.pos[.N]+0.5,
-             ytop = top.mar+line.height,
-             col= cluster.col[1],
+             ytop = top.mar+line.height*.5,
+             col= annot.col[1],
              xpd= NA,
              border= NA)
-        text(x = mean(x.pos),
-             y = top.mar+line.height/2,
-             labels = cluster[1],
-             cex= par("cex.lab"),
-             xpd= NA,
-             offset= 0)
-      }, cluster]
+      }, rleid(annot, cluster)]
+      # Adjust margin
+      top.mar <- top.mar+line.height*.5
+    }
+
+    # Plot row clusters ----
+    if(sum(!is.na(rows$cluster)) && !isFALSE(show.row.clusters)) {
+      # Plot on the right side
+      if(show.row.clusters=="right") {
+        # Adjust margin
+        right.mar <- right.mar+line.width/5
+        # Plot
+        rows[, {
+          rect(xleft = right.mar,
+               ybottom = y.pos[.N]+0.5,
+               xright = right.mar+line.width,
+               ytop = y.pos[1]-0.5,
+               col= cluster.col[1],
+               xpd= NA,
+               border= NA)
+          text(x = right.mar+line.width/2,
+               y = mean(y.pos),
+               labels = cluster[1],
+               cex= par("cex.lab"),
+               xpd= NA,
+               offset= 0,
+               srt= -90)
+        }, cluster]
+        # Adjust margin
+        right.mar <- right.mar+line.width
+      } else if(show.row.clusters=="left") {
+        # Plot on the left side
+        axis(2,
+             at = rows[, mean(y.pos), cluster]$V1,
+             labels = rows[, paste0(cluster, " (n= ", formatC(.N, big.mark = ","), ")"), cluster]$V1,
+             tick = FALSE)
+      }
+    }
+
+    # Plot column clusters ----
+    if(sum(!is.na(cols$cluster)) && !isFALSE(show.col.clusters)) {
+      # On the top
+      if(show.col.clusters=="top") {
+        # Adjust margin
+        top.mar <- top.mar+line.height/5
+        # Plot
+        cols[, {
+          rect(xleft = x.pos[1]-0.5,
+               ybottom = top.mar,
+               xright = x.pos[.N]+0.5,
+               ytop = top.mar+line.height,
+               col= cluster.col[1],
+               xpd= NA,
+               border= NA)
+          text(x = mean(x.pos),
+               y = top.mar+line.height/2,
+               labels = cluster[1],
+               cex= par("cex.lab"),
+               xpd= NA,
+               offset= 0)
+        }, cluster]
+        # Adjust margin
+        top.mar <- top.mar+line.height
+      } else if(show.col.clusters=="bottom") {
+        # Or plot on the bottom
+        axis(1,
+             at = cols[, mean(x.pos), cluster]$V1,
+             labels = cols[, paste0(cluster, "\nn= ", formatC(.N, big.mark = ",")), cluster]$V1,
+             tick = FALSE)
+      }
+    }
+
+    # Add rows dendrogram ----
+    if(!is.null(rdend) && show.row.dendro) {
+      segments(right.mar + rdend$x0 * line.width,
+               par("usr")[4] + rdend$y0,
+               right.mar + rdend$x1 * line.width,
+               par("usr")[4] + rdend$y1,
+               xpd = NA,
+               lend= 2)
+      # Adjust margin
+      right.mar <- right.mar + line.width
+    }
+
+    # Add columns dendrogram ----
+    if(!is.null(cdend) && show.col.dendro) {
+      segments(cdend$x0,
+               top.mar+cdend$y0*line.height,
+               cdend$x1,
+               top.mar+cdend$y1*line.height,
+               xpd= NA,
+               lend= 2)
       # Adjust margin
       top.mar <- top.mar+line.height
-    } else if(show.col.clusters=="bottom") {
-      # Or plot on the bottom
-      axis(1,
-           at = cols[, mean(x.pos), cluster]$V1,
-           labels = cols[, paste0(cluster, "\nn= ", formatC(.N, big.mark = ",")), cluster]$V1,
-           tick = FALSE)
     }
-  }
 
-  # Add rows dendrogram ----
-  if(!is.null(rdend) && show.row.dendro) {
-    segments(right.mar + rdend$x0 * line.width,
-             par("usr")[4] + rdend$y0,
-             right.mar + rdend$x1 * line.width,
-             par("usr")[4] + rdend$y1,
-             xpd = NA)
-    # Adjust margin
-    right.mar <- right.mar + line.width
-  }
-
-  # Add columns dendrogram ----
-  if(!is.null(cdend) && show.col.dendro) {
-    segments(cdend$x0,
-             top.mar+cdend$y0*line.height,
-             cdend$x1,
-             top.mar+cdend$y1*line.height,
-             xpd= NA)
-    # Adjust margin
-    top.mar <- top.mar+line.height
-  }
-
-  # Add heatkeys ----
-  if(!isFALSE(show.legend)) {
-    # Adjust plotting position
-    adj.x <- ifelse(show.legend=="top",
-                    0,
-                    (right.mar-par("usr")[2])/line.width-.5)
-    adj.y <- ifelse(show.legend=="top",
-                    (top.mar-par("usr")[4])/line.height-.5,
-                    0)
-    # Main heatmap heatkey
-    heatkey(col= col,
-            breaks = breaks,
-            labels = if(checkClass=="factor") allLvls else NULL,
-            position = show.legend,
-            adj.x = adj.x,
-            adj.y = adj.y,
-            cex = legend.cex,
-            main = legend.title)
-    # Adjust top margin
-    top.mar <- top.mar+((show.legend=="top")*3*line.height)
-
-    # Row annotations
-    if(!is.null(row.annotations)) {
+    # Add heatkeys ----
+    if(!isFALSE(show.legend)) {
       # Adjust plotting position
-      adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
-      # Annotations heatkey
-      rann <- unique(rows[!is.na(annot),.(annot, annot.col)])
-      setorderv(rann, "annot")
-      heatkey(breaks = as.numeric(rann$annot),
-              col= rann$annot.col,
-              labels = levels(rann$annot),
+      adj.x <- ifelse(show.legend=="top",
+                      0,
+                      (right.mar-par("usr")[2])/line.width-.5)
+      adj.y <- ifelse(show.legend=="top",
+                      (top.mar-par("usr")[4])/line.height-.5,
+                      0)
+      # Main heatmap heatkey
+      heatkey(col= col,
+              breaks = breaks,
+              labels = if(checkClass=="factor") allLvls else NULL,
               position = show.legend,
               adj.x = adj.x,
               adj.y = adj.y,
               cex = legend.cex,
-              main = row.annotations.title)
+              main = legend.title)
+      # Adjust top margin
+      top.mar <- top.mar+((show.legend=="top")*3*line.height)
+
+      # Row annotations
+      if(!is.null(row.annotations)) {
+        # Adjust plotting position
+        adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
+        # Annotations heatkey
+        rann <- factor(levels(rows$annot), levels(rows$annot))
+        heatkey(breaks = -as.numeric(rann),
+                col= row.annotations.col[rann],
+                labels = levels(rann),
+                position = show.legend,
+                adj.x = adj.x,
+                adj.y = adj.y,
+                cex = legend.cex,
+                main = row.annotations.title)
+      }
+
+      # Col annotations
+      if(!is.null(col.annotations)) {
+        # Adjust plotting position
+        adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
+        # Annotations heatkey
+        cann <- factor(levels(cols$annot), levels(cols$annot))
+        heatkey(breaks = -as.numeric(cann),
+                col= col.annotations.col[cann],
+                labels = levels(cann),
+                position = show.legend,
+                adj.x = adj.x,
+                adj.y = adj.y,
+                cex = legend.cex,
+                main = col.annotations.title)
+      }
     }
 
-    # Col annotations
-    if(!is.null(col.annotations)) {
-      # Adjust plotting position
-      adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
-      # Annotations heatkey
-      cann <- unique(cols[,.(annot, annot.col)])
-      setorderv(cann, "annot")
-      heatkey(breaks = as.numeric(cann$annot),
-              col= cann$annot.col,
-              labels = levels(cann$annot),
-              position = show.legend,
-              adj.x = adj.x,
-              adj.y = adj.y,
-              cex = legend.cex,
-              main = col.annotations.title)
-    }
+    # Add title ----
+    if(!is.na(main))
+      title(main= main,
+            line = max(c(1, (top.mar-par("usr")[4])/line.height+.25)))
   }
-
-  # Add title ----
-  if(!is.na(main))
-    title(main= main,
-          line = max(c(1, (top.mar-par("usr")[4])/line.height+.25)))
 
   # Return clusters ----
   obj <- list(rows= rows[order(line.idx), .(name, line.idx, cluster, order, y.pos)],

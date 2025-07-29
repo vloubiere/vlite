@@ -8,7 +8,7 @@
 #'    or have one value less than breaks (in which case breaks will be used as edges).
 #' @param labels Labels to be added to the color key. By default, elegant numeric ticks spanning the values in breaks are computed.
 #' If numeric labels are provided, they are plotted at the corresponding positions.
-#' If a character vector (or factor levels) of length equal to col is provided, labels are centered between each breaks' intervals.
+#' If a character vector (or factor levels) of length equal to col is provided, labels are centered at breaks' values
 #' @param position Position of the color key. Either "right" (vertical legend) or "top" (horizontal legend). Default= "right".
 #' @param adj.x If specified, x plotting positions are adjusted by adj.x*line.width. Default= 0.
 #' @param adj.y If specified, y plotting positions are adjusted by adj.y*line.height. Default= 0.
@@ -58,7 +58,8 @@ heatkey <- function(breaks,
     stop("position should be one of 'right' or 'top'.")
   if(!is.numeric(breaks))
     stop("Breaks should be numeric")
-  if(length(breaks)==length(col)) { # Center breaks if necessary
+  # Center breaks if necessary
+  if(length(breaks)==length(col)) {
     d <- diff(breaks)
     breaks <- c(
       breaks[1] - d[1]/2,
@@ -68,6 +69,7 @@ heatkey <- function(breaks,
   }
   if(length(breaks)!=length(col)+1)
     stop("heatkey: breaks should be the same length as col or one value longer.")
+  # Compute default labels
   if(is.null(labels))
     labels <- axisTicks(range(breaks),
                         log= F,
@@ -76,6 +78,16 @@ heatkey <- function(breaks,
     stop("labels should either be the length of col vector or be numeric.")
   if(is.numeric(labels))
     labels <- labels[labels>=min(breaks) & labels<=max(breaks)]
+  # Check that breaks are sorted
+  if(length(breaks)>1 & !all(diff(breaks)>0)) {
+    breaks <- rev(breaks)
+    if(!all(diff(breaks)>0))
+      stop("heatkey: breaks should be sorted in ascending or descending order.")
+    col <- rev(col)
+    if(!is.null(labels))
+      labels <- rev(labels)
+  }
+
 
   # Compute line width and heigh (used as reference) ----
   line.width <- diff(grconvertX(c(0, 1), "line", "user"))

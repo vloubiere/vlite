@@ -31,17 +31,18 @@ addSeqLogo <- function(pwm,
                        add= T,
                        min_content= 0.05)
 {
-  # Checks
+  # Checks ----
   if(!pos %in% c(2,4))
     stop("Unsupported pos value. Use either 2 (left) or 4 (right)")
   if(is.matrix(pwm))
     pwm <- list(pwm)
-  # Check classes
+  # Check classes ----
   classes <- unique(sapply(pwm, class))
   if(length(classes)>1)
     stop(paste("Several classes found in pwm:", paste0(classes, collapse = ";")))
-  if(class(pwm) %in% c("PFMatrixList", "PWMatrixList") | classes=="PWMatrix")
+  if(class(pwm) %in% c("PFMatrixList", "PWMatrixList") | classes %in% c("PWMatrix", "PFMatrix"))
     pwm <- lapply(pwm, TFBSTools::as.matrix)
+
 
   # Make object and index
   obj <- data.table(pwm, x, y, cex.width, cex.height)

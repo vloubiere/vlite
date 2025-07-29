@@ -7,6 +7,8 @@
 #' Should have the same number of columns as 'counts' data.table(s).
 #' @param names A character vector or factor names matching control.counts' columns (i.e., motif IDs).
 #' By default, column names are used as is.
+#' @param fisher.alternative The alternative for the fisher test. By default, if counts is a data.table or
+#' a list of length one, set to "two.sided". If counts containg at least two groups, set to "greater".
 #' @param log2OR.pseudocount Numeric. A pseudocount added to the contingency table to avoid infinite values
 #' in the log2 odds ratio calculation. Default= 1L.
 #' @param countFUN The function to be used for each motif, in order to compute the number of positive sequences.
@@ -82,6 +84,7 @@
 vl_motifEnrich <- function(counts,
                            control.counts,
                            names= NULL,
+                           fisher.alternative,
                            log2OR.pseudocount= 1L,
                            countFUN= function(motifCount) sum(motifCount>=1))
 {
@@ -100,7 +103,9 @@ vl_motifEnrich <- function(counts,
   if(is.null(names))
     names <- colnames(control.counts)
   if(!is.character(names) && !is.factor(names))
-    stop("names should be a vector or characters or factors.")
+    stop("names should be a vector of characters or of factors.")
+  if(missing(fisher.alternative))
+    fisher.alternative <- ifelse(length(counts)>1, "greater", "two.sided")
 
   # Melt control ----
   ctl <- melt(control.counts,
@@ -126,10 +131,10 @@ vl_motifEnrich <- function(counts,
     mat[,2] <- mat[, 2]-mat[, 1]
     # pvalue
     p.value <- fisher.test(mat,
-                           alternative = "greater")$p.value
+                           alternative = fisher.alternative)$p.value
     # log2OR (pseudocount avoid Inf)
     estimate <- fisher.test(mat+log2OR.pseudocount,
-                            alternative = "greater")$estimate
+                            alternative = fisher.alternative)$estimate
     .(estimate, p.value)
   }, .(set_hit, set_total, ctl_hit, ctl_total)]
 
