@@ -57,6 +57,9 @@ vl_barplot <- function(x,
   # Default names ----
   if(is.null(names.arg))
     names.arg <- names(x)
+  # Table to matrix ----
+  if(is.table(x))
+    x <- matrix(x, ncol= ncol(x), nrow= nrow(x), dimnames = dimnames(x))
 
   # If x is a list, compute stats ----
   if(is.list(x)) {

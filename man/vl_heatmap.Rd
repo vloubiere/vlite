@@ -9,6 +9,7 @@ vl_heatmap(
   cluster.rows = TRUE,
   cluster.cols = FALSE,
   kmeans.k = NA,
+  kmeans.order = FALSE,
   breaks = NULL,
   col = NULL,
   row.annotations = NULL,
@@ -25,13 +26,14 @@ vl_heatmap(
   clustering.distance.rows = "euclidean",
   clustering.distance.cols = "euclidean",
   clustering.method = "complete",
-  cutree.rows,
-  cutree.cols,
+  cutree.rows = NULL,
+  cutree.cols = NULL,
   show.row.clusters = "right",
   show.col.clusters = "top",
   show.row.dendro = TRUE,
   show.col.dendro = TRUE,
-  gap.width = 1/80,
+  row.gap.width = 1/10,
+  col.gap.width = 1/10,
   cluster.seed = 3453,
   row.clusters.col = c("grey90", "grey40"),
   col.clusters.col = c("grey90", "grey40"),
@@ -41,7 +43,8 @@ vl_heatmap(
   legend.cex = 1,
   numbers.cex = 0.7,
   show.grid = FALSE,
-  grid.lwd = 0.25
+  grid.lwd = 0.25,
+  plot = T
 )
 }
 \arguments{
@@ -97,9 +100,9 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 
 \item{clustering.method}{Character string specifying the hierarchical clustering method. Default is "complete".}
 
-\item{cutree.rows}{Integer specifying the number of row clusters to cut the tree into.}
+\item{cutree.rows}{Integer specifying the number of row clusters to cut the tree into. Default= NULL.}
 
-\item{cutree.cols}{Similar to cutree.rows but for columns.}
+\item{cutree.cols}{Similar to cutree.rows but for columns. Default= NULL.}
 
 \item{show.row.clusters}{Character specifying the position of row cluster visualization: "right", "left", or FALSE.}
 
@@ -109,7 +112,9 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 
 \item{show.col.dendro}{If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.}
 
-\item{gap.width}{The width of the gap between clusters, expressed as a fraction of the plot limits. Default= 1/80.}
+\item{row.gap.width}{The height of the gap between row clusters, expressed as a fraction of rows' height. Default= 1/10.}
+
+\item{col.gap.width}{The width of the gap between column clusters, expressed as a fraction of columns' height. Default= 1/10.}
 
 \item{cluster.seed}{Integer seed for reproducible clustering. Default= 3453.}
 

@@ -4,10 +4,18 @@
 \alias{contribSeqlets}
 \title{Return seqLets with high contribution scores}
 \usage{
-contribSeqlets(contrib, ext.size = 50, log2OR.cutoff = 1, FDR.cutoff = 0.05)
+contribSeqlets(
+  contrib,
+  zscore.cutoff = 1.5,
+  ext.size = 50,
+  log2OR.cutoff = 1,
+  FDR.cutoff = 0.05
+)
 }
 \arguments{
 \item{contrib}{A contribution data.table imported with ?importContrib.}
+
+\item{zscore.cutoff}{The zscore cutoff to be use to pre-select candidate regions. Default= 1.5.}
 
 \item{ext.size}{The size by which candidate peaks should be extended to retrieve
 local background. Default= 50.}

@@ -24,6 +24,7 @@ vl_barplot(
   xaxt = "s",
   width = 0.6,
   space = NULL,
+  xaxs = "i",
   horiz = FALSE,
   ...
 )

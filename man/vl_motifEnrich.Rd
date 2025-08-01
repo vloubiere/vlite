@@ -8,6 +8,7 @@ vl_motifEnrich(
   counts,
   control.counts,
   names = NULL,
+  fisher.alternative,
   log2OR.pseudocount = 1L,
   countFUN = function(motifCount) sum(motifCount >= 1)
 )
@@ -20,6 +21,9 @@ Should have the same number of columns as 'counts' data.table(s).}
 
 \item{names}{A character vector or factor names matching control.counts' columns (i.e., motif IDs).
 By default, column names are used as is.}
+
+\item{fisher.alternative}{The alternative for the fisher test. By default, if counts is a data.table or
+a list of length one, set to "two.sided". If counts containg at least two groups, set to "greater".}
 
 \item{log2OR.pseudocount}{Numeric. A pseudocount added to the contingency table to avoid infinite values
 in the log2 odds ratio calculation. Default= 1L.}

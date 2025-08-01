@@ -7,6 +7,7 @@
 cmd_alignCellRanger(
   fq.prefix,
   index,
+  GEX.multiome = FALSE,
   output.prefix,
   output.folder = "db/scRNASeq_10X/",
   cores = 10,
@@ -14,9 +15,12 @@ cmd_alignCellRanger(
 )
 }
 \arguments{
-\item{fq.prefix}{Prefix shared between input fastq files: '/path/to/fastq/shared_prefix'.}
+\item{fq.prefix}{Prefix shared between input fastq files: '/path/to/fastq/prefix'.
+cellranger will only search for file names matching 'prefix_S*_L.*'.}
 
 \item{index}{Path to the Cell Ranger reference transcriptome. e.g.: '/groups/stark/vloubiere/genomes/Drosophila_melanogaster/cellranger_dm6_TG/index/'}
+
+\item{GEX.multiome}{Do the fastq files correspond to the GEX part of a multiome experiment? Default= F}
 
 \item{output.prefix}{Prefix for output files.}
 

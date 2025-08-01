@@ -4,7 +4,18 @@
 \alias{contribSeqLogo}
 \title{Plot contribution scores matrix}
 \usage{
-contribSeqLogo(contrib, row.idx = 1, start, end, highlight.pos)
+contribSeqLogo(
+  contrib,
+  row.idx = 1,
+  start,
+  end,
+  highlight.pos,
+  xlab = "Position",
+  ylab = "Contribution score",
+  xaxs = "i",
+  xaxt = "s",
+  yaxt = "s"
+)
 }
 \arguments{
 \item{contrib}{A contrib object imported using ?importContrib.}
@@ -15,7 +26,7 @@ contribSeqLogo(contrib, row.idx = 1, start, end, highlight.pos)
 
 \item{end}{Integer specifying at which the end position of the sequence should be clipped.}
 
-\item{higlight}{Index of the positions that should be higlighted.}
+\item{highlight.pos}{Index of the positions that should be higlighted.}
 }
 \description{
 Plot contribution scores matrix

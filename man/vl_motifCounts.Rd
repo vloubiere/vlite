@@ -8,9 +8,9 @@ vl_motifCounts(
   sequences,
   bed,
   pwm_log_odds,
-  genome,
+  genome = NULL,
   bg = "genome",
-  p.cutoff = 0.00005,
+  p.cutoff = 5e-05,
   cleanup.cache = FALSE
 )
 }
@@ -21,7 +21,8 @@ vl_motifCounts(
 
 \item{pwm_log_odds}{A PWMatrixList (in log2 odds ratio format) containing motifs to count.}
 
-\item{genome}{Genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified).}
+\item{genome}{Genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified).
+Default= NULL.}
 
 \item{bg}{Background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".}
 

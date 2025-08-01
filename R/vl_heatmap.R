@@ -54,6 +54,10 @@
 #' @param numbers.cex Numeric scaling factor for the size of displayed numbers. Default= 0.7.
 #' @param show.grid Should the matric grid be shown? Default= FALSE.
 #' @param grid.lwd Line width used for the grid.
+#' @param pdf.file If specified, the heatmap will be saved into the provided pdf file, with an optimized and nice layout.
+#' Default= NULL
+#' @param pdf.par If TRUE, the plotting parametersof the PDF will be automatically set to nice default values. Oterwise,
+#' the current par() settings will be used. Default= TRUE.
 #'
 #' @return
 #' Invisibly returns a list with two `data.table` objects:
@@ -120,7 +124,9 @@ vl_heatmap <- function(x,
                        numbers.cex= .7,
                        show.grid= FALSE,
                        grid.lwd= .25,
-                       plot= T)
+                       plot= T,
+                       pdf.file= NULL,
+                       pdf.par= TRUE)
 {
   # Coerce x to numeric matrix (useful for factors) ----
   x <- toNumMatrix(x)
@@ -294,6 +300,28 @@ vl_heatmap <- function(x,
   # Adjust breaks to afford NAs
   NAbreaks <- c(breaks[1]-c(2,1), breaks[-1])
   NAcols <- c(na.col, col)
+
+  # Initiate pdf file ----
+  if(!is.null(pdf.file)) {
+    # Compute adjusted number of rows heatmap
+    Nrows <- nrow(x)
+    if(!isFALSE(cluster.rows)) {
+      Nrows <- Nrows+(uniqueN(rows$cluster)-1)*row.gap.width
+    }
+    # Compute adjusted number of columns heatmap
+    Ncols <- ncol(x)
+    if(!isFALSE(cluster.cols)) {
+      Ncols <- Ncols+(uniqueN(cols$cluster)-1)*col.gap.width
+    }
+    # Compute adjusted number of rows heatmap
+    pdf(pdf.file,
+        width= Ncols*0.12+4,
+        height = Nrows*0.12+4)
+    if(pdf.par) {
+      old.par <- par()
+      vl_par(mai= c(2,2,2,2))
+    }
+  }
 
   # Plotting ----
   if(plot) {
@@ -572,6 +600,14 @@ vl_heatmap <- function(x,
     if(!is.na(main))
       title(main= main,
             line = max(c(1, (top.mar-par("usr")[4])/line.height+.25)))
+  }
+
+  # Close pdf ----
+  if(!is.null(pdf.file)) {
+    dev.off()
+    if(pdf.par)
+      par(old.par)
+    print(paste("PDF file ->", pdf.file))
   }
 
   # Return clusters ----

@@ -6,7 +6,7 @@
 \usage{
 importContrib(
   h5,
-  bed = list.files(dirname(h5), ".bed$", full.names = TRUE),
+  bed = NULL,
   fa = list.files(dirname(h5), ".fa$", full.names = TRUE),
   FUN = function(x) rowSums(x)
 )
@@ -14,12 +14,14 @@ importContrib(
 \arguments{
 \item{h5}{A vector of paths to h5 file(s) containing the contribution scores.}
 
-\item{bed}{Bed file(s) containing the regions for which contributions were computed. By default, the file is searched in the same folder as the h5 file.}
+\item{bed}{Optional path(s) to Bed file(s) containing the coordinates for which contributions were computed.
+By default, the file is searched in the same folder as the h5 file.}
 
-\item{fa}{fasta file(s) containing the sequences for which contributions were computed. By default, the file is searched in the same folder as the h5 file.}
+\item{fa}{Path(s) to fasta file(s) containing the sequences for which contributions were computed.
+By default, the file is searched in the same folder as the h5 file.}
 
-\item{FUN}{The function to apply to each layer of the h5 object to retrieve the contribution scores. By default, each layer is a
-matrix of dimensions nchar(sequence)*4. Thus, default= function(x) rowSums(x).}
+\item{FUN}{The function to apply to each layer of the h5 object to retrieve the contribution scores.
+By default, each layer is a matrix of dimensions nchar(sequence)*4. Thus, default= function(x) rowSums(x).}
 }
 \value{
 A contribution data.table containing, for each region, the contribution scores (as list) and the corresponding sequence.

@@ -25,7 +25,7 @@ or have one value less than breaks (in which case breaks will be used as edges).
 
 \item{labels}{Labels to be added to the color key. By default, elegant numeric ticks spanning the values in breaks are computed.
 If numeric labels are provided, they are plotted at the corresponding positions.
-If a character vector (or factor levels) of length equal to col is provided, labels are centered between each breaks' intervals.}
+If a character vector (or factor levels) of length equal to col is provided, labels are centered at breaks' values}
 
 \item{position}{Position of the color key. Either "right" (vertical legend) or "top" (horizontal legend). Default= "right".}
 

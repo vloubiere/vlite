@@ -8,9 +8,9 @@ vl_motifPos(
   sequences,
   bed,
   pwm_log_odds,
-  genome,
+  genome = NULL,
   bg = "genome",
-  p.cutoff = 0.00005,
+  p.cutoff = 5e-05,
   pos.strand = FALSE,
   collapse.overlapping = FALSE,
   scratch = "/scratch-cbe/users/vincent.loubiere/motifs/",
@@ -24,7 +24,8 @@ vl_motifPos(
 
 \item{pwm_log_odds}{A PWMatrixList (in log2 odds ratio format) containing motifs to map. For example, see "/groups/stark/vloubiere/motifs_db/".}
 
-\item{genome}{The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified). This argument is required.}
+\item{genome}{The genome to use as background when bg = "genome" and/or to retrieve sequences (when bed is specified).
+Default= NULL.}
 
 \item{bg}{The background model for motif detection. Options are "genome", "subject" (inferred from input sequences) or "even" (0.25, 0.25, 0.25, 0.25). Default= "genome".}
 

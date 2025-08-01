@@ -8,6 +8,7 @@ vl_GOenrich(
   geneIDs,
   geneUniverse.IDs,
   species,
+  keyType,
   select = c("BP", "CC", "MF"),
   log2OR.pseudocount = 1,
   cleanup.cache = FALSE
@@ -21,6 +22,9 @@ all genes are used as the universe.}
 
 \item{species}{Character. The species for the analysis. Choose between `Dm` (Drosophila melanogaster)
 and `Mm` (Mus musculus).}
+
+\item{keyType}{The keyType to be used. Defaults to 'FLYBASE' (when genome= 'Dm') or 'ENSEMBL' (when genome= 'Mm').
+For Dm, 'SYMBOL' can be used for gene symbols.}
 
 \item{select}{Character vector specifying which GO annotations to consider. Options are `BP`
 (Biological Process), `CC` (Cellular Component), and `MF` (Molecular Function). Default= c("BP", "CC", "MF").}

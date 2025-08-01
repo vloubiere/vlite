@@ -6,6 +6,18 @@ if(F) {
   file.edit("inst/test/newUmiCollapsingStrat.R")
 }
 
+# Single-cell tools ------------------------
+if(F) {
+  # sc-RNA-Seq
+  file.edit("R/cmd_alignCellRanger.R")
+  file.edit("R/sc_computeMarkerGenes.R")
+  file.edit("R/sc_topMarkers.R")
+  file.edit("R/sc_markerHeatmap.R")
+
+  # sc-Multiome
+  file.edit("R/cmd_alignCellRangerArc.R")
+}
+
 # bedtools ---------------------------------
 if(F) {
   file.edit("R/bedTools.R")
@@ -212,9 +224,6 @@ if(F) {
   # log2 Ratio bigwig
   file.edit("R/cmd_logRatioBigwig.R") # Wrapper
   file.edit("inst/Rscript/logRatioBigwig.R") # R subscript
-
-  # sc-RNA-Seq ---------------------
-  file.edit("R/cmd_alignCellRanger.R")
 }
 
 # Plots --------------------------------
