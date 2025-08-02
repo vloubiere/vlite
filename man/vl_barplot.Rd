@@ -11,21 +11,23 @@ vl_barplot(
   show.sd = TRUE,
   show.points = TRUE,
   beside = FALSE,
+  width = 0.6,
   xlim = NULL,
   ylim = NULL,
-  tilt.names = TRUE,
   top.labels.cex = 0.7,
   sd.arrow.lwd = 0.5,
-  sd.arrow.length = ifelse(length(x) > 1, diff(bar[c(1, 2)])/8, 0.2),
+  sd.arrow.length = width/5,
   pch = 16,
   pch.col = adjustcolor("grey20", 0.7),
   pch.cex = 0.5,
   pch.jitter = 0.2,
   xaxt = "s",
-  width = 0.6,
-  space = NULL,
   xaxs = "i",
+  frame = F,
   horiz = FALSE,
+  xlab = NA,
+  ylab = NA,
+  col = "lightgrey",
   ...
 )
 }
@@ -46,8 +48,6 @@ vl_barplot(
 
 \item{ylim}{Y-axis limits. Default = NULL.}
 
-\item{tilt.names}{Should bar names be tilted? Default = TRUE.}
-
 \item{top.labels.cex}{Expansion factor for top.labels.}
 
 \item{sd.arrow.lwd}{Line width of SD arrows. Default = 0.5.}
@@ -65,8 +65,6 @@ vl_barplot(
 \item{xaxt}{If tilt.names is set to FALSE, style to be used for the x-axis. Default = "s".}
 
 \item{horiz}{Not supported at the moment.}
-
-\item{...}{Additional arguments passed to \code{barplot()}.}
 }
 \value{
 A barplot.

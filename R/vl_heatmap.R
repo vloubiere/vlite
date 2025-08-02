@@ -162,6 +162,8 @@ vl_heatmap <- function(x,
     show.row.clusters <- "left"
   if(!show.row.clusters %in% c(FALSE, "left", "right"))
     stop("show.row.clusters should be one of TRUE, FALSE, 'left' or 'right'.")
+  if(isTRUE(cluster.rows) && clustering.distance.rows %in% c("pearson", "spearman") && ncol(x)==1)
+    stop("Error: Rows cannot be clustered using pearson or spearman when ncol(x)==1")
   # Columns
   if(ncol(x)==1 && isTRUE(cluster.cols))
     cluster.cols <- FALSE
@@ -178,6 +180,8 @@ vl_heatmap <- function(x,
     show.col.clusters <- "top"
   if(!show.col.clusters %in% c(FALSE, "bottom", "top"))
     stop("show.col.clusters should be one of TRUE, FALSE, 'bottom' or 'top'.")
+  if(isTRUE(cluster.cols) && clustering.distance.cols %in% c("pearson", "spearman") && nrow(x)==1)
+    stop("Error: Columns cannot be clustered using pearson or spearman when nrow(x)==1")
 
   # Check annotations ----
   if(!is.null(row.annotations)){
@@ -605,8 +609,6 @@ vl_heatmap <- function(x,
   # Close pdf ----
   if(!is.null(pdf.file)) {
     dev.off()
-    if(pdf.par)
-      par(old.par)
     print(paste("PDF file ->", pdf.file))
   }
 

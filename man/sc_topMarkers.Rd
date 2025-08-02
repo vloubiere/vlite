@@ -6,20 +6,26 @@
 \usage{
 sc_topMarkers(
   dat,
+  topN = Inf,
+  selection = character(),
+  cluster.var = "cluster",
   perc.cutoff = 10,
   perc.diff.cutoff = 20,
   padj.wilcox.cutoff = 0.05,
-  logFC.cutoff = 0,
-  padj.fisher.cutoff = 1,
-  log2OR.cutoff = 1,
-  auc.cutoff = 0.5,
+  logFC.cutoff = 0.25,
+  padj.fisher.cutoff = NULL,
+  log2OR.cutoff = NULL,
+  auc.cutoff = NULL,
   order.var = "perc.diff",
-  topN = Inf,
   alternative = "greater"
 )
 }
 \arguments{
-\item{dat}{Path to an .rds file containing marker genes.}
+\item{dat}{A data.table with marker gene statistics. See ?sc_computeMarkerGenes.}
+
+\item{topN}{Number of top genes per cluster.}
+
+\item{selection}{A vector of gene symbols for which the marker rank should be returned.}
 
 \item{perc.cutoff}{Minimum percentage of expressing within cluster.}
 
@@ -27,17 +33,17 @@ sc_topMarkers(
 
 \item{padj.wilcox.cutoff}{Adjusted Wilcoxon p-value cutoff. Default= 0.05.}
 
-\item{logFC.cutoff}{Log fold change cutoff. Default= 0.1.}
+\item{logFC.cutoff}{Log fold change cutoff. Default= 0.25.}
 
-\item{padj.fisher.cutoff}{Adjusted Fisher p-value cutoff. Default= 0.05.}
+\item{padj.fisher.cutoff}{Adjusted Fisher p-value cutoff. Default= NULL.}
 
-\item{log2OR.cutoff}{Log2 odds ratio cutoff. Default= 1.}
+\item{log2OR.cutoff}{Log2 odds ratio cutoff. Default= NULL.}
 
-\item{auc.cutoff}{AUC cutoff. Default= 0.}
+\item{auc.cutoff}{AUC cutoff. Default= NULL.}
 
-\item{order.var}{Variable to order genes by ("perc.diff", "auc", "logFC", "log2OR")}
+\item{order.var}{Variable to order genes by ("perc.diff", "auc", "logFC", "log2OR").}
 
-\item{topN}{Number of top genes per cluster.}
+\item{alternative}{The direction in which filtering should be done. SHould be one of 'greater' or 'smaller'.}
 }
 \value{
 The subset of the rds object corresponding to top marker genes.

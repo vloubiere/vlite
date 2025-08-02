@@ -44,7 +44,9 @@ vl_heatmap(
   numbers.cex = 0.7,
   show.grid = FALSE,
   grid.lwd = 0.25,
-  plot = T
+  plot = T,
+  pdf.file = NULL,
+  pdf.par = TRUE
 )
 }
 \arguments{
@@ -135,6 +137,12 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 \item{show.grid}{Should the matric grid be shown? Default= FALSE.}
 
 \item{grid.lwd}{Line width used for the grid.}
+
+\item{pdf.file}{If specified, the heatmap will be saved into the provided pdf file, with an optimized and nice layout.
+Default= NULL}
+
+\item{pdf.par}{If TRUE, the plotting parametersof the PDF will be automatically set to nice default values. Oterwise,
+the current par() settings will be used. Default= TRUE.}
 }
 \value{
 Invisibly returns a list with two `data.table` objects:

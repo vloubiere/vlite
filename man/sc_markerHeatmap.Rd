@@ -6,28 +6,39 @@
 \usage{
 sc_markerHeatmap(
   dat,
+  topN = 3,
+  selection = character(),
+  cluster.var = "cluster",
   perc.cutoff = 10,
   perc.diff.cutoff = 20,
-  padj.wilcox.cutoff = 0.05,
-  logFC.cutoff = 0,
-  padj.fisher.cutoff = 1,
-  log2OR.cutoff = 1,
-  auc.cutoff = 0.5,
   order.var = "perc.diff",
-  topN = Inf,
+  padj.wilcox.cutoff = 0.05,
+  logFC.cutoff = 0.25,
+  padj.fisher.cutoff = NULL,
+  log2OR.cutoff = NULL,
+  auc.cutoff = NULL,
   alternative = "greater",
   cluster.rows = TRUE,
-  cutree.rows = 10,
+  cutree.rows = NULL,
   order.cols = FALSE,
-  selection = character()
+  show.col.clusters = TRUE,
+  scale = FALSE,
+  pdf.file = NULL
 )
 }
 \arguments{
 \item{dat}{A data.table containing marker gene statistics (see ?sc_computeMarkerGenes).}
 
+\item{topN}{Number of top genes to select per cluster (default: Inf, i.e., all). If set to 0 or NULL, only the genes listed
+in selection (next argument) will be used.}
+
+\item{selection}{Character vector of gene symbols to highlight or force-include in the heatmap (default: character()).}
+
 \item{perc.cutoff}{Minimum percentage of expressing cells within the cluster (default: 10).}
 
 \item{perc.diff.cutoff}{Minimum difference in percentage of expressing cells within vs. outside the cluster (default: 20).}
+
+\item{order.var}{Variable to order genes by; one of "perc.diff", "auc", "logFC", or "log2OR" (default: "perc.diff").}
 
 \item{padj.wilcox.cutoff}{Adjusted Wilcoxon p-value cutoff (default: 0.05).}
 
@@ -39,10 +50,6 @@ sc_markerHeatmap(
 
 \item{auc.cutoff}{AUC cutoff (default: 0.5).}
 
-\item{order.var}{Variable to order genes by; one of "perc.diff", "auc", "logFC", or "log2OR" (default: "perc.diff").}
-
-\item{topN}{Number of top genes to select per cluster (default: Inf, i.e., all).}
-
 \item{alternative}{"greater" for upregulated markers, "smaller" for downregulated (default: "greater").}
 
 \item{cluster.rows}{Logical; whether to cluster heatmap rows (default: TRUE).}
@@ -51,7 +58,11 @@ sc_markerHeatmap(
 
 \item{order.cols}{Logical; whether to order columns by cluster and rank (default: FALSE).}
 
-\item{selection}{Character vector of gene symbols to highlight or force-include in the heatmap (default: character()).}
+\item{show.col.clusters}{Should column cluster names be shown? Default= TRUE.}
+
+\item{scale}{Should the % of expressing cells matrix be scaled before plotting? Default= FALSE.}
+
+\item{pdf.file}{If specified, the heatmap will be saved in a pdf with an optimized layout. Default= NULL.}
 }
 \value{
 Invisibly returns a list containing the heatmap matrix and the table of top marker genes.

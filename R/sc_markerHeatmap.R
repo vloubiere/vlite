@@ -4,7 +4,9 @@
 #' Optionally clusters rows and/or orders columns, and allows highlighting of selected genes.
 #'
 #' @param dat A data.table containing marker gene statistics (see ?sc_computeMarkerGenes).
-#' @param topN Number of top genes to select per cluster (default: Inf, i.e., all).
+#' @param topN Number of top genes to select per cluster (default: Inf, i.e., all). If set to 0 or NULL, only the genes listed
+#' in selection (next argument) will be used.
+#' @param selection Character vector of gene symbols to highlight or force-include in the heatmap (default: character()).
 #' @param perc.cutoff Minimum percentage of expressing cells within the cluster (default: 10).
 #' @param perc.diff.cutoff Minimum difference in percentage of expressing cells within vs. outside the cluster (default: 20).
 #' @param order.var Variable to order genes by; one of "perc.diff", "auc", "logFC", or "log2OR" (default: "perc.diff").
@@ -18,13 +20,16 @@
 #' @param cutree.rows Number of row clusters to cut the dendrogram into (default: 10).
 #' @param order.cols Logical; whether to order columns by cluster and rank (default: FALSE).
 #' @param show.col.clusters Should column cluster names be shown? Default= TRUE.
-#' @param selection Character vector of gene symbols to highlight or force-include in the heatmap (default: character()).
+#' @param scale Should the % of expressing cells matrix be scaled before plotting? Default= FALSE.
+#' @param pdf.file If specified, the heatmap will be saved in a pdf with an optimized layout. Default= NULL.
 #'
 #' @return Invisibly returns a list containing the heatmap matrix and the table of top marker genes.
 #' @export
 sc_markerHeatmap <- function(
     dat,
     topN= 3,
+    selection= character(),
+    cluster.var= "cluster",
     perc.cutoff= 10,
     perc.diff.cutoff= 20,
     order.var= "perc.diff",
@@ -38,12 +43,19 @@ sc_markerHeatmap <- function(
     cutree.rows= NULL,
     order.cols= FALSE,
     show.col.clusters= TRUE,
-    selection= character(),
+    scale= FALSE,
     pdf.file= NULL
 ) {
+  # Checks ----
+  if(is.null(topN))
+    topN <- 0
+
   # Extract top markers ----
   top <- sc_topMarkers(
     dat= dat,
+    topN= topN,
+    selection = selection,
+    cluster.var= cluster.var,
     perc.cutoff= perc.cutoff,
     perc.diff.cutoff= perc.diff.cutoff,
     padj.wilcox.cutoff= padj.wilcox.cutoff,
@@ -52,10 +64,12 @@ sc_markerHeatmap <- function(
     log2OR.cutoff= log2OR.cutoff,
     auc.cutoff= auc.cutoff,
     order.var= order.var,
-    topN= topN,
-    selection = selection,
     alternative= alternative
   )
+
+  # Replace cluster with custom column ----
+  if(cluster.var != "cluster")
+    dat$cluster <- dat[[cluster.var]]
 
   # If marker genes were selected ----
   if(nrow(top)) {
@@ -91,21 +105,30 @@ sc_markerHeatmap <- function(
     # annot.col <- c("lightgrey", "chartreuse", "red", "gold", "royalblue1", "royalblue3", "blue")
 
     # Heatmap ----
-    vl_heatmap(mat,
-               cluster.rows = cluster.rows,
-               clustering.distance.rows = "spearman",
-               cutree.rows = cutree.rows,
-               cluster.cols = top[, cluster[1], symbol, drop= F]$V1,
-               # col.annotations = annot,
-               # col.annotations.col = adjustcolor(annot.col, .5),
-               # col.annotations.title = "Clusters Parreno",
-               col= c("white", "red"),
-               legend.title = "% exp. cells",
-               show.col.clusters = show.col.clusters,
-               col.gap.width = .5,
-               row.gap.width = .5,
-               legend.cex = .6,
-               pdf.file = pdf.file)
+    cl <- vl_heatmap(
+      if(scale) scale(mat) else mat,
+      cluster.rows = cluster.rows,
+      clustering.distance.rows = "spearman",
+      cutree.rows = cutree.rows,
+      cluster.cols = top[, cluster[1], symbol, drop= F]$V1,
+      # col.annotations = annot,
+      # col.annotations.col = adjustcolor(annot.col, .5),
+      # col.annotations.title = "Clusters Parreno",
+      col= if(scale) c("royalblue1", "white", "red") else c("white", "red"),
+      legend.title = "% exp. cells",
+      show.col.clusters = show.col.clusters,
+      col.gap.width = .5,
+      row.gap.width = .5,
+      legend.cex = .6,
+      show.numbers = round(mat),
+      numbers.cex= .4,
+      pdf.file = pdf.file
+    )
+
+    # Return matrix ----
+    final <- mat[cl$rows$order, ]
+    final <- mat[, cl$cols$order]
+    invisible(final)
   } else
     warning("No genes selected. Either relax cutoffs or provide a selection of genes.")
 }

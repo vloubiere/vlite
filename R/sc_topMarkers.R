@@ -17,6 +17,9 @@
 
 sc_topMarkers <- function(
     dat,
+    topN= Inf,
+    selection= character(),
+    cluster.var= "cluster",
     perc.cutoff= 10,
     perc.diff.cutoff= 20,
     padj.wilcox.cutoff= 0.05,
@@ -25,8 +28,6 @@ sc_topMarkers <- function(
     log2OR.cutoff= NULL,
     auc.cutoff= NULL,
     order.var= "perc.diff",
-    topN= Inf,
-    selection= character(),
     alternative= "greater"
 ) {
   # Checks ----
@@ -64,7 +65,7 @@ sc_topMarkers <- function(
 
   # Order ----
   setorderv(dat, order.var, ifelse(alternative=="smaller", 1, -1))
-  dat[, rank:= seq(.N), cluster]
+  dat[, rank:= seq(.N), cluster.var]
 
   # Copy ----
   top <- data.table::copy(dat)
