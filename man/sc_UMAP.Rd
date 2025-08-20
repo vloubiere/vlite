@@ -5,8 +5,8 @@
 \title{Plot UMAP from seurat object}
 \usage{
 sc_UMAP(
-  dat,
-  value.var = Idents(dat),
+  umap,
+  value.var = NULL,
   show.labels = TRUE,
   main = NULL,
   col = NULL,
@@ -14,15 +14,20 @@ sc_UMAP(
   zlim = NULL,
   legend.main = NULL,
   cex.pts = 0.4,
+  pch = 16,
   transparency = 0.7,
   cex.lab = 0.7,
   cex.legend = 0.7,
   randomize = FALSE,
-  layer = "SCT"
+  select.cell = NULL,
+  layer = "SCT",
+  rect.width = NULL,
+  rect.height = NULL,
+  add = FALSE
 )
 }
 \arguments{
-\item{dat}{A seurat object.}
+\item{umap}{A seurat object or a data.table/data.frame/matrix containing columns 'cellID', 'umap_1', 'umap_2'.}
 
 \item{value.var}{The value to plot. Should either be a factor vector matching the number of cells in the object,
 or a unique gene symbol.}

@@ -11,29 +11,23 @@ vl_submit(
   time,
   job.name,
   logs,
-  modules = c("module load build-env/2020",
-    "module load cutadapt/1.18-foss-2018b-python-2.7.15",
-    "module load trim_galore/0.6.0-foss-2018b-python-2.7.15",
-    "module load samtools/1.9-foss-2018b", "module load bowtie/1.2.2-foss-2018b",
-    "module load bowtie2/2.3.4.2-foss-2018b",
-    "module load macs2/2.1.2.1-foss-2018b-python-2.7.15",
-    "module load mageck/0.5.9-foss-2018b",
-    "module load macs2/2.1.2.1-foss-2018b-python-2.7.15"),
+  modules,
   overwrite = FALSE,
   execute = TRUE,
   create.output.dirs = TRUE
 )
 }
 \arguments{
-\item{cmd}{A data.table containing the commands to execute, with columns:
+\item{cmd}{A data.table containing the commands to execute, which will all be submitted as a single job. Intended columns are:
 - `file.type`: Type of output file.
 - `path`: Path to the output file.
 - `cmd`: Shell command to execute.
-- `cores`: (Optional) The number of CPU cores to allocate to the job, specified by the first value.
-- `mem`: (Optional) Memory allocation in GB.
-- `time`: (Optional) Maximum runtime for the job (HH:MM:SS).
-- `job.name`: (Optional) The name of the job, specified by the first value in this column.
-- `logs`: (Optional) Directory for log files.}
+- `cores`: (Optional) The number of CPU cores to allocate to the job (only the value from the first row will be used).
+- `mem`: (Optional) Memory allocation in GB (only the value from the first row will be used).
+- `time`: (Optional) Maximum runtime for the job (HH:MM:SS, only the value from the first row will be used).
+- `job.name`: (Optional) The name of the job, only the value from the first row will be used.
+- `logs`: (Optional) Directory for log files, only the value from the first row will be used
+- `modules`: (Optional) A vector or list of modules to be loaded before executing the command.}
 
 \item{cores}{Number of CPU cores to allocate. If not specified, the first value of cmd$cores column will be used. Default= 8.}
 
@@ -43,9 +37,10 @@ vl_submit(
 
 \item{job.name}{Name of the job. If not specified, the first value of cmd$job.name column will be used. Default= "myJob".}
 
-\item{logs}{Directory for log files. If not specified, the first value of cmd$job.name column will be used. Default= 'db/logs'.}
+\item{logs}{Directory for log files. If not specified, the first value of cmd$logs column will be used. Default = 'db/logs'.}
 
-\item{modules}{A character vector of modules to be loaded before executing the command. By default, the most used modules are loaded.}
+\item{modules}{A character vector of modules to be loaded before executing the command. If not specified, the modules listed in cmd$modules will be used.
+By default, the most used modules for genomics are loaded.}
 
 \item{overwrite}{If set to TRUE, overwrites existing output files. Default= FALSE.}
 

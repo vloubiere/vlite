@@ -13,7 +13,7 @@ sc_diffMarkers(
   logFC.cutoff = 0.25,
   wilcox.padj.cutoff = 0.05,
   log2OR.cutoff = 2,
-  fisher.padj.cutoff = 1e-10,
+  fisher.padj.cutoff = 0.0000000001,
   pdf.output.folder = "pdf/",
   GO.output.folder = "db/GO/",
   open.pdf = TRUE,

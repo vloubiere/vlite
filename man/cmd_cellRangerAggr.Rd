@@ -7,7 +7,7 @@
 cmd_cellRangerAggr(
   molecule_info_paths,
   output.prefix,
-  output.folder = "db/scRNASeq_10X/aggregated_samples/",
+  output.folder = "db/snRNASeq_10X/aggregated_samples/",
   cores = 4,
   mem = 32
 )

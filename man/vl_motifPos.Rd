@@ -10,7 +10,7 @@ vl_motifPos(
   pwm_log_odds,
   genome = NULL,
   bg = "genome",
-  p.cutoff = 5e-05,
+  p.cutoff = 0.00005,
   pos.strand = FALSE,
   collapse.overlapping = FALSE,
   scratch = "/scratch-cbe/users/vincent.loubiere/motifs/",
