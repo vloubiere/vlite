@@ -2,7 +2,7 @@
 #'
 #' Function to plot rasterized umaps from a seurat object.
 #'
-#' @param dat A seurat object.
+#' @param umap A seurat object or a data.table/data.frame/matrix containing columns 'cellID', 'umap_1', 'umap_2'.
 #' @param value.var The value to plot. Should either be a factor vector matching the number of cells in the object,
 #' or a unique gene symbol.
 #' @param show.labels Should the factor levels be shown on the UMAP itself? Otherwise, they will be shown in a legend.
@@ -21,8 +21,8 @@
 #' @return Invisibly returns a list containing the ordered heatmap matrix.
 #' @export
 
-sc_UMAP <- function(dat,
-                    value.var= Idents(dat),
+sc_UMAP <- function(umap,
+                    value.var= NULL,
                     show.labels= TRUE,
                     main= NULL,
                     col= NULL,
@@ -37,53 +37,60 @@ sc_UMAP <- function(dat,
                     randomize= FALSE,
                     select.cell= NULL,
                     layer= "SCT",
+                    rect.width= NULL,
+                    rect.height= NULL,
                     add= FALSE)
 {
+  # Get UMAP coordinates ----
+  coor <- if(class(umap)[1]=="Seurat") {
+    as.data.table(umap@reductions$umap@cell.embeddings, keep.rownames = "cellID")
+  } else if(is.data.table(umap)) {
+    data.table::copy(umap)
+  } else
+    as.data.table(umap, keep.rownames= "cellID")
+
   # Checks ----
-  if(class(dat)!="Seurat")
-    stop("dat should be a seurat object.")
-  if(!length(value.var) %in% c(1, ncol(dat[[layer]])))
-    stop("value.var should either match the number of cells in the object or be a unique gene symbol.")
-  if(length(value.var)==1 & !"counts" %in% slotNames(dat[[layer]]))
-    stop(paste0("The 'counts' slot is missing from the ", layer, " layer."))
+  if(!all(c("cellID", "umap_1", "umap_2") %in% names(coor)))
+    stop("umap should be a Seurat object or a data.table/matrix/data.frame containing columns 'cellID', 'umap_1', 'umap_2'")
+  if(class(umap)[1]=="Seurat" && is.null(value.var))
+    value.var <- Idents(umap)
+  if(class(umap)[1]!="Seurat" && is.null(value.var))
+    stop("value.var is missing.")
 
-  # Determine type of plot ----
-  plot.type <- fcase(length(value.var)==1, "Gene",
-                     is.numeric(value.var), "Variable",
-                     default = "Group")
+  # Coerce value.var to numeric OR factor var ----
+  # If value.var is a gene symbol
+  var <- if(class(umap)[1]=="Seurat" && length(value.var)==1) {
+    stopifnot("counts" %in% slotNames(dat[[layer]]))
+    if(value.var %in% rownames(dat[[layer]]$counts))
+      dat[[layer]]$counts[value.var,] else
+        rep(as.numeric(NA), nrow(coor))
+  } else if(length(value.var)==nrow(coor) && is.character(value.var)) {
+    factor(value.var) # Coerce characters to factors
+  } else
+    value.var
+  if(!(is.factor(var) | is.numeric(var)))
+    stop("value.var could not be coerced to numeric or factor.")
 
-  # Retrieve layer ----
-  SCT <- dat[[layer]]$counts
-
-  # Extract cell UMAP coordinates ----
-  coor <- as.data.table(dat@reductions$umap@cell.embeddings, keep.rownames = T)
+  # Make unique data object
+  dat <- cbind(coor, data.table(var= var))
 
   # Select cells ----
-  if(!is.null(select.cell)) {
-    SCT <- SCT[,select.cell]
-    value.var <- droplevels(value.var[select.cell])
-    coor <- coor[select.cell, ]
-  }
+  if(!is.null(select.cell))
+    dat <- dat[select.cell, on= "cellID"]
 
-  # Retrieve variable ----
-  var <- if(length(value.var)==ncol(SCT)){
-    if(is.character(value.var))
-      factor(value.var, unique(value.var)) else
-        value.var
-  } else {
-    value.var <- as.character(value.var)
-    if(value.var %in% rownames(SCT))
-      SCT[value.var,] else
-        rep(as.numeric(NA), ncol(SCT))
-  }
-
-  # Defaults ----
+  # Default values ----
+  # Title
   if(is.null(main))
-    main <- ifelse(plot.type=="Gene", value.var, plot.type)
+    main <- if(length(value.var)==1)
+      value.var else if(is.numeric(var))
+        "Variable" else
+          "Group"
+  # Color
   if(is.null(col))
     col <- if(is.numeric(var))
       c("skyblue", "red") else
         sc_colors(var, unique.lvl = T)
+  # Zlim
   if(is.null(zlim) && is.numeric(var)) {
     z.min <- min(c(0, quantile(var, 0.01, na.rm= T)), na.rm= T)
     z.max <- max(c(1, quantile(var, 0.99, na.rm= T)), na.rm= T)
@@ -91,14 +98,15 @@ sc_UMAP <- function(dat,
       z.max <- z.min+1
     zlim <- c(z.min, z.max)
   }
+  # Legend title (not used for factor variable)
   if(is.null(legend.main) && is.numeric(var))
-    legend.main <- ifelse(plot.type=="Gene", paste(layer,  "counts\n(log2)"), "Variable")
+    legend.main <- ifelse(length(value.var)==1, paste(layer,  "counts\n(log2)"), "Variable")
 
-  # Compute color function ----
+  # Color function ----
   if(is.numeric(var))
     colFUN <- circlize::colorRamp2(zlim, col)
 
-  # Add variables to coordinates ----
+  # Make unique object for plotting ----
   coor[, var:= var]
   if(is.numeric(var))
     coor[, col:= ifelse(is.na(var), NA.col, colFUN(as.numeric(var)))] else
