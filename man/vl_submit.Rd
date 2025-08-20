@@ -20,7 +20,8 @@ vl_submit(
     "module load mageck/0.5.9-foss-2018b",
     "module load macs2/2.1.2.1-foss-2018b-python-2.7.15"),
   overwrite = FALSE,
-  execute = TRUE
+  execute = TRUE,
+  create.output.dirs = TRUE
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ vl_submit(
 \item{overwrite}{If set to TRUE, overwrites existing output files. Default= FALSE.}
 
 \item{execute}{If set to FALSE, the command is returned and is not submitted to the cluster. Default= TRUE.}
+
+\item{create.output.dirs}{Should missing output directories be created before executing the command? Default= TRUE.}
 }
 \description{
 Submits shell commands to a server using resource management (e.g., LSF). Handles job submission,

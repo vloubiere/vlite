@@ -16,7 +16,8 @@
   cex = 1,
   col = c("blue", "red"),
   main = NA,
-  plot.empty.clusters = T
+  plot.empty.clusters = T,
+  verbose = FALSE
 )
 }
 \arguments{

@@ -45,21 +45,24 @@ plot.vl_enr_cl <- function(obj,
                            cex= 1,
                            col= c("blue", "red"),
                            main= NA,
-                           plot.empty.clusters= T)
+                           plot.empty.clusters= T,
+                           verbose= FALSE)
 {
   # Checks
   if(!(order %in% c("padj", "log2OR")))
     stop("Possible values for order are 'padj', 'log2OR'")
-  if(any(obj[, .N, .(name, cl)]$N > 1))
-    stop("Several lines were found with similar name / cl combination.")
-  if(any(is.na(obj$name)))
-    stop("Some names in DT are NA.")
+  if(verbose && any(is.na(obj$name)))
+    warning(paste(sum(is.na(obj$name)), " names in DT are NA and will be removed."))
 
   # Import and select based on padj and min.counts
   DT <- data.table::copy(obj)
-  DT <- DT[set_hit >= min.counts & padj <= padj.cutoff & log2OR >= log2OR.cutoff]
+  DT <- DT[set_hit >= min.counts & padj <= padj.cutoff & log2OR >= log2OR.cutoff & !is.na(name)]
 
-  # Checks
+  # Should the data be simplified?
+  if(any(DT[, .N, .(name, cl)]$N > 1))
+    stop("Several lines were found with similar name / cl combination.")
+
+  # Cap infinite/0 values
   if(any(is.infinite(DT$log2OR)))
     stop("Infinite enrichment values should be capped before plotting.")
   if(any(DT$padj==0))

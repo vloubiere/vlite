@@ -1,6 +1,7 @@
 #' Plot and cluster top marker genes from single-cell transcriptome data
 #'
 #' @param dat A data.table with marker gene statistics. See ?sc_computeMarkerGenes.
+#' @param topN Number of top genes per cluster. Default= Inf (all markers).
 #' @param perc.cutoff Minimum percentage of expressing within cluster.
 #' @param perc.diff.cutoff Minimum difference in percentage of expressing cells within cluster vs. outside cluster.
 #' @param padj.wilcox.cutoff Adjusted Wilcoxon p-value cutoff. Default= 0.05.
@@ -9,8 +10,6 @@
 #' @param log2OR.cutoff Log2 odds ratio cutoff. Default= NULL.
 #' @param auc.cutoff AUC cutoff. Default= NULL.
 #' @param order.var Variable to order genes by ("perc.diff", "auc", "logFC", "log2OR").
-#' @param topN Number of top genes per cluster.
-#' @param selection A vector of gene symbols for which the marker rank should be returned.
 #' @param alternative The direction in which filtering should be done. SHould be one of 'greater' or 'smaller'.
 #' @return The subset of the rds object corresponding to top marker genes.
 #' @export
@@ -18,8 +17,6 @@
 sc_topMarkers <- function(
     dat,
     topN= Inf,
-    selection= character(),
-    cluster.var= "cluster",
     perc.cutoff= 10,
     perc.diff.cutoff= 20,
     padj.wilcox.cutoff= 0.05,
@@ -55,17 +52,17 @@ sc_topMarkers <- function(
     stop("padj.wilcox.cutoff should be a numeric value between 0 and 1.")
   if(!is.null(padj.fisher.cutoff) && !between(padj.fisher.cutoff, 0, 1))
     stop("padj.fisher.cutoff should be a numeric value between 0 and 1.")
+  if((any(!is.null(c(log2OR.cutoff, padj.fisher.cutoff))) && !all(c("padj.fisher", "log2OR") %in% names(dat))))
+    stop("padj.fisher/log2OR column(s) missing -> cutoff cannot be applied.")
   if(!is.null(auc.cutoff) && !between(auc.cutoff, 0, 1))
     stop("auc.cutoff should be a numeric value between 0 and 1 (automatically set to 1-auc.cutoff if alternative= 'smaller').")
-  if(length(selection) && !all(selection %in% dat$symbol))
-    stop("Some genes in selection can't be found in dat$symbol.")
 
   # Import data ----
   dat <- data.table::copy(dat)
 
   # Order ----
   setorderv(dat, order.var, ifelse(alternative=="smaller", 1, -1))
-  dat[, rank:= seq(.N), cluster.var]
+  dat[, rank:= seq(.N), cluster]
 
   # Copy ----
   top <- data.table::copy(dat)
@@ -84,16 +81,13 @@ sc_topMarkers <- function(
     }
 
     # Cutoff on fisher test (over-representation expressing cells) ----
-    if(all(c("padj.fisher", "log2OR") %in% names(top))) {
-      if(!is.null(padj.fisher.cutoff))
-        top <- top[padj.fisher <= padj.fisher.cutoff]
-      if(!is.null(log2OR.cutoff)) {
-        top <- if(alternative=="greater")
-          top[log2OR >= log2OR.cutoff] else
-            top[log2OR <= (-log2OR.cutoff)]
-      }
-    } else
-      warning("padj.fisher/log2OR column(s) missing -> cutoff will be skipped.")
+    if(!is.null(padj.fisher.cutoff))
+      top <- top[padj.fisher <= padj.fisher.cutoff]
+    if(!is.null(log2OR.cutoff)) {
+      top <- if(alternative=="greater")
+        top[log2OR >= log2OR.cutoff] else
+          top[log2OR <= (-log2OR.cutoff)]
+    }
 
     # Cutoff on percentage of expressing cells ----
     if(!is.null(perc.cutoff)) {
@@ -116,21 +110,9 @@ sc_topMarkers <- function(
           top[auc <= 1-auc.cutoff]
     }
 
-    # Add selected genes if relevant ----
-    if(length(selection))
-      top <- top[!symbol %in% selection]
-
     # Select N top genes ----
     if(nrow(top))
       top <- top[, .SD[1:min(c(.N, topN))], keyby= cluster]
-  }
-
-  # Add selected genes if relevant ----
-  if(length(selection)) {
-    sub <- dat[selection, on="symbol"]
-    sub[, selection:= TRUE]
-    top[, selection:= FALSE]
-    top <- rbind(top, sub)
   }
 
   # Return ----

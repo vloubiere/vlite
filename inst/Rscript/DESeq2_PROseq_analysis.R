@@ -62,6 +62,12 @@ experiment <- args[10]
 feature <- args[11]
 norm <- args[12]
 
+# Check that names and conditions don't start with number ----
+if(any(grepl("^[0-9]", names)))
+  names[grepl("^[0-9]", names)] <- paste0("X", grep("^[0-9]", names, value = T))
+if(any(grepl("^[0-9]", conditions)))
+  conditions[grepl("^[0-9]", conditions)] <- paste0("X", grep("^[0-9]", conditions, value = T))
+
 # Import data ----
 dat <- lapply(counts, fread)
 names(dat) <- names

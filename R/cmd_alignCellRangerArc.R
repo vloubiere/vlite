@@ -66,14 +66,19 @@ cmd_alignCellRangerArc <- function(gex.dir,
 
   # Construct the cellranger-arc command ----
   cmd <- paste0(
-    "module load build-env/f2022; ",
-    "module load cellranger-arc/2.0.2; ",
     "cd ", normalizePath(output.folder), "; ",
+    "echo 'Checking if directories exist'; ",
+    "ls -ltrh; ",
+    paste0("rm -r ", output.prefix, "; "), # Cellranger needs to create the folder himself
+    "echo 'They should be removed now:'; ",
+    "ls -ltrh; ",
+    "echo 'Continuing:'; ",
     "cellranger-arc count --id=", output.prefix,
     " --reference=", normalizePath(index),
     " --libraries=", normalizePath(libraries.csv.path),
     " --localcores=", cores,
-    " --localmem=", mem
+    " --localmem=", mem,
+    " --min-gex-count=500 --min-atac-count=1000"
   )
 
   # Wrap commands output, creating one row for each BAM file ----
@@ -83,7 +88,8 @@ cmd_alignCellRangerArc <- function(gex.dir,
     cmd = cmd,
     cores = cores,
     mem = mem,
-    job.name = "cellRangerArc"
+    job.name = "cellRangerArc",
+    modules= c("build-env/f2022", "cellranger-arc/2.0.2")
   )
 
   # Return ----

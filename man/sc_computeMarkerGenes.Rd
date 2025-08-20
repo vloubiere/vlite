@@ -4,14 +4,33 @@
 \alias{sc_computeMarkerGenes}
 \title{Compute Marker Genes for Selected Clusters}
 \usage{
-sc_computeMarkerGenes(dat, select.clusters = NULL, add.fisher = F)
+sc_computeMarkerGenes(
+  dat,
+  select.clusters = NULL,
+  exclude.clusters = NULL,
+  pairwise = FALSE,
+  value.var = Idents(dat),
+  add.fisher = FALSE,
+  cleanup.cache = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{dat}{A Seurat object (must contain an SCT assay).}
 
-\item{select.clusters}{Character vector of cluster names to analyze. If missing, all clusters are used.}
+\item{select.clusters}{Character vector of cluster names to analyze. If missing, marker genes are computed for all clusters, by comparing cells
+within each cluster to the cells outside (except cells from excluded clusters, see next argument).}
+
+\item{exclude.clusters}{Specified clusters will be excluded before any analysis.}
+
+\item{pairwise}{Should selected clusters be merged and compared to non-cluster cells using a single pairwise comparison? Default= FALSE.
+If a character vector is provided, those clusters will be used as the control group.}
+
+\item{value.var}{A factor vector of clusters of length ncol(dat). Default= Idents(dat).}
 
 \item{add.fisher}{Logical; if TRUE, adds Fisher's exact test statistics for each gene/cluster.}
+
+\item{verbose}{For debugging purposes.}
 }
 \value{
 A data.table with marker gene statistics for each cluster, including average expression, log fold change, adjusted p-values, AUC, and
@@ -19,6 +38,7 @@ optionally Fisher's test results.
 }
 \description{
 Identifies marker genes for specified clusters in a Seurat object using Wilcoxon rank-sum test (via presto) and, optionally, Fisher's exact test.
+Performs "cluster vs rest" comparisons.
 }
 \details{
 - Uses the SCT assay's data slot for expression values.

@@ -1,30 +1,3 @@
-#' Barplot
-#'
-#' A wrapper around barplot with nicer default settings, allowing input as a list to show both SD and/or individual points.
-#'
-#' @param x A vector, matrix, data.frame, or a list of numeric variables to plot.
-#' @param names.arg Names to plot on the x-axis.
-#' @param show.sd If x is a list, should the SD be shown? Default = TRUE.
-#' @param show.points If x is a list, should the points be shown? Default = TRUE.
-#' @param beside If TRUE and x is a matrix or data.frame, bars are juxtaposed. Default = FALSE (stacked bars).
-#' @param xlim X-axis limits. Default = NULL.
-#' @param ylim Y-axis limits. Default = NULL.
-#' @param col Colors to be used. By default, ?gray.colors will be used.
-#' @param sd.arrow.lwd Line width of SD arrows. Default = 0.5.
-#' @param sd.arrow.length Length of SD arrows. Defaults to 1/8 of the distance between bar centers.
-#' @param pch Plotting character for points. Default = 16.
-#' @param pch.col Color for points.
-#' @param pch.cex Expansion factor for points.
-#' @param pch.jitter Jitter amount for points. Default = 0.2.
-#' @param xaxt If tilt.names is set to FALSE, style to be used for the x-axis. Default = "s".
-#' @param horiz Not supported at the moment.
-#'
-#' @return A barplot, and invisibly returns the x and y coordinates of the top of the bars.
-#' @export
-#'
-#' @examples
-#' vl_barplot(list(1:3, 5:8), show.sd = FALSE)
-#' vl_barplot(matrix(1:6, ncol = 2), beside = TRUE)
 vl_barplot <- function(x,
                        names.arg= NULL,
                        show.sd= TRUE,
@@ -44,8 +17,8 @@ vl_barplot <- function(x,
                        xaxs= "i",
                        frame= F,
                        horiz= FALSE,
-                       xlab= NA,
-                       ylab= NA,
+                       xlab= "",
+                       ylab= "",
                        ...)
 {
   # Checks ----
@@ -54,15 +27,23 @@ vl_barplot <- function(x,
   if(!is.numeric(c(unlist(x))))
     stop("x should contain numeric values")
 
+  # Initialize variables to avoid scope issues
+  sd <- NULL
+  x.pts <- NULL
+  mat.nrow <- NULL
+  mat.ncol <- NULL
+  ymax <- NULL
+
   # Simplify list to vector when possible ----
   if(is.list(x) && all(lengths(x)==1))
     x <- unlist(x)
 
-  # Table to matrix ----
+  # Table to vector or matrix ----
   if(is.table(x)) {
-    x <- if(is.na(ncol(x)))
-      matrix(x, nrow= 1, dimnames = list(names(x), NULL)) else
-        matrix(x, ncol= ncol(x), nrow= nrow(x), dimnames = dimnames(x))
+    x <- if(is.na(ncol(x))) {
+      c(x)
+    } else
+      matrix(x, ncol= ncol(x), nrow= nrow(x), dimnames = dimnames(x))
   }
 
   # Data.frame to matrix ----
@@ -71,19 +52,17 @@ vl_barplot <- function(x,
 
   # Compute statistics for lists ----
   if(is.list(x)) {
-    # Copy
     x.pts <- x
-    # Compute sd
     if(show.sd)
       sd <- sapply(x.pts, sd)
-    # Compute mean
     x <- sapply(setNames(x.pts, names(x)), mean)
-    # Compute ylim and max var
     if(show.points) {
-      yrange <- range(c(0, unlist(x.pts)))
+      if(is.null(ylim))
+        ylim <- range(c(0, unlist(x.pts)))
       ymax <- sapply(x.pts, function(x) x[which.max(abs(x))])
-    } else if(show.sd) {
-      yrange <- range(c(0, x+sd, x-sd))
+    } else if(!is.null(sd)) {
+      if(is.null(ylim))
+        ylim <- range(c(0, x+sd, x-sd))
       ymax <- mapply(function(x, y) ifelse(x>=0, x+y, x-y), x= x, y= sd)
     }
   }
@@ -91,9 +70,13 @@ vl_barplot <- function(x,
   # Juxtapose columns ----
   if(is.matrix(x) && beside && nrow(x)>1) {
     mat.ncol <- ncol(x)
+    mat.nrow <- nrow(x)
     x <- c(x)
   } else
     beside <- F
+
+  # At this point, x will remain as a matrix only for stacked barplots
+  # In all other cases, x is a vector
 
   # Default names.arg ----
   if(is.null(names.arg))
@@ -105,13 +88,9 @@ vl_barplot <- function(x,
   at <- if(is.matrix(x)) {
     seq(ncol(x))
   } else if(beside) {
-    mat.nrow <- length(x)/mat.ncol
     norm.width <- width/mat.nrow
-    # Rep per row
     at <- rep(seq(mat.ncol), each= mat.nrow)
-    # Space regularly
     at <- at+cumsum(c(0, rep(norm.width, mat.nrow-1)))
-    # Shift
     at-width/2+norm.width/2
   } else {
     seq_along(x)
@@ -135,10 +114,9 @@ vl_barplot <- function(x,
 
   # Compute ylim ----
   if(is.null(ylim)) {
-    ylim <- if(exists("yrange"))
-      yrange else if(is.matrix(x))
-        range(c(0, colSums(x))) else
-          range(c(0, x))
+    ylim <- if(is.matrix(x))
+      range(c(0, colSums(x))) else
+        range(c(0, x))
   }
 
   # Initiate plot ----
@@ -155,14 +133,12 @@ vl_barplot <- function(x,
   # Plot bars ----
   if(is.matrix(x)) {
     # Stacked barplot
-    sapply(seq(ncol(x)), function(i) {
-      .c <- cumsum(x[,i])
-      rect(i-width/2, c(0, .c[-length(.c)]), i+width/2, .c, col= col)
-    })
+    cs <- apply(x, 2, function(x) cumsum(c(0, x)))
+    x.b <- rep(seq(ncol(x)), each= nrow(x))
+    rect(x.b-width/2, unlist(cs[-1,]), x.b+width/2, unlist(cs[-nrow(cs),]), col= col)
   } else if(beside) {
-    # Juxtaposed barplot
+    # Juxtaposed bars
     rect(at-norm.width/2, 0, at+norm.width/2, x, col= col)
-    # Only report the position of central bar
     at.center <- seq(mat.ncol)
   } else {
     # Regular barplot
@@ -170,7 +146,7 @@ vl_barplot <- function(x,
   }
 
   # Add sd ----
-  if(show.sd && is.numeric(sd)) {
+  if(!is.null(sd) && is.numeric(sd)) {
     segments(at,
              x-sd,
              at,
@@ -192,13 +168,15 @@ vl_barplot <- function(x,
   }
 
   # Add points ----
-  if(show.points & exists("x.pts")) {
+  if(show.points & !is.null(x.pts)) {
     x.pos <- rep(at, lengths(x.pts))
     y.pos <- unlist(x.pts)
+    # Ensure pch.col is a vector of correct length
+    if(length(pch.col) == 1) pch.col <- rep(pch.col, length(y.pos))
     points(jitter(x.pos, amount = pch.jitter),
            y.pos,
            pch= pch,
-           col= unlist(pch.col),
+           col= pch.col,
            xpd= NA,
            cex= pch.cex)
   }
@@ -207,8 +185,16 @@ vl_barplot <- function(x,
   if(xaxt!="n") {
     check.width <- strwidth(names.arg, units = "user")
     if(any(check.width>width)) {
-      tiltAxis(if(beside) at.center else at,
-               labels = names.arg)
+      if(exists("tiltAxis", mode="function")) {
+        tiltAxis(if(beside) at.center else at,
+                 labels = names.arg)
+      } else {
+        warning("tiltAxis function not found; cannot tilt axis labels.")
+        axis(1,
+             at= if(beside) at.center else at,
+             names.arg,
+             lwd= 0)
+      }
     } else if(!is.null(names.arg)) {
       axis(1,
            at= if(beside) at.center else at,
@@ -218,12 +204,12 @@ vl_barplot <- function(x,
   }
 
   # Compute max y value if missing ----
-  if(!exists("ymax")) {
+  if(is.null(ymax)) {
     ymax <- if(is.matrix(x))
       sapply(colSums(x), function(x) max(c(0, x))) else
         sapply(x, function(x) max(c(0, x)))
   }
 
   # Return bar positions and top var ----
-  invisible(data.table(x= at, y= ymax))
+  invisible(data.frame(x= at, y= ymax))
 }

@@ -2,11 +2,12 @@
 
 # Check whether required arguments are provided ----
 args <- commandArgs(trailingOnly=TRUE)
-if (length(args)!=3) {
+if (length(args) != 4) {
   stop("Please specify:\n
        [required] 1/ Aligned bam file containing UMIs\n
        [required] 2/ Output count file (.txt)\n
-       [required] 3/ Output stats file (.txt)\n")
+       [required] 3/ Output stats file (.txt)\n
+       [required] 4/ Should the strand of the read be flipped? Default= TRUE for PRO-Seq\n")
 }
 
 suppressMessages(library(data.table, warn.conflicts = FALSE))
@@ -19,6 +20,7 @@ suppressMessages(library(stringdist, warn.conflicts = FALSE))
 bam <- args[1]
 counts.output <- args[2]
 stats.output <- args[3]
+flip.strand <- as.logical(args[4])
 
 # Import data ----
 param <- Rsamtools::ScanBamParam(what= c("qname", "rname", "pos", "strand", "qwidth", "mapq"))
@@ -29,10 +31,15 @@ setnames(dat,
          c("qname", "rname", "pos", "strand", "qwidth", "mapq"),
          c("read", "seqnames", "start", "strand", "width", "mapq"))
 
-# Resize to single nucleotide and flip strand! ----
+# Resize to single nucleotide ----
 dat[, strand:= as.character(strand)]
 dat[strand=="-", start:= start+width-1]
-dat[!is.na(strand), strand:= ifelse(strand=="+", "-", "+")]
+
+# Flip the strand of the reads ----
+if(flip.strand) # For PRO-Seq, should be set to TRUE. FALSE for STAP-Seq
+  dat[!is.na(strand), strand:= ifelse(strand=="+", "-", "+")]
+
+# Save coordinates ----
 dat[, coor:= paste0(seqnames, ":", start, ":", strand)]
 
 # Extract UMIs ----

@@ -7,8 +7,6 @@
 sc_topMarkers(
   dat,
   topN = Inf,
-  selection = character(),
-  cluster.var = "cluster",
   perc.cutoff = 10,
   perc.diff.cutoff = 20,
   padj.wilcox.cutoff = 0.05,
@@ -23,9 +21,7 @@ sc_topMarkers(
 \arguments{
 \item{dat}{A data.table with marker gene statistics. See ?sc_computeMarkerGenes.}
 
-\item{topN}{Number of top genes per cluster.}
-
-\item{selection}{A vector of gene symbols for which the marker rank should be returned.}
+\item{topN}{Number of top genes per cluster. Default= Inf (all markers).}
 
 \item{perc.cutoff}{Minimum percentage of expressing within cluster.}
 

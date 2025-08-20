@@ -56,8 +56,10 @@
 #' @param grid.lwd Line width used for the grid.
 #' @param pdf.file If specified, the heatmap will be saved into the provided pdf file, with an optimized and nice layout.
 #' Default= NULL
-#' @param pdf.par If TRUE, the plotting parametersof the PDF will be automatically set to nice default values. Oterwise,
+#' @param pdf.par If TRUE, the plotting parameters of the PDF will be automatically set to nice default values. Otherwise,
 #' the current par() settings will be used. Default= TRUE.
+#' @param pdf.close If TRUE, the pdf file will be closed by the end of the script. Otherwise, it stays open, allowing to
+#' add extra elements to the plot.
 #'
 #' @return
 #' Invisibly returns a list with two `data.table` objects:
@@ -126,7 +128,8 @@ vl_heatmap <- function(x,
                        grid.lwd= .25,
                        plot= T,
                        pdf.file= NULL,
-                       pdf.par= TRUE)
+                       pdf.par= TRUE,
+                       pdf.close= TRUE)
 {
   # Coerce x to numeric matrix (useful for factors) ----
   x <- toNumMatrix(x)
@@ -322,7 +325,6 @@ vl_heatmap <- function(x,
         width= Ncols*0.12+4,
         height = Nrows*0.12+4)
     if(pdf.par) {
-      old.par <- par()
       vl_par(mai= c(2,2,2,2))
     }
   }
@@ -570,7 +572,7 @@ vl_heatmap <- function(x,
       # Row annotations
       if(!is.null(row.annotations)) {
         # Adjust plotting position
-        adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
+        adj.y <- adj.y-ifelse(show.legend=="right", 6.5, -2.5)*legend.cex
         # Annotations heatkey
         rann <- factor(levels(rows$annot), levels(rows$annot))
         heatkey(breaks = -as.numeric(rann),
@@ -586,7 +588,7 @@ vl_heatmap <- function(x,
       # Col annotations
       if(!is.null(col.annotations)) {
         # Adjust plotting position
-        adj.y <- adj.y-ifelse(show.legend=="right", 5.5, -2.5)*legend.cex
+        adj.y <- adj.y-ifelse(show.legend=="right", 6.5, -2.5)*legend.cex
         # Annotations heatkey
         cann <- factor(levels(cols$annot), levels(cols$annot))
         heatkey(breaks = -as.numeric(cann),
@@ -607,9 +609,9 @@ vl_heatmap <- function(x,
   }
 
   # Close pdf ----
-  if(!is.null(pdf.file)) {
+  if(!is.null(pdf.file) && pdf.close) {
     dev.off()
-    print(paste("PDF file ->", pdf.file))
+    print(paste0("file.show(", shQuote(pdf.file), ")"))
   }
 
   # Return clusters ----

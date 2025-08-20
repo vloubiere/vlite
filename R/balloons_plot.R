@@ -58,14 +58,15 @@ balloons_plot <- function(size.var,
     color.breaks <- if(min(color.var, na.rm= TRUE)<0 & max(color.var, na.rm= TRUE)>0) {
       lims <- max(abs(color.var), na.rm= TRUE)
       # Centered on 0
-      seq(-lims,
-          lims,
-          length.out= 21)
+      seq(-lims, lims, length.out= 21)
     } else {
       # Otherwise
-      seq(min(color.var, na.rm= TRUE),
-          max(color.var, na.rm= TRUE),
-          length.out= 21)
+      lims <- unique(range(color.var, na.rm = T))
+      # If unique value
+      if(length(lims)==1)
+        lims <- c(lims-0.5, lims+0.5)
+      # Breaks
+      seq(lims[1], lims[2], length.out= 21)
     }
   }
 

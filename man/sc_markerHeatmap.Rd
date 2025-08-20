@@ -7,8 +7,19 @@
 sc_markerHeatmap(
   dat,
   topN = 3,
-  selection = character(),
-  cluster.var = "cluster",
+  selection = NULL,
+  cluster.selection = FALSE,
+  order.selection = FALSE,
+  cluster.rows = FALSE,
+  cutree.rows = NULL,
+  show.col.clusters = TRUE,
+  row.annotation.column = NULL,
+  row.annotation.colors = c("#A3D8FF", "#B6FF8A", "#FFE066", "#FF6F69"),
+  row.annotation.title = NULL,
+  col.annotation.column = NULL,
+  col.annotation.colors = c("lightgrey", "chartreuse", "red", "gold", "royalblue1",
+    "royalblue3", "blue"),
+  col.annotation.title = NULL,
   perc.cutoff = 10,
   perc.diff.cutoff = 20,
   order.var = "perc.diff",
@@ -17,55 +28,59 @@ sc_markerHeatmap(
   padj.fisher.cutoff = NULL,
   log2OR.cutoff = NULL,
   auc.cutoff = NULL,
+  main = NA,
   alternative = "greater",
-  cluster.rows = TRUE,
-  cutree.rows = NULL,
-  order.cols = FALSE,
-  show.col.clusters = TRUE,
-  scale = FALSE,
+  add.cells.number = TRUE,
   pdf.file = NULL
 )
 }
 \arguments{
 \item{dat}{A data.table containing marker gene statistics (see ?sc_computeMarkerGenes).}
 
-\item{topN}{Number of top genes to select per cluster (default: Inf, i.e., all). If set to 0 or NULL, only the genes listed
-in selection (next argument) will be used.}
+\item{topN}{Number of top genes to select per cluster. Ddefault= 3.
+If set to 0 or NULL, only the genes listed in selection (next argument) are used.}
 
-\item{selection}{Character vector of gene symbols to highlight or force-include in the heatmap (default: character()).}
+\item{selection}{Character vector of selected gene symbols that should be added to the heatmap.
+Default= NULL.}
 
-\item{perc.cutoff}{Minimum percentage of expressing cells within the cluster (default: 10).}
+\item{cluster.selection}{Should select genes be used to cluster rows or not? Default= FALSE.}
 
-\item{perc.diff.cutoff}{Minimum difference in percentage of expressing cells within vs. outside the cluster (default: 20).}
+\item{order.selection}{Should selected gene columns be ordered?}
 
-\item{order.var}{Variable to order genes by; one of "perc.diff", "auc", "logFC", or "log2OR" (default: "perc.diff").}
+\item{cluster.rows}{Logical; whether to cluster heatmap rows. Default= TRUE.}
 
-\item{padj.wilcox.cutoff}{Adjusted Wilcoxon p-value cutoff (default: 0.05).}
-
-\item{logFC.cutoff}{Log fold change cutoff (default: 0).}
-
-\item{padj.fisher.cutoff}{Adjusted Fisher p-value cutoff (default: 1).}
-
-\item{log2OR.cutoff}{Log2 odds ratio cutoff (default: 1).}
-
-\item{auc.cutoff}{AUC cutoff (default: 0.5).}
-
-\item{alternative}{"greater" for upregulated markers, "smaller" for downregulated (default: "greater").}
-
-\item{cluster.rows}{Logical; whether to cluster heatmap rows (default: TRUE).}
-
-\item{cutree.rows}{Number of row clusters to cut the dendrogram into (default: 10).}
-
-\item{order.cols}{Logical; whether to order columns by cluster and rank (default: FALSE).}
+\item{cutree.rows}{Number of row clusters to cut the dendrogram into. Default= 10.}
 
 \item{show.col.clusters}{Should column cluster names be shown? Default= TRUE.}
 
-\item{scale}{Should the % of expressing cells matrix be scaled before plotting? Default= FALSE.}
+\item{perc.cutoff}{Minimum percentage of expressing cells within the cluster. Default= 10.}
+
+\item{perc.diff.cutoff}{Minimum difference in percentage of expressing cells within vs. outside the cluster.
+Default= 20.}
+
+\item{order.var}{Variable to order genes by; one of "perc.diff", "auc", "logFC", or "log2OR".
+Default= "perc.diff".}
+
+\item{padj.wilcox.cutoff}{Adjusted Wilcoxon p-value cutoff. Default= 0.05.}
+
+\item{logFC.cutoff}{Log fold change cutoff. Default= 0.}
+
+\item{padj.fisher.cutoff}{Adjusted Fisher p-value cutoff. Default= NULL.}
+
+\item{log2OR.cutoff}{Log2 odds ratio cutoff. Default= NULL.}
+
+\item{auc.cutoff}{AUC cutoff. Default= NULL.}
+
+\item{main}{Title.}
+
+\item{alternative}{"greater" for upregulated markers, "smaller" for downregulated. Default= "greater".}
+
+\item{add.cells.number}{If set to TRUE, a barplot specifying the number of cells is plotted. Default= TRUE.}
 
 \item{pdf.file}{If specified, the heatmap will be saved in a pdf with an optimized layout. Default= NULL.}
 }
 \value{
-Invisibly returns a list containing the heatmap matrix and the table of top marker genes.
+Invisibly returns a list containing the ordered heatmap matrix.
 }
 \description{
 Selects top marker genes per cluster based on multiple statistical cutoffs, then visualizes their expression as a heatmap.

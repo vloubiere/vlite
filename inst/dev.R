@@ -8,14 +8,24 @@ if(F) {
 
 # Single-cell tools ------------------------
 if(F) {
-  # sc-RNA-Seq
+  # Reads processing
   file.edit("R/cmd_alignCellRanger.R")
+  file.edit("R/cmd_alignCellRangerArc.R")
+  file.edit("R/cmd_cellRangerAggr.R")
+  file.edit("R/cmd_velocyto.R")
+
+  # Velocity
+  file.edit("inst/Rscript/filter_loom_file.R") # Function
+  file.edit("R/cmd_filter_loom_file.R") # Wrapper
+
+  # sc-RNA-Seq
   file.edit("R/sc_computeMarkerGenes.R")
+  file.edit("R/sc_computePairwiseMarkerGenes.R")
   file.edit("R/sc_topMarkers.R")
   file.edit("R/sc_markerHeatmap.R")
-
-  # sc-Multiome
-  file.edit("R/cmd_alignCellRangerArc.R")
+  file.edit("R/sc_colors.R")
+  file.edit("R/sc_UMAP.R")
+  file.edit("R/sc_diffMarkers.R")
 }
 
 # bedtools ---------------------------------
@@ -172,6 +182,10 @@ if(F) {
   # DESeq2
   file.edit("R/cmd_DESeq2_PROseq.R") # Wrapper
   file.edit("inst/Rscript/DESeq2_PROseq_analysis.R") # R subscript
+
+  # STAP-Seq -----------------------
+  # Pipeline (wrapper around the PRO-Seq)
+  file.edit("R/stapseqProcessing.R")
 
   # CUT&RUN -----------------------
   # Pipeline

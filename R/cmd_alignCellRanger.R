@@ -48,8 +48,6 @@ cmd_alignCellRanger <- function(fq.prefix,
 
   # Output files paths ----
   cmd <- paste0(
-    "module load build-env/f2022;",
-    "module load cellranger/9.0.0;",
     "cd ", output.folder, ";",
     " cellranger count --id=", output.prefix,
     " --transcriptome=", index,
@@ -70,7 +68,8 @@ cmd_alignCellRanger <- function(fq.prefix,
                     cmd= cmd,
                     cores= cores,
                     mem= mem,
-                    job.name= "cellRanger")
+                    job.name= "cellRanger",
+                    modules= c("build-env/f2022", "cellranger/9.0.0"))
 
   # Return ----
   return(cmd)

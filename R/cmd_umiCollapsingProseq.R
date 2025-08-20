@@ -8,6 +8,8 @@
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
 #' @param counts.output.folder Directory for the UMI counts file. Default= "db/counts/".
 #' @param stats.output.folder Directory for the UMI statistics file. Default= "db/counts_statistics/".
+#' @param flip.strand Should the strand of the read be flipped? For PRO-Seq, this should be set to TRUE (default).
+#' For STAP-Seq, it should be set to FALSE (see ?stapseqProcessing).
 #' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #'
 #' @return A data.table with:
@@ -28,6 +30,7 @@ cmd_umiCollapsingProseq <- function(bam,
                                     output.prefix= NULL,
                                     counts.output.folder= "db/counts/",
                                     stats.output.folder= "db/counts_statistics/",
+                                    flip.strand= TRUE,
                                     Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Check (!Do not check if bam file exists to allow wrapping!) ----
@@ -45,7 +48,8 @@ cmd_umiCollapsingProseq <- function(bam,
                system.file("Rscript", "umiCollapsingProseq.R", package = "vlite"),
                bam,
                umi.counts,
-               umi.stats)
+               umi.stats,
+               flip.strand)
 
   # Wrap commands output ----
   cmd <- data.table(file.type= c("umi.counts", "umi.stats"),

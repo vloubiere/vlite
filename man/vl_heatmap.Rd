@@ -46,7 +46,8 @@ vl_heatmap(
   grid.lwd = 0.25,
   plot = T,
   pdf.file = NULL,
-  pdf.par = TRUE
+  pdf.par = TRUE,
+  pdf.close = TRUE
 )
 }
 \arguments{
@@ -141,8 +142,11 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 \item{pdf.file}{If specified, the heatmap will be saved into the provided pdf file, with an optimized and nice layout.
 Default= NULL}
 
-\item{pdf.par}{If TRUE, the plotting parametersof the PDF will be automatically set to nice default values. Oterwise,
+\item{pdf.par}{If TRUE, the plotting parameters of the PDF will be automatically set to nice default values. Otherwise,
 the current par() settings will be used. Default= TRUE.}
+
+\item{pdf.close}{If TRUE, the pdf file will be closed by the end of the script. Otherwise, it stays open, allowing to
+add extra elements to the plot.}
 }
 \value{
 Invisibly returns a list with two `data.table` objects:

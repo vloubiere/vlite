@@ -9,6 +9,7 @@ cmd_umiCollapsingProseq(
   output.prefix = NULL,
   counts.output.folder = "db/counts/",
   stats.output.folder = "db/counts_statistics/",
+  flip.strand = TRUE,
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
 )
 }
@@ -20,6 +21,9 @@ cmd_umiCollapsingProseq(
 \item{counts.output.folder}{Directory for the UMI counts file. Default= "db/counts/".}
 
 \item{stats.output.folder}{Directory for the UMI statistics file. Default= "db/counts_statistics/".}
+
+\item{flip.strand}{Should the strand of the read be flipped? For PRO-Seq, this should be set to TRUE (default).
+For STAP-Seq, it should be set to FALSE (see ?stapseqProcessing).}
 
 \item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 }
