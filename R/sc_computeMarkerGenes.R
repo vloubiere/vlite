@@ -34,7 +34,6 @@
 #' # Using pairwise comparison
 #' sc_computeMarkerGenes(dat, select.clusters = c("a3-r", "PPN"))
 #'
-#' @import presto data.table
 #' @export
 sc_computeMarkerGenes <- function(
     dat,
