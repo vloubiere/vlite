@@ -67,8 +67,12 @@ sc_markerHeatmap <- function(
     stop("dat should be a data.table containing marker genes.")
   if(!is.null(col.annotation.column) && !col.annotation.column %in% names(dat))
     stop("col.annotation.column missing from data.table.")
+  if(!is.null(col.annotation.column) && length(col.annotation.column)!=1)
+    stop("col.annotation.column should be a unique column name.")
   if(!is.null(row.annotation.column) && !row.annotation.column %in% names(dat))
     stop("row.annotation.column missing from data.table.")
+  if(!is.null(row.annotation.column) && length(row.annotation.column)!=1)
+    stop("row.annotation.column should be a unique column name.")
   if(!is.null(row.annotation.column) && is.null(row.annotation.title))
     row.annotation.title <- row.annotation.column
   if(!is.null(col.annotation.column) && is.null(col.annotation.title))
@@ -129,20 +133,27 @@ sc_markerHeatmap <- function(
   # Retrieve number of cells ----
   Ncells <- dat[, Nclust[1], keyby= cluster]$V1
 
-  # Retrieve row annotation ----
-  if(!is.null(row.annotation.column))
-    row.annotation.column <- dat[, get(row.annotation.column)[1], keyby= cluster]$V1
+  # Compute casting formula depending on row annotation ----
+  form <- if(is.null(row.annotation.column))
+    "cluster~symbol" else
+      paste0(row.annotation.column, "+cluster~symbol")
+  form <- as.formula(form)
 
   # If top/selected genes are selected ----
   if(nrow(top)) {
     # Get % of expressing cells for top marker genes ----
     mat <- dcast(dat[symbol %in% top$symbol],
-                 cluster~symbol,
+                 form,
                  value.var = "perc",
                  drop= TRUE)
 
-    # Casting
-    mat <- as.matrix(mat, 1)
+    # Coercing to matrix
+    mat <- if(is.null(row.annotation.column)) {
+      as.matrix(mat, 1)
+    } else {
+      row.annotation.column <- unlist(mat[,1])
+      as.matrix(mat[,-1], 1)
+    }
 
     # Cluster rows ----
     if(isTRUE(cluster.rows)) {
@@ -171,12 +182,17 @@ sc_markerHeatmap <- function(
 
     # Get percentage of expressing cells
     mat.sel <- dcast(dat[symbol %in% selection],
-                     cluster~symbol,
+                     form,
                      value.var = "perc",
                      drop= TRUE)
 
-    # Casting
-    mat.sel <- as.matrix(mat.sel, 1)
+    # Coercing to matrix
+    mat.sel <- if(is.null(row.annotation.column))
+      as.matrix(mat.sel, 1) else {
+        if(!nrow(top))
+          row.annotation.column <- unlist(mat.sel[,1])
+        as.matrix(mat.sel[,-1], 1)
+      }
 
     # Order rows based on clustering
     if(nrow(top) && isTRUE(cluster.rows))

@@ -60,9 +60,9 @@ sc_UMAP <- function(umap,
   # Coerce value.var to numeric OR factor var ----
   # If value.var is a gene symbol
   var <- if(class(umap)[1]=="Seurat" && length(value.var)==1) {
-    stopifnot("counts" %in% slotNames(dat[[layer]]))
-    if(value.var %in% rownames(dat[[layer]]$counts))
-      dat[[layer]]$counts[value.var,] else
+    stopifnot("data" %in% slotNames(umap[[layer]]))
+    if(value.var %in% rownames(umap[[layer]]$data))
+      umap[[layer]]$data[value.var,] else
         rep(as.numeric(NA), nrow(coor))
   } else if(length(value.var)==nrow(coor) && is.character(value.var)) {
     factor(value.var) # Coerce characters to factors

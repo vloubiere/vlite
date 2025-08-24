@@ -20,12 +20,10 @@ if(F) {
 
   # sc-RNA-Seq
   file.edit("R/sc_computeMarkerGenes.R")
-  file.edit("R/sc_computePairwiseMarkerGenes.R")
   file.edit("R/sc_topMarkers.R")
   file.edit("R/sc_markerHeatmap.R")
   file.edit("R/sc_colors.R")
   file.edit("R/sc_UMAP.R")
-  file.edit("R/sc_diffMarkers.R")
 }
 
 # bedtools ---------------------------------
