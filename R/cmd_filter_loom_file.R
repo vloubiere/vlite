@@ -37,7 +37,7 @@ cmd_filterLoom <- function(seurat_object,
                     cores= 8,
                     mem= 32,
                     job.name= "filterLoom",
-                    modules= c("build-env/f2022", "r-bundle-bioconductor/3.19-foss-2023b-r-4.4.1"))
+                    modules= list(c("build-env/f2022", "r-bundle-bioconductor/3.19-foss-2023b-r-4.4.1")))
 
   # Return ----
   return(cmd)

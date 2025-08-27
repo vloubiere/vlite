@@ -18,6 +18,9 @@ if(F) {
   file.edit("inst/Rscript/filter_loom_file.R") # Function
   file.edit("R/cmd_filter_loom_file.R") # Wrapper
 
+  # My SCENIC ----
+  file.edit("inst/Rscript/infer_candidate_regulons.R") # Function
+
   # sc-RNA-Seq
   file.edit("R/sc_computeMarkerGenes.R")
   file.edit("R/sc_topMarkers.R")

@@ -153,15 +153,14 @@ sc_UMAP <- function(umap,
     labs <- coor[, .(
       cl.x= median(umap_1),
       cl.y= median(umap_2)
-    ), .(var, col)]
+    ), keyby= .(var, col)]
     if(show.labels) {
       text(labs$cl.x,
            labs$cl.y,
            labs$var,
            cex= cex.lab)
     } else {
-      vl_legend("topright",
-                legend = labs$var,
+      vl_legend(legend = labs$var,
                 fill= labs$col,
                 cex = cex.legend)
     }

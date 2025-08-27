@@ -111,7 +111,7 @@ sc_computeMarkerGenes <- function(
       select.clusters <- selection.name
       # As factor
       value.var <- factor(value.var, c(selection.name, "control"))
-    } else if(!is.null(select.clusters)) {
+    } else if(!is.null(select.clusters) && !any(value.var %in% select.clusters)) {
       # Unique control name
       ctl.name <- rev(make.unique(c(select.clusters, "control")))[1]
       # Simplify clusters
