@@ -70,6 +70,7 @@ print(paste("Start DESeq2 analysis normalization"))
 dds <- DESeqDataSetFromMatrix(countData = DF,
                               colData = sampleTable,
                               design = ~ condition)
+
 # sizeFactors (normalization) ----
 if(!is.null(norm.counts))
   sizeFactors(dds) <- norm.counts/min(norm.counts)

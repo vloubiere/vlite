@@ -56,6 +56,8 @@
 #' @param grid.lwd Line width used for the grid.
 #' @param pdf.file If specified, the heatmap will be saved into the provided pdf file, with an optimized and nice layout.
 #' Default= NULL
+#' @param pdf.cell.size The cell size on printed pdf in inches. Default= .12.
+#' Default= NULL
 #' @param pdf.par If TRUE, the plotting parameters of the PDF will be automatically set to nice default values. Otherwise,
 #' the current par() settings will be used. Default= TRUE.
 #' @param pdf.close If TRUE, the pdf file will be closed by the end of the script. Otherwise, it stays open, allowing to
@@ -128,6 +130,7 @@ vl_heatmap <- function(x,
                        grid.lwd= .25,
                        plot= T,
                        pdf.file= NULL,
+                       pdf.cell.size= 0.12,
                        pdf.par= TRUE,
                        pdf.close= TRUE)
 {
@@ -249,7 +252,7 @@ vl_heatmap <- function(x,
       colorRampPalette(c("royalblue1", "white", "red"))(length(breaks))
     } else {
       # Unique sign (breaks as edges)
-      colorRampPalette(c("blue", "yellow"))(length(breaks)-1)
+      colorRampPalette(c("white", "red"))(length(breaks)-1)
     }
   }
 
@@ -322,8 +325,8 @@ vl_heatmap <- function(x,
     }
     # Compute adjusted number of rows heatmap
     pdf(pdf.file,
-        width= Ncols*0.12+4,
-        height = Nrows*0.12+4)
+        width= Ncols*pdf.cell.size+4,
+        height = Nrows*pdf.cell.size+4)
     if(pdf.par) {
       vl_par(mai= c(2,2,2,2))
     }

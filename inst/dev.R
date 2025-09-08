@@ -6,6 +6,16 @@ if(F) {
   file.edit("inst/test/newUmiCollapsingStrat.R")
 }
 
+# AUC and model performance ----------------
+if(F) {
+  file.edit("R/vl_rankAUC.R")
+  file.edit("R/vl_rocAUC.R")
+  file.edit("R/vl_PR_AUC.R")
+  file.edit("R/vl_PPV.R")
+  file.edit("R/vl_mPCC.R")
+  file.edit("R/vl_TPR.R")
+}
+
 # Single-cell tools ------------------------
 if(F) {
   # Reads processing
@@ -20,6 +30,7 @@ if(F) {
 
   # My SCENIC ----
   file.edit("inst/Rscript/infer_candidate_regulons.R") # Function
+  file.edit("inst/Rscript/cmd_infer_candidate_regulons.R") # Wrapper
 
   # sc-RNA-Seq
   file.edit("R/sc_computeMarkerGenes.R")
@@ -84,7 +95,7 @@ if(F) {
   # Reverse complement DNA sequence
   file.edit("R/revCompDNA.R")
 
-  # pwm conversion
+  # PWM conversion
   file.edit("R/importJASPAR.R")
   file.edit("R/pwmPercToLog.R")
 
@@ -286,6 +297,7 @@ if(F) {
   # Methods to plot enrichment analyses output
   file.edit("R/plot_vl_enr.R")
   file.edit("R/plot_vl_enr_clusters.R")
+  file.edit("R/vl_plot_auc_enrichment.R")
 
   # Plot table
   file.edit("R/plotTable.R")
@@ -308,13 +320,6 @@ if(F) {
   file.edit("R/importContrib.R")
   file.edit("R/contribSeqlets.R")
   file.edit("R/contribSeqLogo.R")
-
-  # Modelling diagnostics
-  file.edit("R/vl_ROC_AUC.R")
-  file.edit("R/vl_PR_AUC.R")
-  file.edit("R/vl_PPV.R")
-  file.edit("R/vl_mPCC.R")
-  file.edit("R/vl_TPR.R")
 }
 
 # Linear models evaluation -----------------
@@ -338,6 +343,7 @@ if(F) {
 
 # Miscellaneous ----------------------------
 if(F) {
+  file.edit("R/vl_cache_file.R")
   file.edit("R/gaussianBlur.R")
   file.edit("R/plot_enhancer_motifs.R") # Not reviewed
   file.edit("R/alignSanger.R") # Not reviewed but contains multiple alignment function

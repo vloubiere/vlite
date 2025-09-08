@@ -8,7 +8,7 @@ addDensity(
   x,
   y = NULL,
   col = adjustcolor("grey", 0.6),
-  group = col,
+  group = factor(col, unique(col)),
   border = NA,
   height = 1,
   width = 1

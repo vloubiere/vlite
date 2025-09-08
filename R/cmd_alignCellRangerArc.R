@@ -12,6 +12,9 @@
 #' @param atac.sample.name The sample name prefix for ATAC FASTQs.
 #' cellranger-arc will only search for filenames matching sampleName_S*_L.*.
 #' @param index Path to the Cell Ranger ARC reference.
+#' @param min.gex.count Cell caller override: define the minimum number of GEX UMI counts for a cell barcode. Note: this option must be specified in conjunction with min.atac.count.
+#' With min.atac.count=X and min.gex.count=Y a barcode is defined as a cell if it contains at least X ATAC counts AND at least Y.
+#' @param min.atac.count See min.gex.count argument above.
 #' @param output.prefix Prefix for output files and the run ID.
 #' @param output.folder Directory where output files will be saved. Default= 'db/multiome_10X/'.
 #' @param cores Number of CPU cores to use. Default= 10.
@@ -23,6 +26,8 @@ cmd_alignCellRangerArc <- function(gex.dir,
                                    atac.dir,
                                    atac.sample.name,
                                    index,
+                                   min.gex.count= NULL,
+                                   min.atac.count= NULL,
                                    output.prefix,
                                    output.folder = "db/multiome_10X/",
                                    cores = 10,
@@ -41,6 +46,8 @@ cmd_alignCellRangerArc <- function(gex.dir,
   # A Multiome ATAC library has R1, R2, and I1 reads.
   if(length(list.files(atac.dir, "fastq.gz$")) < 3)
     stop("Less than 3 fastq.gz files in the provided atac.dir. A multiome ATAC run requires R1, R2, and I1 files.")
+  if((is.null(min.gex.count) & !is.null(min.atac.count)) | (!is.null(min.gex.count) & is.null(min.atac.count)))
+    stop("min.gex.count should be specified in conjunction with min.atac.count.")
 
   # Create output folder to save the library files ----
   if (!dir.exists(output.folder)) {
@@ -48,8 +55,8 @@ cmd_alignCellRangerArc <- function(gex.dir,
   }
 
   # Create the libraries CSV with real GEX and real ATAC data ----
-  libraries_df <- data.frame(
-    fastqs = c(normalizePath(gex.dir), normalizePath(atac.dir)), # FIXED: Was using dummy.atac.dir
+  libraries_df <- data.table(
+    fastqs = c(normalizePath(gex.dir), normalizePath(atac.dir)),
     sample = c(gex.sample.name, atac.sample.name),
     library_type = c("Gene Expression", "Chromatin Accessibility")
   )
@@ -59,6 +66,13 @@ cmd_alignCellRangerArc <- function(gex.dir,
             file = libraries.csv.path,
             row.names = FALSE,
             quote = FALSE)
+  # Print if files are missing
+  libraries_df[, {
+    N_files <-  length(unique(list.files(fastqs, paste0(sample, "_S.*.fastq.gz"))))
+    if(N_files==0)
+      warning(paste0("Sample ", sample, " -> no .fastq.gz files detected."))
+    ""
+  }, .(library_type, fastqs, sample)]
 
   # Define paths for both GEX and ATAC output BAM files ----
   gex.bam.path <- file.path(output.folder, output.prefix, "outs", "gex_possorted_bam.bam")
@@ -77,9 +91,10 @@ cmd_alignCellRangerArc <- function(gex.dir,
     " --reference=", normalizePath(index),
     " --libraries=", normalizePath(libraries.csv.path),
     " --localcores=", cores,
-    " --localmem=", mem,
-    " --min-gex-count=500 --min-atac-count=1000"
+    " --localmem=", mem
   )
+  if(!is.null(min.gex.count))
+    cmd <- paste0(cmd, " --min-gex-count=", min.gex.count, " --min-atac-count=", min.atac.count)
 
   # Wrap commands output, creating one row for each BAM file ----
   cmd <- data.table::data.table(
@@ -89,7 +104,7 @@ cmd_alignCellRangerArc <- function(gex.dir,
     cores = cores,
     mem = mem,
     job.name = "cellRangerArc",
-    modules= c("build-env/f2022", "cellranger-arc/2.0.2")
+    modules= list(c("build-env/f2022", "cellranger-arc/2.0.2"))
   )
 
   # Return ----
