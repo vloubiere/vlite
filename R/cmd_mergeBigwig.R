@@ -1,15 +1,16 @@
 #' Convert Multiple BigWig Files to a Merged BigWig Format
 #'
 #' @description
-#' Creates shell commands to merge multiple BigWig files and convert the merged BedGraph to BigWig format using a
-#' genome sizes file.
+#' Creates shell commands to merge multiple BigWig files and converts the merged BedGraph
+#' to BigWig format using a genome sizes file.
 #'
 #' @param bw Character vector of paths to input BigWig files.
 #' @param output.prefix Prefix for the output merged BigWig file. If missing, will be constructed from the
 #' basename of the first provided bw path.
+#' @param mean.signal Should the signal be averaged between provided files? By default, the sum is returned.
+#' @param genome A BSgenome ("mm10", "dm3"...).
 #' @param bw.output.folder Directory for the output files. Default is "db/bw/".
 #' @param tmp.bdg.folder Folder to save temporary .bedgraph files. Default is "db/bw/tmp/".
-#' @param genome A BSgenome ("mm10", "dm3"...).
 #' @param Rpath Path to the Rscript binary. Default is "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
 #' @param bigWigMergePath Path to the tool executable.
 #' Default= "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge"
@@ -32,9 +33,10 @@
 #' @export
 cmd_mergeBigwig <- function(bw,
                             output.prefix,
+                            mean.signal= FALSE,
+                            genome,
                             bw.output.folder= "db/bw/",
                             tmp.bdg.folder= "db/bw/tmp/",
-                            genome,
                             Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
                             bigWigMergePath= "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge")
 {
@@ -60,6 +62,7 @@ cmd_mergeBigwig <- function(bw,
                               output.prefix = gsub(".bw$", "", basename(bw.file)),
                               bw.output.folder = bw.output.folder,
                               genome = genome,
+                              scaling.factor = ifelse(mean.signal, length(bw), 1),
                               Rpath = Rpath)
 
   # If several files were provided ----

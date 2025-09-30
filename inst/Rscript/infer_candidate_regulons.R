@@ -2,7 +2,7 @@
 args = commandArgs(trailingOnly=TRUE)
 
 # Test if there are 9 args: if not, return an error ----
-if (length(args) != 9) {
+if (!length(args) %in% c(9, 11)) {
   stop(
     "Please specify:\n
        [required] 1/ The path to a .rds file containing SCT data for genes \n
@@ -13,7 +13,9 @@ if (length(args) != 9) {
        [required] 6/ The fraction of cells to use per iteration \n
        [required] 7/ The fraction of times a TF should be recovered to be a candidate \n
        [required] 8/ Output prefix \n
-       [required] 9/ Output folder \n"
+       [required] 9/ Output folder \n
+       [optional] 10/ Starting line index for the genes matrix \n
+       [optional] 11/ Ending line index for the genes matrix \n"
   )
 }
 
@@ -23,15 +25,17 @@ suppressMessages(library(Matrix, warn.conflicts = FALSE))
 suppressMessages(library(glmnet, warn.conflicts = FALSE))
 suppressMessages(library(parallel, warn.conflicts = FALSE))
 
-# args <- c("db/candidate_regulons/tmp/genes_1_20.rds",
-#           "db/candidate_regulons/TFs_norm_counts.rds",
-#           "db/candidate_regulons/cell_labels.rds",
+# args <- c("/scratch-cbe/users/vincent.loubiere/candidate_regulons/82bdf52dd5f421b69e97350f873121e2_genes_norm_counts.rds",
+#           "/scratch-cbe/users/vincent.loubiere/candidate_regulons/ff1e664a1fe0a395a28705f6760b6b45_TFs_norm_counts.rds",
+#           "/scratch-cbe/users/vincent.loubiere/candidate_regulons/d11c7fada862b5ffea2d6a64f8017627_cell_labels.rds",
 #           "ELASTIC",
 #           "5",
 #           "0.3",
 #           "0.6",
 #           "genes_1_20",
-#           "db/candidate_regulons/")
+#           "db/candidate_regulons/",
+#           "1",
+#           "20")
 
 # Parse arguments ----
 SCT_data_genes <- args[1]
@@ -43,6 +47,10 @@ frac_cells <- as.numeric(args[6]) # Number of cells per iteration. Generally .3
 stability <- as.numeric(args[7]) # Fraction required to be considered as candidate. Generally .6
 output_prefix <- args[8]
 output_folder <- args[9]
+if(length(args==11)) {
+  starting.line <- as.integer(args[10])
+  ending.line <- as.integer(args[11])
+}
 stopifnot(grepl(".rds$", SCT_data_genes))
 stopifnot(grepl(".rds$", SCT_data_TFs))
 stopifnot(grepl(".rds$", cell_labels))
@@ -50,6 +58,8 @@ stopifnot(method %in% c("LASSO", "ELASTIC"))
 
 # Import genes and TF expression matrices ----
 genes <- readRDS(SCT_data_genes)
+if(length(args==11))
+  genes <- genes[starting.line:ending.line,]
 TFs <- readRDS(SCT_data_TFs)
 stopifnot(class(genes)=="dgCMatrix")
 stopifnot(class(TFs)=="dgCMatrix")
@@ -77,7 +87,7 @@ final <- parallel::mclapply(
       set.seed(i)
       train_sel <- seq(ncol(genes)) %in% sample(ncol(genes), round(frac_cells*ncol(genes)), prob = probs)
 
-      # Base TF matrix excluding the target TF itself
+      # Base TF matrix excluding the target TF itself (if present)
       TF_keep <- rownames(TFs) != x
       X_TF_train <- t(TFs[TF_keep, train_sel, drop = FALSE])    # n_train x p
       X_TF_full  <- t(TFs[TF_keep, , drop = FALSE])             # n_all x p
@@ -189,13 +199,13 @@ final <- parallel::mclapply(
     mat <- mat[(keep),]
     agg <- agg[(keep)]
 
-    # Add base effect (W18) to all condition-specific coeffs ----
+    # # Add base effect (W18) to all condition-specific coeffs (commented out for now, keep raw coeffs) ----
     cdition.mat <- mat
-    base.idx <- agg$cdition == "base"
-    for(cdition in setdiff(unique(agg$cdition), "base")) {
-      cdition.idx <- agg$cdition == cdition
-      cdition.mat[cdition.idx,] <- mat[base.idx,]+mat[cdition.idx,]
-    }
+    # base.idx <- agg$cdition == "base"
+    # for(cdition in setdiff(unique(agg$cdition), "base")) {
+    #   cdition.idx <- agg$cdition == cdition
+    #   cdition.mat[cdition.idx,] <- mat[base.idx,]+mat[cdition.idx,]
+    # }
 
     # Compute metrix ----
     agg[, pos.frac:= apply(cdition.mat, 1, function(x) sum(x>0)/length(x))]

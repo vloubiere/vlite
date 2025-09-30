@@ -2,7 +2,7 @@
 % Please edit documentation in R/addSeqLogo.R
 \name{addSeqLogo}
 \alias{addSeqLogo}
-\title{plot seqlogo}
+\title{Add ICM logos to an existing plot}
 \usage{
 addSeqLogo(
   pwm,
@@ -11,37 +11,41 @@ addSeqLogo(
   pos = 2,
   cex.width = 1,
   cex.height = 1,
-  add = T,
-  min_content = 0.05
+  min.content = 0.05
 )
 }
 \arguments{
-\item{pwm}{List of percentage pwm matrices (where colsums= 1).}
+\item{pwm}{List of percentage PWM matrices which will be converted to ICM before plotting.}
 
 \item{x}{x positions (see pos argument).}
 
-\item{y}{positions (centered)}
+\item{y}{y positions (centered).}
 
-\item{pos}{eith 2 (left) of 4 (right)}
+\item{pos}{Either 2 (left) of 4 (right)}
 
-\item{cex.width}{width expansion factor applied before plotting motifs}
+\item{cex.width}{width expansion factor.}
 
-\item{cex.height}{height expansion factor applied before plotting motifs}
+\item{cex.height}{height expansion factor.}
 
-\item{add}{Should the pwm be plot on the top of opened device? Default= T}
+\item{min.content}{Flanks with a smaller summed content are not plotted.}
 }
 \description{
 plot seqlogo from pwm matrix
 }
 \examples{
-pwm <- matrix(c(
-0.33,0.21,0.33,0.13,0.1,0.42,0.38,0.1,0.26,0.26,0.27,0.21,0,0.03,
-0.19,0.78,0.1,0.05,0.1,0.75,0.24,0.05,0.18,0.53,0.8,0.04,0,0.16,
-0.13,0.16,0.02,0.69,0.04,0.05,0.7,0.21,0.24,0.09,0.57,0.1,0.02,0.8,
-0.15,0.03,0.22,0.28,0.31,0.19,0.35,0.26,0.26,0.13,0.19,0.33,0.26,0.22
-), nrow= 4)
-rownames(pwm) <- c("A", "C", "G", "T")
-plot.new()
-addSeqLogo(pwm)
+# Example: start from a PPM and create a PWM, then plot ICM
+PPM <- matrix(
+  c(
+    0.33,0.21,0.33,0.13,0.1,0.42,0.38,0.1,0.26,0.26,0.27,0.21,0,0.03,
+    0.19,0.78,0.1,0.05,0.1,0.75,0.24,0.05,0.18,0.53,0.8,0.04,0,0.16,
+    0.13,0.16,0.02,0.69,0.04,0.05,0.7,0.21,0.24,0.09,0.57,0.1,0.02,0.8,
+    0.15,0.03,0.22,0.28,0.31,0.19,0.35,0.26,0.26,0.13,0.19,0.33,0.26,0.22
+  ), nrow= 4
+)
+PWM <- freqToPWM(PPM)
+
+# Plot
+plot(0, 1, type= "n")
+addSeqLogo(PWM, x = -1, y= 1, cex.height = 3, cex.width = 2, pos= 2, min_content = .5)
 
 }

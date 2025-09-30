@@ -10,6 +10,8 @@ cmd_alignCellRangerArc(
   atac.dir,
   atac.sample.name,
   index,
+  min.gex.count = NULL,
+  min.atac.count = NULL,
   output.prefix,
   output.folder = "db/multiome_10X/",
   cores = 10,
@@ -28,6 +30,11 @@ cellranger-arc will only search for filenames matching sampleName_S*_L.*.}
 cellranger-arc will only search for filenames matching sampleName_S*_L.*.}
 
 \item{index}{Path to the Cell Ranger ARC reference.}
+
+\item{min.gex.count}{Cell caller override: define the minimum number of GEX UMI counts for a cell barcode. Note: this option must be specified in conjunction with min.atac.count.
+With min.atac.count=X and min.gex.count=Y a barcode is defined as a cell if it contains at least X ATAC counts AND at least Y.}
+
+\item{min.atac.count}{See min.gex.count argument above.}
 
 \item{output.prefix}{Prefix for output files and the run ID.}
 

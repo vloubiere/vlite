@@ -7,9 +7,10 @@
 cmd_mergeBigwig(
   bw,
   output.prefix,
+  mean.signal = FALSE,
+  genome,
   bw.output.folder = "db/bw/",
   tmp.bdg.folder = "db/bw/tmp/",
-  genome,
   Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
   bigWigMergePath =
     "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge"
@@ -21,11 +22,13 @@ cmd_mergeBigwig(
 \item{output.prefix}{Prefix for the output merged BigWig file. If missing, will be constructed from the
 basename of the first provided bw path.}
 
+\item{mean.signal}{Should the signal be averaged between provided files? By default, the sum is returned.}
+
+\item{genome}{A BSgenome ("mm10", "dm3"...).}
+
 \item{bw.output.folder}{Directory for the output files. Default is "db/bw/".}
 
 \item{tmp.bdg.folder}{Folder to save temporary .bedgraph files. Default is "db/bw/tmp/".}
-
-\item{genome}{A BSgenome ("mm10", "dm3"...).}
 
 \item{Rpath}{Path to the Rscript binary. Default is "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
 
@@ -40,8 +43,8 @@ A `data.table` with:
 - `job.name`: Default name for the job = "bwMerge".
 }
 \description{
-Creates shell commands to merge multiple BigWig files and convert the merged BedGraph to BigWig format using a
-genome sizes file.
+Creates shell commands to merge multiple BigWig files and converts the merged BedGraph
+to BigWig format using a genome sizes file.
 }
 \examples{
 # Merge BigWig files and convert to a single BigWig

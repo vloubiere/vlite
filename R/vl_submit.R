@@ -1,8 +1,8 @@
 #' Submit Commands to a Server with Resource Management
 #'
 #' @description
-#' Submits shell commands to a server using resource management (e.g., LSF). Handles job submission,
-#' resource allocation, and optional directory creation for output files.
+#' Used in vlite pipeline to submit shell commands to the server Handles job submission, resource allocation, and optional directory
+#' creation for output files.
 #'
 #' @param cmd A data.table containing the commands to execute, which will all be submitted as a single job. Intended columns are:
 #'   - `file.type`: Type of output file.
@@ -53,6 +53,8 @@ vl_submit <- function(cmd,
   # Checks ----
   if(!is.data.table(cmd) || !all(c("file.type", "path", "cmd") %in% names(cmd)))
     stop("cmd should be a data.table containing columns 'file.type', 'path' and 'cmd'.")
+  if(any(is.na(cmd$path)))
+    warning("Some rows have path = NA; they will be skipped for dir creation and existence checks.")
 
   # Default values ----
   if(missing(cores)) {
@@ -77,13 +79,14 @@ vl_submit <- function(cmd,
   }
   if(missing(logs)) {
     logs <- if("logs" %in% names(cmd))
-      cmd$logs[1] else
+      as.character(cmd$logs)[1] else
         "db/logs"
   }
   if(missing(modules)) {
     modules <- if("modules" %in% names(cmd))
       unlist(cmd$modules) else c(
         "build-env/2020",
+        "pigz/2.4-gcccore-7.3.0 ",
         "cutadapt/1.18-foss-2018b-python-2.7.15",
         "trim_galore/0.6.0-foss-2018b-python-2.7.15",
         "samtools/1.9-foss-2018b",
@@ -100,7 +103,7 @@ vl_submit <- function(cmd,
 
   # Check if output files exist ----
   if(!overwrite)
-    cmd <- cmd[!file.exists(path)]
+    cmd <- cmd[is.na(path) | !file.exists(path)]
 
   # Check if any command should be executed ----
   if(nrow(cmd))

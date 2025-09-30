@@ -6,29 +6,40 @@
 \usage{
 \method{plot}{vl_auc}(
   auc,
-  cutoff = ifelse(value == "NES", 3, 0.6),
+  cutoff = ifelse(value.var == "NES", 3, 0.6),
   min.diff.cutoff = 0,
-  topN = 10,
+  topN = Inf,
   order.var = "score",
-  value = "NES",
-  ...
+  value.var = "NES",
+  cluster.rows = T,
+  cluster.cols = F,
+  ranks.as.rows = FALSE,
+  kmeans.k = NA,
+  show.row.clusters = "right",
+  show.numbers = NULL,
+  legend.cex = 1,
+  numbers.cex = 0.5,
+  pdf.file = NULL
 )
 }
 \arguments{
 \item{auc}{A vl_auc object created by ?vl_motifAUC.}
 
-\item{cutoff}{Only the variables with a maximum absolute value higher or equal to this cutoff are plotted.}
+\item{cutoff}{Cutoff on the maximum value across all conditions.}
 
-\item{min.diff.cutoff}{Only the variables with a range higher or equal to this cutoff are plotted.}
+\item{min.diff.cutoff}{Cutoff on the minimum difference between lowest and highest value.}
 
-\item{topN}{The number of top values to be plotted per ranking variable. Default= 10.}
+\item{topN}{After sorting the table using order.var (decreasing= T), subset only topN values for ploting.}
 
-\item{value}{The value to be plotted. Possible value are "NES" or "auc". Default= "NES".}
+\item{order.var}{Value used to sort the data before subsetting topN values. Possible values are 'score' (use
+the absolute of the value.var) or 'diff' (sort by difference between highest and lowest value.var).}
+
+\item{value.var}{The value to be plotted. Possible value are "NES" or "auc". Default= "NES".}
 
 \item{...}{Extra arguments to be passed to the heatmap funciton.}
 }
 \value{
-Invisible returns the heatmap object.
+Invisible returns the final matrix.
 }
 \description{
 Title

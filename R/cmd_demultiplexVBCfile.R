@@ -20,7 +20,7 @@
 #' @param proseq.umi.length For PRO-Seq reads, integer specifying the length of the UMI sequence located right after the eBC
 #'        sequence (see proseq.eBC), which will be trimmed and appended to the read ID. Default= 10L. Only supported for BAM input.
 #' @param fq.output.folder Directory where output FASTQ files will be written. Default= "db/fq/".
-#' @param cores Number of CPU cores to use for samtools processing (when using BAM input). Default= 8L.
+#' @param cores Number of CPU cores to use. Default= 8L.
 #' @param head Number of reads that should be processed (for testing purposes).
 #'
 #' @return A data.table with three columns:
@@ -57,7 +57,7 @@
 #'   i5 = "none",
 #'   output.prefix = "ORFeome_fastq_demult_CTATAC",
 #'   fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-#'   head = 40000
+#'   head = 10000
 #' )
 #' vl_submit(cmd, overwrite = FALSE, logs = "/groups/stark/vloubiere/packages/tests/logs/")
 #'
@@ -73,7 +73,7 @@
 #'   proseq.eBC = "ATCG",
 #'   proseq.umi.length = 10,
 #'   cores = 8,
-#'   head = 40000
+#'   head = 10000
 #' )
 #' vl_submit(cmd,
 #'           overwrite = TRUE,
@@ -124,12 +124,8 @@ cmd_demultiplexVBCfile <- function(vbcFile,
   if(umi && (i7!="none" | !is.null(proseq.eBC)))
     stop("When umi is set to TRUE, i7 should be set to 'none' and proseq.eBC to NULL.")
   # PRO-Seq args
-  if(!is.null(proseq.eBC)) {
-    if(grepl(".tar.gz$", vbcFile))
-      stop("proseq.eBC is not supported for tar files yet :(.")
-    if(missing(proseq.umi.length))
-      stop("When proseq.eBC is specified (PRO-Seq reads), proseq.umi.length should also be provided.")
-  }
+  if(!is.null(proseq.eBC) && !is.numeric(proseq.umi.length))
+    stop("When proseq.eBC is specified (PRO-Seq reads), proseq.umi.length should be provided as an integer.")
   # Head
   if(!missing(head) && head %% 1!=0)
     stop("head should be a round number.")
@@ -187,11 +183,19 @@ cmd_demultiplexVBCfile <- function(vbcFile,
     # Demultiplexing parameters
     cmd <- paste(perl.script,
                  ifelse(umi, "--umi", ""),
-                 vbcFile,
+                 paste0("'", vbcFile, "'"),
                  paste0("'", i7, "'"), # i7 barcode sequence
                  paste0("'", i5, "'"), # i5 index sequence
                  paste0("'", output.prefix, "'"),
-                 paste0("'", layout, "'"))
+                 paste0("'", layout, "'"),
+                 paste0("--threads ", cores))
+
+    # PRO-Seq specific arguments
+    if(!is.null(proseq.eBC)) {
+      cmd <- paste(cmd,
+                   paste0("--start_seq '", proseq.eBC, "'"),
+                   paste0("--trim_length ", proseq.umi.length))
+    }
   }
 
   # Wrap commands output ----

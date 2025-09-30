@@ -10,7 +10,8 @@
 #' @param stability.cutoff The fraction of time a TF should receive a coefficient to be considered as a candidate
 #' activator/repressor. Default= 0.6.
 #' @param method Should be one of 'LASSO' (quick) or 'ELASTIC' (less affected by colinearity between predictors but slower).
-#' @param output.prefix The prefix of the output file. If missing, the basename of the genes_file will be used.
+#' @param output.prefix The prefix of the output file. If missing, the basename of the genes_file will be used. If starting
+#' and ending lines are specified, they will be appended to the output.prefix to avoid overwritting.
 #' @param cores Number of cores to be used. Default= 20.
 #' @param mem Memory dedicated to the job. Default= 40.
 #' @param time Time limit for the job. Default= "8:00:00".
@@ -24,6 +25,8 @@ cmd_infer_candidate_regulons <- function(
     cell.frac= .3,
     stability.cutoff= .6,
     method= "ELASTIC",
+    starting.line= NULL,
+    ending.line= NULL,
     output.prefix,
     output.folder= "db/candidate_regulons/",
     cores= 20,
@@ -38,8 +41,12 @@ cmd_infer_candidate_regulons <- function(
   stopifnot(grepl(".rds$", TFs.file))
   stopifnot(grepl(".rds$", cell.labels.file))
   stopifnot(method %in% c("LASSO", "ELASTIC"))
+  if((is.null(starting.line) && !is.null(ending.line)) || (!is.null(starting.line) && is.null(ending.line)))
+    stop("starting.line has been specified but ending.ling is missing.")
 
   # File paths ----
+  if(!is.null(starting.line))
+    output.prefix <- paste0(output.prefix, "_", starting.line, "_", ending.line)
   output.file <- file.path(
     output.folder,
     paste0(output.prefix, "_candidate_regulons_", method, ".rds")
@@ -58,6 +65,8 @@ cmd_infer_candidate_regulons <- function(
     output.prefix,
     output.folder
   )
+  if(!is.null(starting.line))
+    cmd <- paste(cmd, starting.line, ending.line)
 
   # Command object ----
   cmd <- data.table(

@@ -2,27 +2,15 @@
 % Please edit documentation in R/vl_seqLogo.R
 \name{vl_seqLogo}
 \alias{vl_seqLogo}
-\title{plot seqlogo}
+\title{Plot PWM seqlogo}
 \usage{
-vl_seqLogo(pwm, name = NA)
+vl_seqLogo(PWM, name = NA)
 }
 \arguments{
-\item{pwm}{A percentage PWM where colsums= 1 (or PWMatrix).}
+\item{name}{Name of the motif to plot as a title.}
 
-\item{name}{Name of the motif (will be used as title).}
+\item{pwm}{A PWM.}
 }
 \description{
-plot seqlogo from pwm matrix
-}
-\examples{
-pwm <- matrix(
-c(0.33,0.21,0.33,0.13,0.1,0.42,0.38,0.1,0.26,0.26,0.27,0.21,0,0.03,
-0.19,0.78,0.1,0.05,0.1,0.75,0.24,0.05,0.18,0.53,0.8,0.04,0,0.16,
-0.13,0.16,0.02,0.69,0.04,0.05,0.7,0.21,0.24,0.09,0.57,0.1,0.02,0.8,
-0.15,0.03,0.22,0.28,0.31,0.19,0.35,0.26,0.26,0.13,0.19,0.33,0.26,0.22
-), nrow= 4)
-rownames(pwm) <- c("A", "C", "G", "T")
-plot.new()
-addSeqLogo(pwm)
-
+Transforms a PWM into an ICM before plotting the logo,
 }

@@ -19,8 +19,8 @@ orftagQC <- function(sampleIDs,
                      dc.cutoff= 0,
                      output.prefix,
                      output.folder= "db/QC/ORFtag/",
-                     pdf.width= 7,
-                     pdf.height= 7)
+                     pdf.width= 9,
+                     pdf.height= 9)
 {
   # Checks ----
   if(any(!file.exists(align.stats)))
@@ -101,7 +101,7 @@ orftagQC <- function(sampleIDs,
     plotTable(res[, !"ins.IDs"], cex = .6)
 
     # Plot overlaps matrix  ----
-    vl_par(mai= rep(1.2, 4))
+    vl_par(mai= rep(3.2, 4))
     vl_heatmap(perc,
                cluster.rows = F,
                cluster.cols = F,

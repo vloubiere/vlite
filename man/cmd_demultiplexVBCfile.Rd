@@ -46,7 +46,7 @@ reads and will be used for demultiplexing. Only supported for BAM input. Default
 \item{proseq.umi.length}{For PRO-Seq reads, integer specifying the length of the UMI sequence located right after the eBC
 sequence (see proseq.eBC), which will be trimmed and appended to the read ID. Default= 10L. Only supported for BAM input.}
 
-\item{cores}{Number of CPU cores to use for samtools processing (when using BAM input). Default= 8L.}
+\item{cores}{Number of CPU cores to use. Default= 8L.}
 
 \item{head}{Number of reads that should be processed (for testing purposes).}
 }
@@ -93,7 +93,7 @@ cmd <- cmd_demultiplexVBCfile(
   i5 = "none",
   output.prefix = "ORFeome_fastq_demult_CTATAC",
   fq.output.folder = "/groups/stark/vloubiere/packages/tests/",
-  head = 40000
+  head = 10000
 )
 vl_submit(cmd, overwrite = FALSE, logs = "/groups/stark/vloubiere/packages/tests/logs/")
 
@@ -109,7 +109,7 @@ cmd <- cmd_demultiplexVBCfile(
   proseq.eBC = "ATCG",
   proseq.umi.length = 10,
   cores = 8,
-  head = 40000
+  head = 10000
 )
 vl_submit(cmd,
           overwrite = TRUE,

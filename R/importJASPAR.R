@@ -1,12 +1,12 @@
 #' importJASPAR
 #'
-#' Imports a JASPAR
+#' Imports a .pfm text file containing JASPAR PFMs and parse them into lists of PPM and PWM TFBSTools::PWMatrix objects.
 #'
-#' @param combinedFile Path to a combined file containing JASPAR-formatted taw PFMs.
-#' @param pseudocount Pseudocount to be added before logging. Default= 1e-5.
+#' @param combinedFile Path to a combined .pfm file containing JASPAR-formatted raw PFMs.
+#' @param pseudocount Pseudocount to be added to PPMs before logging. Default= 1e-5.
 #' @param bg Background probabilities. Default= c("A"= .25, "C"= .25, "G"= .25, "T"= .25).
 #'
-#' @return A list containing pwms_perc and pwms_log_odds TFBSTools::PWMatrix sublists.
+#' @return A list containing PPM and PWM matrices stored in TFBSTools::PWMatrix sublists.
 #' @export
 #'
 #' @examples
@@ -47,7 +47,7 @@ importJASPAR <- function(combinedFile,
     IDs <- make.unique(IDs)
   }
 
-  # Percentage PWMatrix object ----
+  # Save PPM in PWMatrix object ----
   pwms_perc  <- lapply(seq(mat), function(i) {
     .c <- apply(mat[[i]], 2, function(x) x/sum(x))
     TFBSTools::PWMatrix(ID= IDs[i],
@@ -59,9 +59,9 @@ importJASPAR <- function(combinedFile,
   # log2 ratio PWMatrix object ----
   pwms_log_odds <- lapply(seq(pwms_perc), function(i) {
     .c <- pwms_perc[[i]]@profileMatrix
-    .c <- pwmPercToLog(perc_pwm = .c,
-                       pseudocount = pseudocount,
-                       bg = bg)
+    .c <- freqToPWM(perc_pwm = .c,
+                    pseudocount = pseudocount,
+                    bg = bg)
     TFBSTools::PWMatrix(ID= IDs[i],
                         name = name[i],
                         profileMatrix = .c)

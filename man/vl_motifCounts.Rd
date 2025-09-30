@@ -10,7 +10,7 @@ vl_motifCounts(
   pwm_log_odds,
   genome = NULL,
   bg = "genome",
-  p.cutoff = 5e-05,
+  p.cutoff = 0.00005,
   cleanup.cache = FALSE,
   what = "motifCounts"
 )

@@ -30,9 +30,12 @@ vl_PPV <- function(predicted,
                    lty.1= 1,
                    lty.2= 3,
                    col= "black",
+                   show.max= TRUE,
+                   show.max.value= show.max,
                    cex.max= .7,
-                   pos.max= 3,
+                   pos.max= 2,
                    offset.max= .5,
+                   show.pred.cutoff= T,
                    add= FALSE,
                    ...)
 {
@@ -55,23 +58,10 @@ vl_PPV <- function(predicted,
   setorderv(dat,
             cols = "pred")
 
-  # Fit a smooth spline and find peaks
-  x <- dat[1:(.N-Nleft), pred]
-  y <- dat[1:(.N-Nleft), PPV]
-  spline_fit <- smooth.spline(x, y)
-  spline_derivative <- predict(spline_fit, deriv = 1)
-
-  # Find peaks
-  peaks <- which(diff(sign(spline_derivative$y)) == -2) + 1
-  peak_x_values <- spline_derivative$x[peaks]
-  peak_y_values <- predict(spline_fit, x = peak_x_values)$y
-  peak_x_values <- c(peak_x_values, last(x)) # value at .N-Nleft
-  peak_y_values <- c(peak_y_values, last(y)) # value at .N-Nleft
-
-  # Select ideal cutoff
-  sel <- min(which(peak_y_values>max(0.95*peak_y_values)))
-  x_cutoff <- peak_x_values[sel]
-  y_cutoff <- peak_y_values[sel]
+  # Find max value
+  max.PPV <- which.max(dat[1:(.N-Nleft), PPV])
+  x_cutoff <- dat$pred[max.PPV]
+  y_cutoff <- dat$PPV[max.PPV]
 
   # Compute limits
   if(is.null(xlim))
@@ -80,12 +70,11 @@ vl_PPV <- function(predicted,
     ylim <- c(0, min(c(100, max(dat$PPV)*1.1)))
 
   # Plot PPV and cutoffs
-  if(plot)
+  if(plot | add)
   {
     # Initiate plot
     if(!add)
     {
-
       plot(NA,
            NA,
            type = "n",
@@ -110,38 +99,46 @@ vl_PPV <- function(predicted,
             col= col,
             ...)
 
-      # Plot the smooth spline
-      # lines(spline_fit, col = "blue", lwd = 2)
-
       # Plot top PPV point
-      points(x_cutoff,
-             y_cutoff,
-             col = adjustcolor(col, .7),
-             pch = 19)
-      text(x_cutoff,
-           y_cutoff,
-           paste0(round(y_cutoff, 1), "%"),
-           pos= pos.max,
-           offset= offset.max,
-           col= col,
-           cex= cex.max)
+      if(show.max) {
+        points(x_cutoff,
+               y_cutoff,
+               col = adjustcolor(col, .7),
+               pch = 19)
+      }
 
-      # Add segments
-      # segments(x_cutoff,
-      #          0,
-      #          x_cutoff,
-      #          y_cutoff,
-      #          lty= "33")
+      # Plot top PPV value
+      if(show.max.value) {
+        text(x_cutoff,
+             y_cutoff,
+             paste0(round(y_cutoff, 1), "%"),
+             pos= pos.max,
+             offset= offset.max,
+             col= col,
+             cex= cex.max)
+      }
+
+
+      # Plot x prediction cutoff
+      if(show.pred.cutoff) {
+        segments(x_cutoff,
+                 0,
+                 x_cutoff,
+                 y_cutoff,
+                 lty= "33")
+        text(x_cutoff,
+             0,
+             round(x_cutoff, 2),
+             pos= 2,
+             offset= offset.max,
+             cex= cex.max)
+      }
+
       # segments(0,
       #          y_cutoff,
       #          x_cutoff,
       #          y_cutoff,
       #          lty= "33")
-      # text(x_cutoff,
-      #      y_cutoff/2,
-      #      round(x_cutoff, 2),
-      #      pos= 4,
-      #      offset= 1)
       # text(x_cutoff/2,
       #      y_cutoff,
       #      paste0(round(y_cutoff, 1), "%"),

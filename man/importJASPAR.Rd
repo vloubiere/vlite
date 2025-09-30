@@ -6,22 +6,22 @@
 \usage{
 importJASPAR(
   combinedFile,
-  pseudocount = 1e-05,
+  pseudocount = 0.00001,
   bg = c(A = 0.25, C = 0.25, G = 0.25, T = 0.25)
 )
 }
 \arguments{
-\item{combinedFile}{Path to a combined file containing JASPAR-formatted taw PFMs.}
+\item{combinedFile}{Path to a combined .pfm file containing JASPAR-formatted raw PFMs.}
 
-\item{pseudocount}{Pseudocount to be added before logging. Default= 1e-5.}
+\item{pseudocount}{Pseudocount to be added to PPMs before logging. Default= 1e-5.}
 
 \item{bg}{Background probabilities. Default= c("A"= .25, "C"= .25, "G"= .25, "T"= .25).}
 }
 \value{
-A list containing pwms_perc and pwms_log_odds TFBSTools::PWMatrix sublists.
+A list containing PPM and PWM matrices stored in TFBSTools::PWMatrix sublists.
 }
 \description{
-Imports a JASPAR
+Imports a .pfm text file containing JASPAR PFMs and parse them into lists of PPM and PWM TFBSTools::PWMatrix objects.
 }
 \examples{
 importJASPAR("/groups/stark/vloubiere/motifs_db/hand_curated_Dmel_motifs.txt")

@@ -16,9 +16,12 @@ vl_PPV(
   lty.1 = 1,
   lty.2 = 3,
   col = "black",
+  show.max = TRUE,
+  show.max.value = show.max,
   cex.max = 0.7,
-  pos.max = 3,
+  pos.max = 2,
   offset.max = 0.5,
+  show.pred.cutoff = T,
   add = FALSE,
   ...
 )

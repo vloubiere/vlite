@@ -222,6 +222,8 @@ vl_heatmap <- function(x,
     show.numbers <- x
   if(!isFALSE(show.numbers) & !is.matrix(show.numbers))
     show.numbers <- as.matrix(show.numbers)
+  if(is.matrix(show.numbers) & !identical(dim(show.numbers), dim(x)))
+    stop("show.numbers matrix should have the same dimensions as x.")
 
   # Default breaks ----
   if(is.null(breaks)) {
@@ -325,10 +327,10 @@ vl_heatmap <- function(x,
     }
     # Compute adjusted number of rows heatmap
     pdf(pdf.file,
-        width= Ncols*pdf.cell.size+4,
+        width= Ncols*pdf.cell.size+6,
         height = Nrows*pdf.cell.size+4)
     if(pdf.par) {
-      vl_par(mai= c(2,2,2,2))
+      vl_par(mai= c(2,4,2,2))
     }
   }
 

@@ -49,8 +49,8 @@ By default, the most used modules for genomics are loaded.}
 \item{create.output.dirs}{Should missing output directories be created before executing the command? Default= TRUE.}
 }
 \description{
-Submits shell commands to a server using resource management (e.g., LSF). Handles job submission,
-resource allocation, and optional directory creation for output files.
+Used in vlite pipeline to submit shell commands to the server Handles job submission, resource allocation, and optional directory
+creation for output files.
 }
 \examples{
 # Submit a command to the server

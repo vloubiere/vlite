@@ -4,10 +4,21 @@
 \alias{vl_cache_file}
 \title{Title}
 \usage{
-vl_cache_file(input.list)
+vl_cache_file(
+  input.list,
+  prefix = "tmp_",
+  extension = ".rds",
+  tmp.dir = tempdir()
+)
 }
 \arguments{
 \item{input.list}{list of elements used by the function which will be used to generate a reproducible path for the cache file.}
+
+\item{extension}{Extension for the cache file. Default= ".rds".}
+
+\item{tmp.dir}{Default= tempdir().}
+
+\item{suffix}{A prefix to be added at the beginning of the cache file name. Default= "tmp_".}
 }
 \description{
 Title

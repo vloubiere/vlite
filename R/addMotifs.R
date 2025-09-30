@@ -41,7 +41,7 @@ addMotifs <- function(plot.DT,
                      y = sel$y,
                      cex.width = cex.width,
                      cex.height = cex.height,
-                     min_content= 0.05)
+                     min.content= 0.05)
 
   # Add lines under motifs ----
   coor[, segments(xleft,

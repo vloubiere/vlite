@@ -57,7 +57,7 @@ plot.vl_auc <- function(auc,
 
   # Select lines base on minimum value and range ----
   if(!nrow(auc))
-    return("No enrichment found with actual cutoff.")
+    stop("No enrichment found with actual cutoff.")
 
   # Dcast ----
   mat <- dcast(auc, var~rank, value.var = "score")

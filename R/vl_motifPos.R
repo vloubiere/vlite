@@ -90,15 +90,20 @@ vl_motifPos <- function(sequences,
   tmp.folder <- paste0(scratch, "/", sub.folder, "/")
   print(paste0("Temp files will be stored in '", tmp.folder, "'"))
   dir.create(tmp.folder,
-             showWarnings = TRUE,
+             showWarnings = FALSE,
              recursive = TRUE)
 
   # Create final file cache name ----
-  params <- list(sub.folder,
-                 pwm_log_odds,
-                 pos.strand,
-                 collapse.overlapping)
-  final.file <- paste0(tmp.folder, digest::digest(params), ".rds")
+  final.file <- vl_cache_file(
+    list(
+      sub.folder,
+      pwm_log_odds,
+      pos.strand,
+      collapse.overlapping
+    ),
+    tmp.dir = tmp.folder,
+    extension = ".rds"
+  )
 
   # Main function ----
   if(!file.exists(final.file) | cleanup.cache) {
@@ -118,6 +123,7 @@ vl_motifPos <- function(sequences,
     {
       print(paste0(sum(!missing.files), "/", length(pwm_log_odds), " motif files already existed!"))
 
+      # Call position ----
       parallel::mcmapply(function(mot, output.file)
       {
         res <- motifmatchr::matchMotifs(pwms = mot,
@@ -135,7 +141,7 @@ vl_motifPos <- function(sequences,
     }
     print("All motif positions computed ;)")
 
-    # Processing ----
+    # Post-processing ----
     pos <- data.table(motif= mot.names,
                       file= output.files)
     final <- pos[, {
@@ -186,8 +192,11 @@ vl_motifPos <- function(sequences,
     # Save cache file
     saveRDS(final,
             final.file)
-  } else
+  } else {
+    message("All intermediate files exist -> importing final table.")
     final <- readRDS(final.file)
+  }
+
 
   # Return ----
   return(final)

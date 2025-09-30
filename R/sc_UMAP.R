@@ -92,11 +92,12 @@ sc_UMAP <- function(umap,
         sc_colors(var, unique.lvl = T)
   # Zlim
   if(is.null(zlim) && is.numeric(var)) {
-    z.min <- min(c(0, quantile(var, 0.01, na.rm= T)), na.rm= T)
-    z.max <- max(c(1, quantile(var, 0.99, na.rm= T)), na.rm= T)
+    z.min <- quantile(var, 0.01, na.rm= T)
+    z.max <- quantile(var, 0.99, na.rm= T)
     if(z.max==z.min)
       z.max <- z.min+1
     zlim <- c(z.min, z.max)
+    print(zlim)
   }
   # Legend title (not used for factor variable)
   if(is.null(legend.main) && is.numeric(var))

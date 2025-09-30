@@ -11,8 +11,8 @@ orftagQC(
   dc.cutoff = 0,
   output.prefix,
   output.folder = "db/QC/ORFtag/",
-  pdf.width = 7,
-  pdf.height = 7
+  pdf.width = 9,
+  pdf.height = 9
 )
 }
 \arguments{

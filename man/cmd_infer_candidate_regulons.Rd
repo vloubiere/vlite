@@ -12,6 +12,8 @@ cmd_infer_candidate_regulons(
   cell.frac = 0.3,
   stability.cutoff = 0.6,
   method = "ELASTIC",
+  starting.line = NULL,
+  ending.line = NULL,
   output.prefix,
   output.folder = "db/candidate_regulons/",
   cores = 20,
@@ -35,7 +37,8 @@ activator/repressor. Default= 0.6.}
 
 \item{method}{Should be one of 'LASSO' (quick) or 'ELASTIC' (less affected by colinearity between predictors but slower).}
 
-\item{output.prefix}{The prefix of the output file. If missing, the basename of the genes_file will be used.}
+\item{output.prefix}{The prefix of the output file. If missing, the basename of the genes_file will be used. If starting
+and ending lines are specified, they will be appended to the output.prefix to avoid overwritting.}
 
 \item{cores}{Number of cores to be used. Default= 20.}
 

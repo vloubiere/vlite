@@ -6,10 +6,26 @@ if(F) {
   file.edit("inst/test/newUmiCollapsingStrat.R")
 }
 
+# PWM tools --------------------------------
+if(F) {
+  # Switch between normalizations
+  file.edit("R/freqToPWM.R")
+  file.edit("R/pwmToICM.R")
+
+  # Import JASPAR
+  file.edit("R/importJASPAR.R")
+
+  # Plot DNA letters/logos
+  file.edit("R/plotDNAletter.R") # Used to plot logos
+  file.edit("R/vl_seqLogo.R")
+  file.edit("R/addSeqLogo.R")
+  file.edit("R/addMotifs.R") # Add motifs to a heatmap
+}
+
 # AUC and model performance ----------------
 if(F) {
-  file.edit("R/vl_rankAUC.R")
   file.edit("R/vl_rocAUC.R")
+  file.edit("R/vl_rocAUC_grid.R")
   file.edit("R/vl_PR_AUC.R")
   file.edit("R/vl_PPV.R")
   file.edit("R/vl_mPCC.R")
@@ -31,6 +47,7 @@ if(F) {
   # My SCENIC ----
   file.edit("inst/Rscript/infer_candidate_regulons.R") # Function
   file.edit("inst/Rscript/cmd_infer_candidate_regulons.R") # Wrapper
+  file.edit("inst/Rscript/SCENIClite_infer_regulons.R") # parallelized
 
   # sc-RNA-Seq
   file.edit("R/sc_computeMarkerGenes.R")
@@ -95,10 +112,6 @@ if(F) {
   # Reverse complement DNA sequence
   file.edit("R/revCompDNA.R")
 
-  # PWM conversion
-  file.edit("R/importJASPAR.R")
-  file.edit("R/pwmPercToLog.R")
-
   # Motif counts and positions
   file.edit("R/vl_motifCounts.R")
   file.edit("R/vl_motifPos.R")
@@ -140,9 +153,11 @@ if(F) {
   file.edit("R/importMetadataSheet.R") # NOT USED
 
   # Demultiplexing commands -------
-  file.edit("R/cmd_demultiplexVBCfile.R") # Wrapper
+  file.edit("inst/perl/vbc_tar_extract_head.pl") # Check the reads (for debugging)
+  file.edit("R/cmd_checkVBCfile.R") # Wrapper
   file.edit("inst/perl/vbc_tar_demultiplexing.pl") # Perl subscript
   file.edit("inst/perl/vbc_bam_demultiplexing.pl") # Perl subscript
+  file.edit("R/cmd_demultiplexVBCfile.R") # Wrapper
 
   # General purpose commands -------
   # Trimming
@@ -252,57 +267,35 @@ if(F) {
   file.edit("inst/Rscript/logRatioBigwig.R") # R subscript
 }
 
-# Plots --------------------------------
+# Ploting methods ----------------------
 if(F) {
-  # Plotting parameters
+  # Plot enrichment analyses output
+  file.edit("R/plot_vl_enr.R")
+  file.edit("R/plot_vl_enr_clusters.R")
+  file.edit("R/vl_plot_auc_enrichment.R")
+}
+
+# Plot legends -------------------------
+if(F) {
+  # Graphical parameters
   file.edit("R/vl_par.R")
-  file.edit("R/vl_plot.R")
 
   # Legends
   file.edit("R/tiltAxis.R")
   file.edit("R/vl_legend.R")
   file.edit("R/heatkey.R")
+  file.edit("R/balloons_key.R")
 
   # Extra labels
   file.edit("R/addRsq.R")
   file.edit("R/addPcc.R")
   file.edit("R/addPval.R")
+}
 
-  # Pie chart
-  file.edit("R/vl_pie.R")
-
-  # Boxplot
-  file.edit("R/vl_boxplot.R")
-
-  # Heatmap
-  file.edit("R/helperFunctions_heatmap.R")
-  file.edit("R/vl_heatmap.R")
-
-  # Alluvial plot
-  file.edit("R/alluvial.R")
-
-  # Balloons plot
-  file.edit("R/balloons_key.R")
-  file.edit("R/balloons_plot.R")
-
-  # Plot DNA letters/logos
-  file.edit("R/plotDNAletter.R") # Used to plot logos
-  file.edit("R/addSeqLogo.R")
-  file.edit("R/vl_seqLogo.R")
-  file.edit("R/addMotifs.R")
-
-  # MA plot
-  file.edit("R/MAplot.R")
-
-  # Methods to plot enrichment analyses output
-  file.edit("R/plot_vl_enr.R")
-  file.edit("R/plot_vl_enr_clusters.R")
-  file.edit("R/vl_plot_auc_enrichment.R")
-
-  # Plot table
-  file.edit("R/plotTable.R")
-
-  # Scatterplot
+# Plots --------------------------------
+if(F) {
+  # Scatterplots
+  file.edit("R/vl_plot.R")
   file.edit("R/rasterScatterplot.R")
   file.edit("R/addDensity.R")
 
@@ -310,7 +303,17 @@ if(F) {
   file.edit("R/helperFunctionRepelLabels.R")
   file.edit("R/addRepelLabels.R")
 
-  # Upset plot
+  # Heatmap
+  file.edit("R/helperFunctions_heatmap.R")
+  file.edit("R/vl_heatmap.R")
+
+  # Other plots
+  file.edit("R/vl_boxplot.R")
+  file.edit("R/vl_pie.R")
+  file.edit("R/alluvial.R")
+  file.edit("R/balloons_plot.R")
+  file.edit("R/MAplot.R")
+  file.edit("R/plotTable.R")
   file.edit("R/upsetPlot.R")
 }
 

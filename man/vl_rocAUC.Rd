@@ -5,9 +5,11 @@
 \title{ROC AUC}
 \usage{
 vl_rocAUC(
-  ranking_score,
+  ranks,
   labels,
   compute.NES = TRUE,
+  N.iter = 100L,
+  decreasing = TRUE,
   plot = FALSE,
   main = "ROC",
   xlab = "FPR",
@@ -18,9 +20,15 @@ vl_rocAUC(
 )
 }
 \arguments{
-\item{ranking_score}{ranking_score values from the model.}
+\item{ranks}{A vector of numeric variables used for ranking (decreasing= TRUE by default. See decreasing argument).}
 
-\item{labels}{A vector of logical labels (or that can be coerced to logical).}
+\item{labels}{A vector of logical labels to compute the ROC (or that can be coerced to logical).}
+
+\item{compute.NES}{Should the Normalized Enrichment Score be computed (Niter= 1000)? Default= TRUE.}
+
+\item{N.iter}{Number of iterations used to compute the NES. Default= 100L}
+
+\item{decreasing}{Should the sort order for ranks be increasing or decreasing? Default= TRUE.}
 
 \item{plot}{Should the ROC be plotted? Default= FALSE.}
 
@@ -35,8 +43,6 @@ vl_rocAUC(
 \item{add}{Should the ROC line be added to an existing plot?}
 
 \item{...}{Extra arguments to be passed to plot (when plot= TRUE) or lines (when plot= FALSE and add= TRUE).}
-
-\item{NES}{Should the Normalized Enrichment Score be computed (Niter= 1000)? Default= TRUE.}
 }
 \value{
 ROC AUC

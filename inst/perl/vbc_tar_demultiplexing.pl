@@ -3,7 +3,6 @@
 # Import required modules
 use strict;
 use warnings;
-use IO::Compress::Gzip qw(gzip $GzipError);
 use Getopt::Long;
 
 #------------------------------------------------------------------------------
@@ -12,14 +11,33 @@ use Getopt::Long;
 my $max_reads;
 my $help;
 my $add_umi;  # Retrieve UMI sequence from i7 and add it to readID_UMI
+my $start_seq;  # For PRO-Seq read, only keep reads where R1 starts with the provided eBC sequence
+my $trim_length;  # If set with --start_seq, specifies the UMI length that should be extracted after the eBC and appended to the read ID
+my $threads;   # Number of threads for pigz
 
 # Parse command line options
 GetOptions(
     "n=i"     => \$max_reads,
     "lines=i" => \$max_reads,
     "help|h"  => \$help,
-    "umi"     => \$add_umi
+    "umi"     => \$add_umi,
+    "start_seq=s" => \$start_seq,
+    "trim_length=i" => \$trim_length,
+    "threads=i"     => \$threads
 ) or die "Error in command line arguments\n";
+
+# threads precedence: CLI > SLURM > fallback
+$threads = defined($threads)
+    ? $threads
+    : ($ENV{SLURM_CPUS_PER_TASK} // 4);
+
+die "--threads must be >= 1\n" if $threads < 1;
+
+# Multiply the number of lines by 4 to match fastq formatting
+if (defined $max_reads) {
+    if ($max_reads < 0) { die "--lines/-n must be non-negative\n"; }
+    $max_reads *= 4;  # convert reads to FASTQ lines
+}
 
 # Display help message if requested or insufficient arguments
 if ($help || @ARGV < 4) {
@@ -46,8 +64,9 @@ Arguments:
 Options:
     --umi           The UMI is extracted from the i7 read (I1) and appended to the read ID,
                     separated by an underscore (_).
-    -n, --lines     Process only the first N lines from input files
-                    Note: Each read consists of 4 lines, so N=1000 processes 250 reads
+    --start_seq     For PRO-Seq, only keep reads where R1 sequence starts with the provided eBC sequence.
+    --trim_length   After trimming --start_seq, extract this many (UMI) nucleotides from R1, append to read ID, and trim from seq/qual.
+    -n, --lines     Process only the first N reads from input files.
     -h, --help      Display this help message and exit
 
 Output:
@@ -101,7 +120,7 @@ my @i7_indices = split(/,/, $i7_list);
 my @i5_indices = split(/,/, $i5_list);
 
 #------------------------------------------------------------------------------
-# Build regex patterns for i7 and i5
+# Build regex patterns for i7, i5 and eBC
 #------------------------------------------------------------------------------
 my $i7_pattern = join('|', map { quotemeta($_) } @i7_indices); #join indices with a pipe, e.g 'ATCG|TCCA'...
 my $i5_pattern = join('|', map { quotemeta($_) } @i5_indices);
@@ -110,39 +129,54 @@ my $i5_pattern = join('|', map { quotemeta($_) } @i5_indices);
 my $use_i7 = $i7_pattern ne '' || $add_umi;  # True if i7_pattern is not empty or --umi is set
 my $use_i5 = $i5_pattern ne '';  # True if i5_pattern is not empty
 
+# Determine if filtering is needed for eBC (PRO-Seq)
+my $use_start_seq = defined $start_seq && $start_seq ne '';
+my $start_seq_re  = $use_start_seq ? qr/^\Q$start_seq\E/ : undef;
+
+# Validate trim_length usage
+if (defined $trim_length && $trim_length !~ /^\d+$/) {
+    die "Error: --trim_length must be a non-negative integer.\n";
+}
+if ($trim_length && !$use_start_seq) {
+    die "Error: --trim_length requires --start_seq.\n";
+}
+if ($add_umi && $trim_length) {
+    die "Error: --umi and --trim_length cannot be used together.\n";
+}
+
 #------------------------------------------------------------------------------
 # Verify presence of FASTQ files in tar archive
 #------------------------------------------------------------------------------
-my $check_r1 = `tar -tzf $tar_file | grep '_R1_.*fastq.gz\$'`;
-die "Error: No R1 FASTQ files found\n" if !$check_r1;
+my @members = `tar -tzf '$tar_file'`;
+chomp @members;
 
-if ($layout eq 'PAIRED') {
-    my $check_r2 = `tar -tzf $tar_file | grep '_R2_.*fastq.gz\$'`;
-    die "Error: No R2 FASTQ files found\n" if !$check_r2;
-}
+# Enforce exactly one R1; others assumed parallel but must exist if required
+my @r1_files = grep { /_R1_.*\.fastq\.gz$/ } @members;
+die "Error: No R1 FASTQ file found in tar\n" if @r1_files == 0;
+die "Error: Multiple R1 FASTQ files found in tar:\n  "
+    . join("\n  ", @r1_files)
+    . "\nThis script expects exactly ONE R1 file. Please fix the archive or the script."
+    if @r1_files > 1;
+my ($r1_file) = @r1_files;
 
-if ($use_i7) {
-    my $check_i1 = `tar -tzf $tar_file | grep '_I1_.*fastq.gz\$'`;
-    die "Error: No I1 FASTQ files (i7 sequences) found\n" if !$check_i1;
-}
+# Pick the first matching file for others (must exist if required)
+my ($r2_file) = $layout eq 'PAIRED' ? (grep { /_R2_.*\.fastq\.gz$/ } @members) : ();
+my ($i1_file) = $use_i7 ? (grep { /_I1_.*\.fastq\.gz$/ } @members) : ();
+my ($i2_file) = $use_i5 ? (grep { /_I2_.*\.fastq\.gz$/ } @members) : ();
 
-if ($use_i5) {
-    my $check_i2 = `tar -tzf $tar_file | grep '_I2_.*fastq.gz\$'`;
-    die "Error: No I2 FASTQ files (i5 sequences) found\n" if !$check_i2;
-}
+die "Error: No R2 FASTQ file found in tar (PAIRED layout)\n" if $layout eq 'PAIRED' && !$r2_file;
+die "Error: No I1 (i7) FASTQ file found in tar (when --umi or i7 filtering is used)\n" if $use_i7 && !$i1_file;
+die "Error: No I2 (i5) FASTQ file found in tar (when i5 filtering is used)\n" if $use_i5 && !$i2_file;
 
 #------------------------------------------------------------------------------
 # Open output files
 #------------------------------------------------------------------------------
 my ($out1, $out2);
 if ($layout eq 'PAIRED') {
-    $out1 = IO::Compress::Gzip->new("${fq_prefix}_1.fq.gz")
-        or die "Cannot open output file 1: $GzipError\n";
-    $out2 = IO::Compress::Gzip->new("${fq_prefix}_2.fq.gz")
-        or die "Cannot open output file 2: $GzipError\n";
+    open($out1, "|-", "pigz -p $threads -1 > '${fq_prefix}_1.fq.gz'") or die "Cannot open output file 1: $!";
+    open($out2, "|-", "pigz -p $threads -1 > '${fq_prefix}_2.fq.gz'") or die "Cannot open output file 2: $!";
 } else {
-    $out1 = IO::Compress::Gzip->new("${fq_prefix}.fq.gz")
-        or die "Cannot open output file: $GzipError\n";
+    open($out1, "|-", "pigz -p $threads -1 > '${fq_prefix}.fq.gz'") or die "Cannot open output file: $!";
 }
 
 #------------------------------------------------------------------------------
@@ -153,25 +187,25 @@ my $head_cmd = defined($max_reads) ? "| head -n $max_reads" : "";
 # Open I1 (i7) stream
 my $i1;
 if ($use_i7) {
-    open($i1, "tar -xOzf $tar_file --wildcards '*_I1_*fastq.gz' | zcat $head_cmd |")
+    open($i1, "tar -xOzf '$tar_file' '$i1_file' | pigz -dc $head_cmd |")
       or die "Cannot open I1 file (i7 reads): $!\n";
 }
 
 # Open I2 (i5) stream if needed
 my $i2;
 if ($use_i5) {
-    open($i2, "tar -xOzf $tar_file --wildcards '*_I2_*fastq.gz' | zcat $head_cmd |")
+    open($i2, "tar -xOzf '$tar_file' '$i2_file' | pigz -dc $head_cmd |")
         or die "Cannot open I2 file (i5 reads): $!\n";
 }
 
 # Open R1 stream
-open(my $r1, "tar -xOzf $tar_file --wildcards '*_R1_*fastq.gz' | zcat $head_cmd |")
+open(my $r1, "tar -xOzf '$tar_file' '$r1_file' | pigz -dc $head_cmd |")
     or die "Cannot open R1 file: $!\n";
 
 # Open R2 stream if paired-end
 my $r2;
 if ($layout eq 'PAIRED') {
-    open($r2, "tar -xOzf $tar_file --wildcards '*_R2_*fastq.gz' | zcat $head_cmd |")
+    open($r2, "tar -xOzf '$tar_file' '$r2_file' | pigz -dc $head_cmd |")
         or die "Cannot open R2 file: $!\n";
 }
 
@@ -223,7 +257,7 @@ while (1) {
         last if scalar(@r2_chunk) < 4;
     }
 
-    $total_reads++; # One read has been succesfully imported
+    $total_reads++; # One read has been successfully imported
 
     # Extract sequences from I1 and I2
     my $current_i7_seq = '';
@@ -244,9 +278,23 @@ while (1) {
     if ($use_i5) {
         $i5_ok = ($current_i5_seq =~ /^(?:$i5_pattern)/) ? 1 : 0;
     }
+    my $r1_seq_ok = 1; # Default to pass if no eBC start_seq provided
+    if ($use_start_seq) {
+        my $r1_seq = $r1_chunk[1]; chomp $r1_seq;
+        $r1_seq_ok = ($r1_seq =~ $start_seq_re) ? 1 : 0;
+    }
 
-    # If both indices match, write the reads
-    if ($i7_ok && $i5_ok) {
+    # Compute PRO-Seq eBC length if provided
+    my $eBC_len = 0;
+    if ($use_start_seq) {
+        my $r1_seq = $r1_chunk[1]; chomp $r1_seq;
+        if ($r1_seq =~ $start_seq_re) {
+            $eBC_len = length($start_seq);
+        }
+    }
+
+    # If both indices match (and eBC if start_seq provided) match, write the reads
+    if ($i7_ok && $i5_ok && $r1_seq_ok) {
         $matched_reads++; # Increment matching read counts
 
         # Append i7 to read ID if --umi is set
@@ -254,6 +302,43 @@ while (1) {
             $r1_chunk[0] =~ s/^(\S+)/$1_$current_i7_seq/;  # Append i7 (UMI) to the first block of R1 ID
             if ($layout eq 'PAIRED') {
                 $r2_chunk[0] =~ s/^(\S+)/$1_$current_i7_seq/;  # Append i7 (UMI) to the first block of R2 ID
+            }
+        }
+
+        # If start_seq provided (PRO-Seq eBC), trim it from R1 sequence and quality
+        if ($eBC_len > 0) {
+            # Trim sequence (R1 line 2)
+            my $seq = $r1_chunk[1]; chomp $seq;
+            substr($seq, 0, $eBC_len, '');
+            $r1_chunk[1] = "$seq\n";
+
+            # Trim quality (R1 line 4)
+            my $qual = $r1_chunk[3]; chomp $qual;
+            substr($qual, 0, $eBC_len, '');
+            $r1_chunk[3] = "$qual\n";
+        }
+
+        # If --trim_length is set, extract UMI from the start of (post-eBC) R1 and append to IDs
+        if ($use_start_seq && $trim_length && $trim_length > 0) {
+            # Extract UMI from R1 sequence and trim sequence/quality accordingly
+            my $seq  = $r1_chunk[1]; chomp $seq;
+            my $qual = $r1_chunk[3]; chomp $qual;
+
+            # Guard against short reads
+            my $take = $trim_length;
+            $take = length($seq) if $take > length($seq);
+            my $umi = substr($seq, 0, $take);
+
+            substr($seq,  0, $take, '');
+            substr($qual, 0, $take, '');
+
+            $r1_chunk[1] = "$seq\n";
+            $r1_chunk[3] = "$qual\n";
+
+            # Append UMI to first token of read IDs
+            $r1_chunk[0] =~ s/^(\S+)/$1_$umi/;
+            if ($layout eq 'PAIRED') {
+                $r2_chunk[0] =~ s/^(\S+)/$1_$umi/;
             }
         }
 
@@ -274,10 +359,13 @@ if ($use_i7) { close($i1); }
 if ($use_i5) { close($i2); }
 
 close($r1);
-close($out1);
 if ($layout eq 'PAIRED') {
     close($r2);
-    close($out2);
+}
+
+close($out1) or die "pigz output 1 failed: $!";
+if ($layout eq 'PAIRED') {
+    close($out2) or die "pigz output 2 failed: $!";
 }
 
 #------------------------------------------------------------------------------
@@ -290,6 +378,8 @@ print "Files: ",
         : "${fq_prefix}.fq.gz"),
     "\n";
 print "UMI mode: ", ($add_umi ? "Enabled" : "Disabled"), "\n";
+print "R1 start filter: ", ($use_start_seq ? $start_seq : "Disabled"), "\n";
+print "Trim-length UMI: ", ($use_start_seq && $trim_length ? $trim_length : "Disabled"), "\n";
 print "Total reads: $total_reads\n";
 print "Matched reads: $matched_reads\n";
 printf "Match rate: %.2f%%\n",
