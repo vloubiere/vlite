@@ -17,7 +17,7 @@ cmd_countPROseqReads(
 \item{umi.count.file}{Path to the input UMI count file. Must be a single .txt file.}
 
 \item{annotation.file}{Path to the annotation file in .rds format containing the following columns:
-seqnames, start, end, strand, cluster.id.}
+seqnames, start, end, strand, cluster.id. The mm10 annotations are stored in '/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/'.}
 
 \item{feature}{Name of the genomic features in the annotation.file (promoter, body...). If not provided, it is derived from the annotation.file name.}
 
@@ -42,7 +42,7 @@ The output includes a counts table with assigned reads for the specified genomic
 # Example usage
 cmd <- cmd_countPROseqReads(
   umi.count.file = "example_umi_counts.txt",
-  annotation.file = "/groups/stark/vloubiere/projects/PROseq_pipeline/db/annotations/mm10_promoters.rds",
+  annotation.file = "/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/mm10_transcript.rds",
   feature = "promoters",
   output.prefix = "example_output"
 )

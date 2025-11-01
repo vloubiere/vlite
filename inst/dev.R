@@ -154,7 +154,7 @@ if(F) {
 
   # Demultiplexing commands -------
   file.edit("inst/perl/vbc_tar_extract_head.pl") # Check the reads (for debugging)
-  file.edit("R/cmd_checkVBCfile.R") # Wrapper
+  file.edit("R/checkVBCfile.R") # Wrapper
   file.edit("inst/perl/vbc_tar_demultiplexing.pl") # Perl subscript
   file.edit("inst/perl/vbc_bam_demultiplexing.pl") # Perl subscript
   file.edit("R/cmd_demultiplexVBCfile.R") # Wrapper
@@ -204,11 +204,12 @@ if(F) {
   file.edit("R/cmd_umiToBigwigProseq.R") # Wrapper
   file.edit("inst/Rscript/umiToBigwigProseq.R") # R subscript
   # Count reads from .rds annotation file
+  file.edit("inst/Rscript/create_PROseq_annotations.R") # Create the mm10 annotation files
   file.edit("R/cmd_countPROseqReads.R") # Wrapper
   file.edit("inst/Rscript/count_PROseq_reads.R") # R subscript
   # DESeq2
-  file.edit("R/cmd_DESeq2_PROseq.R") # Wrapper
   file.edit("inst/Rscript/DESeq2_PROseq_analysis.R") # R subscript
+  file.edit("R/cmd_DESeq2_PROseq.R") # Wrapper
 
   # STAP-Seq -----------------------
   # Pipeline (wrapper around the PRO-Seq)
@@ -244,7 +245,8 @@ if(F) {
 
   # ORFeome -----------------------
   # Assemble dictionary
-  file.edit("R/orfeomeDictionary.R")
+  file.edit("inst/Rscript/ORFeome_make_dictionary.R")
+  file.edit("R/cmd_orfeomeDictionary.R")
   # Pipeline
   file.edit("R/orfeomeProcessing.R")
   # Count ORFeomes barcode (ORFeome)

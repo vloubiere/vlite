@@ -15,4 +15,10 @@ Depends:
 Imports: 
     rtracklayer,
     GenomeInfoDb,
-    BSgenome
+    BSgenome,
+    TFBSTools
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder:
+    knitr

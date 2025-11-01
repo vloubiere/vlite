@@ -1,7 +1,8 @@
 #' Count Motif Occurrences in Genomic Regions
 #'
 #' @description
-#' Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList.
+#' Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList. Note that here the strand is not considered (motifs are called on both strands).
+#' If you want to have the score associated to the strand, use ?vl_motifPos.
 #'
 #' @param sequences A named character vector of sequences to analyze. This argument takes precedence over the bed argument.
 #' @param bed Genomic ranges in a format compatible with ?importBed, from which genomic sequences will be retrieved when sequences is set to NULL.
@@ -13,7 +14,7 @@
 #' @param cleanup.cache Logical. If set to TRUE, clears cached intermediate results. Default= FALSE.
 #' @param what The values that should be returned. Should be one of 'motifCounts', 'motifMatches', 'motifScores'. Default= 'motifCounts'.
 #'
-#' @return A matrix of motif counts.
+#' @return A matrix of motif counts (on both strands).
 #'
 #' @examples
 #' # Download Dev enhancer from pe-STARR-Seq paper

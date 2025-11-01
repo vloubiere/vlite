@@ -1,0 +1,9 @@
+user,batch,cellLine,screen,condition,replicate,barcode,sampleID,layout,sequencer,genome,bam_path,tar_path,comment,paper_submission,transfection
+Filip,screen4,FNR42,Activator,input,1,GCCTCTTC,Activator_input_rep1,PAIRED,NextSeq,mm10,/groups/stark/projects/PE36_20211031/HL5THBGXK_1_20211030B_20211030.bam,,FNR42_TATA-5_input,input,6.1
+Filip,screen4,FNR42,Activator,input,1,ATTGATTC,Activator_input_rep1,PAIRED,NextSeq,mm10,/groups/stark/projects/PE36_20211031/HL5THBGXK_1_20211030B_20211030.bam,,FNR42_TATA-5_input,input,6.1
+Filip,screen5,FNR42,Activator,input,2,GTCTCGCA,Activator_input_rep2,PAIRED,NextSeq,mm10,/groups/stark/projects/PE36_20220924/HL55TBGXM_1_20220922B_20220923.bam,,FNR42_TATA-5_rep2_input,input,7.6
+Filip,screen5,FNR42,Activator,input,2,CACGGTTG,Activator_input_rep2,PAIRED,NextSeq,mm10,/groups/stark/projects/PE36_20220924/HL55TBGXM_1_20220922B_20220923.bam,,FNR42_TATA-5_rep2_input,input,7.6
+Filip,screen4,FNR42,Activator,sort,1,GTCTCGCA,Activator_sort_rep1,PAIRED,NextSeq,mm10,/groups/stark/projects/PE36_20211031/HL5THBGXK_1_20211030B_20211030.bam,,FNR42_TATA-5_plusplus,Activator,-
+Filip,screen4,FNR42,Activator,sort,1,TTACTGTG,Activator_sort_rep1,PAIRED,NextSeq,mm10,/groups/stark/projects/PE36_20211031/HL5THBGXK_1_20211030B_20211030.bam,,FNR42_TATA-5_plusplus,Activator,-
+Filip,screen5,FNR42,Activator,sort,2,AGCAGTTG,Activator_sort_rep2,PAIRED,NextSeq,mm10,/groups/stark/projects/PE36_20220924/HL55TBGXM_1_20220922B_20220923.bam,,FNR42_TATA-5_rep2_plusplus,Activator,-
+Filip,screen5,FNR42,Activator,sort,2,TGGTGGAA,Activator_sort_rep2,PAIRED,NextSeq,mm10,/groups/stark/projects/PE36_20220924/HL55TBGXM_1_20220922B_20220923.bam,,FNR42_TATA-5_rep2_plusplus,Activator,-

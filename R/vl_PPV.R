@@ -15,6 +15,7 @@
 #' @param pos.max pos for the PPV text label Default= 3.
 #' @param offset.max Offset for plotting the PPV text label. Default= .5.
 #' @param add When plot is set to TRUE, should only the lines/label be added to an existing plot?
+#' @param return.value.at If specified, return the PPV value at the last predicted value <= return.value.at.
 #' @param ... Extra arguments to be passed to lines
 #'
 #' @return PPV plot
@@ -37,12 +38,15 @@ vl_PPV <- function(predicted,
                    offset.max= .5,
                    show.pred.cutoff= T,
                    add= FALSE,
+                   return.value.at= NULL,
                    ...)
 {
   if(!is.logical(label))
     label <- as.logical(label)
   if(sum(label)==0)
     warning(paste0(length(label), "/", length(label), " labels are set to FALSE"))
+  if(!is.null(return.value.at) && !is.numeric(return.value.at))
+    warning("return.value.at should be numeric")
 
   # Create a data table with observed and predicted values
   dat <- data.table(label = label,
@@ -57,6 +61,18 @@ vl_PPV <- function(predicted,
   dat[, PPV:= TP/(TP+FP)*100]
   setorderv(dat,
             cols = "pred")
+
+  # Return value at certain cutoff
+  if(!is.null(return.value.at)) {
+    PPV.cutoff <- if(any(dat$pred >= return.value.at)) {
+      # If any predicted value passes the threshold
+      dat[pred <= return.value.at][.N, PPV]
+    } else {
+      # No value
+      as.numeric(NA)
+    }
+    return(PPV.cutoff)
+  }
 
   # Find max value
   max.PPV <- which.max(dat[1:(.N-Nleft), PPV])

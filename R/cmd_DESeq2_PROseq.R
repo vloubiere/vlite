@@ -27,7 +27,7 @@
 #'
 #' @examples
 #' # Example usage
-#' cmd <- vl_PROseq_DESeq2(
+#' cmd <- cmd_DESeq2_PROseq(
 #'   umi.count.tables = c("sample1_counts.txt", "sample2_counts.txt"),
 #'   sample.names = c("sample1", "sample2"),
 #'   conditions = c("treated", "control"),
@@ -41,19 +41,21 @@
 #' print(cmd)
 #'
 #' @export
-vl_PROseq_DESeq2 <- function(umi.count.tables,
-                             sample.names,
-                             conditions,
-                             ctl.conditions= unique(conditions),
-                             ref.genome.stat.files,
-                             spikein.stat.files,
-                             normalization= "spikeIn",
-                             output.prefix,
-                             feature,
-                             dds.output.folder= "db/dds/PROseq/",
-                             FC.tables.output.folder= "db/FC_tables/PROseq/",
-                             MAplots.output.folder= "pdf/MAplots/PROseq/",
-                             Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+cmd_DESeq2_PROseq <- function(
+    umi.count.tables,
+    sample.names,
+    conditions,
+    ctl.conditions= unique(conditions),
+    ref.genome.stat.files,
+    spikein.stat.files,
+    normalization= "spikeIn",
+    output.prefix,
+    feature,
+    dds.output.folder= "db/dds/PROseq/",
+    FC.tables.output.folder= "db/FC_tables/PROseq/",
+    MAplots.output.folder= "pdf/MAplots/PROseq/",
+    Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+)
 {
   # Check (!Do not check if umi.count.tables exist to allow wrapping!) ----
   if(any(duplicated(umi.count.tables)))

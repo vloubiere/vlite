@@ -50,7 +50,7 @@ cmd_orfeomeDictionary <- function(BC.fqs,
   # Command ----
   cmd <- paste(
     Rpath,
-    system.file("Rscript", "peakCallingFromBw.R", package = "vlite"),
+    system.file("Rscript", "ORFeome_make_dictionary.R", package = "vlite"),
     paste0(unique(BC.fqs), collapse= ","), # 1/ A comma-separated list of .fq.gz files containing the BC sequences
     bam.ORF, # 2/ A bam file containing ORF alignments for all the reads present in the BC file (arg[1])
     minNreads, # 3/ Minimum number of supporting reads

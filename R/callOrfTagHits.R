@@ -22,6 +22,7 @@
 #' @param min.ins.cov.sorted Minimum number of duplication counts for an insertion to be considered TRUE in the sorted sample.
 #' Default= 0 (no filtering).
 #' @param output.folder Output folder for FC files. Default= "db/FC_tables/ORFtag".
+#' @param bed.output.folder Output folder where the bed files containing usable insertions on + and - strands will be saved. Default= "db/FC_tables/ORFtag/bed/".
 #'
 #' @return Returns FC tables containing DESeq2-like columns.
 #'
@@ -44,18 +45,21 @@
 #' see ?callOrftagHits_strandBias()
 #'
 #' @export
-callOrftagHits <- function(sorted.forward.counts,
-                           unsorted.forward.counts,
-                           sorted.reverse.counts= NULL,
-                           unsorted.reverse.counts= NULL,
-                           genome,
-                           output.prefix,
-                           padj.cutoff= 0.001,
-                           log2OR.cutoff= 1,
-                           log2OR.pseudocount= 1,
-                           min.ins.cov.sorted= 0,
-                           min.ins.cov.unsorted= 0,
-                           output.folder= "db/FC_tables/ORFtag/")
+callOrftagHits <- function(
+    sorted.forward.counts,
+    unsorted.forward.counts,
+    sorted.reverse.counts= NULL,
+    unsorted.reverse.counts= NULL,
+    genome,
+    output.prefix,
+    padj.cutoff= 0.001,
+    log2OR.cutoff= 1,
+    log2OR.pseudocount= 1,
+    min.ins.cov.sorted= 0,
+    min.ins.cov.unsorted= 0,
+    output.folder= "db/FC_tables/ORFtag/",
+    bed.output.folder= "db/FC_tables/ORFtag/bed/"
+)
 {
   # Load packages
   require(rtracklayer)
@@ -68,6 +72,7 @@ callOrftagHits <- function(sorted.forward.counts,
 
   # Create output file names ----
   dir.create(output.folder, showWarnings = F, recursive = T)
+  dir.create(bed.output.folder, showWarnings = F, recursive = T)
   output.file <- file.path(output.folder, paste0(output.prefix, ".txt"))
   output.pdf <- file.path(output.folder, paste0(output.prefix, ".pdf"))
 
@@ -81,9 +86,11 @@ callOrftagHits <- function(sorted.forward.counts,
   setorderv(genes, "gene_id")
 
   # Main function to call hits ----
-  main_function <- function(sorted.counts= sorted.forward.counts,
-                            unsorted.counts= unsorted.forward.counts,
-                            plot= TRUE)
+  main_function <- function(
+    sorted.counts= sorted.forward.counts,
+    unsorted.counts= unsorted.forward.counts,
+    plot= TRUE # Only set to TRUE when using forward counts!
+  )
   {
     # Checks ----
     if(anyDuplicated(sorted.counts))
@@ -101,7 +108,7 @@ callOrftagHits <- function(sorted.forward.counts,
     dat[, sample.name:= factor(sample.name, unique(sample.name))]
 
     # Distance to closest exon ----
-    if(plot)
+    if(plot) # Only when using forwards counts!
     {
 
       # Initiate pdf
@@ -128,7 +135,7 @@ callOrftagHits <- function(sorted.forward.counts,
     if(min.ins.cov.unsorted > 0 | min.ins.cov.sorted > 0) {
       if("ins_cov" %in% names(dat)) {
 
-        # DC cutoff plot
+        # DC cutoff plot (Only when using forwards counts!)
         if(plot) {
 
           # Density plot
@@ -159,13 +166,29 @@ callOrftagHits <- function(sorted.forward.counts,
 
         # Filter out insertions with low DC ----
         dat <- dat[  (ins_cov >= min.ins.cov.unsorted & cdition == "count.input")
-                   | (ins_cov >= min.ins.cov.sorted & cdition == "count.sample")]
+                     | (ins_cov >= min.ins.cov.sorted & cdition == "count.sample")]
       }
     }
 
     # If not insertions left, stop here ----
     if(!nrow(dat))
       stop("No insertions left after distance/min.ins.cov cutoffs.")
+
+    # Save bed files containing usable insertions ----
+    if(plot) { # Only when using forwards counts!
+      exportBed(dat[cdition=="count.sample" & strand=="+" & ins_cov >= min.ins.cov.unsorted,
+                    .(seqnames, start, end, name= make.unique(gene_name), score= ins_cov, strand)],
+                file.path(bed.output.folder, "sample_insertions_ps.bed"))
+      exportBed(dat[cdition=="count.sample" & strand=="-" & ins_cov >= min.ins.cov.unsorted,
+                    .(seqnames, start, end, name= make.unique(gene_name), score= ins_cov, strand)],
+                file.path(bed.output.folder, "sample_insertions_ns.bed"))
+      exportBed(dat[cdition=="count.input" & strand=="+" & ins_cov >= min.ins.cov.unsorted,
+                    .(seqnames, start, end, name= make.unique(gene_name), score= ins_cov, strand)],
+                file.path(bed.output.folder, "input_insertions_ps.bed"))
+      exportBed(dat[cdition=="count.input" & strand=="-" & ins_cov >= min.ins.cov.unsorted,
+                    .(seqnames, start, end, name= make.unique(gene_name), score= ins_cov, strand)],
+                file.path(bed.output.folder, "input_insertions_ns.bed"))
+    }
 
     # Count insertions per condition and per gene ----
     total <- dat[, .N, .(cdition)]
@@ -252,5 +275,5 @@ callOrftagHits <- function(sorted.forward.counts,
          sep= "\t",
          quote= F,
          na= NA)
-  cat(paste0(output.prefix, ": ", sum(res$hit, na.rm = T), " hits were called!\nFC file -> ", output.file, "\nPDF -> ", output.pdf, "\n"))
+  cat(paste0(output.prefix, ": ", sum(res$hit, na.rm = T), " hits were called!\nFC file -> ", output.file, "\nPDF -> ", output.pdf, "\nBED insertions -> ", bed.output.folder, "\n"))
 }

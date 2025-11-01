@@ -16,7 +16,8 @@ callOrftagHits(
   log2OR.pseudocount = 1,
   min.ins.cov.sorted = 0,
   min.ins.cov.unsorted = 0,
-  output.folder = "db/FC_tables/ORFtag/"
+  output.folder = "db/FC_tables/ORFtag/",
+  bed.output.folder = "db/FC_tables/ORFtag/bed/"
 )
 }
 \arguments{
@@ -51,6 +52,8 @@ Default= 0 (no filtering).}
 Default= 0 (no filtering).}
 
 \item{output.folder}{Output folder for FC files. Default= "db/FC_tables/ORFtag".}
+
+\item{bed.output.folder}{Output folder where the bed files containing usable insertions on + and - strands will be saved. Default= "db/FC_tables/ORFtag/bed/".}
 }
 \value{
 Returns FC tables containing DESeq2-like columns.

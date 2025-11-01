@@ -23,6 +23,7 @@ vl_PPV(
   offset.max = 0.5,
   show.pred.cutoff = T,
   add = FALSE,
+  return.value.at = NULL,
   ...
 )
 }
@@ -56,6 +57,8 @@ vl_PPV(
 \item{offset.max}{Offset for plotting the PPV text label. Default= .5.}
 
 \item{add}{When plot is set to TRUE, should only the lines/label be added to an existing plot?}
+
+\item{return.value.at}{If specified, return the PPV value at the last predicted value <= return.value.at.}
 
 \item{...}{Extra arguments to be passed to lines}
 }

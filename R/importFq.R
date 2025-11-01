@@ -12,22 +12,22 @@
 #' @export
 #'
 #' @examples
-importFq <- function(fq.path, head)
+importFq <- function(fq.path, head= NULL)
 {
   if(length(fq.path)!=1)
     stop("fq.path should be unique.")
   if(!grepl(".fq$|.fastq$|.fq.gz$|.fastq.gz$", fq.path))
     stop("fq.path should be in format .fq, .fastq, .fq.gz, or .fastq.gz.")
 
-  # Pipe the file
-  cmd <- if(grepl(".gz$", fq.path))
-    paste("zcat", fq.path, "|") else
-      paste(fq.path, "|")
-  # Head
-  if(!missing(head))
-    cmd <- paste(cmd , "head -n", head*4, "|")
-  # Parse command
-  cmd <- paste(cmd, "perl", system.file("perl", "parseFq.pl", package = "vlite"))
   # Import
-  fread(cmd= cmd)
+  dat <- if(!is.null(head))
+    fread(fq.path, header= F, nrows = head) else
+      fread(fq.path, header= F)
+
+  # Format
+  dat <- data.table(read_ID= dat[seq(.N) %% 4 == 1, V1],
+                    seq= dat[seq(.N) %% 4 == 2, V1])
+
+  # Return
+  return(dat)
 }

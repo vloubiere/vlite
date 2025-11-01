@@ -159,7 +159,6 @@ vl_GOenrich <- function(geneIDs,
                       "Dm"= "FLYBASE",
                       "Mm"= "ENSEMBL")
 
-
   # Use a temp directory for caching GOs associated to gene sets ----
   set.params <- list(geneIDs,
                      species,
@@ -248,7 +247,7 @@ vl_GOenrich <- function(geneIDs,
   # Compute log2OR and padj ----
   enr[, log2OR:= log2(OR)]
   enr[, padj:= p.adjust(pval, method = "fdr"), cl]
-  enr$OR <- enr$pval <- NULL
+  enr$OR <- NULL
   # Define class (for plotting methods) ----
   if(length(unique(enr$cl))>1) {
     setattr(enr, "class", c("vl_enr_cl", "data.table", "data.frame"))

@@ -208,10 +208,13 @@
                                  border.col,
                                  border.lwd)
 {
-  # bed method
+  # Import bed
   var <- importBed(track.file)
-  var <- var[, .(seqnames, start, end)]
   var[, score:= 1]
+  # Check with of regions to plot
+  if(any(var[,end-start]==0) & is.na(border.col))
+    warning("Some regions in bed file(s) are width 1 and might not appear because border.col is set to NA. Consider border.col= 'black'")
+  # Plot
   regions[, {
     # Clip Polygons to region
     poly <- clipBed(var, .SD[, .(seqnames, start, end)])

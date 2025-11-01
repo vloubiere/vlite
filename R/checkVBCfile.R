@@ -1,7 +1,8 @@
 #' Extracts the first 10,000 of a VBC tar file
 #'
 #' @description
-#' Generates the call to a perl script to extract the head of VBC tar files for debugging purposes
+#' Generates the call to a perl script to extract the head of fastq files within VBC tar files for debugging purposes.
+#' FASTQ files containining the first nreads of "R1", "R2", "I1" and "I2" files will be saved in the output folder, which correspond to Read 1, Read2, i7 and i5 index sequences, respectively.
 #'
 #' @param vbcTarFile Path to a vbc tar.gz file.
 #' @param fq.output.folder Output folder where fq files should be saved. Default= "/scratch-cbe/users/vincent.loubiere/<tar_file_basename>/".
@@ -21,12 +22,14 @@
 #'
 #' @details
 #' @export
-cmd_checkVBCfile <- function(vbcTarFile,
-                             fq.output.folder= paste0("/scratch-cbe/users/vincent.loubiere/", gsub(".tar.gz", "", basename(vbcTarFile))),
-                             nreads= 10000L,
-                             cores= 8,
-                             mem= 16,
-                             overwrite= FALSE)
+checkVBCfile <- function(
+    vbcTarFile,
+    fq.output.folder= paste0("/scratch-cbe/users/vincent.loubiere/", gsub(".tar.gz", "", basename(vbcTarFile))),
+    nreads= 10000L,
+    cores= 8,
+    mem= 16,
+    overwrite= FALSE
+)
 {
   # Checks ----
   options(scipen= 999)
@@ -41,7 +44,9 @@ cmd_checkVBCfile <- function(vbcTarFile,
 
   # Check if output folder already contains files ----
   paths <- if(dir.exists(fq.output.folder))
-    list.files(fq.output.folder, ".fastq$", full.names = T) else
+    list.files(path = fq.output.folder,
+               pattern =  gsub(".tar.gz$", ".*.fastq$", basename(vbcTarFile)),
+               full.names = T) else
       character(0)
 
   # Main function ----
@@ -49,11 +54,11 @@ cmd_checkVBCfile <- function(vbcTarFile,
 
     # Generate command ----
     perl.script <- system.file("perl", "vbc_tar_extract_head.pl", package = "vlite")
-    cmd <- paste("cd", fq.output.folder,
-                 "perl", perl.script,
-                 paste0("--tar ", vbcTarFile),
-                 paste0("--reads ", nreads),
-                 paste0("--threads ", cores))
+    cmd <- paste0("cd ", fq.output.folder, "; ",
+                  "perl ", perl.script,
+                  paste0(" --tar ", vbcTarFile),
+                  paste0(" --reads ", nreads),
+                  paste0(" --threads ", cores))
 
     # Create a dummy file (so that vl_submit creates the output folder)
     if(length(paths)==0)

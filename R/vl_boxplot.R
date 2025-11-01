@@ -11,6 +11,8 @@
 #' @param violin Should violins be added?
 #' @param viocol Violin colors. Default to transparent
 #' @param viowex Expansion factor for violins
+#' @param pts.col The color of outlier points. Default= adjustcolor("lightgrey", .4).
+#' @param pts.cex The expansion factor for outliers points. Default= .6.
 #' @param ... Extra parameters for boxplot()
 #' @examples
 #' set.seed(1234)
@@ -37,6 +39,8 @@ vl_boxplot.default <-
            varwidth = FALSE,
            notch = FALSE,
            outline = FALSE,
+           pts.col= adjustcolor("lightgrey", .4),
+           pts.cex= .6,
            names,
            plot = TRUE,
            border = par("fg"),
@@ -127,9 +131,9 @@ vl_boxplot.default <-
         x.out <- jitter(x.out, amount = pars$boxwex/2)
         points(x.out,
                .out$out,
-               col= adjustcolor("lightgrey", .4),
+               col= pts.col,
                pch= 19,
-               cex= .6)
+               cex= pts.cex)
       }
 
       # Plot pval

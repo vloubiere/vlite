@@ -20,7 +20,7 @@
 #' Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Default= 0L.
 #' @param broad Logical. Whether to call broad peaks. Default= FALSE.
 #' @param genome.macs2 Genome size parameter for MACS2 (e.g., "dm, "mm", "hs").
-#' @param genome A BSgenome name (e.g. "mm10", "dm6"...).
+#' @param genome A BSgenome name (e.g. "mm10", "dm6"...) that will be used to generate the bigwig track.
 #' @param peaks.output.folder Directory where MACS2 output files should be saved. Default= "db/peaks/".
 #' @param bw.output.folder Directory where bigwig files should be saved. Default= "db/bw/".
 #' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".

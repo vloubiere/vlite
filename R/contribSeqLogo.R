@@ -21,7 +21,7 @@ contribSeqLogo <- function(contrib,
   # Get sequence and contrib ----
   .c <- contrib[row.idx]
   base <- unlist(tstrsplit(toupper(.c$seq), ""))
-  score <- unlist(.c$score)
+  score <- unlist(.c$contrib.score)
 
   # Clip sequence if necessary ----
   if(missing(start))

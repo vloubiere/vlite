@@ -4,7 +4,7 @@
 \alias{importFq}
 \title{importFq}
 \usage{
-importFq(fq.path, head)
+importFq(fq.path, head = NULL)
 }
 \arguments{
 \item{fq.path}{Path to the .fq of .fq.gz file to import.}

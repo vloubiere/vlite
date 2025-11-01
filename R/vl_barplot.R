@@ -1,3 +1,32 @@
+#' Title
+#'
+#' @param x
+#' @param names.arg
+#' @param show.sd
+#' @param show.points
+#' @param beside
+#' @param width
+#' @param xlim
+#' @param ylim
+#' @param col
+#' @param sd.arrow.lwd
+#' @param sd.arrow.length
+#' @param pch
+#' @param pch.col
+#' @param pch.cex
+#' @param pch.jitter
+#' @param xaxt
+#' @param xaxs
+#' @param frame
+#' @param horiz
+#' @param xlab
+#' @param ylab
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
 vl_barplot <- function(x,
                        names.arg= NULL,
                        show.sd= TRUE,
@@ -17,6 +46,7 @@ vl_barplot <- function(x,
                        xaxs= "i",
                        frame= F,
                        horiz= FALSE,
+                       add= F,
                        xlab= "",
                        ylab= "",
                        ...)
@@ -120,15 +150,17 @@ vl_barplot <- function(x,
   }
 
   # Initiate plot ----
-  plot(NA,
-       xlim= xlim,
-       ylim= ylim,
-       xaxt= "n",
-       xaxs= xaxs,
-       frame= frame,
-       xlab= xlab,
-       ylab= ylab,
-       ...)
+  if(isFALSE(add)) {
+    plot(NA,
+         xlim= xlim,
+         ylim= ylim,
+         xaxt= "n",
+         xaxs= xaxs,
+         frame= frame,
+         xlab= xlab,
+         ylab= ylab,
+         ...)
+  }
 
   # Plot bars ----
   if(is.matrix(x)) {

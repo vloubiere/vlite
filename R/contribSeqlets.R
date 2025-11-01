@@ -21,11 +21,13 @@ contribSeqlets <- function(contrib,
                            FDR.cutoff= 0.05)
 {
   # Checks ----
-  if(nrow(contrib) != length(unique(contrib$name)))
-    stop("contrib should contain unique 'name'(s).")
+  if(!"seqlvls" %in% colnames(contrib))
+    warning("contrib file should contain a seqlvls column with a unique ID per line entry.")
+  if(nrow(contrib) != length(unique(contrib$seqlvls)))
+    stop("Each line in the contrib file should have a unique contrib$seqlvls value.")
 
   # Melt contribution scores ----
-  .m <- contrib[, .(score= score[[1]]), .(seqlvls= name)]
+  .m <- contrib[, .(score= contrib.score[[1]]), seqlvls]
   .m[, start:= seq(.N), seqlvls]
   .m[, end:= start, seqlvls]
 
@@ -77,7 +79,7 @@ contribSeqlets <- function(contrib,
   peaks[, FDR:= p.adjust(pval, method = "fdr")]
 
   # Filter and clean ----
-  peaks <- peaks[FDR <= FDR.cutoff & abs(log2OR) >= log2OR.cutoff]
+  peaks <- peaks[FDR <= FDR.cutoff & log2OR >= log2OR.cutoff]
   res <- peaks[, .(seqlvls, start, end, mean.score, log2OR, FDR)]
 
   # Return ----

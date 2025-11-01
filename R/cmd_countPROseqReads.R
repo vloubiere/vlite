@@ -6,7 +6,7 @@
 #'
 #' @param umi.count.file Path to the input UMI count file. Must be a single .txt file.
 #' @param annotation.file Path to the annotation file in .rds format containing the following columns:
-#' seqnames, start, end, strand, cluster.id.
+#' seqnames, start, end, strand, cluster.id. The mm10 annotations are stored in '/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/'.
 #' @param feature Name of the genomic features in the annotation.file (promoter, body...). If not provided, it is derived from the annotation.file name.
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the umi.count.file name.
 #' @param count.tables.output.folder Directory for the output counts table. Default: "db/counts/PROseq/".
@@ -22,7 +22,7 @@
 #' # Example usage
 #' cmd <- cmd_countPROseqReads(
 #'   umi.count.file = "example_umi_counts.txt",
-#'   annotation.file = "/groups/stark/vloubiere/projects/PROseq_pipeline/db/annotations/mm10_promoters.rds",
+#'   annotation.file = "/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/mm10_transcript.rds",
 #'   feature = "promoters",
 #'   output.prefix = "example_output"
 #' )
@@ -43,8 +43,10 @@ cmd_countPROseqReads <- function(umi.count.file,
     stop("umi.count.file should be in .txt format")
   if(is.null(output.prefix))
     output.prefix <- gsub(".txt$", "", basename(umi.count.file))
+  if(length(annotation.file)>1)
+    stop("A single annotation file should be provided.")
   if(!grepl(".rds$", annotation.file))
-    stop("The annotation file should be in .rds format")
+    stop("The annotation file should be in .rds format.")
   check.annot <- readRDS(annotation.file)
   if(!is.data.table(check.annot))
     stop("annotation.file should contain a data.table")
@@ -52,7 +54,6 @@ cmd_countPROseqReads <- function(umi.count.file,
     stop("Annotation file should contain columns 'seqnames', 'start', 'end', 'strand', 'cluster.id'")
   if(is.null(feature))
     feature <- gsub(".rds$", "", basename(annotation.file))
-
 
   # Output files ----
   count.table <- file.path(count.tables.output.folder, paste0(output.prefix, "_", feature, "_counts.txt"))

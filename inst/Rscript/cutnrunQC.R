@@ -64,9 +64,10 @@ pl <- if(is.null(input)) {
        peaks.sample= bwCoverage(peaks, bw))
 }
 
-# Plot QC pdf ----
+# Color legend ----
 Cc <- colorRampPalette(c("pink", "red"))(5)
-# pdf("/groups/stark/vloubiere/test.pdf", width = 11, height = 3.25)
+
+# Plot QC pdf ----
 pdf(pdf.file, width = 11, height = 3.25)
 layout(matrix(1:4, ncol= 4),
        widths = c(1,1.3,1,1.3))
@@ -74,7 +75,7 @@ vl_par(mai= c(.9, .5, .5, .5),
        omi= c(0, 0, .25, 1.5))
 # Quantif signal
 vl_boxplot(pl,
-           compute.pval = list(c(1,3), c(2,4), c(3,4)),
+           compute.pval = if(is.null(input)) list(c(1,2)) else list(c(1,2), c(1,3), c(2,4), c(3,4)),
            col= rep(c("lightgrey", "pink"), each= length(pl)/2),
            notch= TRUE,
            ylab= "Signal",
@@ -102,5 +103,3 @@ bwAverageTrack(bed = cmb,
                col.palette = c("grey", Cc),
                names = "")
 dev.off()
-
-

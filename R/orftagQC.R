@@ -100,6 +100,57 @@ orftagQC <- function(sampleIDs,
     # Plot counts table ----
     plotTable(res[, !"ins.IDs"], cex = .6)
 
+    # Plot barplot ----
+    vl_par(mai= c(2.8,2.5,2.8,2.5))
+    vl_barplot(
+      as.numeric(gsub(",", "", res$`Unique insertions`)),
+      names.arg = res$sampleID
+    )
+    title(ylab= "Number of unique insertions", line = 2)
+    vl_barplot(
+      as.numeric(gsub(",", "", unlist(tstrsplit(res[[names(res)[7]]], " ", keep= 1)))),
+      names.arg = res$sampleID,
+      add= T,
+      col= "grey20"
+    )
+    vl_legend(
+      legend= c("Unique insertions", names(res)[7]),
+      fill= c("lightgrey", "grey20")
+    )
+
+    # Compute densities ----
+    dens <- meta[, {
+      ins <- fread(counts.same.strand)
+      .d <- density(log2(ins$ins_cov+1))
+      .(x= .(.d$x), y= .(.d$y))
+    }, keyby= .(sampleID, counts.same.strand)]
+    dens[, col:= rainbow(.NGRP)[.GRP], sampleID]
+
+    # Inititate density plot ----
+    plot(
+      NA,
+         type= "n",
+         xlim= range(unlist(dens$x)),
+         ylim= range(unlist(dens$y)),
+         xlab= "log2(insertions DC+1)",
+         ylab= "Density"
+      )
+
+    # Plot density lines ----
+    dens[, {
+      lines(x[[1]], y[[1]], col= col[1])
+    }, .(sampleID, col)]
+    # Cutoff
+    abline(v= log2(min.dc+1), lty= 3)
+    # Legend
+    vl_legend(
+      legend= dens$sampleID,
+      lty= 1,
+      col= dens$col
+    )
+    # Title
+    title(main= rev(names(res))[2], line = 2)
+
     # Plot overlaps matrix  ----
     vl_par(mai= rep(3.2, 4))
     vl_heatmap(perc,
@@ -109,8 +160,8 @@ orftagQC <- function(sampleIDs,
                breaks= seq(0, max(c(max(perc, na.rm = TRUE), 10)), length.out= 21),
                col= c("white", "red"),
                legend.title = "% Overlaps",
-               numbers.cex = .4,
-               main= rev(names(res))[2])
+               numbers.cex = .4)
+    title(main= rev(names(res))[2], line = 2)
     dev.off()
 
     # Save output files ----

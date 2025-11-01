@@ -31,7 +31,7 @@ addRsq <- function(rsq,
   }else
   {
     legend(pos,
-           legend= bquote(R^2 == .(x)),
+           legend= bquote(R^2 == .(rsq)),
            bty= bty,
            ...)
   }
