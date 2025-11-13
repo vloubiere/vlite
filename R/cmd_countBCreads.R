@@ -35,7 +35,7 @@ cmd_countBCreads <- function(bam,
     output.prefix <- gsub(".bam$", "", basename(bam))
 
   # Output file ----
-  counts.file <- file.path(counts.output.folder, paste0(output.prefix, "_lib200_counts.txt"))
+  counts.file <- file.path(counts.output.folder, paste0(output.prefix, "_counts.txt"))
 
   # Command ----
   cmd <- paste(Rpath,

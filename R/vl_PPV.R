@@ -2,7 +2,7 @@
 #'
 #' @param predicted Predicted values from the model (ranging from 0 to 1).
 #' @param label A vector of logical labels (or that can be coerced to logical).
-#' @param Nleft Number of enhancers left before cutoff. Default= 100.
+#' @param Nleft Minimum number of remaining positive sequences (prediction>=cutoff) before computing max PPV. Default= 100.
 #' @param plot Should the PPV be plotted?
 #' @param xlim x limits for plotting. Default= NULL.
 #' @param ylim y limits for plotting. Default= NULL.

@@ -245,18 +245,18 @@ if(F) {
 
   # ORFeome -----------------------
   # Assemble dictionary
-  file.edit("inst/Rscript/ORFeome_make_dictionary.R")
-  file.edit("R/cmd_orfeomeDictionary.R")
+  file.edit("inst/Rscript/ORFeome_make_dictionary.R") # R subscript
+  file.edit("R/cmd_orfeomeDictionary.R") # Wrapper
   # Pipeline
   file.edit("R/orfeomeProcessing.R")
   # Count ORFeomes barcode (ORFeome)
-  file.edit("R/cmd_countBCreads.R") # Wrapper
   file.edit("inst/Rscript/BC_counts.R") # R subscript
+  file.edit("R/cmd_countBCreads.R") # Wrapper
   # Call hits MAGECK
-  file.edit("R/cmd_MAGECK_ORFeome.R") # Wrapper
   file.edit("inst/Rscript/compute_MAGECK_count_tables_ORFeome.R") # R subscript
   file.edit("inst/Rscript/merge_gene_summary_to_master_table_ORFeome.R") # R subscript
   file.edit("inst/Rscript/volcano_plots_MAgECK.R") # R subscript
+  file.edit("R/cmd_MAGECK_ORFeome.R") # Wrapper
 
   # STARR-Seq ---------------------
   # Piepline

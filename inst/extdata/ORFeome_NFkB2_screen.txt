@@ -1,0 +1,9 @@
+user,batch,used,screen,condition,cell_line,replicate,sampleID,MAGeCK_sort,dictionary,i7,layout,sequencer,bam_path,tar_path
+Tomas,20,TRUE,NFkB_2,input,A549,rep1,NFkB_2_input_A549_rep1,pos,lib200,GGCTAC,PAIRED,Aviti_Medium,,/groups/stark/projects/PE75_20250807_TP/2440652727_1_R19310_fqfull_20250807.tar.gz
+Tomas,20,TRUE,NFkB_2,input,A549,rep1,NFkB_2_input_A549_rep1,pos,lib200,GGCTAC,PAIRED,Aviti_Medium,,/groups/stark/projects/PE75_20250807_TP/2440652727_2_R19310_fqfull_20250807.tar.gz
+Tomas,20,TRUE,NFkB_2,input,A549,rep2,NFkB_2_input_A549_rep2,pos,lib200,CTTGTA,PAIRED,Aviti_Medium,,/groups/stark/projects/PE75_20250807_TP/2440652727_1_R19310_fqfull_20250807.tar.gz
+Tomas,20,TRUE,NFkB_2,input,A549,rep2,NFkB_2_input_A549_rep2,pos,lib200,CTTGTA,PAIRED,Aviti_Medium,,/groups/stark/projects/PE75_20250807_TP/2440652727_2_R19310_fqfull_20250807.tar.gz
+Tomas,20,TRUE,NFkB_2,screen,A549,rep1,NFkB_2_screen_A549_rep1,pos,lib200,AGTCAA,PAIRED,Aviti_Medium,,/groups/stark/projects/PE75_20250807_TP/2440652727_1_R19310_fqfull_20250807.tar.gz
+Tomas,20,TRUE,NFkB_2,screen,A549,rep1,NFkB_2_screen_A549_rep1,pos,lib200,AGTCAA,PAIRED,Aviti_Medium,,/groups/stark/projects/PE75_20250807_TP/2440652727_2_R19310_fqfull_20250807.tar.gz
+Tomas,20,TRUE,NFkB_2,screen,A549,rep2,NFkB_2_screen_A549_rep2,pos,lib200,AGTTCC,PAIRED,Aviti_Medium,,/groups/stark/projects/PE75_20250807_TP/2440652727_1_R19310_fqfull_20250807.tar.gz
+Tomas,20,TRUE,NFkB_2,screen,A549,rep2,NFkB_2_screen_A549_rep2,pos,lib200,AGTTCC,PAIRED,Aviti_Medium,,/groups/stark/projects/PE75_20250807_TP/2440652727_2_R19310_fqfull_20250807.tar.gz
