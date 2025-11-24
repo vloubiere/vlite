@@ -8,9 +8,9 @@
 #' @param names A character vector or factor names matching control.counts' columns (i.e., motif IDs).
 #' By default, column names are used as is.
 #' @param fisher.alternative The alternative for the fisher test. By default, if counts is a data.table or
-#' a list of length one, set to "two.sided". If counts containg at least two groups, set to "greater".
+#' a list of length one, set to "two.sided". If counts contain at least two groups, set to "greater".
 #' @param log2OR.pseudocount Numeric. A pseudocount added to the contingency table to avoid infinite values
-#' in the log2 odds ratio calculation. Default= 1L.
+#' in the log2 odds ratio calculation. Default= 0.5.
 #' @param countFUN The function to be used for each motif, in order to compute the number of positive sequences.
 #' By default, a sequence will be considered positive if it contains at least one motif.
 #' Default= function(motifCount) sum(motifCount>=1).
@@ -85,7 +85,7 @@ vl_motifEnrich <- function(counts,
                            control.counts,
                            names= NULL,
                            fisher.alternative,
-                           log2OR.pseudocount= 1L,
+                           log2OR.pseudocount= .5,
                            countFUN= function(motifCount) sum(motifCount>=1))
 {
   if(is.data.table(counts))
@@ -126,16 +126,19 @@ vl_motifEnrich <- function(counts,
   # Compute enrichment ----
   enr <- merge(cl, ctl)
   enr[, c("OR", "pval"):= {
-    # Confusion matrix
-    mat <- matrix(unlist(.BY), byrow= T, ncol= 2)
-    mat[,2] <- mat[, 2]-mat[, 1]
-    # pvalue
-    p.value <- fisher.test(mat,
-                           alternative = fisher.alternative)$p.value
+    # Contingency matrix
+    mat <- c(set_hit, set_total - set_hit,
+             ctl_hit, ctl_total - ctl_hit)
+    mat <- matrix(mat, byrow= T, ncol= 2)
+    # p.value
+    .f <- fisher.test(mat,
+                      alternative = fisher.alternative)
     # log2OR (pseudocount avoid Inf)
-    estimate <- fisher.test(mat+log2OR.pseudocount,
-                            alternative = fisher.alternative)$estimate
-    .(estimate, p.value)
+    if(any(mat==0)) {
+      mat <- mat+log2OR.pseudocount
+      .f$estimate <- (mat[1,1] * mat[2,2]) / (mat[2,1] * mat[1,2])
+    }
+    .(.f$estimate, .f$p.value)
   }, .(set_hit, set_total, ctl_hit, ctl_total)]
 
   # Compute log2OR and padj ----

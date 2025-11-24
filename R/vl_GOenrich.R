@@ -14,7 +14,7 @@
 #' @param select Character vector specifying which GO annotations to consider. Options are `BP`
 #' (Biological Process), `CC` (Cellular Component), and `MF` (Molecular Function). Default= c("BP", "CC", "MF").
 #' @param log2OR.pseudocount Numeric. A pseudocount added to the contingency table to avoid infinite values
-#' in the log2 odds ratio calculation. Default= 1L.
+#' in the log2 odds ratio calculation. Default= 0.5.
 #' @param cleanup.cache Logical. If `TRUE`, clears cached intermediate results. Default= FALSE.
 #'
 #' @details
@@ -129,7 +129,7 @@ vl_GOenrich <- function(geneIDs,
                         species,
                         keyType,
                         select= c("BP", "CC", "MF"),
-                        log2OR.pseudocount= 1,
+                        log2OR.pseudocount= 0.5,
                         cleanup.cache= FALSE)
 {
   # Checks
@@ -224,15 +224,17 @@ vl_GOenrich <- function(geneIDs,
     # Compute enrichments
     GOs[, c("OR", "pval"):= {
       # Contingency matrix
-      mat <- matrix(unlist(.BY), byrow= T, ncol= 2)
-      mat[,2] <- mat[, 2]-mat[, 1]
-      # pvalue
-      p.value <- fisher.test(mat,
-                             alternative = "greater")$p.value
+      mat <- c(set_hit, set_total - set_hit,
+               universe_hit - set_hit, (universe_total - set_total) - (universe_hit - set_hit))
+      mat <- matrix(mat, byrow= T, ncol= 2)
+      # p.value
+      .f <- fisher.test(mat, alternative = "greater")
       # log2OR (pseudocount avoid Inf)
-      estimate <- fisher.test(mat+log2OR.pseudocount,
-                              alternative = "greater")$estimate
-      .(estimate, p.value)
+      if(any(mat==0)) {
+        mat <- mat+log2OR.pseudocount
+        .f$estimate <- (mat[1,1] * mat[2,2]) / (mat[2,1] * mat[1,2])
+      }
+      .(.f$estimate, .f$p.value)
     }, .(set_hit, set_total, universe_hit, universe_total)]
     unique(GOs[, !c("gene_id", "set")])
   })

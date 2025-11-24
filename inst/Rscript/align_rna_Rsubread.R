@@ -17,7 +17,7 @@ suppressMessages(library(Rsubread, warn.conflicts = FALSE))
 # Parse arguments ----
 fq1 <- unlist(tstrsplit(args[1], ","))
 fq2 <- unlist(tstrsplit(args[2], ","))
-if(fq2=="")
+if(length(fq2)==1 && fq2=="")
   fq2 <- NULL
 idx <- args[3]
 bam <- args[4]

@@ -7,7 +7,7 @@
 #' @param bed Input genomic ranges, in any format compatible with ?importBed.
 #' @param widths Integer vector specifying the width of the regions to sample. The length of the vector
 #' determines the number of sampled regions.
-#' @param no.overlaps Genomic ranges for which overlaps should be avoided dhring sampling, in any format compatible
+#' @param no.overlaps Genomic ranges for which overlaps should be avoided during sampling, in any format compatible
 #' with ?importBed. Default= NULL.
 #' @param ignore.strand If genomic ranges are provided in no.overlaps, only overlaps on the same strand will be
 #' avoided. If set to TRUE (default), overlaps on both strands are avoided.

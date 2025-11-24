@@ -16,7 +16,7 @@
 #' @param padj.cutoff The p.adjust cutoff to be used to call hits (>=). Default= 0.05.
 #' @param log2OR.cutoff The log2OR cutoff to be used to call hits (>=). Default= 1.
 #' @param log2OR.pseudocount The pseudocount to be added to avoid infinite values.
-#' Note that only the log2OR will be affected, not the fisher p.values. Default= 1
+#' Note that only the log2OR will be affected, not the fisher p.values. Default= 0.5
 #' @param binom.pseudocount The pseudocount to be added before binomial test (does not tolerate 0s). Default= 1
 #' @param binom.padj.cutoff The p.adjust cutoff to be used to call binom_hits (<=). Default= 0.001.
 #' @param output.suffix Name suffix appended to output file names. Default= "_vs_unsorted.txt".
@@ -49,7 +49,7 @@ callOrftagHitsStrandBias <- function(sorted.forward.counts,
                                      name,
                                      padj.cutoff= 0.05,
                                      log2OR.cutoff= 1,
-                                     log2OR.pseudocount= 1,
+                                     log2OR.pseudocount= 0.5,
                                      binom.pseudocount= 1,
                                      binom.padj.cutoff= 0.001,
                                      output.suffix= "_vs_revStrand",
@@ -101,14 +101,20 @@ callOrftagHitsStrandBias <- function(sorted.forward.counts,
 
   # Fisher test fw vs rev
   dat[count.sample.fw>=3, c("OR", "pval"):= {
-    .t <- matrix(c(count.sample.fw,
-                   count.sample.rev,
-                   count.input.fw,
-                   count.input.rev),
-                 ncol= 2)
-    .(fisher.test(.t, alternative = "greater")$estimate,
-      fisher.test(.t+log2OR.pseudocount, alternative = "greater")$p.value)
+    # Contingency matrix
+    mat <- c(count.sample.fw, count.sample.rev,
+             count.input.fw, count.input.rev)
+    mat <- matrix(mat, byrow = T, ncol = 2)
+    # p.value
+    .f <- fisher.test(mat, alternative = "greater")
+    # log2OR (pseudocount avoid Inf)
+    if(any(mat==0)) {
+      mat <- mat+log2OR.pseudocount
+      .f$estimate <- (mat[1,1] * mat[2,2]) / (mat[2,1] * mat[1,2])
+    }
+    .(.f$estimate, .f$p.value)
   }, .(count.sample.fw, count.sample.rev, count.input.fw, count.input.rev)]
+  # Log OR and adjust p values
   dat[count.sample.fw>=3, log2OR:= log2(OR)]
   dat[count.sample.fw>=3, padj:= p.adjust(pval, "fdr")]
   dat[, hit:= padj<padj.cutoff & log2OR>=log2OR.cutoff]

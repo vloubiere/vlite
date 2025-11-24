@@ -1,18 +1,20 @@
 #!/usr/bin/env Rscript
 args = commandArgs(trailingOnly=TRUE)
 
-# Test if there are 12 args: if not, return an error
-if (!length(args) %in% c(8, 9)) {
+# Test if there are 10-11 args: if not, return an error
+if (!length(args) %in% c(10, 11)) {
   stop("Please specify:\n
        [required] 1/ A comma-separated list of .txt count files (ref genome)\n
        [required] 2/ A comma-separated list of sample names \n
        [required] 3/ A comma-separated list of condition names \n
        [required] 4/ A comma-separated list of control condition names \n
-       [required] 5/ dds output folder \n
-       [required] 6/ FC tables output folder \n
-       [required] 7/ PDF output folder \n
-       [required] 8/ Experiment \n
-       [required] 9/ A comma-separated vector of spike-in or libsize counts for normalization (matching the number of count files being provided)\n")
+       [required] 5/ padj cutoff \n
+       [required] 6/ log2FoldChange cutoff \n
+       [required] 7/ dds output folder \n
+       [required] 8/ FC tables output folder \n
+       [required] 9/ PDF output folder \n
+       [required] 10/ Experiment \n
+       [required] 11/ A comma-separated vector of spike-in or libsize counts for normalization (matching the number of count files being provided)\n")
 }
 
 # Load libraries
@@ -42,12 +44,14 @@ conditions <- unlist(tstrsplit(args[3], ","))
 conditions <- gsub("-", ".", conditions) # Names and conditions do not tolerate "-"
 controls <- unlist(tstrsplit(args[4], ","))
 controls <- gsub("-", ".", controls) # Names and conditions do not tolerate "-"
-dds_output_folder <- args[5]
-FC_output_folder <- args[6]
-PDF_output_folder <- args[7]
-experiment <- args[8]
-norm.counts <- if(length(args)==9)
-  as.numeric(unlist(tstrsplit(args[9], ","))) else
+padj.cutoff <- as.numeric(args[5])
+log2FC.cutoff <- as.numeric(args[6])
+dds_output_folder <- args[7]
+FC_output_folder <- args[8]
+PDF_output_folder <- args[9]
+experiment <- args[10]
+norm.counts <- if(length(args)==11)
+  as.numeric(unlist(tstrsplit(args[11], ","))) else
     NULL
 
 # Import data ----
@@ -63,7 +67,7 @@ DF <- DF[rowSums(DF >= 10) >= 2,]
 
 # SampleTable ----
 sampleTable <- data.frame(condition = conditions,
-                          row.names = names)
+                          row.names = make.names(names))
 
 # DESeq2 analysis ----
 print(paste("Start DESeq2 analysis normalization"))
@@ -106,8 +110,8 @@ for(ctl in unique(controls))
     res <- as.data.frame(res)
     res <- as.data.table(res, keep.rownames = "gene_id")
     # Compute diff column
-    res[, diff:= fcase(padj<0.05 & log2FoldChange>log2(1.5), "Up-regulated",
-                       padj<0.05 & log2FoldChange<(-log2(1.5)), "Down-regulated",
+    res[, diff:= fcase(padj < padj.cutoff & log2FoldChange > log2FC.cutoff, "Up-regulated",
+                       padj < padj.cutoff & log2FoldChange < (-log2FC.cutoff), "Down-regulated",
                        default = "Unaffected")]
     # Add condition and control columns
     res[, condition:= cdition]
@@ -135,15 +139,17 @@ for(ctl in unique(controls))
 
     # Plot
     res[, {
-      plot(x = log10(baseMean),
-           y = log2FoldChange,
-           col= adjustcolor(col, .5),
-           pch= pch,
-           ylab= "Fold change (log2)",
-           frame= F,
-           xaxt= "n",
-           cex= .5,
-           main= paste(cdition, "vs.", ctl))
+      plot(
+        x = log10(baseMean),
+        y = log2FoldChange,
+        col= adjustcolor(col, .5),
+        pch= pch,
+        ylab= "Fold change (log2)",
+        frame= F,
+        xaxt= "n",
+        cex= .5,
+        main= paste(cdition, "vs.", ctl)
+      )
       axis(1, padj= -1.45)
       abline(h= 0, lty= 3)
 

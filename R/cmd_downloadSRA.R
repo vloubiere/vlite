@@ -68,7 +68,15 @@ cmd_downloadSRA <- function(SRR,
 
   # Automatically gzip the output files ----
   if(gzip) {
-    cmd <- paste(cmd, "; gzip", file.path(fq.output.folder, paste0(output.prefix, "*.fq")))
+    # gzip cmd
+    cmd <- if(layout=="PAIRED")
+      paste(
+        cmd,
+        "; gzip", file.path(fq.output.folder, paste0(output.prefix, "_1.fq")),
+        "; gzip", file.path(fq.output.folder, paste0(output.prefix, "_2.fq"))
+      ) else
+        paste(cmd, "; gzip", file.path(fq.output.folder, paste0(output.prefix, ".fq")))
+    # update output files extension
     fq1.new <- paste0(fq1.new, ".gz")
     if(layout=="PAIRED")
       fq2.new <- paste0(fq2.new, ".gz")

@@ -1,13 +1,12 @@
-#' Find Overlapping Regions Between Two Sets of Genomic Intervals
+#' Assess overlap between peaks and regions
 #'
 #' @description
-#' A wrapper around ?GenomicRanges::findOverlaps() that identifies, for each genomic range in a,
-#' the overlapping regions in b.
+#' Test whether a set of regions significantly overlaps a set of peaks.
 #'
+#' @param regions Regions for which overlaps with peaks have to be assessed, in any format compatible with ?importBed.
 #' @param peaks Peaks regions in any format compatible with ?importBed.
 #' @param ctl.peaks Control peak regions with no overlaps with peaks, in any format compatible with ?importBed.
-#' @param regions Regions for which overlaps with peaks have to be assessed, in any format compatible with ?importBed.
-#' @param pseudocount The pseudocount to use to estimate the enrichment using the ?fisher.test function. Default= 1.
+#' @param pseudocount The pseudocount to use to avoid 0s in fisher test estimates. Default= 0.5.
 #' Note that the p-value will not be affected.
 #' @param maxgap A single integer specifying the maximum gap allowed between 2 ranges for them to
 #' be considered as overlapping. Default= -1.
@@ -18,8 +17,7 @@
 #'
 #' @return A list with elements:
 #' \itemize{
-#'   \item peaks.total: total number of peaks.
-#'   \item peaks.overlaps: number of peaks overlapping regions.
+#'   \item tab: contingency table.
 #'   \item p.value: fisher test p.value.
 #'   \item estimate: the fisher test odd ratio, based on the specified pseudocount.
 #' }
@@ -32,11 +30,12 @@
 #' enrichBed(peaks = peaks[1:5],
 #'           ctl.peaks = ctl.peaks,
 #'           regions = peaks)
+#'
 #' @export
-enrichBed <- function(peaks,
+enrichBed <- function(regions,
+                      peaks,
                       ctl.peaks,
-                      regions,
-                      pseudocount= 1,
+                      pseudocount= 0.5,
                       maxgap= -1L,
                       minoverlap= 0L,
                       ignore.strand= TRUE)
@@ -59,14 +58,20 @@ enrichBed <- function(peaks,
   ctl.peaks.ov <- data.table(peak= rep(F, nrow(ctl.peaks)), region= ifelse(ctl.peaks.cov, T, F))
 
   # Compute enrichment ----
+  # Contingency matrix
   enr <- rbind(peaks.ov, ctl.peaks.ov)
-  tab <- table(peaks= factor(enr$peak, c(TRUE, FALSE)),
+  mat <- table(peaks= factor(enr$peak, c(TRUE, FALSE)),
                regions= factor(enr$region, c(TRUE, FALSE)))
-  p.value <- fisher.test(tab, alternative = "greater")$p.value
-  estimate <- fisher.test(tab+pseudocount, alternative = "greater")$estimate
+  # p.value
+  .f <- fisher.test(mat, alternative = "greater")
+  # Use pseudocount to avoid Inf
+  if(any(mat==0)) {
+    mat <- mat+log2OR.pseudocount
+    .f$estimate <- (mat[1,1] * mat[2,2]) / (mat[2,1] * mat[1,2])
+  }
 
   # Return ----
-  return(list(tab= tab,
-              p.value= p.value,
-              estimate= estimate))
+  return(list(tab= mat,
+              p.value= .f$p.value,
+              estimate= .f$estimate))
 }

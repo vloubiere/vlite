@@ -13,12 +13,6 @@ Depends:
     data.table,
     GenomicRanges
 Imports: 
-    rtracklayer,
-    GenomeInfoDb,
-    BSgenome,
-    TFBSTools
 Suggests:
-    knitr,
-    rmarkdown
 VignetteBuilder:
     knitr

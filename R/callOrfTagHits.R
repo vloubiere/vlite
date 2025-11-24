@@ -16,13 +16,14 @@
 #' @param padj.cutoff The p.adjust cutoff to be used to call hits (>=). Default= 0.001
 #' @param log2OR.cutoff The log2OR cutoff to be used to call hits (>=). Default= 1
 #' @param log2OR.pseudocount Pseudocount used to avoid infinite values. Note that only the log2OR will be affected, not the fisher
-#' p.values. Default= 1.
+#' p.values. Default= 0.5.
 #' @param min.ins.cov.unsorted Minimum number of duplication counts for an insertion to be considered TRUE in the unsorted sample.
 #' Default= 0 (no filtering).
 #' @param min.ins.cov.sorted Minimum number of duplication counts for an insertion to be considered TRUE in the sorted sample.
 #' Default= 0 (no filtering).
 #' @param output.folder Output folder for FC files. Default= "db/FC_tables/ORFtag".
-#' @param bed.output.folder Output folder where the bed files containing usable insertions on + and - strands will be saved. Default= "db/FC_tables/ORFtag/bed/".
+#' @param bed.output.folder Output folder where the bed files containing usable insertions on + and - strands will be saved.
+#' By default, it will be saved in a 'bed/, sub-folder within the output folder.
 #'
 #' @return Returns FC tables containing DESeq2-like columns.
 #'
@@ -54,11 +55,11 @@ callOrftagHits <- function(
     output.prefix,
     padj.cutoff= 0.001,
     log2OR.cutoff= 1,
-    log2OR.pseudocount= 1,
+    log2OR.pseudocount= 0.5,
     min.ins.cov.sorted= 0,
     min.ins.cov.unsorted= 0,
     output.folder= "db/FC_tables/ORFtag/",
-    bed.output.folder= "db/FC_tables/ORFtag/bed/"
+    bed.output.folder= paste0(output.folder, "/bed/")
 )
 {
   # Load packages
@@ -89,7 +90,7 @@ callOrftagHits <- function(
   main_function <- function(
     sorted.counts= sorted.forward.counts,
     unsorted.counts= unsorted.forward.counts,
-    plot= TRUE # Only set to TRUE when using forward counts!
+    forward.counts= TRUE # Only set to TRUE when using forward counts!
   )
   {
     # Checks ----
@@ -108,7 +109,7 @@ callOrftagHits <- function(
     dat[, sample.name:= factor(sample.name, unique(sample.name))]
 
     # Distance to closest exon ----
-    if(plot) # Only when using forwards counts!
+    if(forward.counts) # Boxplot only printed when using forwards counts!
     {
 
       # Initiate pdf
@@ -131,12 +132,12 @@ callOrftagHits <- function(
     # Filter out distal insertions ----
     dat <- na.omit(dat[dist<2e5])
 
-    # Duplication counts ----
+    # Filter duplication counts ----
     if(min.ins.cov.unsorted > 0 | min.ins.cov.sorted > 0) {
       if("ins_cov" %in% names(dat)) {
 
-        # DC cutoff plot (Only when using forwards counts!)
-        if(plot) {
+        # Plot DC density (only when using forwards counts!)
+        if(forward.counts) {
 
           # Density plot
           Cc <- rainbow(length(unique(dat$sample.name)))
@@ -167,25 +168,26 @@ callOrftagHits <- function(
         # Filter out insertions with low DC ----
         dat <- dat[  (ins_cov >= min.ins.cov.unsorted & cdition == "count.input")
                      | (ins_cov >= min.ins.cov.sorted & cdition == "count.sample")]
-      }
+      } else
+        warning("ins_cov column is missing and DC cutoff will be skipped.")
     }
 
     # If not insertions left, stop here ----
     if(!nrow(dat))
       stop("No insertions left after distance/min.ins.cov cutoffs.")
 
-    # Save bed files containing usable insertions ----
-    if(plot) { # Only when using forwards counts!
-      exportBed(dat[cdition=="count.sample" & strand=="+" & ins_cov >= min.ins.cov.unsorted,
+    # Save bed files (only when using forward counts ----
+    if(forward.counts) { # Only when using forwards counts!
+      exportBed(dat[cdition=="count.sample" & strand=="+",
                     .(seqnames, start, end, name= make.unique(gene_name), score= ins_cov, strand)],
                 file.path(bed.output.folder, "sample_insertions_ps.bed"))
-      exportBed(dat[cdition=="count.sample" & strand=="-" & ins_cov >= min.ins.cov.unsorted,
+      exportBed(dat[cdition=="count.sample" & strand=="-",
                     .(seqnames, start, end, name= make.unique(gene_name), score= ins_cov, strand)],
                 file.path(bed.output.folder, "sample_insertions_ns.bed"))
-      exportBed(dat[cdition=="count.input" & strand=="+" & ins_cov >= min.ins.cov.unsorted,
+      exportBed(dat[cdition=="count.input" & strand=="+",
                     .(seqnames, start, end, name= make.unique(gene_name), score= ins_cov, strand)],
                 file.path(bed.output.folder, "input_insertions_ps.bed"))
-      exportBed(dat[cdition=="count.input" & strand=="-" & ins_cov >= min.ins.cov.unsorted,
+      exportBed(dat[cdition=="count.input" & strand=="-",
                     .(seqnames, start, end, name= make.unique(gene_name), score= ins_cov, strand)],
                 file.path(bed.output.folder, "input_insertions_ns.bed"))
     }
@@ -204,14 +206,20 @@ callOrftagHits <- function(
 
     # Fisher test sample vs input ----
     dat[count.sample >= 3, c("OR", "pval"):= {
-      .t <- matrix(c(total.input-count.input,
-                     count.input,
-                     total.sample-count.sample,
-                     count.sample),
-                   ncol= 2)
-      .(fisher.test(.t+log2OR.pseudocount, alternative = "greater")$estimate,
-        fisher.test(.t, alternative = "greater")$p.value)
+      # Contingency matrix
+      mat <- c(count.sample, total.sample-count.sample,
+               count.input, total.input-count.input)
+      mat <- matrix(mat, byrow = T, ncol = 2)
+      # p.value
+      .f <- fisher.test(mat, alternative = "greater")
+      # log2OR (pseudocount avoid Inf)
+      if(any(mat==0)) {
+        mat <- mat+log2OR.pseudocount
+        .f$estimate <- (mat[1,1] * mat[2,2]) / (mat[2,1] * mat[1,2])
+      }
+      .(.f$estimate, .f$p.value)
     }, .(count.input, total.input, count.sample, total.sample)]
+    # Log OR and adjust pval
     dat[count.sample >= 3, log2OR:= log2(OR)]
     dat[count.sample >= 3, padj:= p.adjust(pval, "fdr")]
     dat[, hit:= padj <= padj.cutoff & log2OR >= log2OR.cutoff]
@@ -220,8 +228,8 @@ callOrftagHits <- function(
     dat <- genes[dat, on= c("gene_id", "gene_name")]
     dat$OR <- dat$pval <- NULL
 
-    # Volcano plot ----
-    if(plot) {
+    # Volcano plot (only printed when using forward counts)----
+    if(forward.counts) {
       pl <- dat[order(hit)]
       pl[, class:= fcase(hit, "Hit",
                          !is.na(padj), "N.S",
@@ -233,14 +241,16 @@ callOrftagHits <- function(
                 col= ifelse(hit, "tomato", "lightgrey"),
                 xlab= "Odd ratio (log2)",
                 ylab= "FDR (-log10)")
-        .SD[(hit), {
-          text(log2OR,
-               -log10(padj),
-               gene_name,
-               pos= 3,
-               cex= .5,
-               xpd= T)
-        }]
+        # Add hits labels
+        if(any(hit, na.rm = T))
+          .SD[(hit), {
+            text(log2OR,
+                 -log10(padj),
+                 gene_name,
+                 pos= 3,
+                 cex= .5,
+                 xpd= T)
+          }]
       }]
       leg <- pl[, paste0(class, " (n= ", formatC(.N, big.mark = ","), ")"), keyby= class]
       vl_legend("topleft",
@@ -261,7 +271,7 @@ callOrftagHits <- function(
   if(!is.null(sorted.reverse.counts) & !is.null(unsorted.reverse.counts)) {
     add <- main_function(sorted.counts = sorted.reverse.counts,
                          unsorted.counts = unsorted.reverse.counts,
-                         plot= F)
+                         forward.counts= F)
     add[, enriched.rev:= ifelse(hit, "Enriched for reversed integrations", NA_character_)]
     add <- add[, .(gene_id, enriched.rev, count.input, count.sample, total.input, total.sample)]
     res <- merge(res, add, by= "gene_id", all.x= T, suffixes= c("", ".rev"))

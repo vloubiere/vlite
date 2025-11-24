@@ -71,8 +71,12 @@ devtools::load_all("/groups/stark/vloubiere/vlite/")
 - **Installing** the package takes a bit longer, but you only need to do it once. After installation, you can simply load it in future sessions using `library(vlite)`.  Here is how to do it:
 
 ```{r install, eval=FALSE}
-# Install vlite from the shared folder
+# Install vlite from my folder
 devtools::install("/groups/stark/vloubiere/vlite/")
+
+# Install vlite from github (here not that you should use a specific commit)
+devtools::install_github("vloubiere/vlite@7c4a7fe08b2527952f9b8b25263f7c2c0821d274")
+
 library(vlite)
 ```
 

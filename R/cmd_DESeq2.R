@@ -6,6 +6,8 @@
 #' @param ctl.conditions comma-separated list of control conditions names.
 #' @param norm.counts A comma-separated vector of spike-in/libsize counts that will be used for normalization.
 #' Default = NULL (use default method to degine sizeFactors).
+#' @param padj.cutoff The p.adjust cutoff to call differentially expressed genes. Default= 0.05.
+#' @param log2FC.cutoff The log2FoldChange cutoff to call differentially expressed genes. Default= log2(1.5).
 #' @param output.prefix Output prefix to be used for output files.
 #' @param dds.output.folder Output folder where DESeq2 dds files ill be same output folder. Default= "db/dds/".
 #' @param FC.tables.output.folder Output folder where FC tables will be saved. Default= "db/FC_tables/".
@@ -18,6 +20,8 @@ cmd_DESeq2 <- function(count.files,
                        conditions,
                        ctl.conditions= unique(conditions),
                        norm.counts= NULL,
+                       padj.cutoff= 0.05,
+                       log2FC.cutoff= log2(1.5),
                        output.prefix,
                        dds.output.folder= "db/dds/",
                        FC.tables.output.folder= "db/FC_tables/",
@@ -52,6 +56,8 @@ cmd_DESeq2 <- function(count.files,
     paste0(sample.names, collapse= ","), # A comma-separated list of sample names
     paste0(conditions, collapse= ","), # A comma-separated list of condition names
     paste0(ctl.conditions, collapse= ","), # A comma-separated list of control condition names
+    padj.cutoff, # p adjust cutoff to call diff genes
+    log2FC.cutoff, # log2FC cutoff to call diff genes
     dds.output.folder, # dds output folder
     FC.tables.output.folder, # FC tables output folder
     MAplots.output.folder, # PDF output folder

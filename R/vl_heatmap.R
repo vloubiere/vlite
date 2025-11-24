@@ -137,6 +137,8 @@ vl_heatmap <- function(x,
   # Coerce x to numeric matrix (useful for factors) ----
   x <- toNumMatrix(x)
   checkClass <- x$checkClass
+  allLvls <- x$allLvls
+  print(allLvls)
   x <- x$x
   if(is.null(colnames(x)))
     colnames(x) <- seq(ncol(x))
@@ -229,7 +231,7 @@ vl_heatmap <- function(x,
   if(is.null(breaks)) {
     breaks <- if(checkClass=="factor") {
       # Factors (centered breaks)
-      seq(max(x, na.rm= TRUE))
+      seq(length(allLvls))
     } else if(min(x, na.rm= TRUE)<0 & max(x, na.rm= TRUE)>0) {
       # Centered on 0 (centered breaks)
       lims <- max(abs(x), na.rm= TRUE)
@@ -248,7 +250,7 @@ vl_heatmap <- function(x,
   if(is.null(col)) {
     col <- if(checkClass=="factor") {
       # Factor (centered breaks)
-      colorRampPalette(rainbow(9)[1:7])(length(breaks))
+      colorRampPalette(rainbow(9)[1:7])(length(allLvls))
     } else if(breaks[1] < 0 & breaks[length(breaks)] > 0) {
       # Positive and negative values (centered breaks)
       colorRampPalette(c("royalblue1", "white", "red"))(length(breaks))

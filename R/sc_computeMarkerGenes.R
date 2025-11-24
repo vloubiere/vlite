@@ -11,6 +11,7 @@
 #' If a character vector is provided, those clusters will be used as the control group.
 #' @param value.var A factor vector of clusters of length ncol(dat). Default= Idents(dat).
 #' @param add.fisher Logical; if TRUE, adds Fisher's exact test statistics for each gene/cluster.
+#' @param log2OR.pseudocount The pseudocount to avoid Inf values in fisher test's OR. Default= 0.5.
 #' @param verbose For debugging purposes.
 #'
 #' @return A data.table with marker gene statistics for each cluster, including average expression, log fold change, adjusted p-values, AUC, and
@@ -42,6 +43,7 @@ sc_computeMarkerGenes <- function(
     pairwise= FALSE,
     value.var= Idents(dat),
     add.fisher= FALSE,
+    log2OR.pseudocount= .5,
     cleanup.cache= FALSE,
     verbose= FALSE
 )
@@ -149,14 +151,20 @@ sc_computeMarkerGenes <- function(
     # Add fisher test ----
     if(add.fisher) {
       stats[, c("OR", "pval"):= {
-        fisher.test(
-          matrix(
-            c(Nact, Ninact, Nact.ctl, Ninact.ctl),
-            ncol= 2,
-            byrow = T
-          )+1
-        )[c("estimate", "p.value")]
+        # Contingency matrix
+        mat <- c(Nact, Ninact,
+                 Nact.ctl, Ninact.ctl)
+        mat <- matrix(mat, byrow= T, ncol= 2)
+        # p.value
+        .f <- fisher.test(mat)
+        # log2OR (pseudocount avoid Inf)
+        if(any(mat==0)) {
+          mat <- mat+log2OR.pseudocount
+          .f$estimate <- (mat[1,1] * mat[2,2]) / (mat[2,1] * mat[1,2])
+        }
+        .(.f$estimate, .f$p.value)
       }, .(Nact, Ninact, Nact.ctl, Ninact.ctl)]
+      # Log OR and adjust pval
       stats[, log2OR:= log2(OR)]
       stats[, padj.fisher:= p.adjust(pval, method = "fdr")]
       stats$OR <- stats$pval <- NULL

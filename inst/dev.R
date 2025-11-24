@@ -59,7 +59,18 @@ if(F) {
 
 # bedtools ---------------------------------
 if(F) {
-  file.edit("R/bedTools.R")
+  file.edit("R/importBed.R")
+  file.edit("R/resizeBed.R")
+  file.edit("R/binBed.R")
+  file.edit("R/collapseBed.R")
+  file.edit("R/closestBed.R")
+  file.edit("R/covBed.R")
+  file.edit("R/overlapBed.R")
+  file.edit("R/intersectBed.R")
+  file.edit("R/subtractBed.R")
+  file.edit("R/clipBed.R")
+  file.edit("R/exportBed.R")
+
   file.edit("R/randomRegionsBed.R")
   file.edit("R/enrichBed.R")
 }
@@ -78,7 +89,9 @@ if(F) {
 
 # BSgenomes tools -------------------------
 if(F) {
-  file.edit("R/BSgenomeTools.R")
+  file.edit("R/getBSsequence.R")
+  file.edit("R/getBSgenomeSize.R")
+  file.edit("R/randomRegionsBSgenome.R")
 }
 
 # fqtools ---------------------------------

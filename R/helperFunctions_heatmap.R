@@ -22,7 +22,7 @@ toNumMatrix <-  function(x)
     stop("x should contain numeric values, factors or logical values.")
 
   # Return matrix and checkClass
-  list(x= x, checkClass= checkClass)
+  list(x= x, checkClass= checkClass, allLvls= if(checkClass=="factor") allLvls else NULL)
 }
 
 # Take rows and columns names/idx/annot and makes an object containing

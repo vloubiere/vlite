@@ -64,10 +64,12 @@ cmd_trimIlluminaAdaptors <- function(fq1,
   }
 
   # Wrap commands output ----
-  cmd <- data.table(file.type= if(is.null(fq2)) "fq1.trim" else c("fq1.trim", "fq2.trim"),
-                    path= if(is.null(fq2)) fq1.trim else c(fq1.trim, fq2.trim),
-                    cmd= cmd,
-                    job.name= "trimGal")
+  cmd <- data.table(
+    file.type= if(is.null(fq2)) "fq1.trim" else rep(c("fq1.trim", "fq2.trim"), each= length(fq1)),
+    path= if(is.null(fq2)) fq1.trim else c(fq1.trim, fq2.trim),
+    cmd= cmd,
+    job.name= "trimGal"
+  )
 
   # Return ----
   return(cmd)

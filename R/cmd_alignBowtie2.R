@@ -64,20 +64,24 @@ cmd_alignBowtie2 <- function(fq1,
     stop("fq1 and fq2 file paths should end up with `.fq`, `.fastq`, `.fq.gz` or `.fastq.gz`")
   if(!is.null(fq2) && length(fq1) != length(fq2))
     stop("When provided, fq2 files should match fq1 files.")
-  if(missing(genome) && is.null(genome.idx))
-    stop("genome is missing and and genome.idx is set to NULL -> exit")
   if(length(max.ins)!=1 || max.ins %% 1 != 0)
     stop("max.ins should be a unique integer value.")
 
   # Retrieve index ----
   if(!is.null(genome)) {
-    genome.idx <- switch(genome,
-                         "mm10" = "/groups/stark/vloubiere/genomes/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome",
-                         "mm9" = "/groups/stark/indices/bowtie2/mm9/mm9",
-                         "hg38" = "/groups/stark/vloubiere/genomes/Homo_sapiens/hg38/Bowtie2Index/genome")
+    genome.idx <- switch(
+      genome,
+      "dm3" = "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/UCSC/dm3/Sequence/Bowtie2Index/Bowtie2Index/genome",
+      "dm6" = "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome",
+      "mm9" = "/groups/stark/indices/bowtie2/mm9/mm9",
+      "mm10" = "/groups/stark/vloubiere/genomes/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome",
+      "hg38" = "/groups/stark/vloubiere/genomes/Homo_sapiens/hg38/Bowtie2Index/genome"
+    )
   } else {
     genome <- basename(genome.idx)
   }
+  if(is.null(genome.idx))
+    stop("genome is missing and and genome.idx is set to NULL -> exit")
 
   # Output files paths ----
   bam <- file.path(bam.output.folder, paste0(output.prefix, "_", genome, ".bam"))
