@@ -10,6 +10,8 @@ cmd_DESeq2(
   conditions,
   ctl.conditions = unique(conditions),
   norm.counts = NULL,
+  padj.cutoff = 0.05,
+  log2FC.cutoff = log2(1.5),
   output.prefix,
   dds.output.folder = "db/dds/",
   FC.tables.output.folder = "db/FC_tables/",
@@ -28,6 +30,10 @@ cmd_DESeq2(
 
 \item{norm.counts}{A comma-separated vector of spike-in/libsize counts that will be used for normalization.
 Default = NULL (use default method to degine sizeFactors).}
+
+\item{padj.cutoff}{The p.adjust cutoff to call differentially expressed genes. Default= 0.05.}
+
+\item{log2FC.cutoff}{The log2FoldChange cutoff to call differentially expressed genes. Default= log2(1.5).}
 
 \item{output.prefix}{Output prefix to be used for output files.}
 

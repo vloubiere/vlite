@@ -7,6 +7,9 @@
 #' @param umi.count.file Path to the input UMI count file. Must be a single .txt file.
 #' @param annotation.file Path to the annotation file in .rds format containing the following columns:
 #' seqnames, start, end, strand, cluster.id. The mm10 annotations are stored in '/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/'.
+#' @param blacklist.file An optional file of blacklisted regions for which overlapping reads should be removed.
+#' Default= NULL. For mm10, a list of blacklisted regions (including tRNAs/snRNAs...) is availaible in
+#' '/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/'.
 #' @param feature Name of the genomic features in the annotation.file (promoter, body...). If not provided, it is derived from the annotation.file name.
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the umi.count.file name.
 #' @param count.tables.output.folder Directory for the output counts table. Default: "db/counts/PROseq/".
@@ -31,6 +34,7 @@
 #' @export
 cmd_countPROseqReads <- function(umi.count.file,
                                  annotation.file,
+                                 blacklist.file= NULL,
                                  feature= NULL,
                                  output.prefix= NULL,
                                  count.tables.output.folder= "db/count_tables/PROseq/",
@@ -52,6 +56,15 @@ cmd_countPROseqReads <- function(umi.count.file,
     stop("annotation.file should contain a data.table")
   if(!all(c("seqnames", "start", "end", "strand", "cluster.id") %in% names(check.annot)))
     stop("Annotation file should contain columns 'seqnames', 'start', 'end', 'strand', 'cluster.id'")
+  if(!is.null(blacklist.file)) {
+    if(!grepl(".rds$", blacklist.file))
+      stop("The blacklist file should be in .rds format.")
+    check.blacklist <- readRDS(blacklist.file)
+    if(!is.data.table(check.blacklist))
+      stop("blacklist.file should contain a data.table")
+    if(!all(c("seqnames", "start", "end", "strand", "cluster.id") %in% names(check.blacklist)))
+      stop("Blacklist file should contain columns 'seqnames', 'start', 'end', 'strand', 'cluster.id'")
+  }
   if(is.null(feature))
     feature <- gsub(".rds$", "", basename(annotation.file))
 
@@ -59,11 +72,14 @@ cmd_countPROseqReads <- function(umi.count.file,
   count.table <- file.path(count.tables.output.folder, paste0(output.prefix, "_", feature, "_counts.txt"))
 
   # Command ----
-  cmd <- paste(Rpath,
-               system.file("Rscript", "count_PROseq_reads.R", package = "vlite"),
-               umi.count.file,
-               annotation.file,
-               count.table)
+  cmd <- paste(
+    Rpath,
+    system.file("Rscript", "count_PROseq_reads.R", package = "vlite"),
+    umi.count.file,
+    annotation.file,
+    count.table,
+    blacklist.file
+  )
 
   # Wrap commands output ----
   cmd <- data.table(file.type= "count.table",

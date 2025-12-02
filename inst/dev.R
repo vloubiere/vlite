@@ -4,6 +4,8 @@ devtools::load_all("./")
 # Tests/wip --------------------------------
 if(F) {
   file.edit("inst/test/newUmiCollapsingStrat.R")
+  file.edit("R/somClustering.R")
+  file.edit("R/somClusteringHelperFunctions.R")
 }
 
 # PWM tools --------------------------------
@@ -102,6 +104,8 @@ if(F) {
 
 # Download/upload data ---------------------
 if(F) {
+  # VBCF
+  file.edit("inst/shell/download_bam_vbc.sh")
   # Dropbox
   file.edit("R/dropboxUpload.R")
   file.edit("R/dropboxDownload.R")
@@ -205,6 +209,7 @@ if(F) {
 
   # PRO-Seq -----------------------
   # Pipeline
+  file.edit("R/create_rRNA_tRNA_bowtie_index_mm10.R")
   file.edit("R/proseqProcessing.R")
   # Trimming
   file.edit("R/cmd_trimProseqAdaptors.R") # Custom adaptors (PROseq)
@@ -218,6 +223,7 @@ if(F) {
   file.edit("inst/Rscript/umiToBigwigProseq.R") # R subscript
   # Count reads from .rds annotation file
   file.edit("inst/Rscript/create_PROseq_annotations.R") # Create the mm10 annotation files
+  file.edit("inst/Rscript/create_PROseq_blacklisted_regions.R") # Create a mask containing tRNA coordinates...
   file.edit("R/cmd_countPROseqReads.R") # Wrapper
   file.edit("inst/Rscript/count_PROseq_reads.R") # R subscript
   # DESeq2

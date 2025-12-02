@@ -9,7 +9,7 @@ vl_motifEnrich(
   control.counts,
   names = NULL,
   fisher.alternative,
-  log2OR.pseudocount = 1L,
+  log2OR.pseudocount = 0.5,
   countFUN = function(motifCount) sum(motifCount >= 1)
 )
 }
@@ -23,10 +23,10 @@ Should have the same number of columns as 'counts' data.table(s).}
 By default, column names are used as is.}
 
 \item{fisher.alternative}{The alternative for the fisher test. By default, if counts is a data.table or
-a list of length one, set to "two.sided". If counts containg at least two groups, set to "greater".}
+a list of length one, set to "two.sided". If counts contain at least two groups, set to "greater".}
 
 \item{log2OR.pseudocount}{Numeric. A pseudocount added to the contingency table to avoid infinite values
-in the log2 odds ratio calculation. Default= 1L.}
+in the log2 odds ratio calculation. Default= 0.5.}
 
 \item{countFUN}{The function to be used for each motif, in order to compute the number of positive sequences.
 By default, a sequence will be considered positive if it contains at least one motif.

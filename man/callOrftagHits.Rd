@@ -13,11 +13,11 @@ callOrftagHits(
   output.prefix,
   padj.cutoff = 0.001,
   log2OR.cutoff = 1,
-  log2OR.pseudocount = 1,
+  log2OR.pseudocount = 0.5,
   min.ins.cov.sorted = 0,
   min.ins.cov.unsorted = 0,
   output.folder = "db/FC_tables/ORFtag/",
-  bed.output.folder = "db/FC_tables/ORFtag/bed/"
+  bed.output.folder = paste0(output.folder, "/bed/")
 )
 }
 \arguments{
@@ -43,7 +43,7 @@ For now, only "mm10" and "hg38" are supported, and the corresponding non-first-e
 \item{log2OR.cutoff}{The log2OR cutoff to be used to call hits (>=). Default= 1}
 
 \item{log2OR.pseudocount}{Pseudocount used to avoid infinite values. Note that only the log2OR will be affected, not the fisher
-p.values. Default= 1.}
+p.values. Default= 0.5.}
 
 \item{min.ins.cov.sorted}{Minimum number of duplication counts for an insertion to be considered TRUE in the sorted sample.
 Default= 0 (no filtering).}
@@ -53,7 +53,8 @@ Default= 0 (no filtering).}
 
 \item{output.folder}{Output folder for FC files. Default= "db/FC_tables/ORFtag".}
 
-\item{bed.output.folder}{Output folder where the bed files containing usable insertions on + and - strands will be saved. Default= "db/FC_tables/ORFtag/bed/".}
+\item{bed.output.folder}{Output folder where the bed files containing usable insertions on + and - strands will be saved.
+By default, it will be saved in a 'bed/, sub-folder within the output folder.}
 }
 \value{
 Returns FC tables containing DESeq2-like columns.

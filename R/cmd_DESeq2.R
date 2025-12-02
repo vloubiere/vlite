@@ -62,7 +62,7 @@ cmd_DESeq2 <- function(count.files,
     FC.tables.output.folder, # FC tables output folder
     MAplots.output.folder, # PDF output folder
     output.prefix, # Experiment name
-    norm.counts # An optiona, comma-separated vector of spike-in/libsize counts for normalization
+    norm.counts # An optional, comma-separated vector of spike-in/libsize counts for normalization
   )
 
   # Wrap commands output ----

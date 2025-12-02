@@ -34,10 +34,11 @@ Default= NULL.}
 \item{what}{The values that should be returned. Should be one of 'motifCounts', 'motifMatches', 'motifScores'. Default= 'motifCounts'.}
 }
 \value{
-A matrix of motif counts.
+A matrix of motif counts (on both strands).
 }
 \description{
-Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList.
+Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList. Note that here the strand is not considered (motifs are called on both strands).
+If you want to have the score associated to the strand, use ?vl_motifPos.
 }
 \examples{
 # Download Dev enhancer from pe-STARR-Seq paper

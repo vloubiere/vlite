@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#SBATCH --chdir /groups/stark/vloubiere/vlite
+#SBATCH --job-name myJob
+#SBATCH --mem=16G
+#SBATCH --cpus-per-task=4
+#SBATCH --time=08:00:00
+#SBATCH --qos=medium
+ml build-env/2020; ml bowtie/1.2.2-foss-2018b; cd /groups/stark/vloubiere/genomes/Mus_musculus/ncRNAs/;gunzip -c Mus_musculus.GRCm38.ncrna.fa.gz > Mus_musculus.GRCm38.ncrna.fa;bowtie-build Mus_musculus.GRCm38.ncrna.fa bowtie_index/mm10_ncrna
+
+# submit-command is: sbatch  -e db/logs/tmp.Z70TBM7v23.err -o db/logs/tmp.Z70TBM7v23.out db/logs/tmp.Z70TBM7v23

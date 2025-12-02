@@ -13,7 +13,7 @@ callOrftagHitsStrandBias(
   name,
   padj.cutoff = 0.05,
   log2OR.cutoff = 1,
-  log2OR.pseudocount = 1,
+  log2OR.pseudocount = 0.5,
   binom.pseudocount = 1,
   binom.padj.cutoff = 0.001,
   output.suffix = "_vs_revStrand",
@@ -43,7 +43,7 @@ See at the bottom of the ?vl_ORFtag_pipeline help page to see how to generate cu
 \item{log2OR.cutoff}{The log2OR cutoff to be used to call hits (>=). Default= 1.}
 
 \item{log2OR.pseudocount}{The pseudocount to be added to avoid infinite values.
-Note that only the log2OR will be affected, not the fisher p.values. Default= 1}
+Note that only the log2OR will be affected, not the fisher p.values. Default= 0.5}
 
 \item{binom.pseudocount}{The pseudocount to be added before binomial test (does not tolerate 0s). Default= 1}
 

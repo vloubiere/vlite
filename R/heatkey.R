@@ -121,31 +121,37 @@ heatkey <- function(breaks,
   yadj <- adj.y*line.height
 
   # Plot key ----
-  rect(xleft = xleft+xadj,
-       ybottom = ybottom+yadj,
-       xright = xright+xadj,
-       ytop = ytop+yadj,
-       xpd= NA,
-       col= col,
-       border= NA)
+  rect(
+    xleft = xleft+xadj,
+    ybottom = ybottom+yadj,
+    xright = xright+xadj,
+    ytop = ytop+yadj,
+    xpd= NA,
+    col= col,
+    border= NA
+  )
 
   # Add border ----
-  rect(xleft = xleft[1]+xadj,
-       ybottom = ybottom[1]+yadj,
-       xright = rev(xright)[1]+xadj,
-       ytop = rev(ytop)[1]+yadj,
-       xpd= NA)
+  rect(
+    xleft = xleft[1]+xadj,
+    ybottom = ybottom[1]+yadj,
+    xright = rev(xright)[1]+xadj,
+    ytop = rev(ytop)[1]+yadj,
+    xpd= NA
+  )
 
   # Add title ----
-  text(x = ifelse(position=="top", mean(pos), xleft[1])+xadj,
-       y = rev(ytop)[1]+ifelse(position=="top",
-                               line.height*0.75*cex,
-                               line.height*cex)+yadj,
-       labels = main,
-       pos = ifelse(position=="top", 3, 4),
-       cex = cex,
-       xpd = NA,
-       offset = 0)
+  text(
+    x = ifelse(position=="top", mean(pos), xleft[1])+xadj,
+    y = rev(ytop)[1]+ifelse(position=="top",
+                            line.height*0.75*cex,
+                            line.height*cex)+yadj,
+    labels = main,
+    pos = ifelse(position=="top", 3, 4),
+    cex = cex,
+    xpd = NA,
+    offset = ifelse(position=="top", .2, 0)
+  )
 
   # Compute ticks ----
   span <- pos[length(pos)]-pos[1]
@@ -168,16 +174,20 @@ heatkey <- function(breaks,
   }
 
   # Add ticks ----
-  text(x= x1+xadj,
-       y= y0+yadj,
-       labels = labels,
-       cex= cex*0.7,
-       pos= ifelse(position=="top", 3, 4),
-       xpd= NA,
-       offset= 0.25*cex)
-  segments(x0 = x0+xadj,
-           y0 = y0+yadj,
-           x1 = x1+xadj,
-           y1 = y1+yadj,
-           xpd= NA)
+  text(
+    x= x1+xadj,
+    y= y0+yadj,
+    labels = labels,
+    cex= cex*0.7,
+    pos= ifelse(position=="top", 3, 4),
+    xpd= NA,
+    offset= 0.25*cex
+  )
+  segments(
+    x0 = x0+xadj,
+    y0 = y0+yadj,
+    x1 = x1+xadj,
+    y1 = y1+yadj,
+    xpd= NA
+  )
 }

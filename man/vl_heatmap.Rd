@@ -41,6 +41,7 @@ vl_heatmap(
   col.annotations.col = rainbow(9)[1:7],
   na.col = "lightgrey",
   legend.cex = 1,
+  legend.length.cex = 1,
   numbers.cex = 0.7,
   show.grid = FALSE,
   grid.lwd = 0.25,
@@ -133,6 +134,8 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 \item{na.col}{Color for NA values. Default= "ligthgrey".}
 
 \item{legend.cex}{Numeric scaling factor for the legend. Default= 1.}
+
+\item{legend.length.cex}{Legend length expansion factor. Default= 1.}
 
 \item{numbers.cex}{Numeric scaling factor for the size of displayed numbers. Default= 0.7.}
 

@@ -51,6 +51,7 @@
 #' @param col.annotations.col Col annotations colors. Default= rainbow(9)[1:7].
 #' @param na.col Color for NA values. Default= "ligthgrey".
 #' @param legend.cex Numeric scaling factor for the legend. Default= 1.
+#' @param legend.length.cex Legend length expansion factor. Default= 1.
 #' @param numbers.cex Numeric scaling factor for the size of displayed numbers. Default= 0.7.
 #' @param show.grid Should the matric grid be shown? Default= FALSE.
 #' @param grid.lwd Line width used for the grid.
@@ -125,6 +126,7 @@ vl_heatmap <- function(x,
                        col.annotations.col= rainbow(9)[1:7],
                        na.col= "lightgrey",
                        legend.cex= 1,
+                       legend.length.cex= 1,
                        numbers.cex= .7,
                        show.grid= FALSE,
                        grid.lwd= .25,
@@ -479,6 +481,8 @@ vl_heatmap <- function(x,
                col= cluster.col[1],
                xpd= NA,
                border= NA)
+        }, cluster]
+        rows[, {
           text(x = right.mar+line.width/2,
                y = mean(y.pos),
                labels = cluster[1],
@@ -513,6 +517,8 @@ vl_heatmap <- function(x,
                col= cluster.col[1],
                xpd= NA,
                border= NA)
+        }, cluster]
+        cols[, {
           text(x = mean(x.pos),
                y = top.mar+line.height/2,
                labels = cluster[1],
@@ -571,6 +577,8 @@ vl_heatmap <- function(x,
               position = show.legend,
               adj.x = adj.x,
               adj.y = adj.y,
+              length = ifelse(show.legend=="top", 8, 4)*legend.length.cex,
+              thickness = ifelse(show.legend=="top", 0.4, .75),
               cex = legend.cex,
               main = legend.title)
       # Adjust top margin
@@ -579,7 +587,7 @@ vl_heatmap <- function(x,
       # Row annotations
       if(!is.null(row.annotations)) {
         # Adjust plotting position
-        adj.y <- adj.y-ifelse(show.legend=="right", 6.5, -2.5)*legend.cex
+        adj.y <- adj.y-ifelse(show.legend=="right", 6.5, -3)*legend.cex
         # Annotations heatkey
         rann <- factor(levels(rows$annot), levels(rows$annot))
         heatkey(breaks = -as.numeric(rann),
@@ -588,6 +596,8 @@ vl_heatmap <- function(x,
                 position = show.legend,
                 adj.x = adj.x,
                 adj.y = adj.y,
+                length = ifelse(show.legend=="top", 8, 4)*legend.length.cex,
+                thickness = ifelse(show.legend=="top", 0.4, .75),
                 cex = legend.cex,
                 main = row.annotations.title)
       }
@@ -595,7 +605,7 @@ vl_heatmap <- function(x,
       # Col annotations
       if(!is.null(col.annotations)) {
         # Adjust plotting position
-        adj.y <- adj.y-ifelse(show.legend=="right", 6.5, -2.5)*legend.cex
+        adj.y <- adj.y-ifelse(show.legend=="right", 6.5, -3)*legend.cex
         # Annotations heatkey
         cann <- factor(levels(cols$annot), levels(cols$annot))
         heatkey(breaks = -as.numeric(cann),
@@ -604,6 +614,8 @@ vl_heatmap <- function(x,
                 position = show.legend,
                 adj.x = adj.x,
                 adj.y = adj.y,
+                length = ifelse(show.legend=="top", 8, 4)*legend.length.cex,
+                thickness = ifelse(show.legend=="top", 0.4, .75),
                 cex = legend.cex,
                 main = col.annotations.title)
       }

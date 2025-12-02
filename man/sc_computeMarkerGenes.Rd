@@ -11,6 +11,7 @@ sc_computeMarkerGenes(
   pairwise = FALSE,
   value.var = Idents(dat),
   add.fisher = FALSE,
+  log2OR.pseudocount = 0.5,
   cleanup.cache = FALSE,
   verbose = FALSE
 )
@@ -29,6 +30,8 @@ If a character vector is provided, those clusters will be used as the control gr
 \item{value.var}{A factor vector of clusters of length ncol(dat). Default= Idents(dat).}
 
 \item{add.fisher}{Logical; if TRUE, adds Fisher's exact test statistics for each gene/cluster.}
+
+\item{log2OR.pseudocount}{The pseudocount to avoid Inf values in fisher test's OR. Default= 0.5.}
 
 \item{verbose}{For debugging purposes.}
 }

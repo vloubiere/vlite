@@ -47,7 +47,7 @@ Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Def
 
 \item{genome.macs2}{Genome size parameter for MACS2 (e.g., "dm, "mm", "hs").}
 
-\item{genome}{A BSgenome name (e.g. "mm10", "dm6"...).}
+\item{genome}{A BSgenome name (e.g. "mm10", "dm6"...) that will be used to generate the bigwig track.}
 
 \item{peaks.output.folder}{Directory where MACS2 output files should be saved. Default= "db/peaks/".}
 

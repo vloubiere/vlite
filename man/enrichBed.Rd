@@ -2,26 +2,26 @@
 % Please edit documentation in R/enrichBed.R
 \name{enrichBed}
 \alias{enrichBed}
-\title{Find Overlapping Regions Between Two Sets of Genomic Intervals}
+\title{Assess overlap between peaks and regions}
 \usage{
 enrichBed(
+  regions,
   peaks,
   ctl.peaks,
-  regions,
-  pseudocount = 1,
+  pseudocount = 0.5,
   maxgap = -1L,
   minoverlap = 0L,
   ignore.strand = TRUE
 )
 }
 \arguments{
+\item{regions}{Regions for which overlaps with peaks have to be assessed, in any format compatible with ?importBed.}
+
 \item{peaks}{Peaks regions in any format compatible with ?importBed.}
 
 \item{ctl.peaks}{Control peak regions with no overlaps with peaks, in any format compatible with ?importBed.}
 
-\item{regions}{Regions for which overlaps with peaks have to be assessed, in any format compatible with ?importBed.}
-
-\item{pseudocount}{The pseudocount to use to estimate the enrichment using the ?fisher.test function. Default= 1.
+\item{pseudocount}{The pseudocount to use to avoid 0s in fisher test estimates. Default= 0.5.
 Note that the p-value will not be affected.}
 
 \item{maxgap}{A single integer specifying the maximum gap allowed between 2 ranges for them to
@@ -36,15 +36,13 @@ If set to TRUE (default), overlaps on both strands are counted.}
 \value{
 A list with elements:
 \itemize{
-  \item peaks.total: total number of peaks.
-  \item peaks.overlaps: number of peaks overlapping regions.
+  \item tab: contingency table.
   \item p.value: fisher test p.value.
   \item estimate: the fisher test odd ratio, based on the specified pseudocount.
 }
 }
 \description{
-A wrapper around ?GenomicRanges::findOverlaps() that identifies, for each genomic range in a,
-the overlapping regions in b.
+Test whether a set of regions significantly overlaps a set of peaks.
 }
 \examples{
 peaks <- data.table(seqnames= "chr2R",
@@ -54,4 +52,5 @@ ctl.peaks <- resizeBed(peaks, "end", -100, 200)
 enrichBed(peaks = peaks[1:5],
           ctl.peaks = ctl.peaks,
           regions = peaks)
+
 }

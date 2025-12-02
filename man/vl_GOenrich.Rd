@@ -10,7 +10,7 @@ vl_GOenrich(
   species,
   keyType,
   select = c("BP", "CC", "MF"),
-  log2OR.pseudocount = 1,
+  log2OR.pseudocount = 0.5,
   cleanup.cache = FALSE
 )
 }
@@ -30,7 +30,7 @@ For Dm, 'SYMBOL' can be used for gene symbols.}
 (Biological Process), `CC` (Cellular Component), and `MF` (Molecular Function). Default= c("BP", "CC", "MF").}
 
 \item{log2OR.pseudocount}{Numeric. A pseudocount added to the contingency table to avoid infinite values
-in the log2 odds ratio calculation. Default= 1L.}
+in the log2 odds ratio calculation. Default= 0.5.}
 
 \item{cleanup.cache}{Logical. If `TRUE`, clears cached intermediate results. Default= FALSE.}
 }

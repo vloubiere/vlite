@@ -63,7 +63,7 @@ DF <- dcast(dat, gene_id~condition, value.var = "count")
 DF <- data.frame(DF[, -1], row.names = DF$gene_id)
 
 # Remove low count reads ----
-DF <- DF[rowSums(DF >= 10) >= 2,]
+DF <- DF[rowSums(DF >= 3) >= 2,]
 
 # SampleTable ----
 sampleTable <- data.frame(condition = conditions,

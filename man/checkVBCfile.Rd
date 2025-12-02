@@ -38,5 +38,6 @@ A data.table with three columns:
 }
 }
 \description{
-Generates the call to a perl script to extract the head of VBC tar files for debugging purposes
+Generates the call to a perl script to extract the head of fastq files within VBC tar files for debugging purposes.
+FASTQ files containining the first nreads of "R1", "R2", "I1" and "I2" files will be saved in the output folder, which correspond to Read 1, Read2, i7 and i5 index sequences, respectively.
 }

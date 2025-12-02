@@ -24,6 +24,8 @@ vl_boxplot(x, ...)
   varwidth = FALSE,
   notch = FALSE,
   outline = FALSE,
+  pts.col = adjustcolor("lightgrey", 0.4),
+  pts.cex = 0.6,
   names,
   plot = TRUE,
   border = par("fg"),
@@ -64,6 +66,10 @@ vl_boxplot(x, ...)
 \item{tilt.names}{Should names be tilted (ignored if horizontal= TRUE)}
 
 \item{srt}{rotation angle for titled names}
+
+\item{pts.col}{The color of outlier points. Default= adjustcolor("lightgrey", .4).}
+
+\item{pts.cex}{The expansion factor for outliers points. Default= .6.}
 
 \item{names}{Names to plot under boxplot. If function specified, applied to names before plotting}
 
