@@ -208,6 +208,7 @@ if(F) {
   file.edit("inst/Rscript/DESeq2_analysis.R") # R subscript
 
   # PRO-Seq -----------------------
+  # Pipeline
   # Pipeline with ncRNA decoy (test)
   file.edit("R/create_rRNA_tRNA_bowtie_index_mm10.R")
   file.edit("R/proseqProcessing_ncRNAdecoy.R")
