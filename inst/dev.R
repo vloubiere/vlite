@@ -209,6 +209,7 @@ if(F) {
 
   # PRO-Seq -----------------------
   # Pipeline
+  file.edit("R/proseqProcessing.R")
   # Pipeline with ncRNA decoy (test)
   file.edit("R/create_rRNA_tRNA_bowtie_index_mm10.R")
   file.edit("R/proseqProcessing_ncRNAdecoy.R")
