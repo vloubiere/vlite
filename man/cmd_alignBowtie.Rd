@@ -2,7 +2,7 @@
 % Please edit documentation in R/cmd_alignBowtie.R
 \name{cmd_alignBowtie}
 \alias{cmd_alignBowtie}
-\title{Generate Commands for Sequence Alignment Using Bowtie2}
+\title{Generate Commands for Sequence Alignment Using Bowtie}
 \usage{
 cmd_alignBowtie(
   fq1,
@@ -27,7 +27,7 @@ cmd_alignBowtie(
 \item{genome}{Reference genome name (e.g., "mm10", "hg38", "dm3").
 If not provided, `genome.idx` must be specified.}
 
-\item{genome.idx}{Path to the Bowtie2 genome index. Default= NULL.}
+\item{genome.idx}{Path to the Bowtie genome index. Default= NULL.}
 
 \item{max.mismatch}{Maximum number of mismatches allowed. Default= 2.}
 
@@ -43,12 +43,12 @@ If not provided, `genome.idx` must be specified.}
 A `data.table` with:
 - `file.type`: Output file labels (i.e. "bam", "align.stats").
 - `path`: Paths to the output files.
-- `cmd`: Shell command to run Bowtie2.
+- `cmd`: Shell command to run Bowtie.
 - `cores`: The number of CPU cores to use.
 - `job.name`: Default name for the job = "alnBwt".
 }
 \description{
-Creates shell commands to align sequencing reads to a reference genome using Bowtie2.
+Creates shell commands to align sequencing reads to a reference genome using Bowtie.
 Outputs a sorted BAM file and alignment statistics.
 }
 \examples{

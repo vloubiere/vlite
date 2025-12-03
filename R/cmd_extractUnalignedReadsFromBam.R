@@ -2,6 +2,8 @@
 #'
 #' @description
 #' Creates shell commands to extract unaligned reads from a BAM file and output them as a FASTQ file.
+#' Of note, only the reads with no alignment (flag= 4) will be retrieved (thus, multimappers and
+#' other unperfect alignments will not be returned).
 #'
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
 #' @param fq.output.folder Directory for the output FASTQ file. Default= "db/fq/".

@@ -30,6 +30,8 @@ A data.table with:
 }
 \description{
 Creates shell commands to extract unaligned reads from a BAM file and output them as a FASTQ file.
+Of note, only the reads with no alignment (flag= 4) will be retrieved (thus, multimappers and
+other unperfect alignments will not be returned).
 }
 \examples{
 # Extract unaligned reads from a BAM file

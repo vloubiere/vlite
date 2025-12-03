@@ -11,7 +11,7 @@ somClustering(
   scale = FALSE,
   user.weights = NULL,
   init.seed = 1,
-  maxNA.fraction = 1
+  maxNA.fraction = 0L
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ somClustering(
 
 \item{init.seed}{Seed used for random initialization/}
 
-\item{maxNA.fraction}{The maxNA fraction tolerated for a given line. Default= 1.}
+\item{maxNA.fraction}{The maxNA fraction tolerated for a given line. Default= 0L.}
 }
 \description{
 A wrapper around the som kohonen function to allow quick tests.

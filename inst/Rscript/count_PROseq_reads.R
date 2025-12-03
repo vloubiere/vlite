@@ -32,7 +32,7 @@ annot <- readRDS(annotation)
 dat <- fread(umi_count)
 dat[, c("seqnames", "start", "strand"):= tstrsplit(coor, ":", type.convert = T)]
 
-# Remove reads overlapping blaclisted regions ----
+# Remove reads overlapping blacklisted regions ----
 if(!is.null(blacklist)) {
   blacklist <- readRDS(blacklist)
   blacklist <- data.table::copy(blacklist)

@@ -1,7 +1,7 @@
-#' Generate Commands for Sequence Alignment Using Bowtie2
+#' Generate Commands for Sequence Alignment Using Bowtie
 #'
 #' @description
-#' Creates shell commands to align sequencing reads to a reference genome using Bowtie2.
+#' Creates shell commands to align sequencing reads to a reference genome using Bowtie.
 #' Outputs a sorted BAM file and alignment statistics.
 #'
 #' @param fq1 A character vector of .fq (or .fq.gz) file paths.
@@ -9,7 +9,7 @@
 #' @param output.prefix Prefix for the output file.
 #' @param genome Reference genome name (e.g., "mm10", "hg38", "dm3").
 #'        If not provided, `genome.idx` must be specified.
-#' @param genome.idx Path to the Bowtie2 genome index. Default= NULL.
+#' @param genome.idx Path to the Bowtie genome index. Default= NULL.
 #' @param max.mismatch Maximum number of mismatches allowed. Default= 2.
 #' @param max.ins Maximum insert size for PAIRED reads. Default= 500.
 #' @param bam.output.folder Directory for the output BAM file. Default= "db/bam/".
@@ -19,7 +19,7 @@
 #' @return A `data.table` with:
 #' - `file.type`: Output file labels (i.e. "bam", "align.stats").
 #' - `path`: Paths to the output files.
-#' - `cmd`: Shell command to run Bowtie2.
+#' - `cmd`: Shell command to run Bowtie.
 #' - `cores`: The number of CPU cores to use.
 #' - `job.name`: Default name for the job = "alnBwt".
 #'
@@ -78,21 +78,13 @@ cmd_alignBowtie <- function(fq1,
   bam <- file.path(bam.output.folder, paste0(output.prefix, "_", genome, ".bam"))
   stats <- file.path(alignment.stats.output.folder, paste0(output.prefix, "_", genome, "_stats.txt"))
 
-  # Decompress gzipped files (bowtie only takes .fq as input) ----
-  comp.files <- grep(".gz$", c(fq1, fq2), value= TRUE)
-  decomp.files <- gsub(".gz$", "", comp.files)
-  cmd <- ""
-  for(i in seq(comp.files))
-    cmd <- paste0(cmd, "zcat ", comp.files[i], " > ", decomp.files[i], "; ")
-
   # Files string ----
   files <- paste0(fq1, collapse = ",")
   if(!is.null(fq2))
     files <- paste("-1", files, "-2", paste0(fq2, collapse = ","))
 
   # bowtie1 cmd ----
-  cmd <- paste(cmd, # Decompress (bowtie only accepts .fq input)
-               "bowtie -p", cores, # Number of cores
+  cmd <- paste("bowtie -p", cores, # Number of cores
                "-q", # Input in fastq format
                "-v", max.mismatch, # Max number mismatches
                "-m 1", # Only return reads that align to a unique location
@@ -102,11 +94,7 @@ cmd_alignBowtie <- function(fq1,
                genome.idx, # Genome index
                files, # Input read files (and layout)
                "2>", stats, # Return statistics
-               "| samtools sort -@", cores-1, "-o", bam) # Return sorted bam
-
-  # Remove unzipped files ----
-  if(length(decomp.files))
-    cmd <- paste0(cmd, "; ", paste(c("rm", decomp.files), collapse = " "))
+               "| samtools sort -@", max(1, cores-1, na.rm = T), "-o", bam) # Return sorted bam
 
   # Wrap commands output ----
   cmd <- data.table(file.type= c("bam", "align.stats"),

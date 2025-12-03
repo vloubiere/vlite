@@ -7,6 +7,7 @@
 cmd_countPROseqReads(
   umi.count.file,
   annotation.file,
+  blacklist.file = NULL,
   feature = NULL,
   output.prefix = NULL,
   count.tables.output.folder = "db/count_tables/PROseq/",
@@ -18,6 +19,10 @@ cmd_countPROseqReads(
 
 \item{annotation.file}{Path to the annotation file in .rds format containing the following columns:
 seqnames, start, end, strand, cluster.id. The mm10 annotations are stored in '/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/'.}
+
+\item{blacklist.file}{An optional file of blacklisted regions for which overlapping reads should be removed.
+Default= NULL. For mm10, a list of blacklisted regions (including tRNAs/snRNAs...) is availaible in
+'/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/'.}
 
 \item{feature}{Name of the genomic features in the annotation.file (promoter, body...). If not provided, it is derived from the annotation.file name.}
 

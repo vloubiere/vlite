@@ -6,6 +6,7 @@ table(annot)
 cmd <- c(
   "cd /groups/stark/vloubiere/genomes/Mus_musculus/ncRNAs/",
   "gunzip -c Mus_musculus.GRCm38.ncrna.fa.gz > Mus_musculus.GRCm38.ncrna.fa",
+  "mkdir bowtie_index/",
   "bowtie-build Mus_musculus.GRCm38.ncrna.fa bowtie_index/mm10_ncrna"
 )
 cmd <- data.table(
@@ -16,4 +17,5 @@ cmd <- data.table(
   cores= 4,
   modules= list(c("build-env/2020", "bowtie/1.2.2-foss-2018b"))
 )
-vl_submit(cmd)
+vl_submit(cmd,
+          logs = "/groups/stark/vloubiere/genomes/Mus_musculus/ncRNAs/logs/")

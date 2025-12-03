@@ -8,6 +8,7 @@ proseqProcessing(
   fq1,
   output.prefix,
   ref.genome,
+  ref.genome.ncRNA.idx = NULL,
   ref.genome.idx = NULL,
   spike.genome,
   spike.genome.idx = NULL,
