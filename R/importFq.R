@@ -1,6 +1,6 @@
 #' importFq
 #'
-#' A wrapper to import fq files using data.table::fread().
+#' A wrapper to import fq files as a two-column data.table containing 'read_ID' and 'seq' columns.
 #'
 #' @param fq.path Path to the .fq of .fq.gz file to import.
 #' @param head An optional integer specifying the number of reads that should be imported.

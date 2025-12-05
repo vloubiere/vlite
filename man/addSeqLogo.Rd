@@ -33,19 +33,14 @@ addSeqLogo(
 plot seqlogo from pwm matrix
 }
 \examples{
-# Example: start from a PPM and create a PWM, then plot ICM
-PPM <- matrix(
-  c(
-    0.33,0.21,0.33,0.13,0.1,0.42,0.38,0.1,0.26,0.26,0.27,0.21,0,0.03,
-    0.19,0.78,0.1,0.05,0.1,0.75,0.24,0.05,0.18,0.53,0.8,0.04,0,0.16,
-    0.13,0.16,0.02,0.69,0.04,0.05,0.7,0.21,0.24,0.09,0.57,0.1,0.02,0.8,
-    0.15,0.03,0.22,0.28,0.31,0.19,0.35,0.26,0.26,0.13,0.19,0.33,0.26,0.22
-  ), nrow= 4
-)
-PWM <- freqToPWM(PPM)
+#' # Retrieve br motif
+pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
+pwm <- importJASPAR(pfm.file)$pwms_log_odds[["br"]]
 
 # Plot
 plot(0, 1, type= "n")
-addSeqLogo(PWM, x = -1, y= 1, cex.height = 3, cex.width = 2, pos= 2, min_content = .5)
+addSeqLogo(pwm, x = -1, y= 1, cex.height = 3, cex.width = 2, pos= 2)
+# Higher min.content cutoff
+addSeqLogo(pwm, x = -1, y= 0.8, cex.height = 3, cex.width = 2, pos= 2, min.content= 1)
 
 }

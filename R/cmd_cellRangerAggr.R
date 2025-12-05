@@ -1,6 +1,8 @@
 #' Generate Cell Ranger Aggregate command
 #'
 #' @description
+#' Builds a reproducible shell command to Cell Ranger aggregation, which merges multiple 10x runs into one unified dataset.
+#' This is particularly useful for samples coming from the same batch of GEX.
 #'
 #' @param molecule_info_paths A character vector of paths to 'molecule_info.h5' files.
 #' @param output.prefix Prefix for output files.

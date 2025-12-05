@@ -16,3 +16,8 @@ plotDNAletter(letter, xleft, ytop, width, height)
 \description{
 See function vl_seqlogo
 }
+\examples{
+plot.new()
+plotDNAletter(letter= "A", xleft= 0, ytop= 1, width= 1, height= 1)
+
+}

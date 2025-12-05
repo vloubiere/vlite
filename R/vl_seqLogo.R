@@ -6,6 +6,12 @@
 #' @param name Name of the motif to plot as a title.
 #'
 #' @examples
+#' # Retrieve br motif
+#' pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
+#' pwm <- importJASPAR(pfm.file)$pwms_log_odds[["br"]]
+#'
+#' # Plot
+#' vl_seqLogo(pwm)
 #'
 #' @export
 vl_seqLogo <- function(PWM,

@@ -1,7 +1,7 @@
 #' Find Motif Positions in Sequences or Genomic Regions
 #'
 #' @description
-#' Identifies the positions of motifs in a set of sequences or genomic regions using a PWMatrixList.
+#' A wrapper around motifmatchr::matchMotifs that maps motif positions in a set of genomic coordinates or sequences or using a PWMatrixList as input.
 #'
 #' @param sequences A named character vector of sequences to analyze. This argument takes precedence over the bed argument.
 #' @param bed Genomic ranges in a format compatible with ?importBed, from which genomic sequences will be retrieved when sequences is set to NULL.
@@ -22,28 +22,50 @@
 #' - `ir`: A nested `data.table` with columns for motif positions (`start`, `end`, `strand`, `width`, `score`).
 #'
 #' @examples
-#' # Dm3 coordinates of the two strongest SU(HW) peaks
-#' suhw <- importBed(c("chr2R:942901-943600", "chrX:1417201-1418000"))
+#' # Load Drosophila motifs
+#' pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
+#' pwm <- importJASPAR(pfm.file)$pwms_log_odds
 #'
-#' # Load SU(HW) motifs
-#' load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
-#' sel <- vl_Dmel_motifs_DB_full[c("cisbp__M2328", "flyfactorsurvey__suHw_FlyReg_FBgn0003567", "jaspar__MA0533.1"), pwms_log_odds, on= "motif_ID"]
+#' # Test sequence containing two overalapping Jra motifs plus a non overlapping one
+#' test <- c("Jra"= "CATGAGTCAGGTGAGAAATGAGTCAT")
+#' mot <- vl_motifPos(sequences = test, pwm_log_odds = pwm["Jra"], genome = "dm3", p.cutoff = 5e-4)
+#' motifPosToBed(mot)
+#' coll <- vl_motifPos(sequences = test, pwm_log_odds = pwm["Jra"], genome = "dm3", p.cutoff = 5e-4, collapse.overlapping = T)
+#' motifPosToBed(coll)
 #'
-#' # Find position of 3 different motifs within two regions
-#' pos1 <- vl_motifPos(bed= suhw,
-#'                     genome= "dm3",
-#'                     pwm_log_odds= sel,
-#'                     overwrite= FALSE)
+#' # Download Dev and Hk enhancers from pe-STARR-Seq paper
+#' tmp <- tempfile(pattern = '.xlsx')
+#' download.file(
+#' url = 'https://static-content.springer.com/esm/art%3A10.1038%2Fs41467-024-52921-2/MediaObjects/41467_2024_52921_MOESM4_ESM.xlsx',
+#' destfile = tmp
+#' )
+#' enh <- as.data.table(readxl::read_xlsx(tmp, sheet = 2, skip = 1))
+#' set <- rbind(
+#'   enh[group=='dev' & detail %in% c('medium', 'strong')][1:100, .(group, seqnames, start, end, enhancer_sequence)],
+#'   enh[group=='hk' & detail %in% c('medium', 'strong'), .(group, seqnames, start, end, enhancer_sequence)]
+#' )
+#' seq <- set$enhancer_sequence
+#' names(seq) <- make.unique(set$group)
 #'
-#' # Starting from sequence
-#' seq <- getBSsequence(suhw, "dm3")
-#' pos2 <- vl_motifPos(sequences= seq,
-#'                     genome= "dm3",
-#'                     pwm_log_odds= sel,
-#'                     overwrite= FALSE)
+#' # Map motifs
+#' mot <- vl_motifPos(sequences = seq, pwm_log_odds = pwm[c("Dref", "Jra")], bg = "subject", p.cutoff = 5e-4)
 #'
-#' # Should give similar results
-#' identical(pos1, pos2)
+#' # Look at counts: Jra should be more frequent in developemtan and Dref in housekeeping
+#' mot[, class:= tstrsplit(seqlvls, "[.]", keep= 1)]
+#' mot[, rm.NA:= ifelse(is.na(mot.count), 0, mot.count)]
+#' vl_boxplot(rm.NA~motif+class, mot, outline= T)
+#'
+#' # Convert to scores matrix (useful for heatmaps)
+#' mat <- vlite::motifPosToMatrix(mot, seqWidth = nchar(seq)[1])$Dref
+#' vl_par()
+#' vl_heatmap(
+#'   mat,
+#'   cluster.rows = set$group,
+#'   show.row.clusters = "left",
+#'   main= "Dref max scores",
+#'   show.colnames = FALSE,
+#'   legend.title = "Score"
+#' )
 #'
 #' @export
 vl_motifPos <- function(sequences,
@@ -67,7 +89,7 @@ vl_motifPos <- function(sequences,
   if(!"PWMatrixList" %in% class(pwm_log_odds))
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
   if(anyDuplicated(sapply(pwm_log_odds, TFBSTools::name)))
-    stop("Duplicated motif names in providin PWMs. Check them using TFBSTools::name().")
+    stop("Duplicated motif names in provided PWMs. Check them using TFBSTools::name().")
   if(!is.numeric(p.cutoff) || p.cutoff>1)
     stop("p.cutoff should be a numeric value <= 1")
 
@@ -148,43 +170,54 @@ vl_motifPos <- function(sequences,
       # Import
       .c <- readRDS(file)
       .c <- as.data.table(.c)
+
       # Select positive strand motifs
       if(pos.strand)
         .c <- .c[strand=="+"]
+
       # Add seqnames
       .c[, seqnames:= names(sequences)[group]]
+
       # If specified, collapsed motifs that overlap >70%, ignore.strand
-      if(collapse.overlapping & nrow(.c))
+      if(collapse.overlapping && nrow(.c))
       {
-        # Compute width 70% motif
-        mot.width <- ceiling(mean(.c$width)*0.7)
-        # Collapsing index
-        .c$idx <-  collapseBed(bed = .c,
-                               ignore.strand = TRUE,
-                               return.idx.only = TRUE)
         # Collapse
-        .c <- .c[, {
-          coll <- data.table(
-            seqnames,
-            start= min(start),
-            end= max(end),
-            score= max(score, na.rm= TRUE)
+        coll <-  collapseBed(bed = .c, ignore.strand = TRUE)
+
+        # Re-split large regions into bins corresponding to 70% motif width
+        mot.width <- ceiling(mean(.c$width)*0.7)
+        coll$nBins <- floor(coll[, end-start+1]/mot.width)
+        if(any(coll$nBins>1)) {
+          coll[, coll.idx:= .I]
+          coll <- rbind(
+            coll[nBins==1],
+            coll[nBins>1, binBed(.SD, nBins), nBins],
+            fill= T
           )
-          # Divide widh by 70% motif width
-          nBins <- coll[, end-start+1]/min.ov
-          # Bin
-          binBed(coll,
-                 nbins = floor(nBins))
-        }, .(seqnames, idx)]
-        .c[, width:= end-start+1]
+          setorderv(coll, c("coll.idx", "bin.idx"))
+          coll$coll.idx <- coll$line.idx <- coll$bin.idx <- NULL
+        }
+        coll$nBins <- NULL
+
+        # Compute width
+        coll[, width:= end-start+1]
+
+        # Retrieve score
+        coll$score <- .c[coll, max(score), .EACHI, on= c("seqnames", "start<=end", "end>=start")]$V1
+
+        # Overwrite current table
+        .c <- coll
       }
-      # Simplify
+
+      # Simplify ir to list
       .c[, seqlvls:= seqnames]
       cols <- intersect(names(.c), c("start", "end", "strand", "width", "score"))
       .c <- .c[, .(mot.count= .N, ir= .(.SD)), seqlvls, .SDcols= cols]
+
       # Add missing levels
       all <- data.table(seqlvls= names(sequences))
       res <- merge(all, .c, by= "seqlvls", all.x= TRUE, sort= FALSE)
+
       # Return
       res
     }, motif]

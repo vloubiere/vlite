@@ -47,30 +47,47 @@ A data.table containing motif positions for each sequence, with the following co
 - `ir`: A nested `data.table` with columns for motif positions (`start`, `end`, `strand`, `width`, `score`).
 }
 \description{
-Identifies the positions of motifs in a set of sequences or genomic regions using a PWMatrixList.
+A wrapper around motifmatchr::matchMotifs that maps motif positions in a set of genomic coordinates or sequences or using a PWMatrixList as input.
 }
 \examples{
-# Dm3 coordinates of the two strongest SU(HW) peaks
-suhw <- importBed(c("chr2R:942901-943600", "chrX:1417201-1418000"))
+# Load Drosophila motifs
+pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
+pwm <- importJASPAR(pfm.file)$pwms_log_odds
 
-# Load SU(HW) motifs
-load("/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData")
-sel <- vl_Dmel_motifs_DB_full[c("cisbp__M2328", "flyfactorsurvey__suHw_FlyReg_FBgn0003567", "jaspar__MA0533.1"), pwms_log_odds, on= "motif_ID"]
+# Test sequence containing two overalapping Jra motifs plus a non overlapping one
+test <- c("Jra"= "CATGAGTCAGGTGAGAAATGAGTCAT")
+mot <- vl_motifPos(sequences = test, pwm_log_odds = pwm["Jra"], genome = "dm3", p.cutoff = 5e-4)
+motifPosToBed(mot)
+coll <- vl_motifPos(sequences = test, pwm_log_odds = pwm["Jra"], genome = "dm3", p.cutoff = 5e-4, collapse.overlapping = T)
+motifPosToBed(coll)
 
-# Find position of 3 different motifs within two regions
-pos1 <- vl_motifPos(bed= suhw,
-                    genome= "dm3",
-                    pwm_log_odds= sel,
-                    overwrite= FALSE)
+# Download Dev and Hk enhancers from pe-STARR-Seq paper
+tmp <- tempfile(pattern = '.xlsx')
+download.file(
+url = 'https://static-content.springer.com/esm/art\%3A10.1038\%2Fs41467-024-52921-2/MediaObjects/41467_2024_52921_MOESM4_ESM.xlsx',
+destfile = tmp
+)
+enh <- as.data.table(readxl::read_xlsx(tmp, sheet = 2, skip = 1))
+set <- rbind(
+  enh[group=='dev' & detail \%in\% c('medium', 'strong')][1:100, .(group, seqnames, start, end, enhancer_sequence)],
+  enh[group=='hk' & detail \%in\% c('medium', 'strong'), .(group, seqnames, start, end, enhancer_sequence)]
+)
+seq <- set$enhancer_sequence
+names(seq) <- make.unique(set$group)
 
-# Starting from sequence
-seq <- getBSsequence(suhw, "dm3")
-pos2 <- vl_motifPos(sequences= seq,
-                    genome= "dm3",
-                    pwm_log_odds= sel,
-                    overwrite= FALSE)
+# Map motifs
+mot <- vl_motifPos(sequences = seq, pwm_log_odds = pwm[c("Dref", "Jra")], bg = "subject", p.cutoff = 5e-4)
 
-# Should give similar results
-identical(pos1, pos2)
+# Look at counts: Jra should be more frequent in developemtan and Dref in housekeeping
+mot[, class:= tstrsplit(seqlvls, "[.]", keep= 1)]
+mot[, rm.NA:= ifelse(is.na(mot.count), 0, mot.count)]
+vl_boxplot(rm.NA~motif+class, mot, outline= T)
+
+# Convert to a regular bed file (sequences with no matches are discarded)
+motifPosToBed(mot)
+
+# Convert to scores matrix (useful for heatmaps)
+mat <- vlite::motifPosToMatrix(mot, seqWidth = nchar(seq)[1])$Dref
+vl_heatmap(mat, cluster.rows = , show.row.clusters = "left", main= "Dref max scores")
 
 }

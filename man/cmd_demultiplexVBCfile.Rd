@@ -12,7 +12,7 @@ cmd_demultiplexVBCfile(
   i7.column = 14,
   i5.column = 12,
   umi = FALSE,
-  output.prefix,
+  output.prefix = NULL,
   fq.output.folder = "db/fq/",
   proseq.eBC = NULL,
   proseq.umi.length = 10,
@@ -35,8 +35,8 @@ cmd_demultiplexVBCfile(
 
 \item{umi}{If set to TRUE, the i7 index will be appended to the read id (separate by a '_' underscore ).}
 
-\item{output.prefix}{Output files prefix. If not provided,
-constructed from the input file name and index sequences.}
+\item{output.prefix}{Output files prefix. If set to NULL (recommended), a unique output filename prefix will be constructed by
+concatenating the input file name and index sequences. Default= NULL.}
 
 \item{fq.output.folder}{Directory where output FASTQ files will be written. Default= "db/fq/".}
 

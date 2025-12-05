@@ -4,124 +4,129 @@ devtools::load_all("./")
 # Tests/wip --------------------------------
 if(F) {
   file.edit("inst/test/newUmiCollapsingStrat.R")
+  # SOM clustering wrapper
   file.edit("R/somClustering.R")
   file.edit("R/somClusteringHelperFunctions.R")
+  # PRO-seq pipeline with ncRNA decoy (test)
+  file.edit("R/create_rRNA_tRNA_bowtie_index_mm10.R")
+  file.edit("R/proseqProcessing_ncRNAdecoy.R")
 }
 
 # PWM tools --------------------------------
 if(F) {
   # Switch between normalizations
-  file.edit("R/freqToPWM.R")
-  file.edit("R/pwmToICM.R")
+  file.edit("R/freqToPWM.R") # pfm to PWM
+  file.edit("R/pwmToICM.R") # PWM to ICM
 
   # Import JASPAR
-  file.edit("R/importJASPAR.R")
+  file.edit("R/importJASPAR.R") # Import a combined JASPAR file
 
   # Plot DNA letters/logos
-  file.edit("R/plotDNAletter.R") # Used to plot logos
-  file.edit("R/vl_seqLogo.R")
-  file.edit("R/addSeqLogo.R")
+  file.edit("R/plotDNAletter.R") # Helper funciton
+  file.edit("R/vl_seqLogo.R") # Plot the logo of a given PWM
+  file.edit("R/addSeqLogo.R") # Add PWM to an existing plot
   file.edit("R/addMotifs.R") # Add motifs to a heatmap
 }
 
 # AUC and model performance ----------------
 if(F) {
-  file.edit("R/vl_rocAUC.R")
-  file.edit("R/vl_rocAUC_grid.R")
-  file.edit("R/vl_PR_AUC.R")
-  file.edit("R/vl_PPV.R")
-  file.edit("R/vl_mPCC.R")
-  file.edit("R/vl_TPR.R")
+  file.edit("R/vl_rocAUC.R") # Compute roc AUC and NES
+  file.edit("R/vl_rocAUC_grid.R") # Parallelized version
+  file.edit("R/vl_PPV.R") # Used in Shenzhi's paper
+  file.edit("R/vl_PR_AUC.R") # Precision Recall AUC (imbalanced datasets)
+  file.edit("R/vl_MCC.R") # Matthew's correlation coeff for binary labels
+  file.edit("R/vl_TPR.R") # TRUE positive rate curve
 }
 
 # Single-cell tools ------------------------
 if(F) {
   # Reads processing
-  file.edit("R/cmd_alignCellRanger.R")
-  file.edit("R/cmd_alignCellRangerArc.R")
-  file.edit("R/cmd_cellRangerAggr.R")
-  file.edit("R/cmd_velocyto.R")
+  file.edit("R/cmd_alignCellRanger.R") # align sn-RNA-seq (GEX)
+  file.edit("R/cmd_cellRangerAggr.R") # Merge multiple 10x runs (used to merge GEX)
+  file.edit("R/cmd_alignCellRangerArc.R") # align multiome data (GEX+ATAC)
 
-  # Velocity
+  # Velocity (GEX)
+  file.edit("R/cmd_velocyto.R") # Run velocyto on GEX
   file.edit("inst/Rscript/filter_loom_file.R") # Function
   file.edit("R/cmd_filter_loom_file.R") # Wrapper
 
   # My SCENIC ----
   file.edit("inst/Rscript/infer_candidate_regulons.R") # Function
-  file.edit("inst/Rscript/cmd_infer_candidate_regulons.R") # Wrapper
-  file.edit("inst/Rscript/SCENIClite_infer_regulons.R") # parallelized
+  file.edit("R/cmd_infer_candidate_regulons.R") # Wrapper (for single gene)
+  file.edit("R/SCENIClite_infer_regulons.R") # All genes in parallel
 
   # sc-RNA-Seq
-  file.edit("R/sc_computeMarkerGenes.R")
-  file.edit("R/sc_topMarkers.R")
-  file.edit("R/sc_markerHeatmap.R")
-  file.edit("R/sc_colors.R")
-  file.edit("R/sc_UMAP.R")
+  file.edit("R/sc_computeMarkerGenes.R") # Identify marker genes from seurat object cluster(s)
+  file.edit("R/sc_topMarkers.R") # Select top marker genes
+  file.edit("R/sc_markerHeatmap.R") # Plot and cluster top marker genes from single-cell transcriptome data
+  file.edit("R/sc_colors.R") # Default colors
+  file.edit("R/sc_UMAP.R") # Plot rasterized UMAP from Seurat onbject
 }
 
 # bedtools ---------------------------------
 if(F) {
-  file.edit("R/importBed.R")
-  file.edit("R/resizeBed.R")
-  file.edit("R/binBed.R")
-  file.edit("R/collapseBed.R")
-  file.edit("R/closestBed.R")
-  file.edit("R/covBed.R")
-  file.edit("R/overlapBed.R")
-  file.edit("R/intersectBed.R")
-  file.edit("R/subtractBed.R")
-  file.edit("R/clipBed.R")
-  file.edit("R/exportBed.R")
+  file.edit("R/importBed.R") # Import bed file
+  file.edit("R/resizeBed.R") # Resize regions
+  file.edit("R/binBed.R") # Bin each region
+  file.edit("R/collapseBed.R") # Collapse overlapping regions
+  file.edit("R/closestBed.R") # Find the closest regions (typically between two sets)
+  file.edit("R/covBed.R") # Compute the number of overlaps between two sets of regions
+  file.edit("R/overlapBed.R") # Compute overlaps between two sets if regions
+  file.edit("R/intersectBed.R") # Compute intersection between two sets of regions
+  file.edit("R/subtractBed.R") # Subtract a set of regions to another set of regions
+  file.edit("R/clipBed.R") # Clip a set of regions using a second set of regions
+  file.edit("R/exportBed.R") # Export bed file
 
-  file.edit("R/randomRegionsBed.R")
-  file.edit("R/enrichBed.R")
+  file.edit("R/randomRegionsBed.R") # Select a random set of regions from a (typically larger) set or region
+
+  file.edit("R/enrichBed.R") # Assess whether the overlap between two set of regions is significanly large than expected
 }
 
 # Gene ontologies --------------------------
 if(F) {
-  file.edit("R/vl_GOenrich.R")
+  file.edit("R/vl_GOenrich.R") # Compute GO enrichment for a set (or clusters) of Drosophila/mouse/human genes.
 }
 
 # bamtools ---------------------------------
 if(F) {
   # Import in R
-  file.edit("R/importBamRsamtools.R")
-  file.edit("R/covBam.R")
+  file.edit("R/importBam.R") # Import bam file in R (Rsamtools wrapper)
+  file.edit("R/covBam.R") # Wrapper around bedtools coverage
 }
 
 # BSgenomes tools -------------------------
 if(F) {
-  file.edit("R/getBSsequence.R")
-  file.edit("R/getBSgenomeSize.R")
-  file.edit("R/randomRegionsBSgenome.R")
+  file.edit("R/getBSsequence.R") # Wrapper around ?getSeq
+  file.edit("R/getBSgenomeSize.R") # Wrapper around ?seqinfo
+  file.edit("R/randomRegionsBSgenome.R") # Uses ?randomRegionsBed
 }
 
 # fqtools ---------------------------------
 if(F) {
   file.edit("inst/perl/parseFq.pl") # Function
-  file.edit("R/importFq.R") # Wrapper
+  file.edit("R/importFq.R") # ?fread wrapper to quickly import fq files in R
 }
 
 # Download/upload data ---------------------
 if(F) {
   # VBCF
-  file.edit("inst/shell/download_bam_vbc.sh")
-  # Dropbox
+  file.edit("inst/shell/download_bam_vbc.sh") # Download VBC files from fsk3
+  # Dropbox API
   file.edit("R/dropboxUpload.R")
   file.edit("R/dropboxDownload.R")
-  # SRA toolkit
-  file.edit("R/cmd_downloadSRA.R")
+  # SRA toolkit wrapper
+  file.edit("R/cmd_downloadSRA.R") # Generates a command to download SRA files
   # fqs (or other...)
-  file.edit("R/cmd_download.R")
+  file.edit("R/cmd_download.R") # A wget wrapper to download files
 }
 
 # SLURM wrappers ---------------------------
 if(F) {
-  file.edit("R/bsub.R") # bsub gridengine
-  file.edit("R/vl_submit.R")
-  file.edit("R/vl_squeue.R")
-  file.edit("R/vl_scancel.R")
-  file.edit("R/vl_last_err.R")
+  file.edit("R/bsub.R") # bsub gridengine from Stark lab
+  file.edit("R/vl_submit.R") # Wrapper around bsub to automatically submit pipeline commands
+  file.edit("R/vl_squeue.R") # See user jobs
+  file.edit("R/vl_scancel.R") # Cancel all jobs except interactive R session
+  file.edit("R/vl_last_err.R") # Show the most recent error file from a logs folder
 }
 
 # Motifs analyses tools --------------------
@@ -129,32 +134,34 @@ if(F) {
   # Reverse complement DNA sequence
   file.edit("R/revCompDNA.R")
 
-  # Motif counts and positions
-  file.edit("R/vl_motifCounts.R")
-  file.edit("R/vl_motifPos.R")
-  file.edit("R/motifPosToMatrix.R")
-  file.edit("R/motifPosToBed.R")
+  # Motif counts
+  file.edit("R/vl_motifCounts.R") # Wrapper around ?motifmatchr::matchMotifs to count motifs
 
-  # Motif enrichment
-  file.edit("R/vl_motifEnrich.R")
+  # Motif positions
+  file.edit("R/vl_motifPos.R") # Wrapper around ?motifmatchr::matchMotifs to map motifs
+  file.edit("R/motifPosToBed.R") # motiPos to bed
+  file.edit("R/motifPosToMatrix.R") # motiPos to matrix (heatmap)
+
+  # Motif enrichment (based on counts)
+  file.edit("R/vl_motifEnrich.R") # Identify motifs over-represented in a set of sequences
 
   # Lasso regression motifs
-  file.edit("R/motifLassoRegression.R")
+  file.edit("R/motifLassoRegression.R") # Predict a reponse variable using motif counts
 
   # Download iCisTarget output
-  file.edit("R/download_iCistarget.R")
+  file.edit("R/download_iCistarget.R") # Helper function to download iCistarget output
 }
 
 # bwtools ---------------------------------
 if(F) {
   # Check content
-  file.edit("R/bwGetSeqlengths.R")
+  file.edit("R/bwGetSeqlengths.R") # Retrieve sequence lengths
 
-  # Coverage
+  # Compute coverage
   file.edit("R/bwCoverage.R")
-  file.edit("R/bwBinnedCoverage.R")
+  file.edit("R/bwBinnedCoverage.R") # First bin input regions and quantifies (heatmap...)
 
-  # Screenshot
+  # Bigwig screenshot
   file.edit("R/helperFunctions_bwScreenshot.R")
   file.edit("R/bwScreenshot.R")
 
@@ -167,7 +174,7 @@ if(F) {
 # Genomics pipelines -----------------------
 if(F) {
   # Helper functions --------------
-  file.edit("R/importMetadataSheet.R") # NOT USED
+  file.edit("R/importMetadataSheet.R") # Deprecated
 
   # Demultiplexing commands -------
   file.edit("inst/perl/vbc_tar_extract_head.pl") # Check the reads (for debugging)
@@ -210,9 +217,6 @@ if(F) {
   # PRO-Seq -----------------------
   # Pipeline
   file.edit("R/proseqProcessing.R")
-  # Pipeline with ncRNA decoy (test)
-  file.edit("R/create_rRNA_tRNA_bowtie_index_mm10.R")
-  file.edit("R/proseqProcessing_ncRNAdecoy.R")
   # Trimming
   file.edit("R/cmd_trimProseqAdaptors.R") # Custom adaptors (PROseq)
   # Extract unaligned reads from bam

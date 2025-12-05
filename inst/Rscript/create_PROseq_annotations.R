@@ -1,4 +1,4 @@
-setwd("/groups/stark/vloubiere/projects/PROseq_pipeline/")
+setwd("/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/")
 require(BSgenome.Mmusculus.UCSC.mm10)
 
 # This script was part of Vanja's pipeline. The only modification I did is line 14, to get more informative IDs ----
@@ -39,6 +39,6 @@ transcript.gr <- GRanges(seqnames = a$chr,
                          cluster.id = a$cluster.id)
 
 # Save files ----
-saveRDS(as.data.table(promoter.gr), "db/annotations/mm10_promoters.rds")
-saveRDS(as.data.table(genebody.gr), "db/annotations/mm10_genebody.rds")
-saveRDS(as.data.table(transcript.gr), "db/annotations/mm10_transcript.rds")
+saveRDS(as.data.table(promoter.gr), "/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/mm10_promoters.rds")
+saveRDS(as.data.table(genebody.gr), "/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/mm10_genebody.rds")
+saveRDS(as.data.table(transcript.gr), "/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/mm10_transcript.rds")

@@ -60,5 +60,5 @@ vl_TPR(
 TPR plot
 }
 \description{
-TRUE positive rate curve
+Shows recall as a function of threshold. I don't really remember using it.
 }

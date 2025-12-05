@@ -15,5 +15,5 @@ sc_colors(clusters, unique.lvl = FALSE)
 The default colors of ggplot
 }
 \description{
-Plot and cluster top marker genes from single-cell transcriptome data
+Default colors used for cell cluster in sc UMAP
 }

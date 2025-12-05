@@ -6,11 +6,6 @@
 #' @param bw Path to a target bw file.
 #'
 #' @examples
-#' # Example track
-#' bw <- "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw"
-#'
-#' Compute coverage
-#' bed <- importBed(c("chr2R:10000000-10010000", "chr3R:10000000-10005000", "nonExistingChr:1000-2000"))
 #' bwCoverage(bed= bed, bw= bw)
 #'
 #' @export

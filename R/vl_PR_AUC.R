@@ -1,5 +1,7 @@
 #' PR AUC
 #'
+#' Precision Recall AUC, which is preferred to rocAUC for imbalanced datasets.
+#'
 #' @param predicted Predicted values from the model (ranging from 0 to 1).
 #' @param label A vector of logical labels (or that can be coerced to logical).
 #' @param plot Should the ROC be plotted? Default= FALSE.

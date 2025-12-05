@@ -1,4 +1,6 @@
-#' Title
+#' Compute candidate regulons for all genes
+#'
+#' Wrapper around the cmd_infer_candidate_regulons command.
 #'
 #' @param seurat.object
 #' @param N.variable.genes

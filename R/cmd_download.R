@@ -15,8 +15,7 @@
 #' - `job.name`: Default name for the job = "download".
 #'
 #' @examples
-#' cmd <- cmd_download(url= "url/to/data")
-#' vl_submit(cmd, execute= FALSE)
+#' vl_submit("url/to/data", execute= FALSE)
 #'
 #' @export
 cmd_download <- function(url,

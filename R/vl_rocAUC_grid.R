@@ -1,7 +1,9 @@
-#' Title
+#' rocAUC for many ranks.labels
 #'
-#' @param ranks A data.table of variable used for ranking (decreasing= TRUE by default. See decreasing argument).
-#' @param labels A data.table of logical labels (or that can be coerced to logical) for which ROC AUC will be computed .
+#' A wrapper around vl_rocAUC to compute many rank/label combinations in paralle.
+#'
+#' @param ranks A matrix (or.data.table) of variables (one per column) used for ranking (decreasing= TRUE by default. See decreasing argument).
+#' @param labels A matrix (or data.table) of logical labels (one per column) for which ROC AUC will be computed .
 #' @param compute.NES Should the Normalized Enrichment Score be computed (Niter= 1000)? Default= TRUE.
 #' @param N.iter Number of iterations used to compute the NES. Default= 100L
 #' @param decreasing Should the sort order for ranks be increasing or decreasing? Default= TRUE.
@@ -10,9 +12,9 @@
 #' @param cleanup.cache Should the temporary files be overwritten?
 #'
 #' @return
-#' @export
-#'
 #' @examples
+#'
+#' @export
 vl_rocAUC_grid <- function(ranks,
                            labels,
                            compute.NES= TRUE,

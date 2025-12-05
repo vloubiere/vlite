@@ -1,4 +1,4 @@
-#' Title
+#' Compute reads coverage
 #'
 #' A wrapper around 'bedtools coverage' that computes, for each genomic range in a
 #' bed file, the number of overlapping reads in a bam file.
@@ -16,12 +16,8 @@
 #' Default= "/software/2020/software/bedtools/2.27.1-foss-2018b/bin/bedtools".
 #'
 #' @return A vector of integer counts.
+#'
 #' @export
-#'
-#' @examples
-#' covBam(bed= "path/to/bed/file.bed",
-#' bam = "path/to/bam/file.bam")
-#'
 covBam <- function(bed,
                    bam,
                    ignore.strand= TRUE,

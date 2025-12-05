@@ -34,7 +34,7 @@
 #'
 #' @examples
 #' # Sample 200 random genes
-#' all_genes <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+#' all_genes <- GenomicFeatures::genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene::TxDb.Dmelanogaster.UCSC.dm6.ensGene)
 #' set.seed(42)
 #' random_genes <- all_genes[sample(length(all_genes), 200)]
 #'

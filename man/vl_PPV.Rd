@@ -66,5 +66,5 @@ vl_PPV(
 PPV plot
 }
 \description{
-Positive Predicted Value curve
+Given a set of predicted values and a vector of logical labels, computes the Postiive Predictive Values for increased predicted thresholds.
 }

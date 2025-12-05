@@ -86,6 +86,11 @@ cmd_countPROseqReads <- function(umi.count.file,
                     path= count.table,
                     cmd= cmd,
                     job.name= "countProseqReads")
+  if(!is.null(blacklist.file)) {
+    blacklist.counts.file <- gsub(".txt$", "__blacklisted.txt", count.table)
+    cmd <- rbind(cmd, cmd)
+    cmd[2, c("file.type", "path"):= .("blacklist.counts", blacklist.counts.file)]
+  }
 
   # Return ----
   return(cmd)

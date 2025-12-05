@@ -59,6 +59,7 @@ freqToPWM <- function(matrix,
 
   # Compute log2 odd ratio
   pwm <- log2(matrix/bg+pseudocount)
+  rownames(pwm) <- rownames(bg)
 
   # Return
   return(pwm)

@@ -47,5 +47,5 @@ and ending lines are specified, they will be appended to the output.prefix to av
 \item{time}{Time limit for the job. Default= "8:00:00".}
 }
 \description{
-Compute candidate regulons per gene
+Compute candidate regulons per gene using elastic net or lasso regression.
 }

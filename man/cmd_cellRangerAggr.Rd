@@ -24,5 +24,6 @@ cmd_cellRangerAggr(
 \item{mem}{Memory in GB to allocate. Default= 32.}
 }
 \description{
-Generate Cell Ranger Aggregate command
+Builds a reproducible shell command to Cell Ranger aggregation, which merges multiple 10x runs into one unified dataset.
+This is particularly useful for samples coming from the same batch of GEX.
 }

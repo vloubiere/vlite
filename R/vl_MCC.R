@@ -1,11 +1,13 @@
-#' Compute Matthew's PCC
+#' Compute Matthew's Correlation Coefficient
+#'
+#' Matthew’s correlation coefficient (MCC) is a balanced binary-classification metric that measures the correlation between predicted and true labels.
 #'
 #' @param predicted Predicted values from the model (ranging from 0 to 1).
 #' @param label A vector of logical labels (or that can be coerced to logical).
 #'
 #' @return Mathhew's correlation coef
 #' @export
-vl_mPCC <- function(predicted,
+vl_MCC <- function(predicted,
                     label)
 {
   if(!is.logical(label))
@@ -21,7 +23,8 @@ vl_mPCC <- function(predicted,
   FP <- as.numeric(conf_matrix[2, 1])
   FN <- as.numeric(conf_matrix[1, 2])
   # Compute
-  mcPCC <- (TP * TN - FP * FN) / sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))
+  mCC <- (TP * TN - FP * FN) / sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))
+
   # Return
-  return(mcPCC)
+  return(mCC)
 }

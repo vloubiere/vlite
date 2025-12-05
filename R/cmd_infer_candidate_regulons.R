@@ -1,6 +1,7 @@
 #' Compute candidate regulons per gene
 #'
 #' @description
+#' Compute candidate regulons per gene using elastic net or lasso regression.
 #'
 #' @param genes.file An .rds file containing SCT-normalized counts for the genes to be tested (dependent variables).
 #' @param TFs.file An .rds file containing SCT-normalized counts for the predictor TFs.

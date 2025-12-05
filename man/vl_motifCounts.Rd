@@ -37,7 +37,8 @@ Default= NULL.}
 A matrix of motif counts (on both strands).
 }
 \description{
-Counts motif occurrences in a set of sequences or genomic regions using a PWMatrixList. Note that here the strand is not considered (motifs are called on both strands).
+Wrapper around ?motifmatchr::matchMotifs that counts motif occurrences in a set of genomic coordinates (or sequences) using a PWMatrixList.
+Note that here the strand is not considered (motifs are called on both strands).
 If you want to have the score associated to the strand, use ?vl_motifPos.
 }
 \examples{
@@ -45,25 +46,19 @@ If you want to have the score associated to the strand, use ?vl_motifPos.
 tmp <- tempfile(pattern = '.xlsx')
 download.file(url = 'https://static-content.springer.com/esm/art\%3A10.1038\%2Fs41467-024-52921-2/MediaObjects/41467_2024_52921_MOESM4_ESM.xlsx',
               destfile = tmp)
-
-# Retrieve enhancers
 dev <- readxl::read_xlsx(tmp, sheet = 2, skip = 1)
 dev <- as.data.table(dev)
 dev <- dev[group=='dev' & detail \%in\% c('medium', 'strong')]
 
-# Load motifs and select JASPAR
-load('/groups/stark/vloubiere/motifs_db/vl_Dmel_motifs_DB_full.RData')
-sel <- vl_Dmel_motifs_DB_full[collection=='jaspar', pwms_log_odds]
+# Load motifs
+pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
+pwm <- importJASPAR(pfm.file)$pwms_log_odds
 
-# Compute counts from regions
-mot1 <- vl_motifCounts(bed= dev,
-                       genome= 'dm3',
-                       pwm_log_odds= sel)
+# Compute counts from coordinates
+mot1 <- vl_motifCounts(bed= dev, genome= 'dm3', pwm_log_odds= pwm)
 
 # Compute counts from sequences
-mot2 <- vl_motifCounts(sequences = dev$enhancer_sequence,
-                       genome= 'dm3',
-                       pwm_log_odds= sel)
+mot2 <- vl_motifCounts(sequences = dev$enhancer_sequence, genome= 'dm3', pwm_log_odds= pwm)
 
 # Both approaches should be identical
 identical(mot1, mot2)

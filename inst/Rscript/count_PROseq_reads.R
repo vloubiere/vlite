@@ -34,9 +34,22 @@ dat[, c("seqnames", "start", "strand"):= tstrsplit(coor, ":", type.convert = T)]
 
 # Remove reads overlapping blacklisted regions ----
 if(!is.null(blacklist)) {
+  # Import blacklisted regions
   blacklist <- readRDS(blacklist)
   blacklist <- data.table::copy(blacklist)
+  # Compute overlap
   ov <- blacklist[dat, .N, on= c("seqnames", "start<=start", "end>=start", "strand"), .EACHI]$N
+  # Print statistics
+  stats <- data.table(
+    N.removed.reads.clusters= sum(ov>0, na.rm = T),
+    N.removed.umi.counts= sum(dat[ov>0, umi_counts], na.rm = T),
+    perc.removed.umi.counts= sum(dat[ov>0, umi_counts], na.rm = T)/sum(dat$umi_counts, na.rm = T)*100
+  )
+  fwrite(stats,
+         gsub(".txt$", "__blacklisted.txt", outputFile),
+         sep= "\t",
+         na= NA)
+  # Remove overlaps
   dat <- dat[ov==0]
 }
 

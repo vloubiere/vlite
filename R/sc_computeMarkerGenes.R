@@ -1,5 +1,6 @@
 #' Compute Marker Genes for Selected Clusters
 #'
+#' @description
 #' Identifies marker genes for specified clusters in a Seurat object using Wilcoxon rank-sum test (via presto) and, optionally, Fisher's exact test.
 #' Performs "cluster vs rest" comparisons.
 #'
@@ -22,7 +23,7 @@
 #' - Only clusters in `select.clusters` are analyzed if provided.
 #' - Fisher's test is performed on active/inactive cell counts if `add.fisher = TRUE`.
 #'
-#' @example
+#' @examples
 #' # Import
 #' dat <- readRDS("db/seurat_individual_samples/final/PH18_final.rds")
 #'

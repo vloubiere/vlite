@@ -13,8 +13,8 @@
 #' @param i7.column Column number in the BAM file containing the i7 index. Default= 14L.
 #' @param i5.column Column number in the BAM file containing the i5 index. Default= 12L.
 #' @param umi If set to TRUE, the i7 index will be appended to the read id (separate by a '_' underscore ).
-#' @param output.prefix Output files prefix. If not provided,
-#'        constructed from the input file name and index sequences.
+#' @param output.prefix Output files prefix. If set to NULL (recommended), a unique output filename prefix will be constructed by
+#' concatenating the input file name and index sequences. Default= NULL.
 #' @param proseq.eBC For PRO-Seq reads, the experimental barcode (eBC) sequence that must be found at the start of the
 #'        reads and will be used for demultiplexing. Only supported for BAM input. Default= NULL.
 #' @param proseq.umi.length For PRO-Seq reads, integer specifying the length of the UMI sequence located right after the eBC
@@ -92,7 +92,7 @@ cmd_demultiplexVBCfile <- function(vbcFile,
                                    i7.column= 14,
                                    i5.column= 12,
                                    umi= FALSE,
-                                   output.prefix,
+                                   output.prefix= NULL,
                                    fq.output.folder= "db/fq/",
                                    proseq.eBC= NULL,
                                    proseq.umi.length= 10,
@@ -131,15 +131,15 @@ cmd_demultiplexVBCfile <- function(vbcFile,
     stop("head should be a round number.")
 
   # Default output prefix ----
-  if(missing(output.prefix)) {
+  if(is.null(output.prefix)) {
     output.prefix <- paste0(gsub(".bam$|.tar.gz$", "", basename(vbcFile)),
                             "_", gsub(",", ".", i7), "_", gsub(",", ".", i5))
     if(!is.null(proseq.eBC))
       output.prefix <- paste0(output.prefix, "_eBC", proseq.eBC)
   }
+  output.prefix <- file.path(fq.output.folder, output.prefix)
 
   # Output files paths ----
-  output.prefix <- file.path(fq.output.folder, output.prefix)
   fq1 <- paste0(output.prefix, ifelse(layout=="PAIRED", "_1.fq.gz", ".fq.gz"))
   if(layout=="PAIRED")
     fq2 <- paste0(output.prefix, "_2.fq.gz")

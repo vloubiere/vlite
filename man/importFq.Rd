@@ -17,5 +17,5 @@ A data.table with columns:
  - Sequence
 }
 \description{
-A wrapper to import fq files using data.table::fread().
+A wrapper to import fq files as a two-column data.table containing 'read_ID' and 'seq' columns.
 }

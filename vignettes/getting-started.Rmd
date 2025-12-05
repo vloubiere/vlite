@@ -303,7 +303,7 @@ ls -ltrh
 knitr::include_graphics(system.file("images/check_fq.png", package = "vlite"))
 ```
 
-You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example:
+You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example. Note that here, I recommend setting the `output.prefix` parameter to NULL, which will ensure that the output file names are unique. This is very important because, if several input file/BC combinations are given the same output.prefix (re-sequencing, sample split on two lanes...), they will overwrite each other:
 
 ```{r loop_example_ORFtag, eval = FALSE}
 # Loop over the sampleID values (see the 'by=' argument on the last line)
@@ -314,7 +314,7 @@ meta.demultiplex <- meta[, {
     layout = layout, # Layout (PAIRED or SINGLE)
     i7 = barcode, # The two barcodes will be provided here. If your barcodes are attached with a pipe, split them using strsplit(barcodes, "|", fixed = T)[[1]]
     i7.column = 12, # Column containing i7 barcodes
-    output.prefix= sampleID, # The sample ID should be unique for each sample
+    output.prefix= NULL, # Here, I recommend setting this to NULL, which will automatically create a unique output file name for each input file / BC combination(s).
     fq.output.folder= "db/fq/" # The output folder where the output fastq files will be saved
   )
   # Submit to the cluster
@@ -502,7 +502,7 @@ Before identifying the hits, we perform a quality control (QC) on the reads to m
 ?vlite::orftagQC
 
 # Import the metadata containing the processed files
-meta.processed <- readRDS("processed_files.rds")
+meta.processed <- readRDS("Rdata/processed_files.rds")
 
 # Run the QC
 # Note that this is a proper R function, not a wrapper like the pipeline before.
@@ -700,7 +700,7 @@ DT::datatable(
 
 ### b- Generate the command
 
-PRO-seq reads are very particular, as the read itself contains a barcode (called experimental BC or eBC) and a 10nt long UMI sequence. Thus, a PRO-Seq read looks like this: eBC-NNNNNNNNNN-read (eBC is typicall 4nt long, the UMI contains 10N, and the part of the read that will be trimmed and aligned to the genome comes last. As an example, we will now generate the command to demultiplex **the first file from the metadata**, using the dedicated function:
+PRO-seq reads are very particular, as the read itself contains a barcode (called experimental BC or eBC) and a 10nt long UMI sequence. Thus, a PRO-Seq read looks like this: eBC-NNNNNNNNNN-read (eBC is typically 4nt long, the UMI contains 10N, and the part of the read that will be trimmed and aligned to the genome comes last. As an example, we will now generate the command to demultiplex **the first file from the metadata**, using the dedicated function:
 
 ```{r demultiplexing_command_PROseq, eval = FALSE}
 # To see the help of the demultiplexing wrapper function
@@ -710,7 +710,7 @@ PRO-seq reads are very particular, as the read itself contains a barcode (called
 cmd <- vlite::cmd_demultiplexVBCfile(
   vbcFile = "/groups/stark/projects/PE36_20211113_PROseq/HM2CVBGXK_1_20211112B_20211113.bam",
   layout = "PAIRED",
-  i7 = "ACAGTG", # i7 barcode
+  i7 = "ACAGTG", # i7 barcode (or RPI in the PRO-seq terminology)
   i5 = "none", # Here we have no i5
   i7.column = 14, # This specifies in which column of the bam file the i7 sequences are stored. By default it is set to 14 but should sometimes be set to 12, depending on the sequencer. If you are not sure in which column are your indexes, check the head of your bam file using samtools view.
   i5.column = 12, # This will not be used, since no i5 was specified
@@ -771,7 +771,7 @@ ls -ltrh
 knitr::include_graphics(system.file("images/check_fq.png", package = "vlite"))
 ```
 
-You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example:
+You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example. Note that here, I recommend setting the `output.prefix` parameter to NULL, which will ensure that the output file names are unique. This is very important because, if several input file/BC combinations are given the same output.prefix (re-sequencing, sample split on two lanes...), they will overwrite each other:
 
 ```{r loop_example_PROseq, eval = FALSE}
 # Loop over the sampleID values (see the 'by=' argument on the last line)
@@ -779,9 +779,9 @@ meta.demultiplex <- meta[, {
   cmd <- vlite::cmd_demultiplexVBCfile(
     vbcFile = bam_path,
     layout = layout,
-    i7 = barcode, # i7 barcode
+    i7 = barcode, # i7 barcode (or RPI in the PRO-seq terminology)
     i7.column = 14, # This specifies in which column of the bam file the i7 sequences are stored. By default it is set to 14 but should sometimes be set to 12, depending on the sequencer. If you are not sure in which column are your indexes, check the head of your bam file using samtools view.
-    output.prefix= sampleID, # The prefix that will be appended to the output file's name
+    output.prefix= NULL, # Here, I recommend setting this to NULL, which will automatically create a unique output file name for each input file / BC combination(s).
     fq.output.folder= "db/fq/", # The output folder where the output fastq files will be saved
     proseq.eBC = eBC, # eBC sequence (only used for PRO-Seq)
     proseq.umi.length = 10, # The length of the PRO-Seq eBC sequence (will not be used as proseq.eBC is set to NULL)
@@ -971,14 +971,18 @@ knitr::include_graphics(system.file("images/dm3_counts.png", package = "vlite"))
 
 ## 5- Count reads
 
-Now that reads were mapped and UMI collapsed, the next step will be to assign the reads assigned to the reference genome (here mm10) to the corresponding promoters/transcripts etc... To do so, we will need the coordinates of these features for mm10, which were generated using this script (adapted from Vanja): `file.edit(system.file("Rscript/create_PROseq_annotations.R", package = "vlite"))` and are stored in `"/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/"`. In this example, I will show how to do the counting for full-length transcript, and you can later repeat the operation for promoters or gene bodies if need. This is how the counting function works:
+Now that reads were mapped and UMI collapsed, the next step will be to assign the reads assigned to the reference genome (here mm10) to the corresponding promoters/transcripts etc... To do so, we will need the coordinates of these features for mm10, which were generated using this script (adapted from Vanja): `file.edit(system.file("Rscript/create_PROseq_annotations.R", package = "vlite"))` and are stored in `"/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/"`.  
+  
+But before this, we ideally want to discard the reads coming from PolI/PolIII and other irrelevant ncRNA transcripts (rRNAs, tRNAs, Mt_rRNA, Mt_tRNA, snRNA, snoRNA, scaRNA, miRNA, scRNA, sRNA, misc_RNA, ribozyme, UCSC blacklisted regions), which you can do by providing a set of blacklisted regions. For mm10, I created such list using this script: `file.edit(system.file("Rscript/create_PROseq_blacklisted_regions.R", package = "vlite"))`. The resulting file is also stored in `"/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/"`.  
+  
+In this example, I will show how to do the counting for full-length transcripts, and you can later repeat the operation for promoters or gene bodies if needed:  
 
 ```{r count_reads_PROseq, eval = FALSE}
 # Check the help function
 ?vlite::cmd_countPROseqReads
 
 # Import the demultiplexed fastq metadata generated earlier
-meta.processed <- readRDS("Rdata/demultiplexed_fastqs.rds")
+meta.processed <- readRDS("Rdata/processed_files.rds")
 
 # Generate the commands and submit to the server
 meta.counts <- meta.processed[, {
@@ -986,6 +990,7 @@ meta.counts <- meta.processed[, {
   cmd <- vlite::cmd_countPROseqReads(
     umi.count.file = umi.counts.ref, # UMI-collapsed reads
     annotation.file = "/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/mm10_transcript.rds", # Full transcript annot
+    blacklist.file = "/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/mm10_blacklisted_regions.rds", # Blacklisted regions
     feature = "transcript", # The name of the features
     count.tables.output.folder = "db/count_tables/", # Folder where coutn tables should be saved
     Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript" # The R executable used to run the R script
@@ -1005,7 +1010,13 @@ meta.counts <- meta.processed[, {
 saveRDS(meta.counts, "Rdata/count_files.rds")
 ```
 
-Let's look one of the resulting files (for example using `fread("db/count_tables/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1_mm10_UMI_counts_transcript_counts.txt")`). The first ID column contains the UCSC gene id followed by the gene name and the coordinates of the corresponding CAGE promoter, separated by '__'. So the Xkr4 transcript has 41 UMI-collapsed associated reads in this condition:
+First you should check the fraction of blacklisted reads that were removed, and we typically expect values around 15-20% for mm10: `fread("db/count_tables/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1_mm10_UMI_counts_transcript_counts__blacklisted.txt")`. Here, 116,251 read clusters (or 'peaks') were removed, cumulating 1,957,339 reads (18.4% of the total). Of note, if you are using spike-in, removing these reads will not affect the DESeq2 normalization below; which will therefore only be based on the total number of spike-in Drosophila reads in each sample. But if you chose library size normalization, it will:
+
+```{r removed_counts, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "Number of removed reads."}
+knitr::include_graphics(system.file("images/removed_counts.png", package = "vlite"))
+```
+  
+Let's now look one of the resulting count files (for example using `fread("db/count_tables/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1_mm10_UMI_counts_transcript_counts.txt")`). The first ID column contains the UCSC gene id followed by the gene name and the coordinates of the corresponding CAGE promoter, separated by '__'. So the Xkr4 transcript has 41 UMI-collapsed associated reads in this condition:
 
 ```{r transcript_counts, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "UMI-collapsed counts per transcript."}
 knitr::include_graphics(system.file("images/transcript_counts.png", package = "vlite"))
@@ -1067,7 +1078,7 @@ For each DESeq2_condition/DESeq2_control pair that was present in the metadata, 
 knitr::include_graphics(system.file("images/FC_table_HCFC1.png", package = "vlite"))
 ```
 
-In the case of this 3h HCFC1 depletion, we have 3,227 significantly down genes, 55 significantly up and 12,930 unaffected genes (see the next section about MA plot):
+In the case of this 3h HCFC1 depletion, we have 3,188 significantly down genes, 55 significantly up and 12,795 unaffected genes (see the next section about MA plot):
 
 ```{r diff_genes_HCFC1, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "Differential genes after 3h HCFC1 depletion."}
 knitr::include_graphics(system.file("images/diff_genes_HCFC1.png", package = "vlite"))
@@ -1284,7 +1295,7 @@ ls -ltrh
 knitr::include_graphics(system.file("images/check_fq.png", package = "vlite"))
 ```
 
-You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example:
+You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example. Note that here, I recommend setting the `output.prefix` parameter to NULL, which will ensure that the output file names are unique. This is very important because, if several input file/BC combinations are given the same output.prefix (re-sequencing, sample split on two lanes...), they will overwrite each other:
 
 ```{r loop_example_CUTNRUN, eval = FALSE}
 # Loop over the sampleID values (see the 'by=' argument on the last line)
@@ -1297,7 +1308,7 @@ meta.demultiplex <- meta[, {
     i5 = i5, # The two barcodes will be provided here. If your barcodes are attached with a pipe, split them using strsplit(barcodes, "|", fixed = T)[[1]]
     i7.column = 14, # Column containing i7 barcodes
     i5.column = 12, # Column containing i5 barcodes
-    output.prefix= sampleID, # The sample ID should be unique for each sample
+    output.prefix= NULL, # Here, I recommend setting this to NULL, which will automatically create a unique output file name for each input file / BC combination(s).
     fq.output.folder= "db/fq/" # The output folder where the output fastq files will be saved
   )
   # Submit to the cluster
@@ -1912,7 +1923,7 @@ ls -ltrh
 knitr::include_graphics(system.file("images/check_fq.png", package = "vlite"))
 ```
 
-You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example:
+You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example. Note that here, I recommend setting the `output.prefix` parameter to NULL, which will ensure that the output file names are unique. This is very important because, if several input file/BC combinations are given the same output.prefix (re-sequencing, sample split on two lanes...), they will overwrite each other:
 
 ```{r loop_example_ORFeome, eval = FALSE}
 # Loop over the sampleID values (see the 'by=' argument on the last line)
@@ -1922,6 +1933,7 @@ meta.demultiplex <- meta[, {
     tar_path,  # Input tar file
     layout = layout, # PAIRED reads
     i7 = i7, # The i7 barcode of the sample
+    output.prefix= NULL, # Here, I recommend setting this to NULL, which will automatically create a unique output file name for each input file / BC combination(s).
     fq.output.folder = "db/fq/", # Where demultiplexed files will be saved
     cores = 8 # The number of cores to use for the job
   )

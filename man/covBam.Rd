@@ -2,7 +2,7 @@
 % Please edit documentation in R/covBam.R
 \name{covBam}
 \alias{covBam}
-\title{Title}
+\title{Compute reads coverage}
 \usage{
 covBam(
   bed,
@@ -37,9 +37,4 @@ A vector of integer counts.
 \description{
 A wrapper around 'bedtools coverage' that computes, for each genomic range in a
 bed file, the number of overlapping reads in a bam file.
-}
-\examples{
-covBam(bed= "path/to/bed/file.bed",
-bam = "path/to/bam/file.bam")
-
 }

@@ -16,12 +16,14 @@
 #'
 #' @examples
 #' # Sample using widths
-#' test <- randomRegionsBSgenome(genome= "dm6",
+#' test <- randomRegionsBSgenome(
+#' genome= "dm6",
 #' widths= sample(c(1000, 2000, 5000), 1e3, replace= T),
-#' restrict.seqnames= c("chr2L", "chr2R", "chr3L", "chr3R"))
+#' restrict.seqnames= c("chr2L", "chr2R", "chr3L", "chr3R")
+#' )
 #'
-#' Sampling using bed
-#' rdm <- randomRegionsBSgenome(genome = "dm6", no.overlaps = test)
+#' Sampling non-overlapping set
+#' randomRegionsBSgenome(genome = "dm6", widths = test[, end-start+1], no.overlaps = test)
 #'
 #' @export
 randomRegionsBSgenome <- function(genome,

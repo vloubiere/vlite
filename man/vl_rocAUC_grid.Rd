@@ -2,7 +2,7 @@
 % Please edit documentation in R/vl_rocAUC_grid.R
 \name{vl_rocAUC_grid}
 \alias{vl_rocAUC_grid}
-\title{Title}
+\title{rocAUC for many ranks.labels}
 \usage{
 vl_rocAUC_grid(
   ranks,
@@ -16,9 +16,9 @@ vl_rocAUC_grid(
 )
 }
 \arguments{
-\item{ranks}{A data.table of variable used for ranking (decreasing= TRUE by default. See decreasing argument).}
+\item{ranks}{A matrix (or.data.table) of variables (one per column) used for ranking (decreasing= TRUE by default. See decreasing argument).}
 
-\item{labels}{A data.table of logical labels (or that can be coerced to logical) for which ROC AUC will be computed .}
+\item{labels}{A matrix (or data.table) of logical labels (one per column) for which ROC AUC will be computed .}
 
 \item{compute.NES}{Should the Normalized Enrichment Score be computed (Niter= 1000)? Default= TRUE.}
 
@@ -33,5 +33,5 @@ vl_rocAUC_grid(
 \item{cleanup.cache}{Should the temporary files be overwritten?}
 }
 \description{
-Title
+A wrapper around vl_rocAUC to compute many rank/label combinations in paralle.
 }

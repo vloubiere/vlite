@@ -24,5 +24,7 @@ A list containing PPM and PWM matrices stored in TFBSTools::PWMatrix sublists.
 Imports a .pfm text file containing JASPAR PFMs and parse them into lists of PPM and PWM TFBSTools::PWMatrix objects.
 }
 \examples{
-importJASPAR("/groups/stark/vloubiere/motifs_db/hand_curated_Dmel_motifs.txt")
+pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
+importJASPAR(pfm.file)
+
 }

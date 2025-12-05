@@ -2,7 +2,7 @@
 % Please edit documentation in R/SCENIClite_infer_regulons.R
 \name{SCENIClite_infer_regulons}
 \alias{SCENIClite_infer_regulons}
-\title{Title}
+\title{Compute candidate regulons for all genes}
 \usage{
 SCENIClite_infer_regulons(
   seurat.object,
@@ -26,5 +26,5 @@ SCENIClite_infer_regulons(
 \item{method}{}
 }
 \description{
-Title
+Wrapper around the cmd_infer_candidate_regulons command.
 }

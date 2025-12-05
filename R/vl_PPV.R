@@ -1,5 +1,7 @@
 #' Positive Predicted Value curve
 #'
+#' Given a set of predicted values and a vector of logical labels, computes the Postiive Predictive Values for increased predicted thresholds.
+#'
 #' @param predicted Predicted values from the model (ranging from 0 to 1).
 #' @param label A vector of logical labels (or that can be coerced to logical).
 #' @param Nleft Minimum number of remaining positive sequences (prediction>=cutoff) before computing max PPV. Default= 100.

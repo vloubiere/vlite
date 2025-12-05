@@ -10,5 +10,6 @@ cmd_velocyto(cellranger.output.folder, gtf, cores = 8, mem = 64)
 \item{mem}{}
 }
 \description{
-Constructs a shell command to run 10x Genomics Cell Ranger for single-cell RNA-seq alignment and quantification, with resource specification and output management.
+Constructs a shell command to run velocyto on a Cell Ranger output, producing a .loom file with spliced/unspliced counts from the sample’s BAM and a provided GTF, with resources and modules recorded.
+Velocyto quantifies spliced and unspliced mRNA from single-cell RNA‑seq to infer RNA velocity—i.e., the short‑term future transcriptional state of cells.
 }

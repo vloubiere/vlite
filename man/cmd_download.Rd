@@ -38,7 +38,6 @@ A `data.table` with:
 Download files
 }
 \examples{
-cmd <- cmd_download(url= "url/to/data")
-vl_submit(cmd, execute= FALSE)
+vl_submit("url/to/data", execute= FALSE)
 
 }

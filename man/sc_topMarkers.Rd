@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc_topMarkers.R
 \name{sc_topMarkers}
 \alias{sc_topMarkers}
-\title{Plot and cluster top marker genes from single-cell transcriptome data}
+\title{Subset top marker genes}
 \usage{
 sc_topMarkers(
   dat,
@@ -45,5 +45,5 @@ sc_topMarkers(
 The subset of the rds object corresponding to top marker genes.
 }
 \description{
-Plot and cluster top marker genes from single-cell transcriptome data
+Subset top marker genes from a data.table generate by >sc_computeMarkerGenes.
 }

@@ -36,5 +36,5 @@ vl_PR_AUC(
 PR AUC
 }
 \description{
-PR AUC
+Precision Recall AUC, which is preferred to rocAUC for imbalanced datasets.
 }

@@ -6,6 +6,10 @@
 #' @param xleft xleft position
 #' @param ytop ytop position
 #'
+#' @examples
+#' plot.new()
+#' plotDNAletter(letter= "A", xleft= 0, ytop= 1, width= 1, height= 1)
+#'
 #' @export
 plotDNAletter <- function(letter, xleft, ytop, width, height)
 {

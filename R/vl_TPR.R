@@ -1,5 +1,7 @@
 #' TRUE positive rate curve
 #'
+#' Shows recall as a function of threshold. I don't really remember using it.
+#'
 #' @param predicted Predicted values from the model (ranging from 0 to 1).
 #' @param label A vector of logical labels (or that can be coerced to logical).
 #' @param Nleft Number of enhancers left before cutoff. Default= 100.
@@ -18,6 +20,7 @@
 #' @param ... Extra arguments to be passed to lines
 #'
 #' @return TPR plot
+#'
 #' @export
 vl_TPR <- function(predicted,
                    label,

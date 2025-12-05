@@ -7,10 +7,12 @@
 #' @param bg Background probabilities. Default= c("A"= .25, "C"= .25, "G"= .25, "T"= .25).
 #'
 #' @return A list containing PPM and PWM matrices stored in TFBSTools::PWMatrix sublists.
-#' @export
 #'
 #' @examples
-#' importJASPAR("/groups/stark/vloubiere/motifs_db/hand_curated_Dmel_motifs.txt")
+#' pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
+#' importJASPAR(pfm.file)
+#'
+#' @export
 importJASPAR <- function(combinedFile,
                          pseudocount= 1e-5,
                          bg= c("A"= .25, "C"= .25, "G"= .25, "T"= .25))
@@ -59,7 +61,7 @@ importJASPAR <- function(combinedFile,
   # log2 ratio PWMatrix object ----
   pwms_log_odds <- lapply(seq(pwms_perc), function(i) {
     .c <- pwms_perc[[i]]@profileMatrix
-    .c <- freqToPWM(perc_pwm = .c,
+    .c <- freqToPWM(matrix = .c,
                     pseudocount = pseudocount,
                     bg = bg)
     TFBSTools::PWMatrix(ID= IDs[i],

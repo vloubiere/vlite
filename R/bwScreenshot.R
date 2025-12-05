@@ -71,16 +71,20 @@
 #'     lend = 2)
 #'
 #' # Simple example with two regions and 4 tracks
-#' bwScreenshot(bed= c("chr3R:30760926-30794202", "chr3R:30765926-30789202"),
-#'              tracks= c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
-#'                        "/groups/stark/vloubiere/projects/epigenetic_cancer/db/peaks/ATAC/ATAC_PH18_conf_peaks.narrowPeak",
-#'                        "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw",
-#'                        "/groups/stark/vloubiere/projects/epigenetic_cancer/db/peaks/ATAC/ATAC_PHD11_conf_peaks.narrowPeak"),
-#'              genome= "dm6")
+#' bwScreenshot(
+#'   bed= c("chr3R:30760926-30794202", "chr3R:30765926-30789202"),
+#'   tracks= c("/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw",
+#'             "/groups/stark/vloubiere/projects/epigenetic_cancer/db/peaks/ATAC/ATAC_PH18_conf_peaks.narrowPeak",
+#'             "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PHD11_merge.bw",
+#'             "/groups/stark/vloubiere/projects/epigenetic_cancer/db/peaks/ATAC/ATAC_PHD11_conf_peaks.narrowPeak"),
+#'   genome= "dm6"
+#' )
 #'
 #' # Genes only
-#' bwScreenshot(bed= c("chr3R:30760926-30794202", "chr3R:30765926-30789202"),
-#'              genome= "dm6")
+#' bwScreenshot(
+#'   bed= c("chr3R:30760926-30794202", "chr3R:30765926-30789202"),
+#'   genome= "dm6"
+#' )
 #'
 #' @return A genomic screenshot.
 #' @export

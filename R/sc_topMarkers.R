@@ -1,4 +1,6 @@
-#' Plot and cluster top marker genes from single-cell transcriptome data
+#' Subset top marker genes
+#'
+#' Subset top marker genes from a data.table generate by >sc_computeMarkerGenes.
 #'
 #' @param dat A data.table with marker gene statistics. See ?sc_computeMarkerGenes.
 #' @param topN Number of top genes per cluster. Default= Inf (all markers).
