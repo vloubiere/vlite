@@ -83,11 +83,16 @@ mot[, class:= tstrsplit(seqlvls, "[.]", keep= 1)]
 mot[, rm.NA:= ifelse(is.na(mot.count), 0, mot.count)]
 vl_boxplot(rm.NA~motif+class, mot, outline= T)
 
-# Convert to a regular bed file (sequences with no matches are discarded)
-motifPosToBed(mot)
-
 # Convert to scores matrix (useful for heatmaps)
 mat <- vlite::motifPosToMatrix(mot, seqWidth = nchar(seq)[1])$Dref
-vl_heatmap(mat, cluster.rows = , show.row.clusters = "left", main= "Dref max scores")
+vl_par()
+vl_heatmap(
+  mat,
+  cluster.rows = set$group,
+  show.row.clusters = "left",
+  main= "Dref max scores",
+  show.colnames = FALSE,
+  legend.title = "Score"
+)
 
 }

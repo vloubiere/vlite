@@ -50,11 +50,8 @@ This function first bins genomic regions from a BED file, then quantifies signal
 For each BigWig file, it returns a matrix where rows represent regions from the BED file and columns represent bins.
 }
 \examples{
-
-# Load the TxDb object
-
 # Sample 100 random genes
-all_genes <- genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene)
+all_genes <- GenomicFeatures::genes(TxDb.Dmelanogaster.UCSC.dm6.ensGene::TxDb.Dmelanogaster.UCSC.dm6.ensGene)
 set.seed(42)
 random_genes <- all_genes[sample(length(all_genes), 100)]
 

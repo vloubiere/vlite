@@ -114,7 +114,9 @@ proseqProcessing <- function(fq1,
   umi.ref.cmd <- cmd_umiCollapsingProseq(bam = cmd[file.type=="bam.ref", path],
                                          output.prefix = NULL, # From bam file
                                          counts.output.folder = counts.output.folder,
-                                         stats.output.folder = counts.stats.output.folder)
+                                         stats.output.folder = counts.stats.output.folder,
+                                         flip.strand= TRUE,
+                                         Rpath= Rpath)
   umi.ref.cmd[, file.type:= paste0(file.type, ".ref")] # Make file types unique (see spike in below)
   cmd <- rbind(cmd, umi.ref.cmd, fill= TRUE)
 
@@ -122,7 +124,9 @@ proseqProcessing <- function(fq1,
   umi.spike.cmd <- cmd_umiCollapsingProseq(bam = cmd[file.type=="bam.spike", path],
                                            output.prefix = NULL, # From bam file
                                            counts.output.folder = counts.output.folder,
-                                           stats.output.folder = counts.stats.output.folder)
+                                           stats.output.folder = counts.stats.output.folder,
+                                           flip.strand= TRUE,
+                                           Rpath= Rpath)
   umi.spike.cmd[, file.type:= paste0(file.type, ".spike")] # Make file types unique (see ref genome above below)
   cmd <- rbind(cmd, umi.spike.cmd, fill= TRUE)
 

@@ -14,7 +14,6 @@ Returns all the seqLengths of the chromosomes that are represented within a bigw
 }
 \examples{
 # Example track
-bw <- "/groups/stark/vloubiere/projects/epigenetic_cancer/db/bw/ATAC/ATAC_PH18_merge.bw"
 bwGetSeqlengths(bw= bw)
 
 }
