@@ -1116,7 +1116,7 @@ p <- plotPCA(vst_mat, intgroup = c("condition")) +
 print(p)
 
 # Or to cluster our samples based on PCC:
-mat <- assay(vst_mat)
+mat <- SummarizedExperiment::assay(vst_mat)
 cor <- Hmisc::varclus(mat, similarity = "pearson", trans = "none")
 
 # Plot dendrogram:

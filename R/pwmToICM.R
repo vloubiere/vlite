@@ -23,7 +23,7 @@
 #'     0.15,0.03,0.22,0.28,0.31,0.19,0.35,0.26,0.26,0.13,0.19,0.33,0.26,0.22
 #'   ), nrow= 4
 #' )
-#' PWM <- freqToPWM(PPM)
+#' PWM <- pfmToPWM(PPM)
 #'
 #' # convert to ICM
 #' ICM <- pwmToICM(PWM)

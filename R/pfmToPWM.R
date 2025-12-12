@@ -32,11 +32,11 @@
 #'     0.15,0.03,0.22,0.28,0.31,0.19,0.35,0.26,0.26,0.13,0.19,0.33,0.26,0.22
 #'   ), nrow= 4
 #' )
-#' PWM <- freqToPWM(PPM)
+#' PWM <- pfmToPWM(PPM)
 #'
-freqToPWM <- function(matrix,
-                      pseudocount= 1e-5,
-                      bg= c("A"= .25, "C"= .25, "G"= .25, "T"= .25))
+pfmToPWM <- function(matrix,
+                     pseudocount= 1e-5,
+                     bg= c("A"= .25, "C"= .25, "G"= .25, "T"= .25))
 {
   # Checks
   if(!is.numeric(pseudocount))

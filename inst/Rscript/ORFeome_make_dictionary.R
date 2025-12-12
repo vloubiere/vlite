@@ -27,7 +27,7 @@ trim_BC <- strsplit(args[1], ",")[[1]]
 bam <- args[2]
 minNumberReads <- as.numeric(args[3])
 output_prefix <- args[4]
-stopifnot(all(grepl(".fq.gz$", trim_BC)))
+stopifnot(all(grepl(".fq.gz$|.fastq.gz$", trim_BC)))
 stopifnot(grepl(".bam$", bam))
 stopifnot(minNumberReads %% 1 == 0)
 
@@ -41,8 +41,11 @@ stopifnot(minNumberReads %% 1 == 0)
 # Import BC files ----
 BC <- lapply(trim_BC, vlite::importFq)
 BC <- rbindlist(BC)
-setnames(BC, "Sequence", "BC")
+setnames(BC, c("readID", "BC"))
+# Clean
 BC <- BC[!is.na(BC)]
+BC[, readID:= tstrsplit(readID, " ", keep= 1)]
+BC[, readID:= gsub("^@", "", readID)]
 # Quality check (length between 25 and 30 + matches expected pattern)
 BC[, BC:= as.character(reverseComplement(DNAStringSet(BC)))]
 BC[, qual:= grepl("([GC][AT]){4}[GCAT]{5}([GC][AT]){5}[GCAT]{2}", BC) & between(nchar(BC), 25, 30) , BC]
@@ -119,8 +122,8 @@ writeLines(stats, paste0(output_prefix, "_stats.txt"))
 
 # Plot statistics ----
 pdf(paste0(output_prefix, "_stats.pdf"), 9, 3)
-vl_par(mfrow= c(1,3))
-# Read counts 
+vl_par(mfrow= c(1,3), xpd= T)
+# Read counts
 pie(read_stats,
     labels = paste0(names(read_stats), "\n(n=", formatC(read_stats, big.mark = ","), ")"),
     main = paste("Read counts", basename(output_prefix)))
@@ -130,7 +133,7 @@ text(x= 0.5,
      xpd= NA,
      pos= 1,
      offset= 1)
-# ORF counts 
+# ORF counts
 pie(bc_stats,
     labels = paste0(names(bc_stats), "\n(n=", formatC(bc_stats, big.mark = ","), ")"),
     main= paste("BC counts", basename(output_prefix)))

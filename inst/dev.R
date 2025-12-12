@@ -15,7 +15,7 @@ if(F) {
 # PWM tools --------------------------------
 if(F) {
   # Switch between normalizations
-  file.edit("R/freqToPWM.R") # pfm to PWM
+  file.edit("R/pfmToPWM.R") # pfm to PWM
   file.edit("R/pwmToICM.R") # PWM to ICM
 
   # Import JASPAR
@@ -24,6 +24,7 @@ if(F) {
   # Plot DNA letters/logos
   file.edit("R/plotDNAletter.R") # Helper funciton
   file.edit("R/vl_seqLogo.R") # Plot the logo of a given PWM
+  file.edit("R/vl_percLogo.R") # Plot percentage or frequency matrix
   file.edit("R/addSeqLogo.R") # Add PWM to an existing plot
   file.edit("R/addMotifs.R") # Add motifs to a heatmap
 }

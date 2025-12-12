@@ -33,12 +33,12 @@ cmd_orfeomeDictionary <- function(BC.fqs,
                                   Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
 {
   # Check (!Do not check if files exist to allow wrapping!) ----
-  if(!all(grepl(".fq.gz$", BC.fqs)))
+  if(!all(grepl(".fq.gz$|.fastq.gz$", BC.fqs)))
     stop("BC.fqs should be in .fq.gz format.")
   if(anyDuplicated(BC.fqs))
     stop("Some paths in BC.fqs are duplicated.")
   if(length(bam.ORF)>1 || !grepl(".bam$", bam.ORF))
-    stop("bam.ORD should be a unique .bam file.")
+    stop("bam.ORF should be a unique .bam file.")
   if(!is.numeric(minNreads) || minNreads %% 1 !=0)
     stop("minNreads should be an integer value.")
 
@@ -54,7 +54,7 @@ cmd_orfeomeDictionary <- function(BC.fqs,
     paste0(unique(BC.fqs), collapse= ","), # 1/ A comma-separated list of .fq.gz files containing the BC sequences
     bam.ORF, # 2/ A bam file containing ORF alignments for all the reads present in the BC file (arg[1])
     minNreads, # 3/ Minimum number of supporting reads
-    output.prefix # 4/ Output prefix for output file
+    file.path(output.folder, output.prefix) # 4/ Output prefix for output file
   )
 
   # Wrap commands output ----

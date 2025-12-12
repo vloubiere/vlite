@@ -61,9 +61,9 @@ importJASPAR <- function(combinedFile,
   # log2 ratio PWMatrix object ----
   pwms_log_odds <- lapply(seq(pwms_perc), function(i) {
     .c <- pwms_perc[[i]]@profileMatrix
-    .c <- freqToPWM(matrix = .c,
-                    pseudocount = pseudocount,
-                    bg = bg)
+    .c <- pfmToPWM(matrix = .c,
+                   pseudocount = pseudocount,
+                   bg = bg)
     TFBSTools::PWMatrix(ID= IDs[i],
                         name = name[i],
                         profileMatrix = .c)
