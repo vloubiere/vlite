@@ -14,13 +14,15 @@
 #'   - `job.name`: (Optional) The name of the job, only the value from the first row will be used.
 #'   - `logs`: (Optional) Directory for log files, only the value from the first row will be used
 #'   - `modules`: (Optional) A vector or list of modules to be loaded before executing the command.
-#' @param cores Number of CPU cores to allocate. If not specified, the first value of cmd$cores column will be used. Default= 8.
-#' @param mem Memory allocation in GB. If not specified, the first value of cmd$mem column will be used. Default= 32.
-#' @param time Maximum runtime for the job (HH:MM:SS). If not specified, the first value of cmd$time column will be used. Default= '08:00:00'.
-#' @param job.name Name of the job. If not specified, the first value of cmd$job.name column will be used. Default= "myJob".
-#' @param logs Directory for log files. If not specified, the first value of cmd$logs column will be used. Default = 'db/logs'.
-#' @param modules A character vector of modules to be loaded before executing the command. If not specified, the modules listed in cmd$modules will be used.
-#' By default, the most used modules for genomics are loaded.
+#' @param cores Number of CPU cores to allocate. If the cmd object contains a 'cores' column, it will override this argument. Default= 8.
+#' @param mem Memory allocation in GB. If the cmd object contains a 'mem' column, it will override this argument. Default= 32.
+#' @param time Maximum runtime for the job (HH:MM:SS). If the cmd object contains a 'time' column, it will override this argument. Default= '08:00:00'.
+#' @param job.name Name of the job. If the cmd object contains a 'job.name' column, it will override this argument. Default= "myJob".
+#' @param logs Directory for log files. If the cmd object contains a 'logs' column, it will override this argument. Default = 'db/logs'.
+#' @param modules A character vector of modules to be loaded before executing the command. If the cmd object contains a 'modules' column,
+#' it will override this argument. Default= c("build-env/f2022", "mamba/24.3.0-0"). By default, the conda modules used by the pipelines are loaded.
+#' @param conda If specified, the conda environment will be activated after loading the modules. If the cmd object contains a 'conda' column,
+#' it will override this argument. Default= "/groups/stark/conda_envs/.conda/envs/vlite_pipelines/".
 #' @param overwrite If set to TRUE, overwrites existing output files. Default= FALSE.
 #' @param execute If set to FALSE, the command is returned and is not submitted to the cluster. Default= TRUE.
 #' @param create.output.dirs Should missing output directories be created before executing the command? Default= TRUE.
@@ -40,12 +42,13 @@
 #'
 #' @export
 vl_submit <- function(cmd,
-                      cores,
-                      mem,
-                      time,
-                      job.name,
-                      logs,
-                      modules,
+                      cores= 8,
+                      mem= 32,
+                      time= '08:00:00',
+                      job.name= "myJob",
+                      logs= "db/logs/",
+                      modules= c("build-env/f2022", "mamba/24.3.0-0"),
+                      conda= "/groups/stark/conda_envs/.conda/envs/vlite_pipelines/",
                       overwrite= FALSE,
                       execute= TRUE,
                       create.output.dirs= TRUE)
@@ -57,45 +60,20 @@ vl_submit <- function(cmd,
     warning("Some rows have path = NA; they will be skipped for dir creation and existence checks.")
 
   # Default values ----
-  if(missing(cores)) {
-    cores <- if("cores" %in% names(cmd))
-      cmd$cores[1] else
-        8
-  }
-  if(missing(mem)) {
-    mem <- if("mem" %in% names(cmd))
-      cmd$mem[1] else
-        32
-  }
-  if(missing(time)) {
-    time <- if("time" %in% names(cmd))
-      cmd$time[1] else
-        '08:00:00'
-  }
-  if(missing(job.name)) {
-    job.name <- if("job.name" %in% names(cmd))
-      cmd$job.name[1] else
-        "myJob"
-  }
-  if(missing(logs)) {
-    logs <- if("logs" %in% names(cmd))
-      as.character(cmd$logs)[1] else
-        "db/logs"
-  }
-  if(missing(modules)) {
-    modules <- if("modules" %in% names(cmd))
-      unlist(cmd$modules) else c(
-        "build-env/2020",
-        "pigz/2.4-gcccore-7.3.0 ",
-        "cutadapt/1.18-foss-2018b-python-2.7.15",
-        "trim_galore/0.6.0-foss-2018b-python-2.7.15",
-        "samtools/1.9-foss-2018b",
-        "bowtie/1.2.2-foss-2018b",
-        "bowtie2/2.3.4.2-foss-2018b",
-        "macs2/2.1.2.1-foss-2018b-python-2.7.15",
-        "mageck/0.5.9-foss-2018b"
-      )
-  }
+  if('cores' %in% names(cmd))
+    cores <- cmd$cores[1]
+  if('mem' %in% names(cmd))
+    mem <- cmd$mem[1]
+  if('time' %in% names(cmd))
+    time <- cmd$time[1]
+  if('job.name' %in% names(cmd))
+    job.name <- cmd$job.name[1]
+  if('logs' %in% names(cmd))
+    logs <- cmd$logs[1]
+  if('modules' %in% names(cmd))
+    modules <- unlist(cmd$modules)
+  if('conda' %in% names(cmd))
+    conda <- cmd$conda[1]
 
   # ensure no empty or duplicated modules ----
   modules <- unique(trimws(unlist(modules)))
@@ -105,7 +83,7 @@ vl_submit <- function(cmd,
   if(!overwrite)
     cmd <- cmd[is.na(path) | !file.exists(path)]
 
-  # Check if any command should be executed ----
+  # If any command was provided ----
   if(nrow(cmd))
   {
     # Create missing directories ----
@@ -116,18 +94,25 @@ vl_submit <- function(cmd,
     }
 
     # Create final command ----
-    final_cmd <- if(length(modules))
-      paste(c(paste0("ml ", modules), unique(cmd$cmd)), collapse = "; ") else
-        paste(unique(cmd$cmd), collapse = "; ")
+    final_cmd <- paste(unique(cmd$cmd), collapse = "; ")
+    if(!is.null(conda)) {
+      if(!any(grepl("mamba", modules)))
+        warning("A conda env was specified but no mamba module was loaded!")
+      final_cmd <- paste0("source activate ", conda, "; ", final_cmd)
+    }
+    if(length(modules))
+      final_cmd <- paste(c(paste0("ml ", modules), final_cmd), collapse = "; ")
 
     # Submit ----
     if(execute) {
-      jobID <- bsub(cmd= final_cmd,
-                    cores= cores,
-                    mem = mem,
-                    time = time,
-                    name = job.name,
-                    logs= logs)
+      jobID <- bsub(
+        cmd= final_cmd,
+        cores= cores,
+        mem = mem,
+        time = time,
+        name = job.name,
+        logs= logs
+      )
       print(jobID)
       invisible(jobID)
     } else {
