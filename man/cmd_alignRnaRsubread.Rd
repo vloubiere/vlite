@@ -12,7 +12,7 @@ cmd_alignRnaRsubread(
   genome.idx = NULL,
   bam.output.folder = "db/bam.output.folder/",
   alignment.stats.output.folder = "db/alignment_stats/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  Rpath = "Rscript",
   cores = 8
 )
 }
@@ -31,7 +31,7 @@ cmd_alignRnaRsubread(
 
 \item{alignment.stats.output.folder}{Directory for alignment statistics. Default= "db/alignment_stats/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 
 \item{cores}{Number of CPU cores to use. Default= 8.}
 }

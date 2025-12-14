@@ -10,7 +10,7 @@ cmd_umiCountsFromBam(
   output.prefix = NULL,
   umi.counts.output.folder = "db/umi_counts/",
   collapsed.bed.output.folder = "db/bed/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ cmd_umiCountsFromBam(
 
 \item{collapsed.bed.output.folder}{Directory for the collapsed UMI BED file. Default= "db/bed/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default: "Rscript".}
 }
 \value{
 A data.table with:

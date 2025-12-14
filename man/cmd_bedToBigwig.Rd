@@ -10,7 +10,7 @@ cmd_bedToBigwig(
   bed.subset = NULL,
   output.prefix = NULL,
   bw.output.folder = "db/bw/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -25,7 +25,7 @@ strand are used. Default= NULL (no filtering).}
 
 \item{bw.output.folder}{Directory for the BigWig file. Default= "db/bw/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 }
 \value{
 A data.table with:

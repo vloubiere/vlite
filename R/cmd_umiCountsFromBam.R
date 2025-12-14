@@ -9,7 +9,7 @@
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
 #' @param umi.counts.output.folder Directory for the UMI counts file. Default= "db/umi_counts/".
 #' @param collapsed.bed.output.folder Directory for the collapsed UMI BED file. Default= "db/bed/".
-#' @param Rpath Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default: "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file labels ("umi.counts", "umi.bed").
@@ -38,7 +38,7 @@ cmd_umiCountsFromBam <- function(bam,
                                  output.prefix= NULL,
                                  umi.counts.output.folder= "db/umi_counts/",
                                  collapsed.bed.output.folder= "db/bed/",
-                                 Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                                 Rpath= "Rscript")
 {
   # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)

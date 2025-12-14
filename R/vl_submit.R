@@ -14,15 +14,22 @@
 #'   - `job.name`: (Optional) The name of the job, only the value from the first row will be used.
 #'   - `logs`: (Optional) Directory for log files, only the value from the first row will be used
 #'   - `modules`: (Optional) A vector or list of modules to be loaded before executing the command.
-#' @param cores Number of CPU cores to allocate. If the cmd object contains a 'cores' column, it will override this argument. Default= 8.
+#' @param cores Number of CPU cores to allocate. If the cmd object contains a 'cores' column, it will override this argument.
+#' Default= 8.
 #' @param mem Memory allocation in GB. If the cmd object contains a 'mem' column, it will override this argument. Default= 32.
-#' @param time Maximum runtime for the job (HH:MM:SS). If the cmd object contains a 'time' column, it will override this argument. Default= '08:00:00'.
-#' @param job.name Name of the job. If the cmd object contains a 'job.name' column, it will override this argument. Default= "myJob".
-#' @param logs Directory for log files. If the cmd object contains a 'logs' column, it will override this argument. Default = 'db/logs'.
-#' @param modules A character vector of modules to be loaded before executing the command. If the cmd object contains a 'modules' column,
-#' it will override this argument. Default= c("build-env/f2022", "mamba/24.3.0-0"). By default, the conda modules used by the pipelines are loaded.
-#' @param conda If specified, the conda environment will be activated after loading the modules. If the cmd object contains a 'conda' column,
-#' it will override this argument. Default= "/groups/stark/conda_envs/.conda/envs/vlite_pipelines/".
+#' @param time Maximum runtime for the job (HH:MM:SS). If the cmd object contains a 'time' column, it will override this argument.
+#' Default= '08:00:00'.
+#' @param job.name Name of the job. If the cmd object contains a 'job.name' column, it will override this argument.
+#' Default= "myJob".
+#' @param logs Directory for log files. If the cmd object contains a 'logs' column, it will override this argument.
+#' Default = 'db/logs'.
+#' @param modules A character vector of modules to be loaded before executing the command. If the cmd object contains a 'modules'
+#' column, it will override this argument. Default= c("build-env/f2022", "mamba/24.3.0-0").
+#' By default, the conda module used by the pipelines is being loaded.
+#' @param conda Path to a conda environment. If specified, it will be activated after loading the modules.
+#' If the cmd object contains a 'conda' column, it will override this argument.
+#' Default= "/groups/stark/conda_envs/.conda/envs/vlite_pipelines/".
+#' By default, the conda environment required to run vlite_pipelines is being activated.
 #' @param overwrite If set to TRUE, overwrites existing output files. Default= FALSE.
 #' @param execute If set to FALSE, the command is returned and is not submitted to the cluster. Default= TRUE.
 #' @param create.output.dirs Should missing output directories be created before executing the command? Default= TRUE.
@@ -72,6 +79,11 @@ vl_submit <- function(cmd,
     logs <- cmd$logs[1]
   if('modules' %in% names(cmd))
     modules <- unlist(cmd$modules)
+  if(!is.null(modules)) {
+    modules <- modules[modules!=""]
+    if(length(modules)==0)
+      modules <- NULL
+  }
   if('conda' %in% names(cmd))
     conda <- cmd$conda[1]
 
@@ -96,11 +108,11 @@ vl_submit <- function(cmd,
     # Create final command ----
     final_cmd <- paste(unique(cmd$cmd), collapse = "; ")
     if(!is.null(conda)) {
-      if(!any(grepl("mamba", modules)))
+      if(!any(grepl("mamba|conda", modules)))
         warning("A conda env was specified but no mamba module was loaded!")
       final_cmd <- paste0("source activate ", conda, "; ", final_cmd)
     }
-    if(length(modules))
+    if(!is.null(modules))
       final_cmd <- paste(c(paste0("ml ", modules), final_cmd), collapse = "; ")
 
     # Submit ----

@@ -9,7 +9,7 @@
 #' strand are used. Default= NULL (no filtering).
 #' @param output.prefix Prefix for the output BigWig file. If not provided, it is derived from the input bed filename.
 #' @param bw.output.folder Directory for the BigWig file. Default= "db/bw/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file label ("bw").
@@ -31,7 +31,7 @@ cmd_bedToBigwig <- function(bed,
                             bed.subset= NULL,
                             output.prefix= NULL,
                             bw.output.folder= "db/bw/",
-                            Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                            Rpath= "Rscript")
 {
   # Check (!Do not check if bed file exists to allow wrapping!) ----
   if(length(bed)!=1)

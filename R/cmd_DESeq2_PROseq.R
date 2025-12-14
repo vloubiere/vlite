@@ -17,7 +17,7 @@
 #' @param dds.output.folder Directory for the DESeq2 object output. Default: `db/dds/PROseq/`.
 #' @param FC.tables.output.folder Directory for the fold-change tables. Default: `db/FC_tables/PROseq/`.
 #' @param MAplots.output.folder Directory for the MA plots. Default: `pdf/MAplots/PROseq/`.
-#' @param Rpath Path to the Rscript binary. Default: `/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript`.
+#' @param Rpath Path to the Rscript binary. Default: "Rscript".
 #'
 #' @return A `data.table` with the following columns:
 #' - `file.type`: Labels for the output files (i.e. "DESeq2.dds", "FC.table", "MA.plot").
@@ -54,7 +54,7 @@ cmd_DESeq2_PROseq <- function(
     dds.output.folder= "db/dds/PROseq/",
     FC.tables.output.folder= "db/FC_tables/PROseq/",
     MAplots.output.folder= "pdf/MAplots/PROseq/",
-    Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+    Rpath= "Rscript"
 )
 {
   # Check (!Do not check if umi.count.tables exist to allow wrapping!) ----

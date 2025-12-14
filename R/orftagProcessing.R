@@ -20,7 +20,7 @@
 #' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/ORFtag/".
 #' @param bed.output.folder Directory for BED files of unique insertions. Default= "db/bed/ORFtag/".
 #' @param counts.output.folder Directory for counts files. Default= "db/counts/ORFtag/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #' @param cores Number of CPU cores to use. Default= 8.
 #'
 #' @return A data.table with:
@@ -63,46 +63,54 @@ orftagProcessing <- function(fq1,
                              alignment.stats.output.folder= "db/alignment_stats/ORFtag/",
                              bed.output.folder= "db/bed/ORFtag/",
                              counts.output.folder= "db/counts/ORFtag/",
-                             Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+                             Rpath= "Rscript",
                              cores= 8)
 {
   # Trimming illumina adaptors ----
-  cmd <- cmd_trimIlluminaAdaptors(fq1= fq1,
-                                  fq2= NULL, # Second reads are not used
-                                  fq.output.folder= fq.output.folder)
+  cmd <- cmd_trimIlluminaAdaptors(
+    fq1= fq1,
+    fq2= NULL, # Second reads are not used
+    fq.output.folder= fq.output.folder
+  )
 
   # * If several fq1 files provided, they will be merged during alignment ----
   fq1.trim <- cmd[file.type=="fq1.trim", path]
 
   # Alignment ----
-  align.cmd <- cmd_alignBowtie2(fq1= fq1.trim,
-                                fq2= NULL, # Second reads are not used
-                                output.prefix= output.prefix,
-                                genome= genome,
-                                genome.idx= genome.idx,
-                                mapq= 30,
-                                bam.output.folder= bam.output.folder,
-                                alignment.stats.output.folder= alignment.stats.output.folder,
-                                cores= cores)
+  align.cmd <- cmd_alignBowtie2(
+    fq1= fq1.trim,
+    fq2= NULL, # Second reads are not used
+    output.prefix= output.prefix,
+    genome= genome,
+    genome.idx= genome.idx,
+    mapq= 30,
+    bam.output.folder= bam.output.folder,
+    alignment.stats.output.folder= alignment.stats.output.folder,
+    cores= cores
+  )
   cmd <- rbind(cmd, align.cmd, fill= TRUE)
 
   # Collapse bam file (unique insertions) ----
-  collapse.cmd <- cmd_collapseBam(bam = cmd[file.type=="bam", path],
-                                  output.prefix = NULL, # From bam file
-                                  collapsed.bam.output.folder = bam.output.folder,
-                                  collapsed.stats.output.folder = alignment.stats.output.folder,
-                                  cores = cores)
+  collapse.cmd <- cmd_collapseBam(
+    bam = cmd[file.type=="bam", path],
+    output.prefix = NULL, # From bam file
+    collapsed.bam.output.folder = bam.output.folder,
+    collapsed.stats.output.folder = alignment.stats.output.folder,
+    cores = cores
+  )
   cmd <- rbind(cmd, collapse.cmd, fill= TRUE)
 
   # Assign insertions to closest downstream exon ----
-  assign.cmd <- cmd_assignInsertions(bam = cmd[file.type=="collapsed.bam", path],
-                                     output.prefix = NULL, # From bam file
-                                     genome = genome,
-                                     gtf = gtf,
-                                     ins.coverage.bam= if(compute.ins.cov) cmd[file.type=="bam", path] else NULL, # No ifelse here!
-                                     bed.output.folder = bed.output.folder,
-                                     counts.output.folder = counts.output.folder,
-                                     Rpath = Rpath)
+  assign.cmd <- cmd_assignInsertions(
+    bam = cmd[file.type=="collapsed.bam", path],
+    output.prefix = NULL, # From bam file
+    genome = genome,
+    gtf = gtf,
+    ins.coverage.bam= if(compute.ins.cov) cmd[file.type=="bam", path] else NULL, # No ifelse here!
+    bed.output.folder = bed.output.folder,
+    counts.output.folder = counts.output.folder,
+    Rpath = Rpath
+  )
   cmd <- rbind(cmd, assign.cmd, fill= TRUE)
 
   # Return ----

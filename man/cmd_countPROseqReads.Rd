@@ -11,7 +11,7 @@ cmd_countPROseqReads(
   feature = NULL,
   output.prefix = NULL,
   count.tables.output.folder = "db/count_tables/PROseq/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ Default= NULL. For mm10, a list of blacklisted regions (including tRNAs/snRNAs..
 
 \item{count.tables.output.folder}{Directory for the output counts table. Default: "db/counts/PROseq/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default: "Rscript".}
 }
 \value{
 A data.table with the following columns:

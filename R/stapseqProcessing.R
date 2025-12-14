@@ -16,7 +16,7 @@
 #' @param counts.output.folder Directory for UMI counts. Default= "db/counts/PROSeq/".
 #' @param counts.stats.output.folder Directory for UMI count statistics. Default= "db/stats/PROSeq/".
 #' @param bw.output.folder Directory for BigWig files. Default= "db/bw/PROSeq/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #' @param cores Number of CPU cores to use. Default= 8.
 #' @param mem Memory to use. Default= 64.
 #' @param time Max time for job. Default= '2-00:00:00'.
@@ -52,7 +52,7 @@ stapseqProcessing <- function(fq1,
                              counts.output.folder= "db/counts/PROSeq/",
                              counts.stats.output.folder= "db/stats/PROSeq/",
                              bw.output.folder= "db/bw/PROSeq/",
-                             Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+                             Rpath= "Rscript",
                              cores= 8,
                              mem= 64,
                              time= '2-00:00:00')

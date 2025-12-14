@@ -18,7 +18,7 @@ proseqProcessing(
   counts.output.folder = "db/counts/PROSeq/",
   counts.stats.output.folder = "db/stats/PROSeq/",
   bw.output.folder = "db/bw/PROSeq/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  Rpath = "Rscript",
   cores = 8,
   mem = 64,
   time = "2-00:00:00"
@@ -51,7 +51,7 @@ proseqProcessing(
 
 \item{bw.output.folder}{Directory for BigWig files. Default= "db/bw/PROSeq/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 
 \item{cores}{Number of CPU cores to use. Default= 8.}
 

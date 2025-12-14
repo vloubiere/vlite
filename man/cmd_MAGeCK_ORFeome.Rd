@@ -21,7 +21,7 @@ cmd_MAGeCK_ORFeome(
   output.prefix,
   FC.output.folder = "db/FC_tables/ORFeome/",
   MAGeCK.output.folder = "db/FC_tables/ORFeome/MAGeCK/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -58,7 +58,7 @@ Should at least contain the ORF ids in a column named 'id'.}
 
 \item{MAGeCK.output.folder}{Directory where MAGeCK intermediate files should be saved. Default= 'db/FC_tables/ORFeome/'.}
 
-\item{Rpath}{Path to the Rscript executable. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript executable. Default: "Rscript".}
 }
 \value{
 A data.table containing columns:

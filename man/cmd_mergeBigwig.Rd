@@ -11,7 +11,7 @@ cmd_mergeBigwig(
   genome,
   bw.output.folder = "db/bw/",
   tmp.bdg.folder = "db/bw/tmp/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  Rpath = "Rscript",
   bigWigMergePath =
     "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge"
 )
@@ -30,7 +30,7 @@ basename of the first provided bw path.}
 
 \item{tmp.bdg.folder}{Folder to save temporary .bedgraph files. Default is "db/bw/tmp/".}
 
-\item{Rpath}{Path to the Rscript binary. Default is "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default is "Rscript".}
 
 \item{bigWigMergePath}{Path to the tool executable.
 Default= "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge"}

@@ -18,7 +18,7 @@ cmd_peakCalling(
   genome,
   peaks.output.folder = "db/peaks/",
   bw.output.folder = "db/bw/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -53,7 +53,7 @@ Typically 0 for ChIP-Seq, DNAse & CutNrun; -35 for ATAC-Seq, -100 for DNAse. Def
 
 \item{bw.output.folder}{Directory where bigwig files should be saved. Default= "db/bw/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 }
 \value{
 A data.table with:

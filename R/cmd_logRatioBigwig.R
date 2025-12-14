@@ -16,6 +16,7 @@
 #' @param bins.width Integer specifying the width using for the sliding window. Default= 100L.
 #' @param output.prefix Prefix for output file. If not provided, it is derived from the experiment bed filename.
 #' @param output.folder Output directory for the log2 ratio bw file. Default: "db/bw/".
+#' @param Rpath Path to the Rscript binary. Default: "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file label "bw".
@@ -40,7 +41,7 @@ cmd_logRatioBigwig <- function(experiment.bed.file,
                                bins.width= 100L,
                                output.prefix,
                                output.folder= "db/bw/",
-                               Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                               Rpath= "Rscript")
 {
   # Check (!Do not check if files exist to allow wrapping!) ----
   if(length(experiment.bed.file)!=1)

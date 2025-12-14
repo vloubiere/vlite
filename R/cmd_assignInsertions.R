@@ -12,7 +12,7 @@
 #' be reported in the bed and count output files (in columns 'score' and 'ins_cov', respectively). Default= NULL.
 #' @param bed.output.folder Directory for the BED file of unique insertions. Default= "db/bed/".
 #' @param counts.output.folder Directory for the counts file. Default= "db/counts/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file labels ("bed.file", "counts.file").
@@ -43,7 +43,7 @@ cmd_assignInsertions <- function(bam,
                                  ins.coverage.bam= NULL,
                                  bed.output.folder= "db/bed/",
                                  counts.output.folder= "db/counts/",
-                                 Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                                 Rpath= "Rscript")
 {
   # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)
@@ -55,9 +55,11 @@ cmd_assignInsertions <- function(bam,
 
   # Retrieve gtf ----
   if(!missing(genome)) {
-    gtf <- switch(genome,
-                  "mm10" = "/groups/stark/vloubiere/projects/ORFTRAP_1/db/gtf/exons_start_mm10.gtf",
-                  "hg38" = "/groups/stark/vloubiere/projects/ORFTRAP_1/db/gtf/exons_start_hg38.gtf")
+    gtf <- switch(
+      genome,
+      "mm10" = "/groups/stark/vloubiere/projects/ORFTRAP_1/db/gtf/exons_start_mm10.gtf",
+      "hg38" = "/groups/stark/vloubiere/projects/ORFTRAP_1/db/gtf/exons_start_hg38.gtf"
+    )
   } else {
     genome <- gsub(".gtf$", "", basename(gtf))
   }

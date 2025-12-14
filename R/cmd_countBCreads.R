@@ -7,7 +7,7 @@
 #' @param bam Path to the input BAM file. Only a single BAM file is allowed.
 #' @param output.prefix Prefix for the output file. If not provided, it is derived from the input BAM filename.
 #' @param counts.output.folder Directory for the counts file. Default= "db/counts/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file label ("counts.BC").
@@ -26,7 +26,7 @@
 cmd_countBCreads <- function(bam,
                              output.prefix= NULL,
                              counts.output.folder= "db/counts/",
-                             Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                             Rpath= "Rscript")
 {
   # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)

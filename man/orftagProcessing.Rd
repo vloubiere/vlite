@@ -16,7 +16,7 @@ orftagProcessing(
   alignment.stats.output.folder = "db/alignment_stats/ORFtag/",
   bed.output.folder = "db/bed/ORFtag/",
   counts.output.folder = "db/counts/ORFtag/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  Rpath = "Rscript",
   cores = 8
 )
 }
@@ -45,7 +45,7 @@ counting will be a bit faster.}
 
 \item{counts.output.folder}{Directory for counts files. Default= "db/counts/ORFtag/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 
 \item{cores}{Number of CPU cores to use. Default= 8.}
 }

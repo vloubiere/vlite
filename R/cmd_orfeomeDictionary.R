@@ -8,7 +8,7 @@
 #' @param minNreads Minimum number of supporting reads for a BC/ORF combination to be considered valid.
 #' @param output.prefix Prefix for output files.
 #' @param output.folder Output directory for result files. Default: "db/dictionary/".
-#' @param Rpath Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default: "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file label ("peaks", "stats").
@@ -30,7 +30,7 @@ cmd_orfeomeDictionary <- function(BC.fqs,
                                   output.prefix,
                                   output.folder= "db/dictionary/",
                                   cores= 8,
-                                  Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                                  Rpath= "Rscript")
 {
   # Check (!Do not check if files exist to allow wrapping!) ----
   if(!all(grepl(".fq.gz$|.fastq.gz$", BC.fqs)))

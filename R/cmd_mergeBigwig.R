@@ -11,7 +11,7 @@
 #' @param genome A BSgenome ("mm10", "dm3"...).
 #' @param bw.output.folder Directory for the output files. Default is "db/bw/".
 #' @param tmp.bdg.folder Folder to save temporary .bedgraph files. Default is "db/bw/tmp/".
-#' @param Rpath Path to the Rscript binary. Default is "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default is "Rscript".
 #' @param bigWigMergePath Path to the tool executable.
 #' Default= "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge"
 #'
@@ -37,7 +37,7 @@ cmd_mergeBigwig <- function(bw,
                             genome,
                             bw.output.folder= "db/bw/",
                             tmp.bdg.folder= "db/bw/tmp/",
-                            Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+                            Rpath= "Rscript",
                             bigWigMergePath= "/software/2020/software/kent_tools/20190507-linux.x86_64/bin/bigWigMerge")
 {
   # Checks

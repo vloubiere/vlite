@@ -15,7 +15,7 @@ cmd_peakCallingFromBw(
   local.fdr.cutoff = 0.05,
   input.enr.cutoff = 1.5,
   input.fdr.cutoff = 0.05,
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -40,7 +40,7 @@ Note that the strand is not considered. Default= NULL.}
 
 \item{input.fdr.cutoff}{Input FDR cutoff. Default: 0.05.}
 
-\item{Rpath}{Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default: "Rscript".}
 }
 \value{
 A data.table with:

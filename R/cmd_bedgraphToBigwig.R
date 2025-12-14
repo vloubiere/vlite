@@ -8,7 +8,7 @@
 #' basename of the bdg file.
 #' @param bw.output.folder Directory for the BigWig file. Default= "db/bw/".
 #' @param genome A BSgenome ("mm10", "dm3"...).
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #'
 #' @return A `data.table` with:
 #' - `file.type`: Output file label ("bw").
@@ -31,7 +31,7 @@ cmd_bedgraphToBigwig <- function(bdg,
                                  genome,
                                  scaling.factor= 1L,
                                  bw.output.folder= "db/bw/",
-                                 Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                                 Rpath= "Rscript")
 {
   # Check (!Do not check if bdg file exists to allow wrapping!) ----
   if(length(bdg)!=1)

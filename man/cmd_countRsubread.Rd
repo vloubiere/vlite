@@ -14,7 +14,7 @@ cmd_countRsubread(
   allowMultiOverlap = FALSE,
   counts.stats.output.folder = "db/count_stats/",
   counts.output.folder = "db/counts/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  Rpath = "Rscript",
   cores = cores
 )
 }
@@ -38,7 +38,7 @@ the corresponding gtf file will be used. SAF format should contain: GeneID, Chr,
 
 \item{counts.output.folder}{Directory for the counts file. Default= "db/counts/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 
 \item{cores}{Number of CPU cores to use. Default= 8.}
 }

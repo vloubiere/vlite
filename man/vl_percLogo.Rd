@@ -2,13 +2,13 @@
 % Please edit documentation in R/vl_percLogo.R
 \name{vl_percLogo}
 \alias{vl_percLogo}
-\title{Title}
+\title{Plot PFM}
 \usage{
-vl_percLogo(pfm = perc)
+vl_percLogo(pfm)
 }
 \arguments{
 \item{pfm}{}
 }
 \description{
-Title
+Plot PFM
 }

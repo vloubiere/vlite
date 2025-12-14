@@ -19,7 +19,7 @@ rnaseqProcessing(
   counts.stats.output.folder = "db/stats/RNASeq/",
   counts.output.folder = "db/counts/RNASeq/",
   bw.output.folder = "db/bw/RNASeq/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  Rpath = "Rscript",
   cores = 8
 )
 }
@@ -53,7 +53,7 @@ the corresponding gtf file will be used. SAF format should contain: GeneID, Chr,
 
 \item{bw.output.folder}{Directory for BigWig files. Default= "db/bw/RNASeq/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 
 \item{cores}{Number of CPU cores to use. Default= 8.}
 }

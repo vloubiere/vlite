@@ -17,7 +17,7 @@ cmd_DESeq2_PROseq(
   dds.output.folder = "db/dds/PROseq/",
   FC.tables.output.folder = "db/FC_tables/PROseq/",
   MAplots.output.folder = "pdf/MAplots/PROseq/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -46,7 +46,7 @@ Default: `spikeIn`.}
 
 \item{MAplots.output.folder}{Directory for the MA plots. Default: `pdf/MAplots/PROseq/`.}
 
-\item{Rpath}{Path to the Rscript binary. Default: `/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript`.}
+\item{Rpath}{Path to the Rscript binary. Default: "Rscript".}
 }
 \value{
 A `data.table` with the following columns:

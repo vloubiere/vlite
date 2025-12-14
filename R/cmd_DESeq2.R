@@ -12,7 +12,7 @@
 #' @param dds.output.folder Output folder where DESeq2 dds files ill be same output folder. Default= "db/dds/".
 #' @param FC.tables.output.folder Output folder where FC tables will be saved. Default= "db/FC_tables/".
 #' @param MAplots.output.folder Output folder where MA plot pdf files will be saved. Default= "pdf/MAplots/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #'
 #' @export
 cmd_DESeq2 <- function(count.files,
@@ -26,7 +26,7 @@ cmd_DESeq2 <- function(count.files,
                        dds.output.folder= "db/dds/",
                        FC.tables.output.folder= "db/FC_tables/",
                        MAplots.output.folder= "pdf/MAplots/",
-                       Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                       Rpath= "Rscript")
 {
   # Check (!Do not check if count.files exist to allow wrapping!) ----
   if(!all(grepl(".txt$", count.files)))

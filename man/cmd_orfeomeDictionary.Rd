@@ -11,7 +11,7 @@ cmd_orfeomeDictionary(
   output.prefix,
   output.folder = "db/dictionary/",
   cores = 8,
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -25,7 +25,7 @@ cmd_orfeomeDictionary(
 
 \item{output.folder}{Output directory for result files. Default: "db/dictionary/".}
 
-\item{Rpath}{Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default: "Rscript".}
 }
 \value{
 A data.table with:

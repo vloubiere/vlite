@@ -12,7 +12,7 @@
 #' Default= TRUE (single-end reads will not be affected).
 #' @param extsize Numeric. Read extension size. Default= 0 (no extension).
 #' @param bw.output.folder Directory for the BigWig file. Default= "db/bw/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #' @param cores Number of CPU cores to use. Default= 6.
 #'
 #' @return A data.table with:
@@ -45,7 +45,7 @@ cmd_bamToBigwig <- function(bam,
                             extend.PE.fragments= TRUE,
                             extsize= 0,
                             bw.output.folder= "db/bw/",
-                            Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+                            Rpath= "Rscript",
                             cores= 6)
 {
   # Check (!Do not check if bam file exists to allow wrapping!) ----

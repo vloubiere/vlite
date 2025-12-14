@@ -12,7 +12,7 @@ cmd_bamToBigwig(
   extend.PE.fragments = TRUE,
   extsize = 0,
   bw.output.folder = "db/bw/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  Rpath = "Rscript",
   cores = 6
 )
 }
@@ -32,7 +32,7 @@ Default= TRUE (single-end reads will not be affected).}
 
 \item{bw.output.folder}{Directory for the BigWig file. Default= "db/bw/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 
 \item{cores}{Number of CPU cores to use. Default= 6.}
 }

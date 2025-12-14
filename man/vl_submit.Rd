@@ -6,12 +6,13 @@
 \usage{
 vl_submit(
   cmd,
-  cores,
-  mem,
-  time,
-  job.name,
-  logs,
-  modules,
+  cores = 8,
+  mem = 32,
+  time = "08:00:00",
+  job.name = "myJob",
+  logs = "db/logs/",
+  modules = c("build-env/f2022", "mamba/24.3.0-0"),
+  conda = "/groups/stark/conda_envs/.conda/envs/vlite_pipelines/",
   overwrite = FALSE,
   execute = TRUE,
   create.output.dirs = TRUE
@@ -29,18 +30,28 @@ vl_submit(
 - `logs`: (Optional) Directory for log files, only the value from the first row will be used
 - `modules`: (Optional) A vector or list of modules to be loaded before executing the command.}
 
-\item{cores}{Number of CPU cores to allocate. If not specified, the first value of cmd$cores column will be used. Default= 8.}
+\item{cores}{Number of CPU cores to allocate. If the cmd object contains a 'cores' column, it will override this argument.
+Default= 8.}
 
-\item{mem}{Memory allocation in GB. If not specified, the first value of cmd$mem column will be used. Default= 32.}
+\item{mem}{Memory allocation in GB. If the cmd object contains a 'mem' column, it will override this argument. Default= 32.}
 
-\item{time}{Maximum runtime for the job (HH:MM:SS). If not specified, the first value of cmd$time column will be used. Default= '08:00:00'.}
+\item{time}{Maximum runtime for the job (HH:MM:SS). If the cmd object contains a 'time' column, it will override this argument.
+Default= '08:00:00'.}
 
-\item{job.name}{Name of the job. If not specified, the first value of cmd$job.name column will be used. Default= "myJob".}
+\item{job.name}{Name of the job. If the cmd object contains a 'job.name' column, it will override this argument.
+Default= "myJob".}
 
-\item{logs}{Directory for log files. If not specified, the first value of cmd$logs column will be used. Default = 'db/logs'.}
+\item{logs}{Directory for log files. If the cmd object contains a 'logs' column, it will override this argument.
+Default = 'db/logs'.}
 
-\item{modules}{A character vector of modules to be loaded before executing the command. If not specified, the modules listed in cmd$modules will be used.
-By default, the most used modules for genomics are loaded.}
+\item{modules}{A character vector of modules to be loaded before executing the command. If the cmd object contains a 'modules'
+column, it will override this argument. Default= c("build-env/f2022", "mamba/24.3.0-0").
+By default, the conda module used by the pipelines is being loaded.}
+
+\item{conda}{Path to a conda environment. If specified, it will be activated after loading the modules.
+If the cmd object contains a 'conda' column, it will override this argument.
+Default= "/groups/stark/conda_envs/.conda/envs/vlite_pipelines/".
+By default, the conda environment required to run vlite_pipelines is being activated.}
 
 \item{overwrite}{If set to TRUE, overwrites existing output files. Default= FALSE.}
 

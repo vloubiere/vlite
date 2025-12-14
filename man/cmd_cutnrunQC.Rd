@@ -11,7 +11,7 @@ cmd_cutnrunQC(
   genome,
   output.prefix,
   pdf.output.folder = "db/QC/CUTNRUN/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ cmd_cutnrunQC(
 
 \item{pdf.output.folder}{Output folder where the pdf file should be saved. Default= "db/QC/CUTNRUN/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 }
 \value{
 A data.table with:

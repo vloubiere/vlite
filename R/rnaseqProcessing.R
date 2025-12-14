@@ -22,7 +22,7 @@
 #' @param counts.stats.output.folder Directory for gene count statistics. Default= "db/stats/RNASeq/".
 #' @param counts.output.folder Directory for gene counts. Default= "db/counts/RNASeq/".
 #' @param bw.output.folder Directory for BigWig files. Default= "db/bw/RNASeq/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #' @param cores Number of CPU cores to use. Default= 8.
 #'
 #' @return A data.table with:
@@ -62,7 +62,7 @@ rnaseqProcessing <- function(fq1,
                              counts.stats.output.folder= "db/stats/RNASeq/",
                              counts.output.folder= "db/counts/RNASeq/",
                              bw.output.folder= "db/bw/RNASeq/",
-                             Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+                             Rpath= "Rscript",
                              cores= 8)
 {
   # Trimming illumina adaptors ----

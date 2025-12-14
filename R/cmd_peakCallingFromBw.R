@@ -15,7 +15,7 @@
 #' @param local.fdr.cutoff Local background FDR cutoff. Default: 0.05.
 #' @param input.enr.cutoff Input enrichment cutoff. Default: 1.5.
 #' @param input.fdr.cutoff Input FDR cutoff. Default: 0.05.
-#' @param Rpath Path to the Rscript binary. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default: "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file label ("peaks", "stats").
@@ -41,7 +41,7 @@ cmd_peakCallingFromBw <- function(experiment.bw.file,
                                   local.fdr.cutoff= 0.05,
                                   input.enr.cutoff= 1.5,
                                   input.fdr.cutoff= 0.05,
-                                  Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                                  Rpath= "Rscript")
 {
   # Check (!Do not check if files exist to allow wrapping!) ----
   if(length(experiment.bw.file)!=1)

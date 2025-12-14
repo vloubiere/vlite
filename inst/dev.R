@@ -203,7 +203,7 @@ if(F) {
   file.edit("inst/Rscript/bed_to_bigwig.R") # R subscript
 
   # RNA-Seq -----------------------
-  # Pipeline
+  # Pipeline ----
   file.edit("R/rnaseqProcessing.R")
   # Rsubread alignment (RNA-Seq)
   file.edit("R/cmd_alignRnaRsubread.R") # Wrapper
@@ -211,12 +211,12 @@ if(F) {
   # Count reads (Rsubread)
   file.edit("R/cmd_countRsubread.R") # Wrapper
   file.edit("inst/Rscript/count_Rsubread.R") # R subscript
-  # DESeq2
+  # DESeq2 ----
   file.edit("R/cmd_DESeq2.R") # Wrapper
   file.edit("inst/Rscript/DESeq2_analysis.R") # R subscript
 
   # PRO-Seq -----------------------
-  # Pipeline
+  # Pipeline ----
   file.edit("R/proseqProcessing.R")
   # Trimming
   file.edit("R/cmd_trimProseqAdaptors.R") # Custom adaptors (PROseq)
@@ -228,26 +228,26 @@ if(F) {
   # PROSeq UMI counts to bigwig
   file.edit("R/cmd_umiToBigwigProseq.R") # Wrapper
   file.edit("inst/Rscript/umiToBigwigProseq.R") # R subscript
-  # Count reads from .rds annotation file
+  # Compute counts ----
   file.edit("inst/Rscript/create_PROseq_annotations.R") # Create the mm10 annotation files
   file.edit("inst/Rscript/create_PROseq_blacklisted_regions.R") # Create a mask containing tRNA coordinates...
-  file.edit("R/cmd_countPROseqReads.R") # Wrapper
   file.edit("inst/Rscript/count_PROseq_reads.R") # R subscript
-  # DESeq2
+  file.edit("R/cmd_countPROseqReads.R") # Wrapper
+  # DESeq2 analysis ----
   file.edit("inst/Rscript/DESeq2_PROseq_analysis.R") # R subscript
   file.edit("R/cmd_DESeq2_PROseq.R") # Wrapper
 
   # STAP-Seq -----------------------
-  # Pipeline (wrapper around the PRO-Seq)
+  # Pipeline (wrapper around the PRO-Seq) ----
   file.edit("R/stapseqProcessing.R")
 
   # CUT&RUN -----------------------
-  # Pipeline
+  # Pipeline ----
   file.edit("R/cutnrunProcessing.R")
   # QC
   file.edit("inst/Rscript/cutnrunQC.R") # R subscript
   file.edit("R/cmd_cutnrunQC.R") # Wrapper
-  # MACS2 peak calling
+  # MACS2 peak calling ----
   file.edit("R/cmd_peakCalling.R") # Wrapper
   # Confident peaks
   file.edit("R/cmd_confidentPeaks.R") # Wrapper
@@ -257,23 +257,24 @@ if(F) {
   file.edit("inst/Rscript/peakCallingFromBw.R") # R subscript
 
   # ORFtag -------------------------
-  # Pipeline
+  # Pipeline ----
   file.edit("R/orftagProcessing.R")
   file.edit("R/orftagQC.R")
   # Collapse bam unique insertions
   file.edit("R/cmd_collapseBam.R")
   # Assign reads to exons
+  file.edit("inst/Rscript/create_ORFtag_annotations.R") # non-first exon gtf annotations
   file.edit("R/cmd_assignInsertions.R") # Wrapper
   file.edit("inst/Rscript/assign_ORFtag_insertions.R") # R subscript
-  # Call hits
+  # Call hits ----
   file.edit("R/callOrfTagHits.R") # Wrapper
   file.edit("R/callOrftagHitsStrandBias.R") # R subscript
 
   # ORFeome -----------------------
-  # Assemble dictionary
+  # Assemble dictionary ----
   file.edit("inst/Rscript/ORFeome_make_dictionary.R") # R subscript
   file.edit("R/cmd_orfeomeDictionary.R") # Wrapper
-  # Pipeline
+  # Pipeline ----
   file.edit("R/orfeomeProcessing.R")
   # Count ORFeomes barcode (ORFeome)
   file.edit("inst/Rscript/BC_counts.R") # R subscript
@@ -285,7 +286,7 @@ if(F) {
   file.edit("R/cmd_MAGECK_ORFeome.R") # Wrapper
 
   # STARR-Seq ---------------------
-  # Piepline
+  # Pipeline ----
   file.edit("R/starrseqProcessing.R")
   # UMI collapsing
   file.edit("R/cmd_umiCountsFromBam.R") # Wrapper

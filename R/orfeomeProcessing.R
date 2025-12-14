@@ -13,7 +13,7 @@
 #' @param bam.output.folder Directory for aligned BAM files. Default= "db/bam/ORFeome/".
 #' @param counts.output.folder Directory for barcode counts. Default= "db/counts/ORFeome/".
 #' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/ORFeome/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #' @param cores Number of CPU cores to use. Default= 8.
 #'
 #' @return A data.table with:
@@ -42,7 +42,7 @@ orfeomeProcessing <- function(fq1,
                               bam.output.folder= "db/bam/ORFeome/",
                               counts.output.folder= "db/counts/ORFeome/",
                               alignment.stats.output.folder= "db/alignment_stats/ORFeome/",
-                              Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+                              Rpath= "Rscript",
                               cores= 8)
 {
   # Trimming illumina adaptors ----

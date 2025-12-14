@@ -10,7 +10,7 @@ cmd_confidentPeaks(
   output.prefix,
   conf.peaks.output.folder = "db/peaks/",
   pdf.output.folder = "db/peaks/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ cmd_confidentPeaks(
 
 \item{pdf.output.folder}{Directory for the pdf containing diagnostic plots. Default= "db/peaks/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 }
 \value{
 A data.table with:

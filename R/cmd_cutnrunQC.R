@@ -9,7 +9,7 @@
 #' @param genome A BSgenome name (e.g. "mm10", "dm6"...).
 #' @param output.prefix Prefix for the output files. If not specified, will be generated from the bw.sample file name.
 #' @param pdf.output.folder Output folder where the pdf file should be saved. Default= "db/QC/CUTNRUN/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file labels (e.g: "peaks", "bedgraph").
@@ -26,7 +26,7 @@ cmd_cutnrunQC <- function(peaks.file,
                           genome,
                           output.prefix,
                           pdf.output.folder= "db/QC/CUTNRUN/",
-                          Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                          Rpath = "Rscript")
 {
   # Check (!Do not check if bam file(s) exist to allow wrapping!) ----
   if(length(peaks.file)>1)

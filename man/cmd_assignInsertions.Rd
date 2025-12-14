@@ -12,7 +12,7 @@ cmd_assignInsertions(
   ins.coverage.bam = NULL,
   bed.output.folder = "db/bed/",
   counts.output.folder = "db/counts/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -31,7 +31,7 @@ be reported in the bed and count output files (in columns 'score' and 'ins_cov',
 
 \item{counts.output.folder}{Directory for the counts file. Default= "db/counts/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 }
 \value{
 A data.table with:

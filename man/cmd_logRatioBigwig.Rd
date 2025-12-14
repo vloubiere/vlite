@@ -14,7 +14,7 @@ cmd_logRatioBigwig(
   bins.width = 100L,
   output.prefix,
   output.folder = "db/bw/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -37,6 +37,8 @@ strand are used. Default= NULL (no filtering).}
 \item{output.prefix}{Prefix for output file. If not provided, it is derived from the experiment bed filename.}
 
 \item{output.folder}{Output directory for the log2 ratio bw file. Default: "db/bw/".}
+
+\item{Rpath}{Path to the Rscript binary. Default: "Rscript".}
 }
 \value{
 A data.table with:

@@ -18,7 +18,7 @@ starrseqProcessing(
   umi.counts.output.folder = "db/umi_counts/STARRSeq/",
   bed.output.folder = "db/bed/STARRSeq/",
   bw.output.folder = "db/bw/STARRSeq/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript",
+  Rpath = "Rscript",
   cores = 8
 )
 }
@@ -48,7 +48,7 @@ bigwig tracks. Default= NULL (all reads are used).}
 
 \item{bw.output.folder}{Directory where bigwig tracks will be saved. Default= "db/bw/STARRSeq/".}
 
-\item{Rpath}{Path to the Rscript executable. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript executable. Default= "Rscript".}
 
 \item{cores}{Number of CPU cores to use. Default= 8.}
 }

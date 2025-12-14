@@ -16,7 +16,7 @@ cmd_DESeq2(
   dds.output.folder = "db/dds/",
   FC.tables.output.folder = "db/FC_tables/",
   MAplots.output.folder = "pdf/MAplots/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 }
 \arguments{
@@ -43,7 +43,7 @@ Default = NULL (use default method to degine sizeFactors).}
 
 \item{MAplots.output.folder}{Output folder where MA plot pdf files will be saved. Default= "pdf/MAplots/".}
 
-\item{Rpath}{Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".}
+\item{Rpath}{Path to the Rscript binary. Default= "Rscript".}
 }
 \description{
 Generate Commands for 'default' DESeq2 analysis

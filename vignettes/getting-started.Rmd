@@ -74,7 +74,7 @@ devtools::load_all("/groups/stark/vloubiere/vlite/")
 # Install vlite from my folder
 devtools::install("/groups/stark/vloubiere/vlite/")
 
-# Install vlite from github (here not that you should use a specific commit)
+# Install vlite from github (here note that we are installing the last commit before I left the lab)
 devtools::install_github("vloubiere/vlite@7c4a7fe08b2527952f9b8b25263f7c2c0821d274")
 
 library(vlite)
@@ -158,16 +158,38 @@ knitr::include_graphics(system.file("images/package_folder.png", package = "vlit
 knitr::include_graphics(system.file("images/inst_folder.png", package = "vlite"))
 ```
 
-# III- Before using pipelines
+# III- Modify the package functions
 
-Some pipelines or post-processing functions described below run R code. For those, you must provide the path to the R executable that has all required packages installed (e.g., see the last argument of ?cmd_confidentPeaks function). This is user-specific: you are responsible for installing the packages in the R you point to.  
-To install the required packages, first open a new terminal (**!! do not use the integrated terminal from Rstudio !!**) on your computer and ssh to the server:
+Sooner or later, you may want to modify a function in this package. The easiest way is to use a standard Git workflow:  
+- Copy the package folder locally (recommended) or clone the repo from GitHub (see below).  
+- Make your changes.  
+- Load your modified version in R: `devtools:load_all("/my/modified/package/directory/")`.  
+
+You’ll now be using your updated functions! If you want to do more complex changes (add functions, update documentation...), see this useful [link](https://devtools.r-lib.org/) on how to use devtools. If this sounds like very dark magic to you, ask any bioinfo in the lab or chat-GPT for help.
+
+If you decide to copy the package folder locally, you can copy it from my folder `"/groups/stark/vloubiere/vlite/"`.  
+
+If you prefer to clone it from github, it can be found [here](https://github.com/vloubiere/vlite). However, I will continue updating the GitHub version after leaving the lab, so compatibility issues could appear. To be 100% safe, you should therefore use the last commit from before I left in December 2025 (hash: XXX) using the checkout command:
+
+```bash
+git clone https://github.com/vloubiere/vlite.git
+cd vlite
+git checkout XXX
+```
+
+# IV- Before using pipelines
+
+Some pipelines or post-processing functions described below run R code. For those, you must provide the path to the R executable that has all required packages installed (e.g., see the last argument of ?cmd_confidentPeaks function). For this purpose, Matus Vojtek made a conda environment containing all needed packages and a recent R version. It is stored in our shared folder `"/groups/stark/conda_envs/"` and will get automatically loaded when we using the scripts below (see `?vl_submit` for more details).  
+  
+However, in the future, some new functions or updates might require new packages. In this case, you should update the conda environment accordingly. If you need help with this, ask any bioinfo in the lab or ask chat-GPT.  
+  
+Alternatively, you can always redirect these functions to your own R install in which all install packages are installed. To install packages, the best it to first open a new terminal (**!! do not use the integrated terminal from Rstudio !!**) on your computer and ssh to the server:
 
 ```bash
 ssh user.name@cbe.vbc.ac.at
 ```
 
-Start the R you plan to use. By default I use '/software/f2022/software/r/4.3.0-foss-2022b/bin/R', but you can use a different one if you prefer:
+Start the R you plan to use. For example, I sometimes used '/software/f2022/software/r/4.3.0-foss-2022b/bin/R', but you can use a different one if you prefer:
 
 ```bash
 /software/f2022/software/r/4.3.0-foss-2022b/bin/R
@@ -184,7 +206,7 @@ BiocManager::install("DESeq2")
 
 Required packages include: `Rsamtools`, `rtracklayer`, `GenomicRanges`, `data.table`, `DESeq2`, `Rsubread`, `GenomeInfoDb`, `BSgenome`, `BSgenome.Dmelanogaster.UCSC.dm3`, `BSgenome.Dmelanogaster.UCSC.dm6`, `BSgenome.Mmusculus.UCSC.mm10`, `BSgenome.Hsapiens.UCSC.hg38`, `ggplot2`, `ggrepel`, `stringdist`, `glmnet`, `Matrix`, `parallel`. Once you have installed all the required packages, you can leave the session using `quit()`.
 
-# IV- The ORFtag pipeline
+# V- The ORFtag pipeline
 
 Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.  
 
@@ -456,7 +478,7 @@ meta.processed <- meta.demultiplex[, {
     alignment.stats.output.folder = "db/stats/", # Output folder for alignment statistics
     bed.output.folder = "db/bed/", # Output folder bed file
     counts.output.folder = "db/counts/", # Output folder read counts
-    Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript", # The path to the R executable that will be used to run subscripts
+    Rpath = "Rscript", # The path to the R executable that will be used to run subscripts
     cores = 8 # Number of cores to use for the job
   )
   # Submit to the cluster
@@ -687,7 +709,7 @@ vlite::bwScreenshot(
 )
 ```
 
-# V- The PRO-seq pipeline
+# VI- The PRO-seq pipeline
 
 Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.  
 
@@ -1194,7 +1216,7 @@ meta.counts <- meta.processed[, {
     blacklist.file = "/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/mm10_blacklisted_regions.rds", # Blacklisted regions
     feature = "transcript", # The name of the features
     count.tables.output.folder = "db/count_tables/", # Folder where coutn tables should be saved
-    Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript" # The R executable used to run the R script
+    Rpath = "Rscript" # The R executable used to run the R script
   )
   # Submit to the cluster
   vl_submit(
@@ -1251,7 +1273,7 @@ meta.FC <- meta.counts[, {
     dds.output.folder = "db/dds/", # The folder where .dds DESeq2 object should be saved.
     FC.tables.output.folder = "db/FC_tables/", # The folder where FC tables should be saved.
     MAplots.output.folder = "db/FC_tables/", # The folder where MA plots (.pdf) will be saved.
-    Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript" # The R path executable that will be used to run the Rscript. DESeq2 should be installed there!
+    Rpath = "Rscript" # The R path executable that will be used to run the Rscript.
   )
   # Submit to the cluster
   vl_submit(
@@ -1377,7 +1399,7 @@ Of course in this case, we get the exact opposite Fold Changes:
 knitr::include_graphics(system.file("images/FC_comparison.png", package = "vlite"))
 ```
 
-# VI- The CUT&RUN pipeline
+# VII- The CUT&RUN pipeline
 
 Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.  
 
@@ -1683,7 +1705,7 @@ cmd <- vlite::cmd_peakCalling(
   genome = "mm10", # The genome version for which chromosome sizes will be retrieve to make the bigwig track.
   peaks.output.folder = "db/peaks/", # MACS2 peaks output folder
   bw.output.folder = "db/bw/", # bigWig tracks output folder
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript" # Path to the R executable used to execute the Rscript.
+  Rpath = "Rscript" # Path to the R executable used to execute the Rscript.
 )
 
 # Submit to the cluster
@@ -1735,7 +1757,7 @@ cmd <- vlite::cmd_peakCalling(
   genome = "mm10", # The genome version for which chromosome sizes will be retrieve to make the bigwig track.
   peaks.output.folder = "db/peaks/", # MACS2 peaks output folder
   bw.output.folder = "db/bw/", # bigWig tracks output folder
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript" # Path to the R executable used to execute the Rscript.
+  Rpath = "Rscript" # Path to the R executable used to execute the Rscript.
 )
 
 # Submit to the cluster
@@ -1762,7 +1784,7 @@ cmd <- vlite::cmd_cutnrunQC(
   genome = "mm10", # Genome version
   output.prefix = "HCFC1_merge", # Name of output files
   pdf.output.folder = "db/QC/", # Output folder where PDF QC will be saved
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript" # Path to the R executable setup in section III
+  Rpath = "Rscript" # Path to the R executable setup in section III
 )
 
 # Submit to the cluster
@@ -1810,7 +1832,7 @@ rep1 <- vlite::cmd_peakCalling(
   genome = "mm10", # The genome version for which chromosome sizes will be retrieve to make the bigwig track.
   peaks.output.folder = "db/peaks/", # MACS2 peaks output folder
   bw.output.folder = "db/bw/", # bigWig tracks output folder
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript" # Path to the R executable used to execute the Rscript.
+  Rpath = "Rscript" # Path to the R executable used to execute the Rscript.
 )
 
 # Submit to the cluster
@@ -1839,7 +1861,7 @@ rep2 <- vlite::cmd_peakCalling(
   genome = "mm10", # The genome version for which chromosome sizes will be retrieve to make the bigwig track.
   peaks.output.folder = "db/peaks/", # MACS2 peaks output folder
   bw.output.folder = "db/bw/", # bigWig tracks output folder
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript" # Path to the R executable used to execute the Rscript.
+  Rpath = "Rscript" # Path to the R executable used to execute the Rscript.
 )
 
 # Submit to the cluster
@@ -1866,7 +1888,7 @@ cmd <- vlite::cmd_confidentPeaks(
   output.prefix = "HCFC1_conf",
   conf.peaks.output.folder = "db/peaks/conf/",
   pdf.output.folder = "db/peaks/conf/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 
 # Submit to the cluster
@@ -1887,7 +1909,7 @@ For this example, we are left with 29,926 reproducible, confident peaks:
 knitr::include_graphics(system.file("images/conf_peaks_screenshot.png", package = "vlite"))
 ```
 
-# VII- The eORFeome pipeline
+# VIII- The eORFeome pipeline
 
 The eORFeome pipeline is different from others, as it was implemented in the lab, and all the related scripts can be found here:  
 `file.edit("/groups/stark/vloubiere/projects/ORFscreen_tomas/git_ORFscreen/main.R")`. Therefore there will be two main parts:    
@@ -2323,7 +2345,7 @@ meta.processed <- meta.demultiplex[, {
     bam.output.folder = "db/bam/", # Output folder for aligned bam files
     counts.output.folder = "db/counts/", # Output folder for BC counts
     alignment.stats.output.folder = "db/stats/", # Output folder for alignment statistics
-    Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript", # The path to the R executable that will be used to run subscripts
+    Rpath = "Rscript", # The path to the R executable that will be used to run subscripts
     cores = 8 # Number of cores to use for the job
   )
   # Submit to the cluster
@@ -2416,7 +2438,7 @@ cmd <- cmd_MAGeCK_ORFeome(
   output.prefix= "NFkB_2_A549_screen",
   FC.output.folder = "db/FC_tables/",
   MAGeCK.output.folder = "db/FC_tables/MAGeCK/",
-  Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript"
+  Rpath = "Rscript"
 )
 
 # Submit to the cluster

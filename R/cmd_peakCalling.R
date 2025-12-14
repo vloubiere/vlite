@@ -23,7 +23,7 @@
 #' @param genome A BSgenome name (e.g. "mm10", "dm6"...) that will be used to generate the bigwig track.
 #' @param peaks.output.folder Directory where MACS2 output files should be saved. Default= "db/peaks/".
 #' @param bw.output.folder Directory where bigwig files should be saved. Default= "db/bw/".
-#' @param Rpath Path to the Rscript binary. Default= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #'
 #' @return A data.table with:
 #' - `file.type`: Output file labels (e.g: "peaks", "bedgraph").
@@ -65,7 +65,7 @@ cmd_peakCalling <- function(bam,
                             genome,
                             peaks.output.folder= "db/peaks/",
                             bw.output.folder= "db/bw/",
-                            Rpath = "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                            Rpath = "Rscript")
 
 {
   # Check (!Do not check if bam file(s) exist to allow wrapping!) ----

@@ -22,7 +22,7 @@
 #' @param output.prefix Output files prefix (e.g. 'screen1_sample1_vs_input').
 #' @param FC.output.folder Directory where final FC tables should be saved. Default= 'db/FC_tables/ORFeome/'.
 #' @param MAGeCK.output.folder Directory where MAGeCK intermediate files should be saved. Default= 'db/FC_tables/ORFeome/'.
-#' @param Rpath Path to the Rscript executable. Default: "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript".
+#' @param Rpath Path to the Rscript executable. Default: "Rscript".
 #'
 #' @return A data.table containing columns:
 #' - `file.type`: Labels for the output files (i.e., "raw.counts.table", "filtered.counts", "gene.summary", "volcano.plot", "gene.summary.master").
@@ -49,7 +49,7 @@ cmd_MAGeCK_ORFeome <- function(sample.counts,
                                output.prefix,
                                FC.output.folder= "db/FC_tables/ORFeome/",
                                MAGeCK.output.folder= "db/FC_tables/ORFeome/MAGeCK/",
-                               Rpath= "/software/f2022/software/r/4.3.0-foss-2022b/bin/Rscript")
+                               Rpath= "Rscript")
 {
   # Checks (!Do not check if input files exist to allow wrapping) ----
   if(any(duplicated(sample.counts)))
