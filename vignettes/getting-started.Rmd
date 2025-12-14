@@ -75,7 +75,7 @@ devtools::load_all("/groups/stark/vloubiere/vlite/")
 devtools::install("/groups/stark/vloubiere/vlite/")
 
 # Install vlite from github (here note that we are installing the last commit before I left the lab)
-devtools::install_github("vloubiere/vlite@7c4a7fe08b2527952f9b8b25263f7c2c0821d274")
+devtools::install_github("vloubiere/vlite@697fad86f7de4b77edac8c550a20f3014a955242")
 
 library(vlite)
 ```
@@ -169,12 +169,12 @@ You’ll now be using your updated functions! If you want to do more complex cha
 
 If you decide to copy the package folder locally, you can copy it from my folder `"/groups/stark/vloubiere/vlite/"`.  
 
-If you prefer to clone it from github, it can be found [here](https://github.com/vloubiere/vlite). However, I will continue updating the GitHub version after leaving the lab, so compatibility issues could appear. To be 100% safe, you should therefore use the last commit from before I left in December 2025 (hash: XXX) using the checkout command:
+If you prefer to clone it from github, it can be found [here](https://github.com/vloubiere/vlite). However, I will continue updating the GitHub version after leaving the lab, so compatibility issues could appear. To be 100% safe, you should therefore use the last commit from before I left in December 2025 (hash: 697fad86f7de4b77edac8c550a20f3014a955242) using the checkout command:
 
 ```bash
 git clone https://github.com/vloubiere/vlite.git
 cd vlite
-git checkout XXX
+git checkout 697fad86f7de4b77edac8c550a20f3014a955242
 ```
 
 # IV- Before using pipelines
