@@ -1,10 +1,26 @@
 #' importJASPAR
 #'
-#' Imports a .pfm text file containing JASPAR PFMs and parse them into lists of PPM and PWM TFBSTools::PWMatrix objects.
+#' Imports a .pfm text file containing JASPAR PFMs, and uses functions from the TFBStools package
+#' to compute the following raw and normalized position matrices:
+#'
+#' - PFM (Position Frequency Matrix): Raw counts of each nucleotide at each position.
+#'
+#' - PPM (Position Probability Matrix): Column-normalized version of the PFM where
+#'   counts are converted to probabilities (each column sums to 1).
+#'
+#' - PWM/PSSM (Position Weight/Specific Scoring Matrix): Log-odds scores that compare
+#'   the PPM to a background model. Typically: log2(observed_probability / background_probability).
+#'   These matrices are used for scoring sequences and calling motif hits.
+#'
+#' - ICM (Information Content Matrix): Visualization-oriented transformation derived
+#'   from the PPM using Shannon information. For DNA, the per-position information
+#'   content is I = 2 - H, where H is the column entropy in bits; base heights in
+#'   sequence logos are p_base * I. The maximum per-position information is 2 bits.
 #'
 #' @param combinedFile Path to a combined .pfm file containing JASPAR-formatted raw PFMs.
-#' @param pseudocount Pseudocount to be added to PPMs before logging. Default= 1e-5.
 #' @param bg Background probabilities. Default= c("A"= .25, "C"= .25, "G"= .25, "T"= .25).
+#' @param pseudocount Pseudocount added to PFMs before computing PPMs, PWMs and ICMs. Default= .8.
+#' @param schneider Should schneider correction be used for ICMs? Default= TRUE.
 #'
 #' @return A list containing PPM and PWM matrices stored in TFBSTools::PWMatrix sublists.
 #'
@@ -14,8 +30,9 @@
 #'
 #' @export
 importJASPAR <- function(combinedFile,
-                         pseudocount= 1e-5,
-                         bg= c("A"= .25, "C"= .25, "G"= .25, "T"= .25))
+                         bg= c("A"= .25, "C"= .25, "G"= .25, "T"= .25),
+                         pseudocount= 0.8,
+                         schneider= TRUE)
 {
   # Import JASPAR format ----
   lines <- readLines(combinedFile)
@@ -38,10 +55,10 @@ importJASPAR <- function(combinedFile,
 
   # IDs and names ----
   IDs <- unlist(tstrsplit(lines[idx], "\t", keep= 2))
-  name <- gsub("^[^\\.]*\\.[^\\.]*\\.(.*)$", "\\1", IDs)
-  if(anyDuplicated(name)){
+  mot.names <- gsub("^[^\\.]*\\.[^\\.]*\\.(.*)$", "\\1", IDs)
+  if(anyDuplicated(mot.names)){
     warning("Duplicated motif names were made unique.")
-    name <- make.unique(name)
+    mot.names <- make.unique(mot.names)
   }
   IDs <- gsub("^([^\\.]*\\.[^\\.]*)\\..*$", "\\1", IDs)
   if(anyDuplicated(IDs)){
@@ -49,30 +66,41 @@ importJASPAR <- function(combinedFile,
     IDs <- make.unique(IDs)
   }
 
-  # Save PPM in PWMatrix object ----
-  pwms_perc  <- lapply(seq(mat), function(i) {
-    .c <- apply(mat[[i]], 2, function(x) x/sum(x))
-    TFBSTools::PWMatrix(ID= IDs[i],
-                        name = name[i],
-                        profileMatrix = .c)
+  # Make PFM object ----
+  PFM  <- lapply(seq(mat), function(i) {
+    TFBSTools::PFMatrix(ID= IDs[i],
+                        name = mot.names[i],
+                        profileMatrix = mat[[i]],
+                        bg = bg)
   })
-  names(pwms_perc) <- name
+  PFM <- do.call(TFBSTools::PFMatrixList, PFM)
 
-  # log2 ratio PWMatrix object ----
-  pwms_log_odds <- lapply(seq(pwms_perc), function(i) {
-    .c <- pwms_perc[[i]]@profileMatrix
-    .c <- pfmToPWM(matrix = .c,
-                   pseudocount = pseudocount,
-                   bg = bg)
-    TFBSTools::PWMatrix(ID= IDs[i],
-                        name = name[i],
-                        profileMatrix = .c)
-  })
-  names(pwms_log_odds) <- name
+  # Convert to PPM ----
+  PPM  <- TFBSTools::toPWM(x= PFM,
+                           type = "prob",
+                           pseudocounts = pseudocount,
+                           bg = bg)
+
+  # Convert to PWM ----
+  PWM  <- TFBSTools::toPWM(x= PFM,
+                           type = "log2probratio",
+                           pseudocounts = pseudocount,
+                           bg = bg)
+
+  # Convert to ICM ----
+  ICM  <- TFBSTools::toICM(x= PFM,
+                           pseudocounts = pseudocount,
+                           schneider = schneider,
+                           bg = bg)
 
   # Return perc pwm ---
-  res <- list(pwms_perc= pwms_perc,
-              pwms_log_odds= pwms_log_odds)
+  res <- list(
+    metadata= data.table(motif= IDs, name= mot.names),
+    PFM= PFM,
+    PPM= PPM,
+    PWM= PWM,
+    ICM= ICM
+  )
   return(res)
 }
 

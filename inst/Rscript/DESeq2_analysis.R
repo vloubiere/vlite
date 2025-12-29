@@ -2,19 +2,22 @@
 args = commandArgs(trailingOnly=TRUE)
 
 # Test if there are 10-11 args: if not, return an error
-if (!length(args) %in% c(10, 11)) {
+if (!length(args) %in% c(12, 13)) {
   stop("Please specify:\n
        [required] 1/ A comma-separated list of .txt count files (ref genome)\n
        [required] 2/ A comma-separated list of sample names \n
        [required] 3/ A comma-separated list of condition names \n
        [required] 4/ A comma-separated list of control condition names \n
-       [required] 5/ padj cutoff \n
-       [required] 6/ log2FoldChange cutoff \n
-       [required] 7/ dds output folder \n
-       [required] 8/ FC tables output folder \n
-       [required] 9/ PDF output folder \n
-       [required] 10/ Experiment \n
-       [required] 11/ A comma-separated vector of spike-in or libsize counts for normalization (matching the number of count files being provided)\n")
+       [required] 5/ min-count filter 'x,y': keep genes with count >= x in at least y samples (e.g. 3,2) \n
+       [required] 6/ max-count filter 'z': keep genes with max(count) <= z across all samples (e.g. Inf) \n
+       [required] 7/ padj cutoff \n
+       [required] 8/ log2FoldChange cutoff \n
+       [required] 9/ dds output folder \n
+       [required] 10/ FC tables output folder \n
+       [required] 11/ PDF output folder \n
+       [required] 12/ Experiment \n
+       [required] 13/ A comma-separated vector of spike-in or libsize counts for normalization (matching the number
+       of count files being provided)\n")
 }
 
 # Load libraries
@@ -44,14 +47,16 @@ conditions <- unlist(tstrsplit(args[3], ","))
 conditions <- gsub("-", ".", conditions) # Names and conditions do not tolerate "-"
 controls <- unlist(tstrsplit(args[4], ","))
 controls <- gsub("-", ".", controls) # Names and conditions do not tolerate "-"
-padj.cutoff <- as.numeric(args[5])
-log2FC.cutoff <- as.numeric(args[6])
-dds_output_folder <- args[7]
-FC_output_folder <- args[8]
-PDF_output_folder <- args[9]
-experiment <- args[10]
-norm.counts <- if(length(args)==11)
-  as.numeric(unlist(tstrsplit(args[11], ","))) else
+min.cutoff <- unlist(tstrsplit(args[5], ",", type.convert = T))
+max.cutoff <- as.numeric(args[6])
+padj.cutoff <- as.numeric(args[7])
+log2FC.cutoff <- as.numeric(args[8])
+dds_output_folder <- args[9]
+FC_output_folder <- args[10]
+PDF_output_folder <- args[11]
+experiment <- args[12]
+norm.counts <- if(length(args)==13)
+  as.numeric(unlist(tstrsplit(args[13], ","))) else
     NULL
 
 # Import data ----
@@ -63,7 +68,18 @@ DF <- dcast(dat, gene_id~condition, value.var = "count")
 DF <- data.frame(DF[, -1], row.names = DF$gene_id)
 
 # Remove low count reads ----
-DF <- DF[rowSums(DF >= 3) >= 2,]
+before <- nrow(DF)
+DF <- DF[rowSums(DF >= min.cutoff[1]) >= min.cutoff[2],]
+after <- nrow(DF)
+print(paste0(before-after, "/", before, " genes with less than ",
+             min.cutoff[1], " reads in at least ", min.cutoff[2], " samples were discarded.\n"))
+
+# Remove high count reads ----
+before <- nrow(DF)
+DF <- DF[apply(DF, 1, max, na.rm= T) <= max.cutoff,]
+after <- nrow(DF)
+print(paste0(before-after, "/", before, " genes with more than ",
+             max.cutoff, " reads in at least one sample were discarded.\n"))
 
 # SampleTable ----
 sampleTable <- data.frame(condition = conditions,

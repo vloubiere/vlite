@@ -3,7 +3,9 @@
 #' @param count.files A comma-separated vector of .txt count files.
 #' @param sample.names A comma-separated vector of sample names.
 #' @param conditions A comma-separated vector of condition names.
-#' @param ctl.conditions comma-separated list of control conditions names.
+#' @param ctl.conditions comma-separated list of control conditions names. By default, unique(conditions) will be used.
+#' @param min.cutoff min-count filter 'x,y': keep genes with count >= x in at least y samples (e.g. 3,2).
+#' @param max.cutoff max-count filter 'z': keep genes with max(count) <= z across all samples (e.g. Inf).
 #' @param norm.counts A comma-separated vector of spike-in/libsize counts that will be used for normalization.
 #' Default = NULL (use default method to degine sizeFactors).
 #' @param padj.cutoff The p.adjust cutoff to call differentially expressed genes. Default= 0.05.
@@ -18,7 +20,9 @@
 cmd_DESeq2 <- function(count.files,
                        sample.names,
                        conditions,
-                       ctl.conditions= unique(conditions),
+                       ctl.conditions= NULL,
+                       min.cutoff= c(3,2),
+                       max.cutoff= Inf,
                        norm.counts= NULL,
                        padj.cutoff= 0.05,
                        log2FC.cutoff= log2(1.5),
@@ -35,6 +39,8 @@ cmd_DESeq2 <- function(count.files,
     stop("Some file(s) in count.files count not be found.")
   if(uniqueN(lengths(list(count.files, sample.names, conditions)))!=1)
     stop("count.files, sample.names and conditions should all have the same length.")
+  if(is.null(ctl.conditions))
+    ctl.conditions <- unique(conditions)
   if(any(!ctl.conditions %in% conditions))
     stop("All ctl.conditions should exist in conditions")
   if(!is.null(norm.counts)) {
@@ -56,6 +62,8 @@ cmd_DESeq2 <- function(count.files,
     paste0(sample.names, collapse= ","), # A comma-separated list of sample names
     paste0(conditions, collapse= ","), # A comma-separated list of condition names
     paste0(ctl.conditions, collapse= ","), # A comma-separated list of control condition names
+    paste0(min.cutoff, collapse = ","), # min-count filter 'x,y': keep genes with count >= x in at least y samples (e.g. 3,2).
+    max.cutoff, # max-count filter 'z': keep genes with max(count) <= z across all samples (e.g. Inf).
     padj.cutoff, # p adjust cutoff to call diff genes
     log2FC.cutoff, # log2FC cutoff to call diff genes
     dds.output.folder, # dds output folder

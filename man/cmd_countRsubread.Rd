@@ -15,7 +15,7 @@ cmd_countRsubread(
   counts.stats.output.folder = "db/count_stats/",
   counts.output.folder = "db/counts/",
   Rpath = "Rscript",
-  cores = cores
+  cores = 4
 )
 }
 \arguments{
@@ -28,7 +28,7 @@ cmd_countRsubread(
 \item{genome}{Reference genome name (e.g., "mm10", "dm6"). If not provided, an annotation.file must be specified.}
 
 \item{annotation.file}{Path to a '.gtf', '.gtf.gz' or '.saf' annotation file. If genome is specified,
-the corresponding gtf file will be used. SAF format should contain: GeneID, Chr, Start, End, Strand. Default= NULL.}
+the corresponding gtf file will be used. SAF files are 1-based (unlike bed) and should include the following columns: GeneID, Chr, Start, End, Strand. Default= NULL.}
 
 \item{GTF.attrType.extra}{Additional GTF attribute to include in the output (e.g., gene symbol). Default= NULL.}
 

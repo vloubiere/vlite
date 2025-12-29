@@ -9,7 +9,7 @@
 #' @param output.prefix Prefix for the output files. If not provided, it is derived from the input BAM filename.
 #' @param genome Reference genome name (e.g., "mm10", "dm6"). If not provided, an annotation.file must be specified.
 #' @param annotation.file Path to a '.gtf', '.gtf.gz' or '.saf' annotation file. If genome is specified,
-#' the corresponding gtf file will be used. SAF format should contain: GeneID, Chr, Start, End, Strand. Default= NULL.
+#' the corresponding gtf file will be used. SAF files are 1-based (unlike bed) and should include the following columns: GeneID, Chr, Start, End, Strand. Default= NULL.
 #' @param GTF.attrType.extra Additional GTF attribute to include in the output (e.g., gene symbol). Default= NULL.
 #' @param allowMultiOverlap If a read overlaps more than one feature, should be assigned to all overlapping features? Default= FALSE.
 #' @param counts.stats.output.folder Directory for the alignment statistics file. Default= "db/count_stats/".
@@ -51,7 +51,7 @@ cmd_countRsubread <- function(bam,
                               counts.stats.output.folder= "db/count_stats/",
                               counts.output.folder= "db/counts/",
                               Rpath= "Rscript",
-                              cores= cores)
+                              cores= 4)
 {
   # Check (!Do not check if bam file exists to allow wrapping!) ----
   if(length(bam)!=1)

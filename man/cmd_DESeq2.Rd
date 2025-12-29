@@ -8,7 +8,9 @@ cmd_DESeq2(
   count.files,
   sample.names,
   conditions,
-  ctl.conditions = unique(conditions),
+  ctl.conditions = NULL,
+  min.cutoff = c(3, 2),
+  max.cutoff = Inf,
   norm.counts = NULL,
   padj.cutoff = 0.05,
   log2FC.cutoff = log2(1.5),
@@ -26,7 +28,11 @@ cmd_DESeq2(
 
 \item{conditions}{A comma-separated vector of condition names.}
 
-\item{ctl.conditions}{comma-separated list of control conditions names.}
+\item{ctl.conditions}{comma-separated list of control conditions names. By default, unique(conditions) will be used.}
+
+\item{min.cutoff}{min-count filter 'x,y': keep genes with count >= x in at least y samples (e.g. 3,2).}
+
+\item{max.cutoff}{max-count filter 'z': keep genes with max(count) <= z across all samples (e.g. Inf).}
 
 \item{norm.counts}{A comma-separated vector of spike-in/libsize counts that will be used for normalization.
 Default = NULL (use default method to degine sizeFactors).}

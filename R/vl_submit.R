@@ -109,8 +109,8 @@ vl_submit <- function(cmd,
     final_cmd <- paste(unique(cmd$cmd), collapse = "; ")
     if(!is.null(conda)) {
       if(!any(grepl("mamba|conda", modules)))
-        warning("A conda env was specified but no mamba module was loaded!")
-      final_cmd <- paste0("source activate ", conda, "; ", final_cmd)
+        warning("A conda env was specified but no mamba module was loaded -> activation skiped!") else
+          final_cmd <- paste0("source activate ", conda, "; ", final_cmd)
     }
     if(!is.null(modules))
       final_cmd <- paste(c(paste0("ml ", modules), final_cmd), collapse = "; ")

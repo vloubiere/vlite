@@ -12,23 +12,6 @@ if(F) {
   file.edit("R/proseqProcessing_ncRNAdecoy.R")
 }
 
-# PWM tools --------------------------------
-if(F) {
-  # Switch between normalizations
-  file.edit("R/pfmToPWM.R") # pfm to PWM
-  file.edit("R/pwmToICM.R") # PWM to ICM
-
-  # Import JASPAR
-  file.edit("R/importJASPAR.R") # Import a combined JASPAR file
-
-  # Plot DNA letters/logos
-  file.edit("R/plotDNAletter.R") # Helper funciton
-  file.edit("R/vl_seqLogo.R") # Plot the logo of a given PWM
-  file.edit("R/vl_percLogo.R") # Plot percentage or frequency matrix
-  file.edit("R/addSeqLogo.R") # Add PWM to an existing plot
-  file.edit("R/addMotifs.R") # Add motifs to a heatmap
-}
-
 # AUC and model performance ----------------
 if(F) {
   file.edit("R/vl_rocAUC.R") # Compute roc AUC and NES
@@ -132,6 +115,16 @@ if(F) {
 
 # Motifs analyses tools --------------------
 if(F) {
+  # Import JASPAR
+  file.edit("R/importJASPAR.R") # Import a combined JASPAR file
+
+  # Plot motif logos
+  file.edit("R/plotDNAletter.R") # Helper function
+  file.edit("R/vl_seqLogo.R") # Plot the logo of a given PWM
+  file.edit("R/addSeqLogo.R") # Add logo to an existing plot
+  file.edit("R/addMotifs.R") # Add motifs to a heatmap
+  file.edit("R/vl_percLogo.R") # Plot percentage or frequency matrix
+
   # Reverse complement DNA sequence
   file.edit("R/revCompDNA.R")
 
