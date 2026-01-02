@@ -4,22 +4,27 @@
 \alias{vl_seqLogo}
 \title{Plot PWM seqlogo}
 \usage{
-vl_seqLogo(PWM, name = NA)
+vl_seqLogo(ICM, sel = 1, name = NULL, ...)
 }
 \arguments{
-\item{name}{Name of the motif to plot as a title.}
+\item{ICM}{A TFBSTools ICMatrix or ICMatrixList.}
 
-\item{pwm}{A PWM.}
+\item{sel}{If ICM is an ICMatrixList, index or name of the ICM that should be plotted.
+Default= 1.}
+
+\item{name}{Name of the motif to plot as a title. By default, the name stored in the ICM will be used.}
+
+\item{...}{Extra plotting parameters for the plot funciton.}
 }
 \description{
-Transforms a PWM into an ICM before plotting the logo,
+Plots an ICM after removing low information bases (see ICM schneider correction).
 }
 \examples{
 # Retrieve br motif
 pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-pwm <- importJASPAR(pfm.file)$pwms_log_odds[["br"]]
+ICM <- importJASPAR(pfm.file)$ICM[["br"]]
 
 # Plot
-vl_seqLogo(pwm)
+vl_seqLogo(ICM)
 
 }

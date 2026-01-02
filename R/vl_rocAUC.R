@@ -1,10 +1,12 @@
 #' ROC AUC
 #'
-#' @param ranks A vector of numeric variables used for ranking (decreasing= TRUE by default. See decreasing argument).
-#' @param labels A vector of logical labels to compute the ROC (or that can be coerced to logical).
+#' A wrapper around pROC::roc and pROC::auc that computes the ROC AUC, NES and/or plots the ROC curve.
+#' 
+#' @param rank A numeric variable used for ranking (decreasing= TRUE by default. See decreasing argument).
+#' @param label A vector of logical labels (or that can be coerced to logical).
 #' @param compute.NES Should the Normalized Enrichment Score be computed (Niter= 1000)? Default= TRUE.
 #' @param N.iter Number of iterations used to compute the NES. Default= 100L
-#' @param decreasing Should the sort order for ranks be increasing or decreasing? Default= TRUE.
+#' @param decreasing Should the sort order for rank be decreasing? Default= TRUE.
 #' @param plot Should the ROC be plotted? Default= FALSE.
 #' @param main Main title Default= "ROC".
 #' @param xlab xlab. Default= "FPR".
@@ -12,11 +14,16 @@
 #' @param type The type of plot. Default= "l".
 #' @param add Should the ROC line be added to an existing plot?
 #' @param ... Extra arguments to be passed to plot (when plot= TRUE) or lines (when plot= FALSE and add= TRUE).
-#'
-#' @return ROC AUC
+#' 
+#' @examples
+#' # Example code
+#' vl_rocAUC(rank= 10:1, label= rep(c(T, F), each= 5), plot= T)
+#' 
+#' @return ROC AUC, NES and/or the ROC curve.
+#' 
 #' @export
-vl_rocAUC <- function(ranks,
-                      labels,
+vl_rocAUC <- function(rank,
+                      label,
                       compute.NES= TRUE,
                       N.iter= 100L,
                       decreasing= TRUE,
@@ -29,49 +36,46 @@ vl_rocAUC <- function(ranks,
                       ...)
 {
   # Checks ----
-  if(!is.logical(labels)) {
-    labels <- as.logical(labels)
-    warning("labels coerced to logical")
-  }
-  stopifnot(length(ranks) == length(labels))
-
-  # Compute N pos and neg ----
-  n_pos <- sum(labels)
-  n_neg <- sum(!labels)
-  stopifnot(n_pos > 0, n_neg > 0)
-
-  # Order ----
-  labels <-  labels[order(ranks, decreasing= decreasing, method= "radix")]
-
-  # Compute TRUE and FALSE positive rate ----
-  TPR <- c(0, cumsum(labels) / n_pos)
-  FPR <- c(0, cumsum(!labels) / n_neg)
-
-  # AUC via trapezoidal rule ----
-  auc <- sum(diff(FPR) * (head(TPR, -1) + tail(TPR, -1)) / 2)
-
-  # bg for NES ---
-  set.seed(123)
+  if(!is.logical(label))
+    label <- as.logical(label)
+  stopifnot(is.logical(label))
+  stopifnot(length(label)==length(rank))
+  
+  # Compute ROC auc ----
+  ROC <- pROC::roc(
+    response= label,
+    predictor= rank,
+    direction= ifelse(decreasing, "<", ">"),
+    levels= c(F, T)
+  )
+  auc <- as.numeric(pROC::auc(ROC))
+  
+  # Compute NES ---
   if(compute.NES) {
+    set.seed(123)
     rdm <- sapply(seq(N.iter), function(i) {
-      perm <- sample(labels)
-      pTPR <- c(0, cumsum(perm) / n_pos)
-      pFPR <- c(0, cumsum(!perm) / n_neg)
-      sum(diff(pFPR) * (head(pTPR, -1) + tail(pTPR, -1)) / 2)
+      ROC <- pROC::roc(
+        response= sample(label),
+        predictor= rank,
+        direction= ifelse(decreasing, "<", ">"),
+        levels= c(F, T)
+      )
+      as.numeric(pROC::auc(ROC))
     })
     NES <- (auc - mean(rdm)) / sd(rdm)
   }
-
+  
   # Plot ----
   if(add)
   {
-    lines(FPR,
-          TPR,
+    lines(1-ROC$specificities, # FPR= 1-specificity
+          ROC$sensitivities, # TPR= sensitivity
+          col= "red",
           ...)
   } else if(plot)
   {
-    plot(FPR,
-         TPR,
+    plot(1-ROC$specificities, # FPR= 1-specificity
+         ROC$sensitivities, # TPR= sensitivity
          xlab= xlab,
          ylab= ylab,
          type= type,
@@ -79,7 +83,7 @@ vl_rocAUC <- function(ranks,
          ...)
     abline(0, 1, lty = 2, col = "grey")
   }
-
+  
   # Return ----
   var <- if(compute.NES)
     data.table(auc= auc, NES= NES) else

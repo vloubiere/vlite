@@ -47,26 +47,19 @@ resizeBed <- function(bed,
   current <- vlite::importBed(bed)
 
   # Get region anchor depending on strand ----
-  newStart <- if(center=="start"){
-    current[, ifelse(strand=="-" & !ignore.strand, end, start)]
+  if(center=="start") {
+    current[, start:= ifelse(!ignore.strand && strand=="-", end-(downstream+1), start-upstream)]
   } else if(center=="end") {
-    current[, ifelse(strand=="-" & !ignore.strand, start, end)]
+    current[, start:= ifelse(!ignore.strand && strand=="-", start-downstream, end-(upstream+1))]
   } else if(center=="center") {
-    current[, floor(rowMeans(.SD)), .SDcols= c("start", "end")]
+    current[, start:= {
+      ifelse(!ignore.strand && strand=="-", floor(rowMeans(.SD))-(downstream+1), floor(rowMeans(.SD))-upstream)
+    }, .SDcols= c("start", "end")]
   } else if(center=="region") {
-    current[, start]
+    current[, start:= ifelse(!ignore.strand && strand=="-", end+upstream, start-downstream)]
   } else
     stop("center should be one of 'center', 'start', 'end', 'region'.")
-
-  # Compute width if relevant ----
-  if(center=="region")
-    width <- current[, end-start] # In this case, do not subtract 1!
-
-  # Resize ----
-  current$start <- newStart-ifelse(current$strand=="-" & !ignore.strand, downstream, upstream)
-  current$end <- newStart+ifelse(current$strand=="-" & !ignore.strand, upstream, downstream)
-  if(center=="region")
-    current$end <- current$end+width
+  current[, end:= start+upstream+downstream]
 
   # Clip regions outside of chromosomes ----
   if(!is.null(genome)) {
@@ -74,6 +67,10 @@ resizeBed <- function(bed,
     current <- vlite::clipBed(current, sizes)
   }
 
+  # Sanity check ----
+  if(any(current$start<1 | current[,start>end]))
+    warning("Some regions with start<1 or start>end!")
+  
   # Return ----
   return(current)
 }

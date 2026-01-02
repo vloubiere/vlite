@@ -72,6 +72,10 @@ download.file(url = "https://static-content.springer.com/esm/art\%3A10.1038\%2Fs
 act <- readxl::read_xlsx(tmp, sheet = 1)
 act <- act$gene_id[act$hit==TRUE]
 
+# Repressors
+rep <- readxl::read_xlsx(tmp, sheet = 2)
+rep <- rep$gene_id[rep$hit==TRUE]
+
 # Background (genes with input integration)
 bg <- readxl::read_xlsx(tmp, sheet = 1)
 bg <- bg$gene_id[!is.na(bg$FDR)]
@@ -80,10 +84,6 @@ bg <- bg$gene_id[!is.na(bg$FDR)]
 enr <- vl_GOenrich(geneIDs = act,
                    geneUniverse.IDs = bg,
                    species= "Mm")
-
-# Repressors
-rep <- readxl::read_xlsx(tmp, sheet = 2)
-rep <- rep$gene_id[rep$hit==TRUE]
 
 # Plot
 vl_par(mai= c(.9, 2, .9, 1.3))
@@ -120,7 +120,7 @@ genes <- as.data.table(genes)
 cl <- genes[!cluster \%in\% c("NA", "Unaffected")]
 cl <- split(cl$FBgn, cl[, .(cluster, V2= ifelse(PcG_bound, "Bound", "Unbound"))])
 
-# Compare activators and repressor Cellular Compartments
+# Compare clusters
 enr <- vl_GOenrich(geneIDs = cl,
                    geneUniverse.IDs = genes$FBgn,
                    species= "Dm")

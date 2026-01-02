@@ -5,8 +5,8 @@
 \title{ROC AUC}
 \usage{
 vl_rocAUC(
-  ranks,
-  labels,
+  rank,
+  label,
   compute.NES = TRUE,
   N.iter = 100L,
   decreasing = TRUE,
@@ -20,15 +20,15 @@ vl_rocAUC(
 )
 }
 \arguments{
-\item{ranks}{A vector of numeric variables used for ranking (decreasing= TRUE by default. See decreasing argument).}
+\item{rank}{A numeric variable used for ranking (decreasing= TRUE by default. See decreasing argument).}
 
-\item{labels}{A vector of logical labels to compute the ROC (or that can be coerced to logical).}
+\item{label}{A vector of logical labels (or that can be coerced to logical).}
 
 \item{compute.NES}{Should the Normalized Enrichment Score be computed (Niter= 1000)? Default= TRUE.}
 
 \item{N.iter}{Number of iterations used to compute the NES. Default= 100L}
 
-\item{decreasing}{Should the sort order for ranks be increasing or decreasing? Default= TRUE.}
+\item{decreasing}{Should the sort order for rank be decreasing? Default= TRUE.}
 
 \item{plot}{Should the ROC be plotted? Default= FALSE.}
 
@@ -48,5 +48,5 @@ vl_rocAUC(
 ROC AUC
 }
 \description{
-ROC AUC
+Computes roc AUC and eventually plot the corresponding curve.
 }

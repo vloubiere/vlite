@@ -6,22 +6,42 @@
 \usage{
 importJASPAR(
   combinedFile,
-  pseudocount = 0.00001,
-  bg = c(A = 0.25, C = 0.25, G = 0.25, T = 0.25)
+  bg = c(A = 0.25, C = 0.25, G = 0.25, T = 0.25),
+  pseudocount = 0.8,
+  schneider = TRUE,
+  simplify.names = T
 )
 }
 \arguments{
-\item{combinedFile}{Path to a combined .pfm file containing JASPAR-formatted raw PFMs.}
-
-\item{pseudocount}{Pseudocount to be added to PPMs before logging. Default= 1e-5.}
+\item{combinedFile}{Path to a combined file containing JASPAR-formatted raw PFMs.}
 
 \item{bg}{Background probabilities. Default= c("A"= .25, "C"= .25, "G"= .25, "T"= .25).}
+
+\item{pseudocount}{Pseudocount added to PFMs before computing PPMs, PWMs and ICMs. Default= .8.}
+
+\item{schneider}{Should schneider correction be used for ICMs? Default= TRUE.}
 }
 \value{
 A list containing PPM and PWM matrices stored in TFBSTools::PWMatrix sublists.
 }
 \description{
-Imports a .pfm text file containing JASPAR PFMs and parse them into lists of PPM and PWM TFBSTools::PWMatrix objects.
+Imports a .pfm text file containing JASPAR PFMs, and uses functions from the TFBStools package
+to compute the following raw and normalized position matrices:
+}
+\details{
+- PFM (Position Frequency Matrix): Raw counts of each nucleotide at each position.
+
+- PPM (Position Probability Matrix): Column-normalized version of the PFM where
+  counts are converted to probabilities (each column sums to 1).
+
+- PWM/PSSM (Position Weight/Specific Scoring Matrix): Log-odds scores that compare
+  the PPM to a background model. Typically: log2(observed_probability / background_probability).
+  These matrices are used for scoring sequences and calling motif hits.
+
+- ICM (Information Content Matrix): Visualization-oriented transformation derived
+  from the PPM using Shannon information. For DNA, the per-position information
+  content is I = 2 - H, where H is the column entropy in bits; base heights in
+  sequence logos are p_base * I. The maximum per-position information is 2 bits.
 }
 \examples{
 pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")

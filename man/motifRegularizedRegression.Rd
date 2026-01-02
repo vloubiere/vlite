@@ -21,19 +21,19 @@ motifRegularizedRegression(
 
 \item{counts}{Matrix of motif counts (n_regions x n_motifs).}
 
-\item{names}{Optional motif display names (length = ncol(counts)). Defaults to colnames(counts).}
+\item{names}{Optional motif display names (length = ncol(counts)). Defaults= colnames(counts).}
 
-\item{CV}{Test set proportion in (0,1). Default 0.1.}
+\item{CV}{Test set proportion in (0,1). Default= 0.1.}
 
 \item{seed}{Integer seed. Default 123.}
 
-\item{repeats}{Integer number of repeats. Default 10.}
+\item{repeats}{Integer number of repeats. Default= 10.}
 
 \item{alpha}{Numeric in [0,1]. alpha=1 is LASSO; 0<alpha<1 is Elastic Net; alpha=0 is ridge. Default= 0.5.}
 
-\item{use_1se}{Logical; if TRUE uses lambda.1se else lambda.min. Default TRUE (more stable).}
+\item{use_1se}{Logical; if TRUE uses lambda.1se instead of lambda.min. Default= TRUE (more stable).}
 
-\item{nfolds}{Integer folds for inner CV. Default 5.}
+\item{nfolds}{Integer folds for inner CV. Default= 5.}
 }
 \value{
 List with:

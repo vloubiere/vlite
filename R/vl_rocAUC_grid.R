@@ -1,6 +1,6 @@
-#' rocAUC for many ranks.labels
+#' Paralle ROC AUC
 #'
-#' A wrapper around vl_rocAUC to compute many rank/label combinations in paralle.
+#' A wrapper around vl_rocAUC that computes ROC AUC and NES for many rank/label combinations.
 #'
 #' @param ranks A matrix (or.data.table) of variables (one per column) used for ranking (decreasing= TRUE by default. See decreasing argument).
 #' @param labels A matrix (or data.table) of logical labels (one per column) for which ROC AUC will be computed .
@@ -11,8 +11,17 @@
 #' @param labels.name The name to give to the labels variables. Default= "label".
 #' @param cleanup.cache Should the temporary files be overwritten?
 #'
-#' @return
+#' @return ROC AUC values and NES for all ranks/labels combinations.
+#' 
 #' @examples
+#' # Create synthetic data
+#' rank <- 10:1
+#' ranks <- matrix(c(rank, rev(rank)), ncol= 2)
+#' label <- rep(c(T, F), each= 5)
+#' labels <- matrix(c(label, rev(label)), ncol= 2)
+#' 
+#' # Compute ROC AUC
+#' vl_rocAUC_grid(ranks= ranks, labels= labels)
 #'
 #' @export
 vl_rocAUC_grid <- function(ranks,
@@ -32,13 +41,13 @@ vl_rocAUC_grid <- function(ranks,
     labels <- as.data.table(labels)
   stopifnot(all(sapply(labels, function(x) is.numeric(x) | is.logical(x))))
   stopifnot(nrow(ranks)==nrow(labels))
-
+  
   # Use a temp directory for caching signal files ----
   cache.file <- vl_cache_file(list(ranks, labels, compute.NES, N.iter, decreasing))
-
+  
   # Main function ----
   if(cleanup.cache | !file.exists(cache.file)){
-
+    
     # Loop over columns ----
     res <- lapply(
       seq_along(ranks),
@@ -50,8 +59,8 @@ vl_rocAUC_grid <- function(ranks,
             if(j %% 10 == 0)
               message(paste0(j, "/", ncol(labels), " label"))
             vl_rocAUC(
-              ranks = ranks[[i]],
-              labels = labels[[j]],
+              rank = ranks[[i]],
+              label = labels[[j]],
               compute.NES = compute.NES,
               N.iter = N.iter,
               decreasing = decreasing
@@ -60,24 +69,24 @@ vl_rocAUC_grid <- function(ranks,
         )
       }
     )
-
+    
     # rbind result ----
     res <- lapply(res, function(x) {names(x) <- colnames(labels); rbindlist(x, idcol= labels.name)})
     names(res) <- colnames(ranks)
     res <- rbindlist(res, idcol= ranks.name)
-
+    
     # Save ----
     saveRDS(res, cache.file)
-
+    
   } else {
-
+    
     # Import cached file ----
     res <- readRDS(cache.file)
   }
-
+  
   # Format ----
   setattr(res, "class", c("vl_auc", "data.table", "data.frame"))
-
+  
   # Return ----
   return(res)
 }

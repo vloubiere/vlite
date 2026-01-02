@@ -4,18 +4,10 @@
 \alias{addSeqLogo}
 \title{Add ICM logos to an existing plot}
 \usage{
-addSeqLogo(
-  pwm,
-  x,
-  y,
-  pos = 2,
-  cex.width = 1,
-  cex.height = 1,
-  min.content = 0.05
-)
+addSeqLogo(ICM, x = NULL, y = NULL, pos = 2, cex.width = 1, cex.height = 1)
 }
 \arguments{
-\item{pwm}{List of percentage PWM matrices which will be converted to ICM before plotting.}
+\item{ICM}{A list of ICMs to be plotted.}
 
 \item{x}{x positions (see pos argument).}
 
@@ -33,13 +25,13 @@ addSeqLogo(
 plot seqlogo from pwm matrix
 }
 \examples{
-#' # Retrieve br motif
+# Retrieve br motif
 pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-pwm <- importJASPAR(pfm.file)$pwms_log_odds[["br"]]
+ICM <- importJASPAR(pfm.file)$ICM
 
 # Plot
 plot(0, 1, type= "n")
-addSeqLogo(pwm, x = -1, y= 1, cex.height = 3, cex.width = 2, pos= 2)
+addSeqLogo(ICM[1:3], x = -1, y= seq(0.8, 1.2, .2), cex.height = 1.5, cex.width = 1, pos= 2)
 # Higher min.content cutoff
 addSeqLogo(pwm, x = -1, y= 0.8, cex.height = 3, cex.width = 2, pos= 2, min.content= 1)
 

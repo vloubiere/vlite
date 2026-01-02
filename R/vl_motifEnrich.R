@@ -9,8 +9,8 @@
 #' By default, column names are used as is.
 #' @param fisher.alternative The alternative for the fisher test. By default, if counts is a data.table or
 #' a list of length one, set to "two.sided". If counts contain at least two groups, set to "greater".
-#' @param log2OR.pseudocount Numeric. A pseudocount added to the contingency table to avoid infinite values
-#' in the log2 odds ratio calculation. Default= 0.5.
+#' @param log2OR.pseudocount Numeric. A pseudocount added to the contingency table containing 0s, in order
+#' to avoid infinite log2 odd ratios. Default= 0.5.
 #' @param countFUN The function to be used for each motif, in order to compute the number of positive sequences.
 #' By default, a sequence will be considered positive if it contains at least one motif.
 #' Default= function(motifCount) sum(motifCount>=1).

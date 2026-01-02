@@ -49,6 +49,10 @@
 #' act <- readxl::read_xlsx(tmp, sheet = 1)
 #' act <- act$gene_id[act$hit==TRUE]
 #'
+#' # Repressors
+#' rep <- readxl::read_xlsx(tmp, sheet = 2)
+#' rep <- rep$gene_id[rep$hit==TRUE]
+#' 
 #' # Background (genes with input integration)
 #' bg <- readxl::read_xlsx(tmp, sheet = 1)
 #' bg <- bg$gene_id[!is.na(bg$FDR)]
@@ -57,10 +61,6 @@
 #' enr <- vl_GOenrich(geneIDs = act,
 #'                    geneUniverse.IDs = bg,
 #'                    species= "Mm")
-#'
-#' # Repressors
-#' rep <- readxl::read_xlsx(tmp, sheet = 2)
-#' rep <- rep$gene_id[rep$hit==TRUE]
 #'
 #' # Plot
 #' vl_par(mai= c(.9, 2, .9, 1.3))
@@ -97,7 +97,7 @@
 #' cl <- genes[!cluster %in% c("NA", "Unaffected")]
 #' cl <- split(cl$FBgn, cl[, .(cluster, V2= ifelse(PcG_bound, "Bound", "Unbound"))])
 #'
-#' # Compare activators and repressor Cellular Compartments
+#' # Compare clusters
 #' enr <- vl_GOenrich(geneIDs = cl,
 #'                    geneUniverse.IDs = genes$FBgn,
 #'                    species= "Dm")
@@ -132,25 +132,24 @@ vl_GOenrich <- function(geneIDs,
                         log2OR.pseudocount= 0.5,
                         cleanup.cache= FALSE)
 {
-  # Checks
-  if(is.character(geneIDs))
-    geneIDs <- list(set= geneIDs)
-  if(is.null(names(geneIDs)))
-    names(geneIDs) <- seq(geneIDs)
-  if(anyDuplicated(names(geneIDs)))
-    stop("names(geneIDs) should be unique!")
+  # Checks ----
   if(!species %in% c("Dm", "Mm"))
     stop("Species should be one of 'Dm' or 'Mm'")
   if(!is.character(geneUniverse.IDs))
     stop("geneUniverse.IDs should be a character vector of gene IDs.")
-
-  # Make unique
+  # Format and make unique ----
+  if(is.character(geneIDs))
+    geneIDs <- list(set= geneIDs)
+  if(is.null(names(geneIDs)))
+    names(geneIDs) <- seq_along(geneIDs)
+  if(anyDuplicated(names(geneIDs)))
+    stop("names(geneIDs) are not unique.")
   geneIDs <- lapply(geneIDs, unique)
   geneUniverse.IDs <- unique(geneUniverse.IDs)
   if(any(!unlist(geneIDs) %in% geneUniverse.IDs))
     stop("Some geneIDs were absent from the geneUniverse.IDs.")
-
-  # Genome
+  
+  # Genome ----
   db <- switch(species,
                "Dm"= org.Dm.eg.db::org.Dm.eg.db,
                "Mm"= org.Mm.eg.db::org.Mm.eg.db)
@@ -158,109 +157,95 @@ vl_GOenrich <- function(geneIDs,
     keyType <- switch(species,
                       "Dm"= "FLYBASE",
                       "Mm"= "ENSEMBL")
-
-  # Use a temp directory for caching GOs associated to gene sets ----
-  set.params <- list(geneIDs,
-                     species,
-                     select)
-  set.key <- digest::digest(set.params)
-  set.cache <- file.path(tempdir(), paste0(set.key, ".rds"))
-
-  # Extract GOs associated to set of genes ----
-  if(cleanup.cache | !file.exists(set.cache)) {
+  
+  # Temp directory for caching GOs ----
+  cache.file <- vl_cache_file(list(geneUniverse.IDs, species))
+  
+  # Extract GOs associated to universe ----
+  if(cleanup.cache | !file.exists(cache.file)) {
     set <- AnnotationDbi::select(x= db,
-                                 keys = unique(unlist(geneIDs)),
+                                 keys = geneUniverse.IDs,
                                  keytype= keyType,
                                  columns= "GOALL")
     set <- data.table::as.data.table(set)
+    # Simplify
     set$EVIDENCEALL <- NULL
     setnames(set,
              c("gene_id", "GO", "annotation"))
-    set <- na.omit(unique(set[annotation %in% select]))
-    # Save
-    saveRDS(set, set.cache)
-  } else
-    set <- readRDS(set.cache)
-
-  # Use a temp directory for caching genes associated to set GOs ----
-  go.params <- list(set,
-                    geneUniverse.IDs)
-  go.key <- digest::digest(go.params)
-  go.cache <- file.path(tempdir(), paste0(go.key, ".rds"))
-
-  # Extract all genes IDs associated to these GOs ----
-  if(cleanup.cache | !file.exists(go.cache)) {
-    GOs <- AnnotationDbi::select(x= db,
-                                 keys = unique(set$GO),
-                                 keytype= "GOALL",
-                                 columns= keyType)
-    GOs <- data.table::as.data.table(GOs)
-    GOs$EVIDENCEALL <- NULL
-    setnames(GOs,
-             c("GO", "annotation", "gene_id"))
-    # Restrict to genes present in the universe
-    GOs <- unique(GOs[gene_id %in% geneUniverse.IDs])
-    # Count
-    GOs[, universe_hit:= length(unique(gene_id)), .(annotation, GO)]
-    GOs[, universe_total:= length(unique(gene_id))]
+    set <- na.omit(unique(set))
     # Add description
-    terms <- AnnotationDbi::select(GO.db::GO.db,
-                                   keys = as.character(unique(GOs$GO)),
-                                   keytype= "GOID",
-                                   columns= "TERM")
+    terms <- AnnotationDbi::select(
+      GO.db::GO.db,
+      keys = as.character(unique(set$GO)),
+      keytype= "GOID",
+      columns= "TERM"
+    )
     terms <- as.data.table(terms)
-    GOs[terms, name:= i.TERM, on= "GO==GOID"]
+    set[terms, name:= i.TERM, on= "GO==GOID"]
+    # Count
+    set[, universe_hit:= uniqueN(gene_id), .(GO, annotation)]
+    set[, universe_total:= uniqueN(gene_id), annotation]
     # Save
-    saveRDS(GOs, go.cache)
+    saveRDS(set, cache.file)
   } else
-    GOs <- readRDS(go.cache)
-
-  # Compute enrichments per cluster ----
-  enr <- lapply(geneIDs, function(x) {
-    # Compute overlaps
-    GOs[, set:= gene_id %in% x]
-    GOs[, set_hit:= sum(set), .(annotation, GO)]
-    GOs[, set_total:= length(x)]
-    # Compute enrichments
-    GOs[, c("OR", "pval"):= {
-      # Contingency matrix
-      mat <- c(set_hit, set_total - set_hit,
-               universe_hit - set_hit, (universe_total - set_total) - (universe_hit - set_hit))
-      mat <- matrix(mat, byrow= T, ncol= 2)
-      # p.value
-      .f <- fisher.test(mat, alternative = "greater")
-      # log2OR (pseudocount avoid Inf)
-      if(any(mat==0)) {
-        mat <- mat+log2OR.pseudocount
-        .f$estimate <- (mat[1,1] * mat[2,2]) / (mat[2,1] * mat[1,2])
-      }
-      .(.f$estimate, .f$p.value)
-    }, .(set_hit, set_total, universe_hit, universe_total)]
-    unique(GOs[, !c("gene_id", "set")])
-  })
+    set <- readRDS(cache.file)
+  
+  # Select annotations ----
+  set <- set[annotation %in% select]
+  
+  # Compute overlaps ----
+  enr <- lapply(geneIDs, function(x) data.table(gene_id= unique(x)))
   enr <- rbindlist(enr, idcol = "cl")
-  enr[, cl:= factor(cl, names(geneIDs))]
-
-  # Add all the associated genes ----
-  associated_genes <- lapply(geneIDs, function(x) set[gene_id %in% x, paste0(sort(unique(gene_id)), collapse = ","), .(GO, annotation)])
-  associated_genes <- rbindlist(associated_genes, idcol = "cl")
-  enr[associated_genes, associated_genes:= i.V1, on= c("cl", "GO", "annotation")]
-
+  enr <- merge(enr, set, by= "gene_id")
+  enr[, set_hit:= uniqueN(gene_id), .(cl, GO, annotation)]
+  enr[, set_total:= uniqueN(gene_id), .(cl, annotation)]
+  
+  # Warning genes with no annotations ----
+  message("Genes mapped:")
+  message(paste("Set:", uniqueN(enr$gene_id), "/", uniqueN(unlist(geneIDs))))
+  message(paste("Universe:", uniqueN(set$gene_id), "/", uniqueN(geneUniverse.IDs)))
+  
+  # Compute enrichments per cluster ----
+  enr[, c("OR", "pval"):= {
+    # Contingency matrix
+    mat <- c(
+      set_hit,
+      set_total - set_hit,
+      universe_hit - set_hit,
+      (universe_total - set_total) - (universe_hit - set_hit)
+    )
+    mat <- matrix(mat, byrow= T, ncol= 2)
+    # p.value
+    .f <- fisher.test(mat, alternative = "greater")
+    # log2OR (pseudocount avoid Inf)
+    if(any(mat==0)) {
+      mat <- mat+log2OR.pseudocount
+      .f$estimate <- (mat[1,1] * mat[2,2]) / (mat[2,1] * mat[1,2])
+    }
+    .(.f$estimate, .f$p.value)
+  }, .(set_hit, set_total, universe_hit, universe_total)]
+  
+  # Make unique object ----
+  uniq.cols <- setdiff(names(enr), "gene_id")
+  res <- enr[, .(associated_genes= paste0(sort(unique(gene_id)), collapse = ",")), uniq.cols]
+  
   # Compute log2OR and padj ----
-  enr[, log2OR:= log2(OR)]
-  enr[, padj:= p.adjust(pval, method = "fdr"), cl]
-  enr$OR <- NULL
+  res[, log2OR:= log2(OR)]
+  res[, padj:= p.adjust(pval, method = "fdr"), .(cl, annotation)]
+  res$OR <- res$pval <- NULL
+  
+  # Order ----
+  res[, cl:= factor(cl, names(geneIDs))]
+  setorderv(res, c("cl", "padj"))
+  setcolorder(res, c("cl", "GO", "annotation", "name", "log2OR", "padj"))
+  
   # Define class (for plotting methods) ----
-  if(length(unique(enr$cl))>1) {
-    setattr(enr, "class", c("vl_enr_cl", "data.table", "data.frame"))
+  if(length(geneIDs)>1) {
+    setattr(res, "class", c("vl_enr_cl", "data.table", "data.frame"))
   } else {
-    setattr(enr, "class", c("vl_enr", "data.table", "data.frame"))
+    setattr(res, "class", c("vl_enr", "data.table", "data.frame"))
   }
-
+  
   # Order and return enrichment table ----
-  setcolorder(enr,
-              c("cl", "GO", "annotation", "name"))
-  setorderv(enr,
-            c("cl", "padj"))
-  return(enr)
+  return(res)
 }

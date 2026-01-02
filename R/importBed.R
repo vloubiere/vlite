@@ -25,7 +25,7 @@
 #' importBed(c("chr2L:1000-2000:+", "chr3L:1000-2000:-", "chr3L:4000-6000:*"))[]
 #'
 #' # From GRanges
-#' importBed(GRanges("chr2L", IRanges(c(1000, 5000), c(2000, 6000))))[]
+#' gr <- importBed(GRanges("chr2L", IRanges(c(1000, 5000), c(2000, 6000))))[]
 #'
 #' # From bed file
 #' bed_file <- tempfile(fileext = ".bed")
@@ -46,13 +46,14 @@
 #'   peak = 1500
 #' )
 #' narrowPeak_file <- tempfile(fileext = ".narrowPeak")
+#' exportBed(peaks, narrowPeak_file)
 #' importBed(narrowPeak_file)
 #'
 #' @export
 importBed <- function(bed)
 {
   if(is.character(bed)) {
-    if(any(grepl("\\.(bed|narrowPeak|broadPeak)$", bed))) {
+    if(any(grepl("\\.(bed|narrowPeak|broadPeak|bed.gz|narrowPeak.gz|broadPeak.gz)$", bed))) {
 
       # Import bed file using rtracklayer ----
       current <- data.table::as.data.table(rtracklayer::import(bed))
@@ -62,12 +63,12 @@ importBed <- function(bed)
       # Import character coordinates using GenomicRanges ----
       gr <- gsub(",", "", bed) # Remove potential comas
       gr <- GenomicRanges::GRanges(gr)
-      check.col <- names(mcols(gr))
+      check.col <- names(GenomicRanges::mcols(gr))
       current <- data.table::as.data.table(gr)
-      # If no 'width' column in mcols, remove it
+      # If no 'width' column in mcols, remove the one created during data.table conversion
       if(!length(check.col) || !"width" %in% check.col)
         current$width <- NULL
-      # Keep the provided coordinates as names
+      # Store the original coordinates as names
       current$name <- bed
     }
   } else if(is.data.frame(bed)) {
@@ -80,7 +81,7 @@ importBed <- function(bed)
     # Format required columns
     current[, seqnames := as.character(seqnames)]
     current[, start := as.integer(start)]
-    if(!"end" %in% names(current)) current[, end:= as.integer(start)]
+    if(!"end" %in% names(current)) current[, end:= start]
     current[, end:= as.integer(end)]
     if(!"strand" %in% names(current)) current[, strand:= "*"]
     # Check strand values
@@ -93,7 +94,7 @@ importBed <- function(bed)
     gr <- GenomicRanges::GRanges(bed)
     check.col <- names(GenomicRanges::mcols(gr))
     current <- data.table::as.data.table(gr)
-    # If no 'width' column in mcols, remove it
+    # If no 'width' column in mcols, remove the one created during data.table conversion
     if(!length(check.col) || !"width" %in% check.col)
       current$width <- NULL
 
@@ -101,6 +102,10 @@ importBed <- function(bed)
     stop("Input format could not be determined. See ?vlite::importBed.")
   }
 
+  # Sanity check ----
+  if(any(current$start<1 | current[,start>end]))
+    warning("Some regions with start<1 or start>end!")
+  
   # Return bed data.table ----
   return(current)
 }

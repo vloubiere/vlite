@@ -1,30 +1,29 @@
 #' Compute Matthew's Correlation Coefficient
 #'
-#' Matthew’s correlation coefficient (MCC) is a balanced binary-classification metric that measures the correlation between predicted and true labels.
+#' Matthew’s correlation coefficient (MCC) is a balanced binary-classification metric that measures
+#' the correlation between predicted and true labels.
 #'
 #' @param predicted Predicted values from the model (ranging from 0 to 1).
 #' @param label A vector of logical labels (or that can be coerced to logical).
 #'
-#' @return Mathhew's correlation coef
+#' @return Matthew's correlation coefficient (ranges from -1 to 1, see examples).
+#' 
+#' @examples
+#' # example code
+#' vl_MCC(predicted= c(1,1,1,0,0), label= c(T,T,T,F,F))
+#' vl_MCC(predicted= c(1,1,1,0,0), label= !c(T,T,T,F,F))
+#' 
 #' @export
-vl_MCC <- function(predicted,
-                    label)
+vl_MCC <- function(predicted, label)
 {
+  # Check
   if(!is.logical(label))
     label <- as.logical(label)
-  if(sum(label)==0)
-    warning(paste0(length(label), "/", length(label), " labels are set to FALSE"))
-
-  # Make table
-  conf_matrix <- table(pred= factor(predicted>0.5, c(FALSE, TRUE)),
-                       obs= factor(as.logical(label), c(FALSE, TRUE)))
-  TP <- as.numeric(conf_matrix[2, 2])
-  TN <- as.numeric(conf_matrix[1, 1])
-  FP <- as.numeric(conf_matrix[2, 1])
-  FN <- as.numeric(conf_matrix[1, 2])
-  # Compute
-  mCC <- (TP * TN - FP * FN) / sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))
-
-  # Return
-  return(mCC)
+  
+  # Compute mcc
+  yardstick::mcc_vec(
+    truth    = factor(label, c(TRUE, FALSE)),
+    estimate = factor(predicted > 0.5, c(TRUE, FALSE)),
+    na_rm= TRUE
+  )
 }

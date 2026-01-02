@@ -3,29 +3,31 @@
 #' Plots an ICM after removing low information bases (see ICM schneider correction).
 #'
 #' @param ICM A TFBSTools ICMatrix or ICMatrixList.
-#' @param sel If ICM is a list, a vector of indices or of motif IDs specifying which motifs should be plotted. Default= 1.
+#' @param sel If ICM is an ICMatrixList, index or name of the ICM that should be plotted.
+#' Default= 1.
 #' @param name Name of the motif to plot as a title. By default, the name stored in the ICM will be used.
+#' @param ... Extra plotting parameters for the plot funciton.
 #'
 #' @examples
-#' # Retrieve br motif
+#' # Import motifs ICMs
 #' pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-#' mot <- importJASPAR(pfm.file)
-#' idx <- which(mot$metadata$name=="br")
-#' ICM <- mot$ICM[[idx]]
+#' ICM <- importJASPAR(pfm.file, pseudocount = 0)$ICM
 #'
 #' # Plot
-#' vl_seqLogo(ICM)
+#' vl_seqLogo(ICM, sel= "br")
 #'
 #' @export
 vl_seqLogo <- function(ICM,
                        sel= 1,
-                       name= NULL)
+                       name= NULL,
+                       ...)
 {
   # Checks ----
-  if(class(ICM)=="ICMatrixList") {
-    if(is.integer())
+  if(inherits(ICM, "ICMatrixList")) {
+    stopifnot(length(sel)==1)
+    ICM <- ICM[[sel]]
   }
-
+  stopifnot(inherits(ICM, "ICMatrix"))
   if(is.null(name))
     name <- TFBSTools::name(ICM)
 
@@ -38,26 +40,11 @@ vl_seqLogo <- function(ICM,
   sel <- range(which(colSums(mat)>0))
   mat <- mat[, sel[1]:sel[2]]
 
-  # Compute plotting positions ----
-  dat <- as.data.table(mat, keep.rownames = "base")
-  .c <- melt(dat, "base", variable.name = "xleft", value.name = "height")
-  .c[, xleft:= as.numeric(xleft)]
-  setorderv(.c, "height", 1)
-  .c[, ytop:= cumsum(height), xleft]
-
   # Plot ----
-  plot(NA,
-       xlim= c(0.5, ncol(dat)+.5),
-       ylim= c(0, max(.c$ytop)),
-       xlab= "Position",
-       ylab= "Bits",
-       main= name)
-  .c[, {
-    plotDNAletter(base[1],
-                  xleft[1],
-                  ytop[1],
-                  1,
-                  height[1])
-  }, .(base, xleft, height, ytop)]
-  title(main= name)
+  vl_seqLogoMat(
+    mat,
+    name = name,
+    xlab= "Position",
+    ylab= "Bits"
+  )
 }

@@ -12,7 +12,7 @@ vl_MCC(predicted, label)
 \item{label}{A vector of logical labels (or that can be coerced to logical).}
 }
 \value{
-Mathhew's correlation coef
+Matthew's correlation coefficient
 }
 \description{
 Matthew’s correlation coefficient (MCC) is a balanced binary-classification metric that measures the correlation between predicted and true labels.
