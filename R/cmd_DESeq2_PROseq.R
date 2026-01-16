@@ -10,7 +10,7 @@
 #' @param ctl.conditions A character vector of control conditions. Default: all unique values in `conditions`.
 #' @param ref.genome.stat.files A character vector of paths to reference genome statistics files in `.txt` format.
 #' @param spikein.stat.files A character vector of paths to spike-in statistics files in `.txt` format.
-#' @param normalization A character string specifying the normalization method. Options are `default`, `libsize`, or `spikeIn`.
+#' @param normalization A character string specifying the normalization method. Options are `default`, `libSize`, or `spikeIn`.
 #'    Default: `spikeIn`.
 #' @param output.prefix A character string specifying the prefix for output files.
 #' @param feature A character string specifying the genomic feature being analyzed (e.g., `"exons"`, `"genes"`).
@@ -76,8 +76,7 @@ cmd_DESeq2_PROseq <- function(
     stop("normalization should be unique")
   if(length(feature)!=1)
     stop("feature should be unique")
-  if(!normalization %in% c("default", "libsize", "spikeIn"))
-    stop("normalization should be one of 'default', 'libsize', 'spikeIn'")
+  match.arg(arg = normalization, c("default", "libSize", "spikeIn"), several.ok = FALSE)
 
   # Output files paths ----
   dds.file <- file.path(dds.output.folder, paste0(output.prefix, "_", feature, "_", normalization, "_norm_DESeq2.dds"))
