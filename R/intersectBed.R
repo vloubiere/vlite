@@ -7,9 +7,10 @@
 #' @param a Query regions in any format compatible with ?importBed.
 #' @param b Target regions in any format compatible with ?importBed.
 #' @param maxgap A single integer specifying the maximum gap allowed between 2 ranges for them to
-#' be considered as overlapping. Default= -1.
+#' be considered as overlapping e.g., with maxgap= 0, touching regions will be considered as overlapping
+#' Default= -1L (>= 1 overlapping base).
 #' @param minoverlap A single integer specifying the minimum overlap between 2 ranges for them to
-#' be considered as overlapping. Default= 0.
+#' be considered as overlapping Default= 1L.
 #' @param invert If set to TRUE, returns regions in a that have no overlap(s) in b.
 #'   If set to FALSE (default), overlapping regions are returned.
 #' @param ignore.strand If set to FALSE, only overlapping features that are on the same strand are reported.
@@ -39,34 +40,23 @@
 intersectBed <- function(a,
                          b,
                          maxgap= -1L,
-                         minoverlap= 0L,
+                         minoverlap= 1L,
                          invert= FALSE,
                          ignore.strand= TRUE)
 {
-  # Import bed for incapsulation ----
-  a <- vlite::importBed(a)
-  b <- vlite::importBed(b)
-
-  # Overlaps ----
-  tmp <- rev(make.unique(c(names(a), "ov")))[1]
-  assign(
-    tmp,
-    GenomicRanges::countOverlaps(
-      query = GRanges(a),
-      subject = GRanges(b),
-      maxgap = maxgap,
-      minoverlap = minoverlap,
-      ignore.strand= ignore.strand
-    )
+  # Check overlap ----
+  ov <- covBed(
+    a= a,
+    b= b,
+    maxgap= maxgap,
+    minoverlap= minoverlap,
+    ignore.strand= ignore.strand
   )
-
+  ov <- if(invert) ov==0 else ov>0
+  
   # Non-intersecting indexes ----
-  res <- if(invert) {
-    a[get(tmp)==0]
-  } else {
-    a[get(tmp)>0]
-  }
-
+  res <- a[(ov), env = list(ov= ov)]
+  
   # Return, preserving original order ----
   return(res)
 }

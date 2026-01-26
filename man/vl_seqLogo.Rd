@@ -20,11 +20,11 @@ Default= 1.}
 Plots an ICM after removing low information bases (see ICM schneider correction).
 }
 \examples{
-# Retrieve br motif
+# Import motifs ICMs
 pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-ICM <- importJASPAR(pfm.file)$ICM[["br"]]
+ICM <- importJASPAR(pfm.file, pseudocount = 0)$ICM
 
 # Plot
-vl_seqLogo(ICM)
+vl_seqLogo(ICM, sel= "br")
 
 }

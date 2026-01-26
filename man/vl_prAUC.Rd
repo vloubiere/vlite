@@ -49,8 +49,27 @@ vl_prAUC(
 \item{ylim}{Plot ylim. Default= c(0, 1).}
 }
 \value{
-PR AUC (and NES if compute.NES=TRUE)
+PR AUC, NES and/or plots the PR curve.
 }
 \description{
-Computes Precision-Recall AUC (PR-AUC) and optionally plots the PR curve.
+Computes Precision-Recall AUC and optionally plots the PR curve.
+}
+\examples{
+# Labels
+label <- c(1,0,0,0,0, 1,0,0,0,0)  # 2 positives, 8 negatives (imbalanced)
+
+# Case A: good ROC AUC AND good PR (positives ranked at the very top)
+rank_good <- c(0.99, 0.20,0.19,0.18,0.17, 0.98, 0.16,0.15,0.14,0.13)
+
+# Case B: good ROC AUC but bad PR (one negative is ranked above both positives)
+# Positives are still above *most* negatives, so ROC AUC stays high, but early precision is poor, so PR suffers.
+rank_bad <- c(0.90, 0.99,0.20,0.19,0.18, 0.89, 0.17,0.16,0.15,0.14)
+
+# Compare roc and pr AUCs
+vl_par(mfrow= c(2,2))
+vl_rocAUC(rank= rank_good, label= label, plot= T)
+vl_prAUC(rank= rank_good, label= label, plot= T)
+vl_rocAUC(rank= rank_bad, label= label, plot= T)
+vl_prAUC(rank= rank_bad, label= label, plot= T)
+
 }

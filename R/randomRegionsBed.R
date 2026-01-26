@@ -1,10 +1,11 @@
 #' Randomly Sample Control Genomic Regions
 #'
 #' @description
-#' Randomly sample genomic regions from a bed, matching specified widths and potentially avoiding overlaps
-#' with other regions.
+#' Randomly sample genomic regions from a bed with replacement, matching specified widths and potentially
+#' avoiding overlaps with another set or regions.
 #'
-#' @param bed Input genomic ranges, in any format compatible with ?importBed.
+#' @param bed Input genomic ranges (in any format compatible with ?importBed) from which random regions
+#' are drawn.
 #' @param widths Integer vector specifying the width of the regions to sample. The length of the vector
 #' determines the number of sampled regions.
 #' @param no.overlaps Genomic ranges for which overlaps should be avoided during sampling, in any format compatible
@@ -15,13 +16,13 @@
 #' @return A data.table of sampled control regions.
 #'
 #' @examples
-#' # Using widths
-#' bed <- importBed(c("chr2L:1000-2000", "chr3R:1000-2000"))
-#' randomRegionsBed(bed= bed,  widths= rep(10, 10))
+#' # Draw regions from dm6 canonical chromosomes
+#' dm6.sizes <- getBSgenomeSize(genome= "dm6")
+#' dm6.sizes <- dm6.sizes[seqnames %in% c("chr2L", "chr2R")]
+#' randomRegionsBed(bed= dm6.sizes,  widths= rep(10, 10))
 #'
-#' # Using a sample.bed file
-#' no.overlaps <- importBed(c("chr2L:1800-2000", "chr3R:1800-2000"))
-#' randomRegionsBed(bed= bed, widths= rep(10, 10), no.overlaps= no.overlaps)
+#' # Avoid overlaps with specific region
+#' randomRegionsBed(bed= dm6.sizes, widths= rep(10, 10), no.overlaps= dm6.sizes[2])
 #'
 #' @export
 randomRegionsBed <- function(bed,
@@ -31,42 +32,41 @@ randomRegionsBed <- function(bed,
 {
   # Import bed ----
   bed <- importBed(bed)
-
-  # Import sample.bed ----
+  
+  # Subtract regions specified in no.overlaps ----
   if(!is.null(no.overlaps)) {
     no.overlaps <- importBed(no.overlaps)
-    bed <- subtractBed(a = bed,
-                       b = no.overlaps,
-                       ignore.strand = ignore.strand)
+    bed <- subtractBed(
+      a = bed,
+      b = no.overlaps,
+      ignore.strand = ignore.strand
+    )
   }
-  # Compute width after subtracting
+  
+  # Update width after subtraction ----
   bed[, width:= end-start+1]
-
-  # Random sampling ----
-  widths <- data.table(width= widths)
-  rdm <- widths[, {
-    # Select sequences that are large enough
-    sel <- bed[.BY, on= "width>=width", nomatch= NULL]
-    if(nrow(sel)==0)
-      stop("Some ranges are too big for the remaining regions.")
-    # Resize based on sel width
-    sel[, end:= end-width+1]
-    # Randomly sample based on prob (see earlier)
-    idx <- sample(x = seq(nrow(sel)),
-                  size = .N,
-                  replace = TRUE,
-                  prob = sel[, end-start+1])
-    .s <- sel[idx]
-    # Compute new start and end
-    .s[, new.start:= sample(x = start:end,
-                            size = .N,
-                            replace = TRUE), .(start, end)]
-    .s[, new.end:= new.start+width-1]
-    # Return
-    .s[, .(seqnames, start= new.start, end= new.end, strand)]
-  }, width]
-  rdm$width <- NULL
-
+  
+  # Sanity check ----
+  if(any(widths>max(bed$width)))
+    stop("Some widths are wider than any remaining region.")
+  
+  # Join input regions that are wide enough for sampling ----
+  rdm <- data.table(width= widths)
+  rdm[, row.idx:= .I]
+  rdm <- bed[rdm, on= "width>=width"]
+  
+  # Compute number of valid starting positions ----
+  rdm[, npos:= (end-start+1) - width + 1]
+  stopifnot(all(rdm$npos>0))
+  
+  # Sample input regions accordingly ----
+  rdm <- rdm[, .SD[sample(.N, prob = npos, size = 1)], row.idx]
+  
+  # Randomly sample starting coordinates ----
+  rdm[, add:= sample.int(npos, size= .N, replace= T)-1, npos]
+  rdm[, new.start:= start+add]
+  rdm <- rdm[, .(seqnames, start= new.start, end= new.start+width-1, strand, width)]
+  
   # Return result ----
   return(rdm)
 }

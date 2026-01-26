@@ -1,7 +1,7 @@
 setwd("/groups/stark/vloubiere/vlite-dev/")
 devtools::load_all("./")
 
-# Tests ------------------------------------
+# Tests/development ------------------------
 ## UMI collapsing ----
 file.edit("inst/test/newUmiCollapsingStrat.R")
 ## SOM clustering ----
@@ -10,6 +10,8 @@ file.edit("R/somClusteringHelperFunctions.R")
 ## PRO-seq pipeline with ncRNA decoy (test) ----
 file.edit("R/create_rRNA_tRNA_bowtie_index_mm10.R")
 file.edit("R/proseqProcessing_ncRNAdecoy.R")
+## bedtools ----
+file.edit("R/enrichBed.R") # Assess whether the overlap between two set of regions is significantly large than expected
 
 # Reviewed ---------------------------------
 ## AUC and model performance ----
@@ -30,8 +32,15 @@ file.edit("R/intersectBed.R") # Compute intersection between two sets of regions
 file.edit("R/subtractBed.R") # Subtract a set of regions to another set of regions
 file.edit("R/clipBed.R") # Clip a set of regions using a second set of regions
 file.edit("R/exportBed.R") # Export bed file
-file.edit("R/randomRegionsBed.R") # Select a random set of regions from a (typically larger) set or region
-file.edit("R/enrichBed.R") # Assess whether the overlap between two set of regions is significanly large than expected
+file.edit("R/randomRegionsBed.R") # Select a random set of regions from a (typically wider) set of regions
+## GO enrichment ----
+file.edit("R/vl_GOenrich.R") # Compute GO enrichment for sets of genes.
+## PWM manipulation tools ----
+file.edit("R/importJASPAR.R") # Import a combined JASPAR file
+file.edit("R/plotDNAletter.R") # Helper function
+file.edit("R/vl_seqLogoMat.R") # Plot percentage or frequency matrix
+file.edit("R/vl_seqLogo.R") # Plot the logo of a given ICM
+file.edit("R/addSeqLogo.R") # Add logo to an existing plot
 
 # Development ------------------------------
 # Single-cell tools ------------------------
@@ -60,10 +69,7 @@ if(F) {
 }
 
 
-# Gene ontologies --------------------------
-if(F) {
-  file.edit("R/vl_GOenrich.R") # Compute GO enrichment for a set (or clusters) of Drosophila/mouse/human genes.
-}
+
 
 # bamtools ---------------------------------
 if(F) {
@@ -107,17 +113,7 @@ if(F) {
   file.edit("R/vl_last_err.R") # Show the most recent error file from a logs folder
 }
 
-# PWM manipulation tools --------------------
-if(F) {
-  # Import JASPAR
-  file.edit("R/importJASPAR.R") # Import a combined JASPAR file
-  
-  # Plot motif logos
-  file.edit("R/plotDNAletter.R") # Helper function
-  file.edit("R/vl_seqLogoMat.R") # Plot percentage or frequency matrix
-  file.edit("R/vl_seqLogo.R") # Plot the logo of a given ICM
-  file.edit("R/addSeqLogo.R") # Add logo to an existing plot
-}
+
 
 # Motifs analyses tools --------------------
 if(F) {

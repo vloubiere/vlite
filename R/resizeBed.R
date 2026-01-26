@@ -1,23 +1,26 @@
-#' Resize Genomic Regions in a BED File
+#' Resize Genomic Regions
 #'
 #' @description
-#' Resize genomic ranges.
+#' Resizes genomic regions by `upstream` and `downstream` nucleotides around a chosen origin. The final
+#' width is `upstream + downstream + 1`, except when `center = "region"`, which extends the
+#' original region boundaries. Coordinates (`start`/`end`) are 1-based inclusive as returned by `importBed()`.
 #'
 #' @param bed Input regions in any format compatible with ?importBed.
 #' @param center Specifies the origin for resizing. Options are:
 #' \itemize{
-#'   \item `center`: Resize symmetrically around the midpoint of the region (default).
-#'   \item `start`: Resize from the start of the region.
-#'   \item `end`: Resize from the end of the region.
+#'   \item `center`: Resize around the region midpoint. For even-length regions, chooses the left of the two
+#'   central bases, whereas `GenomicRanges::resize(fix="center")` uses an interbase midpoint convention.
+#'   \item `start`: Resize from the 5' end when ignore.strand= FALSE, otherwise genomic start.
+#'   \item `end`: Resize from the 3' end when ignore.strand= FALSE, otherwise genomic end.
 #'   \item `region`: Extend or contract the entire region's boundaries.
 #' }
 #' @param upstream Size of the extension upstream of the specified origin. Default= 500L.
 #' @param downstream Size of the extension downstream of the specified origin. Default= 500L.
 #' @param genome A BS genome name (e.g. "dm6", "mm10") used to clipped resized regions.
 #' Default= NULL (no clipping).
-#' @param ignore.strand If set to TRUE, resizing always proceeds from the leftmost coordinates,
+#' @param ignore.strand If set to TRUE, resizing always proceeds from the leftmost (start) coordinates,
 #' irrespective of the strand. If set to FALSE (default), upstream and downstream resizing respect
-#' the strand.
+#' the strand (start= 5' and end= 3'); unstranded (`*`) features are treated as `+`.
 #'
 #' @return
 #' A data.table containing resized regions.
@@ -43,30 +46,37 @@ resizeBed <- function(bed,
                       genome= NULL,
                       ignore.strand= FALSE)
 {
+  # Checks ----
+  center <- match.arg(center, c("start", "end", "center", "region"), several.ok = FALSE)
+  
   # Import bed for incapsulation ----
   current <- vlite::importBed(bed)
-
-  # Get region anchor depending on strand ----
-  if(center=="start") {
-    current[, start:= ifelse(!ignore.strand && strand=="-", end-(downstream+1), start-upstream)]
-  } else if(center=="end") {
-    current[, start:= ifelse(!ignore.strand && strand=="-", start-downstream, end-(upstream+1))]
-  } else if(center=="center") {
-    current[, start:= {
-      ifelse(!ignore.strand && strand=="-", floor(rowMeans(.SD))-(downstream+1), floor(rowMeans(.SD))-upstream)
-    }, .SDcols= c("start", "end")]
-  } else if(center=="region") {
-    current[, start:= ifelse(!ignore.strand && strand=="-", end+upstream, start-downstream)]
-  } else
-    stop("center should be one of 'center', 'start', 'end', 'region'.")
-  current[, end:= start+upstream+downstream]
-
+  
+  # Extend whole region ----
+  if(center=="region") {
+    current[, start:= ifelse(ignore.strand | strand!="-", start-upstream, start-downstream)]
+    current[, end:= ifelse(ignore.strand | strand!="-", end+downstream, end+upstream)]
+  } else {
+    # Get extended region start ----
+    if(center=="start") {
+      current[, start:= ifelse(ignore.strand | strand!="-", start-upstream, end-downstream)]
+    } else if(center=="end") {
+      current[, start:= ifelse(ignore.strand | strand!="-", end-upstream, start-downstream)]
+    } else if(center=="center") {
+      current[, start:= {
+        as.integer((start + end) %/% 2  - ifelse(ignore.strand | strand!="-", upstream, downstream))
+      }]
+    }
+    # Compute extended region end ----
+    current[, end:= start+upstream+downstream]
+  }
+  
   # Clip regions outside of chromosomes ----
   if(!is.null(genome)) {
     sizes <- vlite::getBSgenomeSize(genome = genome)
     current <- vlite::clipBed(current, sizes)
   }
-
+  
   # Sanity check ----
   if(any(current$start<1 | current[,start>end]))
     warning("Some regions with start<1 or start>end!")

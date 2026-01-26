@@ -2,7 +2,7 @@
 % Please edit documentation in R/vl_PPV.R
 \name{vl_PPV}
 \alias{vl_PPV}
-\title{Positive Predicted Value curve}
+\title{Positive Predicted Value}
 \usage{
 vl_PPV(
   predicted,
@@ -32,7 +32,8 @@ vl_PPV(
 
 \item{label}{A vector of logical labels (or that can be coerced to logical).}
 
-\item{Nleft}{Minimum number of remaining positive sequences (prediction>=cutoff) before computing max PPV. Default= 100.}
+\item{Nleft}{Minimum number of remaining positive sequences (prediction>=cutoff) before computing max PPV.
+Default= 100.}
 
 \item{plot}{Should the PPV be plotted?}
 
@@ -63,8 +64,20 @@ vl_PPV(
 \item{...}{Extra arguments to be passed to lines}
 }
 \value{
-PPV plot
+PPV at a given threshold and/or PPV curve with max PPV with a minimum number of observations.
 }
 \description{
-Given a set of predicted values and a vector of logical labels, computes the Postiive Predictive Values for increased predicted thresholds.
+Given a set of predicted values and a vector of logical labels, computes the Positive Predictive Values for
+increasing predicted thresholds.
+}
+\examples{
+# Create synthetic data
+predicted <- c(1,1,0.8,0.4,.1,0)
+label <- c(T,T,T,F,F,F)
+
+# Plot PPV
+vl_PPV(predicted, label, Nleft= 3, plot= T) # 100\% TPR with at least 3 obs
+vl_PPV(predicted, label, Nleft= 3, return.value.at= .4) # 75\% TPR with pred >= .4 (and at least 3 obs)  
+vl_PPV(predicted, label, Nleft= 4, plot= T) # 100\% TPR with at least 4 obs
+
 }

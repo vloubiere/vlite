@@ -1,7 +1,7 @@
 #' Collapse or Merge Overlapping Genomic Ranges
 #'
 #' @description
-#' A wrapper around ?GenomicRanges::reduce that merges overlapping genomic ranges.
+#' A wrapper around `GenomicRanges::reduce()` that merges overlapping genomic ranges.
 #'
 #' @param bed Input regions in any format compatible with ?importBed.
 #' @param min.gapwidth Minimum distance between features to be merged. Default= 1L.
@@ -12,7 +12,7 @@
 #' @param return.idx.only If set to TRUE, returns the indices of merged regions
 #'   instead of collapsing them. Default= FALSE.
 #' @param ignore.strand If set to FALSE, only overlapping regions that are on the same strand are merged.
-#' If set to TRUE (default), regions are merged irrespective of their strand.
+#' If set to TRUE (default), regions are merged irrespective of their strand, which will be set to `*`.
 #'
 #' @return
 #' If return.idx.only = FALSE: a gr data.table with columns:
@@ -54,23 +54,27 @@ collapseBed <- function(bed,
 {
   # Import for incapsulation ----
   bed <- vlite::importBed(bed)
-
+  
   # Reduce ----
   gr <- GenomicRanges::GRanges(bed)
-  coll <- GenomicRanges::reduce(gr,
-                                ignore.strand= ignore.strand,
-                                min.gapwidth = min.gapwidth)
-
+  coll <- GenomicRanges::reduce(
+    gr,
+    ignore.strand= ignore.strand,
+    min.gapwidth = min.gapwidth
+  )
+  
   if(return.idx.only)
   {
     # Return run-length id ----
-    idx <- GenomicRanges::findOverlaps(gr,
-                                       coll,
-                                       ignore.strand= ignore.strand)
+    idx <- GenomicRanges::findOverlaps(
+      gr,
+      coll,
+      ignore.strand= ignore.strand
+    )
     idx <- subjectHits(idx)
     return(idx)
   } else {
-
+    
     # Order and return collapsed ranges ----
     res <- vlite::importBed(coll)
     setorderv(res,

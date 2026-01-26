@@ -36,20 +36,17 @@ clipBed <- function(a,
   coll <- collapseBed(b, ignore.strand= ignore.strand)
 
   # Compute overlaps with a ----
-  tmp <- rev(make.unique(c(names(a), "ov")))[1]
-  assign(
-    tmp,
-    vlite::overlapBed(
-      a,
-      coll,
-      ignore.strand= ignore.strand
-    )
+  ov <- vlite::overlapBed(
+    a = a,
+    b = coll,
+    ignore.strand = ignore.strand
   )
 
   # Resize overlaps ----
-  res <- a[get(tmp)$idx.a]
-  res[, start:= get(tmp)$overlap.start]
-  res[, end:= get(tmp)$overlap.end]
+  idx.a <- ov$idx.a
+  res <- a[(idx.a), env= list(idx.a= idx.a)]
+  res$start <- ov$overlap.start
+  res$end <- ov$overlap.end
 
   # Return ----
   return(res)

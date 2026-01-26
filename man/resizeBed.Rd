@@ -2,7 +2,7 @@
 % Please edit documentation in R/resizeBed.R
 \name{resizeBed}
 \alias{resizeBed}
-\title{Resize Genomic Regions in a BED File}
+\title{Resize Genomic Regions}
 \usage{
 resizeBed(
   bed,
@@ -18,9 +18,10 @@ resizeBed(
 
 \item{center}{Specifies the origin for resizing. Options are:
 \itemize{
-  \item `center`: Resize symmetrically around the midpoint of the region (default).
-  \item `start`: Resize from the start of the region.
-  \item `end`: Resize from the end of the region.
+  \item `center`: Resize around the region midpoint. For even-length regions, chooses the left of the two
+  central bases, whereas `GenomicRanges::resize(fix="center")` uses an interbase midpoint convention.
+  \item `start`: Resize from the 5' end when ignore.strand= FALSE, otherwise genomic start.
+  \item `end`: Resize from the 3' end when ignore.strand= FALSE, otherwise genomic end.
   \item `region`: Extend or contract the entire region's boundaries.
 }}
 
@@ -31,15 +32,17 @@ resizeBed(
 \item{genome}{A BS genome name (e.g. "dm6", "mm10") used to clipped resized regions.
 Default= NULL (no clipping).}
 
-\item{ignore.strand}{If set to TRUE, resizing always proceeds from the leftmost coordinates,
+\item{ignore.strand}{If set to TRUE, resizing always proceeds from the leftmost (start) coordinates,
 irrespective of the strand. If set to FALSE (default), upstream and downstream resizing respect
-the strand.}
+the strand (start= 5' and end= 3'); unstranded (`*`) features are treated as `+`.}
 }
 \value{
 A data.table containing resized regions.
 }
 \description{
-Resize genomic ranges.
+Resizes genomic regions by `upstream` and `downstream` nucleotides around a chosen origin. The final
+width is `upstream + downstream + 1`, except when `center = "region"`, which extends the
+original region boundaries. Coordinates (`start`/`end`) are 1-based inclusive as returned by `importBed()`.
 }
 \examples{
 # Import example BED file

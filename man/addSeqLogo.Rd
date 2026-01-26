@@ -4,10 +4,21 @@
 \alias{addSeqLogo}
 \title{Add ICM logos to an existing plot}
 \usage{
-addSeqLogo(ICM, x = NULL, y = NULL, pos = 2, cex.width = 1, cex.height = 1)
+addSeqLogo(
+  ICM,
+  sel = NULL,
+  x = NULL,
+  y = NULL,
+  pos = 2,
+  cex.width = 1,
+  cex.height = 1
+)
 }
 \arguments{
 \item{ICM}{A list of ICMs to be plotted.}
+
+\item{sel}{Indices or names of the ICM that should be plotted. Should match the length of x and y.
+Default= NULL.}
 
 \item{x}{x positions (see pos argument).}
 
@@ -31,8 +42,14 @@ ICM <- importJASPAR(pfm.file)$ICM
 
 # Plot
 plot(0, 1, type= "n")
-addSeqLogo(ICM[1:3], x = -1, y= seq(0.8, 1.2, .2), cex.height = 1.5, cex.width = 1, pos= 2)
-# Higher min.content cutoff
-addSeqLogo(pwm, x = -1, y= 0.8, cex.height = 3, cex.width = 2, pos= 2, min.content= 1)
+addSeqLogo(
+ICM, 
+x = -1,
+y= seq(0.8, 1.2, .2),
+sel= c("br", "dl", "Eip74EF"),
+cex.height = 1.5,
+cex.width = 1, 
+pos= 2
+)
 
 }

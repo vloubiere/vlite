@@ -5,8 +5,6 @@
 #'
 #' @param a Query regions in any format compatible with ?importBed.
 #' @param b Target regions in any format compatible with ?importBed.
-#' @param minoverlap A single integer specifying the minimum overlap with regions in for them to
-#' be subtracted. Default= 1L.
 #' @param ignore.strand If set to FALSE, only subtracts features that are on the same strand.
 #' If set to TRUE (default), subtracts overlapping feature(s) regardless of their strand(s).
 #'
@@ -27,7 +25,6 @@
 #' @export
 subtractBed <- function(a,
                         b,
-                        minoverlap= 1L,
                         ignore.strand= TRUE)
 {
   # Import for incapsulation ----
@@ -39,23 +36,21 @@ subtractBed <- function(a,
     GenomicRanges::subtract(
       GenomicRanges::GRanges(a),
       GenomicRanges::GRanges(b),
-      minoverlap= minoverlap,
+      minoverlap= 1L,
       ignore.strand= ignore.strand
     )
   )
+  
+  # Store row indices ----
+  row.idx <- rep(seq(nrow(a)), lengths(sub))
 
-  # Retrieve row indices from a ----
-  tmp <- rev(make.unique(c(names(a), "idx.a")))[1]
-  assign(
-    tmp,
-    rep(seq(nrow(a)), lengths(sub))
-  )
-
-  # Subtracted result ----
-  res <- cbind(
-    as.data.table(unlist(sub))[, !"width"],
-    a[get(tmp), !c("seqnames", "start", "end", "strand")]
-  )
+  # Make data.table ----
+  sub <- as.data.table(unlist(sub))[, !"width"]
+  
+  # Retrieve additional columns ----
+  add <- a[, !c("seqnames", "start", "end", "strand")]
+  add <- a[(row.idx), env= list(row.idx= row.idx)]
+  res <- cbind(sub, add)
 
   # Return ----
   return(res)

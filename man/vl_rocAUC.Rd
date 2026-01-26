@@ -45,8 +45,13 @@ vl_rocAUC(
 \item{...}{Extra arguments to be passed to plot (when plot= TRUE) or lines (when plot= FALSE and add= TRUE).}
 }
 \value{
-ROC AUC
+ROC AUC, NES and/or the ROC curve.
 }
 \description{
-Computes roc AUC and eventually plot the corresponding curve.
+A wrapper around pROC::roc and pROC::auc that computes the ROC AUC, NES and/or plots the ROC curve.
+}
+\examples{
+# Example code
+vl_rocAUC(rank= 10:1, label= rep(c(T, F), each= 5), plot= T)
+
 }

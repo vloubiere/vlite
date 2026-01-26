@@ -12,29 +12,41 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-<div style="margin-bottom: 20px;">
-<p>The <code>vlite</code> package was designed for exploratory analyses of genomic datasets, and focuses on simplicity and clarity.
-It contains a set of helper functions as well as wrappers/pipelines:</p>
+::: {style="margin-bottom: 20px;"}
+<p>The <code>vlite</code> package was designed for exploratory analyses of genomic datasets, and focuses on simplicity and clarity. It contains a set of helper functions as well as wrappers/pipelines:</p>
 
 <p><strong>Helper functions to:</strong></p>
+
 <ul>
+
 <li>Manipulate genomic coordinates</li>
+
 <li>Extract genomic sequences</li>
+
 <li>Call motifs</li>
+
 <li>Manipulate contribution scores from deep-learning models</li>
+
 <li>Plot several types of charts with improved layouts</li>
+
 </ul>
 
 <p><strong>Pipelines:</strong></p>
-<ul>
-<li>PRO-Seq</li>
-<li>ORFtag</li>
-<li>CUT&amp;RUN</li>
-<li>ORFeome screens</li>
-<li>Few others (less well benchmarked)</li>
-</ul>
 
-</div>
+<ul>
+
+<li>PRO-Seq</li>
+
+<li>ORFtag</li>
+
+<li>CUT&RUN</li>
+
+<li>ORFeome screens</li>
+
+<li>Few others (less well benchmarked)</li>
+
+</ul>
+:::
 
 ```{r setup, include=FALSE}
 # helpful on Linux/headless
@@ -50,8 +62,8 @@ options(bitmapType = "cairo")
 
 # I- Install or load the package
 
-To use the `vlite` package, you need to either **load it** or **install it** from the root folder. To be able to do so, you will first need to install devtools:  
-  
+To use the `vlite` package, you need to either **load it** or **install it** from the root folder. To be able to do so, you will first need to install devtools:
+
 ```{r check_devtools, eval=FALSE}
 # Check if 'devtools' is installed; if not, install it
 if (!requireNamespace("devtools", quietly = TRUE)) {
@@ -61,14 +73,14 @@ install.packages("devtools")
 
 **What’s the difference between loading and installing?**
 
-- **Loading** the package is quick and especially useful during development, when functions are being frequently updated. It ensures you're always working with the most recent version. However, you'll need to reload the package every time you restart your R session. Here is how to do it:
+-   **Loading** the package is quick and especially useful during development, when functions are being frequently updated. It ensures you're always working with the most recent version. However, you'll need to reload the package every time you restart your R session. Here is how to do it:
 
 ```{r load, eval=FALSE}
 # Load the package
 devtools::load_all("/groups/stark/vloubiere/vlite/")
 ```
 
-- **Installing** the package takes a bit longer, but you only need to do it once. After installation, you can simply load it in future sessions using `library(vlite)`.  Here is how to do it:
+-   **Installing** the package takes a bit longer, but you only need to do it once. After installation, you can simply load it in future sessions using `library(vlite)`. Here is how to do it:
 
 ```{r install, eval=FALSE}
 # Install vlite from my folder
@@ -93,6 +105,7 @@ knitr::include_graphics(system.file("images/screenshot_search_function.png", pac
 ```
 
 Alternatively, you can look inside the dev.R script that keeps track of all available functions:
+
 ```{r search functions, eval=FALSE}
 # See all available functions
 file.edit("/groups/stark/vloubiere/vlite/inst/dev.R")
@@ -108,7 +121,7 @@ vl_par() # Nicer default layout
 vl_boxplot(1:3, xlab= "Test", ylab= "Test")
 ```
 
-If you want to be more specific and be sure to use the function from the package (for example in the case where another package has a function with a similar name), add **vlite::** before the function call. I personally recommend to **always do this**: 
+If you want to be more specific and be sure to use the function from the package (for example in the case where another package has a function with a similar name), add **vlite::** before the function call. I personally recommend to **always do this**:
 
 ```{r example function with package, eval=FALSE}
 # Example using the vl_boxplot function
@@ -125,7 +138,7 @@ As usual, to see the documentation/help associated to a function, just use ?func
 ?vlite::vl_boxplot
 ```
 
-## 4- See the source code 
+## 4- See the source code
 
 To see the code of a function, the simplest way is to write the name of the function into a script and to click on it **while pressing the ⌘ command on mac**. This will open a new window showing the source code:
 
@@ -133,7 +146,7 @@ To see the code of a function, the simplest way is to write the name of the func
 knitr::include_graphics(system.file("images/screenshot_source_code.png", package = "vlite"))
 ```
 
-Alternatively, you can look  again at the dev.R script that contains the path of all functions .R files:
+Alternatively, you can look again at the dev.R script that contains the path of all functions .R files:
 
 ```{r see source code, eval=FALSE}
 # See all available functions
@@ -146,13 +159,13 @@ knitr::include_graphics(system.file("images/dev_file.png", package = "vlite"))
 
 You can also directly browse the package's folder, which is located here: '/groups/stark/vloubiere/vlite/'. Inside the folder, there are two places where functions are stored:
 
-- R functions are stored within the 'R/' folder:
+-   R functions are stored within the 'R/' folder:
 
 ```{r screenshot_R_folder, echo=FALSE, out.width="30%", fig.align="center", fig.cap= "Browse the R/ folder inside the package's root folder to see the code."}
 knitr::include_graphics(system.file("images/package_folder.png", package = "vlite"))
 ```
 
-- R and PERL subscripts (that are generally called within R functions) are stored within 'inst/Rscript/' and 'inst/perl/', respectively:
+-   R and PERL subscripts (that are generally called within R functions) are stored within 'inst/Rscript/' and 'inst/perl/', respectively:
 
 ```{r screenshot_inst_folder, echo=FALSE, out.width="30%", fig.align="center", fig.cap= "R and perl scripts are stored within inst/."}
 knitr::include_graphics(system.file("images/inst_folder.png", package = "vlite"))
@@ -160,18 +173,18 @@ knitr::include_graphics(system.file("images/inst_folder.png", package = "vlite")
 
 # III- Modify the package functions
 
-Sooner or later, you may want to modify a function in this package. The easiest way is to use a standard Git workflow:  
-- Copy the package folder locally (recommended) or clone the repo from GitHub (see below).  
-- Make your changes.  
-- Load your modified version in R: `devtools:load_all("/my/modified/package/directory/")`.  
+Sooner or later, you may want to modify a function in this package. The easiest way is to use a standard Git workflow:\
+- Copy the package folder locally (recommended) or clone the repo from GitHub (see below).\
+- Make your changes.\
+- Load your modified version in R: `devtools:load_all("/my/modified/package/directory/")`.
 
 You’ll now be using your updated functions! If you want to do more complex changes (add functions, update documentation...), see this useful [link](https://devtools.r-lib.org/) on how to use devtools. If this sounds like very dark magic to you, ask any bioinfo in the lab or chat-GPT for help.
 
-If you decide to copy the package folder locally, you can copy it from my folder `"/groups/stark/vloubiere/vlite/"`.  
+If you decide to copy the package folder locally, you can copy it from my folder `"/groups/stark/vloubiere/vlite/"`.
 
 If you prefer to clone it from github, it can be found [here](https://github.com/vloubiere/vlite). However, I will continue updating the GitHub version after leaving the lab, so compatibility issues could appear. To be 100% safe, you should therefore use the 'stark_2025' branch I created when I leaved the lab, using the checkout command:
 
-```bash
+``` bash
 git clone https://github.com/vloubiere/vlite.git
 cd vlite
 git checkout stark_2025
@@ -179,19 +192,19 @@ git checkout stark_2025
 
 # IV- Before using pipelines
 
-Some pipelines or post-processing functions described below run R code. For those, you must provide the path to the R executable that has all required packages installed (e.g., see the last argument of ?cmd_confidentPeaks function). For this purpose, Matus Vojtek made a conda environment containing all needed packages and a recent R version. It is stored in our shared folder `"/groups/stark/conda_envs/"` and will get automatically loaded when we using the scripts below (see `?vl_submit` for more details).  
-  
-However, in the future, some new functions or updates might require new packages. In this case, you should update the conda environment accordingly. If you need help with this, ask any bioinfo in the lab or ask chat-GPT.  
-  
+Some pipelines or post-processing functions described below run R code. For those, you must provide the path to the R executable that has all required packages installed (e.g., see the last argument of ?cmd_confidentPeaks function). For this purpose, Matus Vojtek made a conda environment containing all needed packages and a recent R version. It is stored in our shared folder `"/groups/stark/conda_envs/"` and will get automatically loaded when we using the scripts below (see `?vl_submit` for more details).
+
+However, in the future, some new functions or updates might require new packages. In this case, you should update the conda environment accordingly. If you need help with this, ask any bioinfo in the lab or ask chat-GPT.
+
 Alternatively, you can always redirect these functions to your own R install in which all install packages are installed. To install packages, the best it to first open a new terminal (**!! do not use the integrated terminal from Rstudio !!**) on your computer and ssh to the server:
 
-```bash
+``` bash
 ssh user.name@cbe.vbc.ac.at
 ```
 
 Start the R you plan to use. For example, I sometimes used '/software/f2022/software/r/4.3.0-foss-2022b/bin/R', but you can use a different one if you prefer:
 
-```bash
+``` bash
 /software/f2022/software/r/4.3.0-foss-2022b/bin/R
 ```
 
@@ -208,7 +221,7 @@ Required packages include: `Rsamtools`, `rtracklayer`, `GenomicRanges`, `data.ta
 
 # V- The ORFtag pipeline
 
-Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.  
+Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.
 
 In bioinformatics, a pipeline is a sequence of computational steps that processes raw data into results. This package includes pipelines for analyzing ORFtag, CUTNRUN, PRO‑seq, and ORFeome screens (other pipelines are available but are less well benchmarked). **However, note that these functions do not process data directly in R. Instead, they assemble a script that contains the commands needed for the analysis, starting from de‑multiplexed FASTQ files. You must then submit the resulting script to your compute cluster to run the analysis**. Then, post-processing (hits callling, differential analysis...) is generally performed in R using regular functions.
 
@@ -279,13 +292,13 @@ cmd <- vlite::cmd_demultiplexVBCfile(
 )
 ```
 
-The cmd object that you just created (and that you can expect using `cmd[]`) is simply a table specifying the file.type of the output (fq1, fq2), the path of the output file (output_folder/output.prefix...), the cmd that will be used for demultiplexing, optional parameters for the job (number of cores, job.name and potentially many other) etc... Nothing was analysed yet! Let's now have a quick look at the command itself, using `unique(cmd$cmd)`:  
+The cmd object that you just created (and that you can expect using `cmd[]`) is simply a table specifying the file.type of the output (fq1, fq2), the path of the output file (output_folder/output.prefix...), the cmd that will be used for demultiplexing, optional parameters for the job (number of cores, job.name and potentially many other) etc... Nothing was analysed yet! Let's now have a quick look at the command itself, using `unique(cmd$cmd)`:
 
-```bash
+``` bash
 samtools view -@ 7 /groups/stark/projects/PE36_20211031/HL5THBGXK_1_20211030B_20211030.bam | perl /groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl  'PAIRED' 'GCCTCTTC,ATTGATTC' 'none' 12 12 'fq//Activator2_input_rep1'
 ```
 
-As you can see, the command uses 'samtools view' to open the BAM file and pass it to a perl script using the pipe '|' command. The perl script (located at '/groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl') will do the real job, using the parameters that we specified after it (PAIRED reads containing two different i7 barcodes and no i5 ('none'). i7 barcodes are stored in column 12 and the output file will be saved in 'db/fq/Activator2_input_rep1'.
+As you can see, the command uses 'samtools view' to open the BAM file and pass it to a perl script using the pipe '\|' command. The perl script (located at '/groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl') will do the real job, using the parameters that we specified after it (PAIRED reads containing two different i7 barcodes and no i5 ('none'). i7 barcodes are stored in column 12 and the output file will be saved in 'db/fq/Activator2_input_rep1'.
 
 ### c- Submit to the cluster
 
@@ -312,9 +325,9 @@ If the command has been successfully submitted, you should see something like:
 knitr::include_graphics(system.file("images/submit.png", package = "vlite"))
 ```
 
-To make sure that your command has been properly submitted, list the jobs that are queued/running on the cluster using `vlite::vl_squeue(user= "vincent.loubiere")` with your own user name. Once the jobs are finished, which can take up to ~2h (or even more for very large novaSeq files), they will disappear from this list, and demultiplexed FASTQ files should have appeared in your output folder. You can check on them using the terminal (or any other file browser):
+To make sure that your command has been properly submitted, list the jobs that are queued/running on the cluster using `vlite::vl_squeue(user= "vincent.loubiere")` with your own user name. Once the jobs are finished, which can take up to \~2h (or even more for very large novaSeq files), they will disappear from this list, and demultiplexed FASTQ files should have appeared in your output folder. You can check on them using the terminal (or any other file browser):
 
-```bash
+``` bash
 # cd to the directory where fq files are saved
 cd /scratch-cbe/users/vincent.loubiere/vlite/ORFtag/db/fq/
 # List files
@@ -328,7 +341,7 @@ knitr::include_graphics(system.file("images/check_fq.png", package = "vlite"))
 You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example. Note that here, I recommend setting the `output.prefix` parameter to NULL, which will ensure that the output file names are unique. This is very important because, if several input file/BC combinations are given the same output.prefix (re-sequencing, sample split on two lanes...), they will overwrite each other:
 
 ```{r loop_example_ORFtag, eval = FALSE}
-# Loop over the sampleID values (see the 'by=' argument on the last line)
+# For each line in the metadata file (see the `by=` argument on the last line)
 meta.demultiplex <- meta[, {
   # Generate command
   cmd <- vlite::cmd_demultiplexVBCfile(
@@ -346,11 +359,11 @@ meta.demultiplex <- meta[, {
     overwrite = FALSE, # If set to FALSE (default), the command will only be submitted if output files don't exist. If set to TRUE, they are overwritten
     mem = 16, # The memory for the job (in Gb)
     logs = "db/logs/demultiplex/", # Chose the folder where log files will be saved
-    job.name= sampleID
+    job.name= sampleID[1] # Job name
   )
   # Return the output files paths
   transpose(cmd[, .(file.type, path)], make.names = T)
-}, by= .(screen, condition, replicate, sampleID, bam_path, layout)] # For each sampleID/bam_path combination
+}, by= names(meta)] # By specifying all column names here, each line will be processed separately
 
 # Create a directory to save RDS files
 dir.create("Rdata", recursive = T, showWarnings = FALSE)
@@ -365,14 +378,14 @@ At the end, don't forget to save the paths to the demultiplexed fastq files that
 
 ### d- Troubleshooting
 
-**Once the demultiplexing jobs have been fully completed**, if your fastq files are missing, empty or very small, something might have gone wrong. Here is a checklist for troubleshooting:  
+**Once the demultiplexing jobs have been fully completed**, if your fastq files are missing, empty or very small, something might have gone wrong. Here is a checklist for troubleshooting:
 
-- Go in the folder were the log files are saved (in this example: 'db/logs/demultiplex/') and open the '.err' file corresponding to your job. This is the standard error file, which gathers the potential errors associated to your job. If the job ran Out Of Memory (and was 'OOM killed') or out of time, it should be written here. If this is the case, simply increase the 'mem' (RAM in Gb) and 'time' parameters in the vl_submit function call.  
-- After this check the other '.out' log file (standard output), which might also contain information about what happened.
-- If you did not find anything in the logs, than the job migh have run normally. In this case, maybe your demultiplexing parameters were wrong and this is why you ended up with few reads. Make sure that the layout ('PAIRED' or 'SINGLE'), barcode sequences as well as other sequencing-related parameters are correct.
-- If this is the case, maybe the i7/i5 columns indices are wrong (note that this can only be a problem when demultiplexing BAM files, not tar.gz. files). To be sure, check the head of your BAM file using 'samtools view file.bam | head' and look at columns 12 and 14. the BC column (i7) should start with 'BC:'. 
-- Sometimes, depending on the sequencer, i5/i7 sequences have to be reverse complemented, which you can do using `Biostrings::reverseComplement(Biostrings::DNAString("ATCG"))`.
-- If none of these approaches worked, maybe your sequencing failed. For BAM files, open them with 'samtools view' (or import them in R using `?vlite::importBamRaw()`, which might require a lot of RAM) and see how they look. For tar.gz files, use the following function to directly submit a command to the cluster and save the head of the fastq files present inside your tar files:
+-   Go in the folder were the log files are saved (in this example: 'db/logs/demultiplex/') and open the '.err' file corresponding to your job. This is the standard error file, which gathers the potential errors associated to your job. If the job ran Out Of Memory (and was 'OOM killed') or out of time, it should be written here. If this is the case, simply increase the 'mem' (RAM in Gb) and 'time' parameters in the vl_submit function call.\
+-   After this check the other '.out' log file (standard output), which might also contain information about what happened.
+-   If you did not find anything in the logs, than the job migh have run normally. In this case, maybe your demultiplexing parameters were wrong and this is why you ended up with few reads. Make sure that the layout ('PAIRED' or 'SINGLE'), barcode sequences as well as other sequencing-related parameters are correct.
+-   If this is the case, maybe the i7/i5 columns indices are wrong (note that this can only be a problem when demultiplexing BAM files, not tar.gz. files). To be sure, check the head of your BAM file using 'samtools view file.bam \| head' and look at columns 12 and 14. the BC column (i7) should start with 'BC:'.
+-   Sometimes, depending on the sequencer, i5/i7 sequences have to be reverse complemented, which you can do using `Biostrings::reverseComplement(Biostrings::DNAString("ATCG"))`.
+-   If none of these approaches worked, maybe your sequencing failed. For BAM files, open them with 'samtools view' (or import them in R using `?vlite::importBamRaw()`, which might require a lot of RAM) and see how they look. For tar.gz files, use the following function to directly submit a command to the cluster and save the head of the fastq files present inside your tar files:
 
 ```{r tar_QC_ORFtag, eval = FALSE}
 # Check help
@@ -389,7 +402,7 @@ checkVBCfile(
 )
 ```
 
-- Once the job is completed, the output folder should contain .fastq files with "R1", "R2", "I1" and "I2" inside their names, and contain the first 10,000 Read 1, Read2, i7 and i5 index sequences, respectively. We will import them in R to see whether your index sequences are there and in which amounts:
+-   Once the job is completed, the output folder should contain .fastq files with "R1", "R2", "I1" and "I2" inside their names, and contain the first 10,000 Read 1, Read2, i7 and i5 index sequences, respectively. We will import them in R to see whether your index sequences are there and in which amounts:
 
 ```{r FQ_QC_ORFtag, eval = FALSE}
 # Retrieve read files
@@ -400,7 +413,7 @@ read2_file <- list.files("db/fq/", ".*_R2_.*head.fastq")
 i7_file <- list.files("db/fq/", ".*_I1_.*head.fastq")
 i5_file <- list.files("db/fq/", ".*_I2_.*head.fastq")
 
-# Check help of the funciton to import fasstq files
+# Check help of the funciton to import fastq files
 ?vlite::importFq
 
 # Import FQ files
@@ -412,15 +425,15 @@ i5[, .N, seq][order(N, decreasing= T)][1:10]
 i7[, .N, seq][order(N, decreasing= T)][1:10]
 ```
 
-- If you can't find your i7/i5 sequences among the top-represented ones, try to find them lower down the list or see whether their reverse complement sequences are somewhere there.
-- If all these approaches failed, contact the facility and see what they think about the QC of the lane.
+-   If you can't find your i7/i5 sequences among the top-represented ones, try to find them lower down the list or see whether their reverse complement sequences are somewhere there.
+-   If all these approaches failed, contact the facility and see what they think about the QC of the lane.
 
 ## 3- Annotation files
 
-Upon large-scale transduction of cultured cells, inserted ORFtag cassettes will get transcribed, and the user-defined tag (TetR) gets spliced into the closest downstream non-first exon. Thus, to assign insertions to genes, we will need to generate a gtf file that contains the genomic coordinates of all non-first exons.  
-I already made these annotation files for mm10 and hg38, using the script below, and backed them up in our shared annotations folder here:  
-`/groups/stark/annotations/mm10/ORFtag`   
-`/groups/stark/annotations/hg38/ORFtag`   
+Upon large-scale transduction of cultured cells, inserted ORFtag cassettes will get transcribed, and the user-defined tag (TetR) gets spliced into the closest downstream non-first exon. Thus, to assign insertions to genes, we will need to generate a gtf file that contains the genomic coordinates of all non-first exons.\
+I already made these annotation files for mm10 and hg38, using the script below, and backed them up in our shared annotations folder here:\
+`/groups/stark/annotations/mm10/ORFtag`\
+`/groups/stark/annotations/hg38/ORFtag`
 
 ```{r ORFtag annotations, eval= FALSE}
 setwd("/groups/stark/vloubiere/projects/ORFTRAP_1/")
@@ -463,7 +476,7 @@ We can now generate the commands to align the reads and assign them to the close
 # Import the demultiplexed fastq metadata generated earlier
 meta.demultiplex <- readRDS("Rdata/demultiplexed_fastqs.rds")
 
-# Generate the commands and submit to the server
+# Process each user/batch/screen/condition/replicate/sampleID/genome combination separately (see the `by` arg on the last line)
 meta.processed <- meta.demultiplex[, {
   # Create the command
   cmd <- vlite::orftagProcessing(
@@ -490,8 +503,8 @@ meta.processed <- meta.demultiplex[, {
     logs = "db/logs/processing/", # Where to save the logs
   )
   # Return commands and output files
-  transpose(cmd[, c(1, 2)], make.names = T)
-}, by= .(sampleID, genome)] # For each sampleID
+  transpose(cmd[, .(path= paste0(path, collapse= ",")), file.type], make.names = T)
+}, by= .(user, batch, screen, condition, replicate, sampleID, genome)] # Each group of the specified columns will be processed separately.
 
 # Save the metadata containing processed files
 saveRDS(meta.processed, "Rdata/processed_files.rds")
@@ -503,21 +516,21 @@ To understand how this works, inspect your logs folder. It should contain 3 file
 knitr::include_graphics(system.file("images/screenshot_sh_script.png", package = "vlite"))
 ```
 
-This is the whole point of the pipeline: it generates this shell script that gets saved by the `vl_submit()` command and submitted to the cluster. By looking at these commands, you can therefore exactly know how the data was analysed and which tools were used in which order.  
+This is the whole point of the pipeline: it generates this shell script that gets saved by the `vl_submit()` command and submitted to the cluster. By looking at these commands, you can therefore exactly know how the data was analysed and which tools were used in which order.
 
 ## 5- Output files
 
-As you can guess from the `vlite::orftagProcessing()` function call, the command generated by the pipeline delivers several output files. Some are **intermediate files that you will generally not manipulate yourself** (except for debugging purposes). These include:  
-- Trimmed fastq files (stored in the fq.output.folder).  
-- BAM files containing the aligned reads (stored in the bam.output.folder).  
+As you can guess from the `vlite::orftagProcessing()` function call, the command generated by the pipeline delivers several output files. Some are **intermediate files that you will generally not manipulate yourself** (except for debugging purposes). These include:\
+- Trimmed fastq files (stored in the fq.output.folder).\
+- BAM files containing the aligned reads (stored in the bam.output.folder).
 
-**The files you care about are:**   
-- Alignment statistics (stored in the alignment.stats.output.folder).  
-- Bed files (stored in the bed.output.folder). 
+**The files you care about are:**\
+- Alignment statistics (stored in the alignment.stats.output.folder).\
+- Bed files (stored in the bed.output.folder).
 
-**And the most important of all:**  
-- count files (stored in the counts.output.folder).  
-Let's have a look at them one per one.  
+**And the most important of all:**\
+- count files (stored in the counts.output.folder).\
+Let's have a look at them one per one.
 
 ### a- Alignment statistics
 
@@ -527,7 +540,7 @@ The file called `"db/stats/Activator_input_rep1_mm10_stats.txt"` contains the bo
 knitr::include_graphics(system.file("images/bowtie2_stats.png", package = "vlite"))
 ```
 
-As you can see, we had 36,453,408 reads in total, 77.55% of which (28,270,601) got aligned to exactly 1 position.  
+As you can see, we had 36,453,408 reads in total, 77.55% of which (28,270,601) got aligned to exactly 1 position.\
 The other stats file `"db/stats/Activator_input_rep1_mm10_mapq30_stats.txt"` contains the number of reads with a mapping quality (MAPQ) ≥ 30, meaning they could be unambiguously mapped. Here we have 28,967,216:
 
 ```{r check_mapq_stats, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "Reads with MAPQ ≥ 30."}
@@ -544,7 +557,7 @@ knitr::include_graphics(system.file("images/bed_head.png", package = "vlite"))
 
 ### c- The counts files
 
-Finally comes the most important: the read counts. The file `"db/counts/Activator_input_rep1_mm10_collapsed_assigned_counts_same_strand.txt"` contains one line per confident insertion (mapq>=30) with their genomic coordinates, strand, 'ins_cov' (the number of supporting reads, referred laster as Duplication Counts (DC)) and the gene_id/gene_name/mgi_id associated to the closest downstream, non-first exon. The number of the exon in the associated transcript is also specified, as well as the genomic distance between the insertion and the exon (`'dist'` column):
+Finally comes the most important: the read counts. The file `"db/counts/Activator_input_rep1_mm10_collapsed_assigned_counts_same_strand.txt"` contains one line per confident insertion (mapq\>=30) with their genomic coordinates, strand, 'ins_cov' (the number of supporting reads, referred laster as Duplication Counts (DC)) and the gene_id/gene_name/mgi_id associated to the closest downstream, non-first exon. The number of the exon in the associated transcript is also specified, as well as the genomic distance between the insertion and the exon (`'dist'` column):
 
 ```{r check_insertions, echo=FALSE, out.width="100%", fig.align="center", fig.cap= "Head of the file containing assigned insertions"}
 knitr::include_graphics(system.file("images/assigned_insertions_head.png", package = "vlite"))
@@ -579,7 +592,7 @@ vlite::orftagQC(
 
 ```
 
-For each tested dc.cutoff, the function will create a table (containing the read counts) and a pdf containing diagnostic plots. Let's look at the plots when dc.cutoff= 2. The first table shows that we got ~36M reads corresponding to ~247k usable insertions, of which ~166k remain after applyin a dc.cutoff of 2 (DC>=2):
+For each tested dc.cutoff, the function will create a table (containing the read counts) and a pdf containing diagnostic plots. Let's look at the plots when dc.cutoff= 2. The first table shows that we got \~36M reads corresponding to \~247k usable insertions, of which \~166k remain after applyin a dc.cutoff of 2 (DC\>=2):
 
 ```{r insertion_table, echo=FALSE, out.width="100%", fig.align="center", fig.cap= "Number of reads/usable insertions before/after dc.cutoff."}
 knitr::include_graphics(system.file("images/insertion_counts_table.png", package = "vlite"))
@@ -597,7 +610,7 @@ The density plot is the most informative to decide on the cutoff, as it shows us
 knitr::include_graphics(system.file("images/DC_density.png", package = "vlite"))
 ```
 
-The last heatmap shows the overlap between the usable insertions, expressed in %, across all samples, after applying the dc.cutoff. Ideally, all the values should be very low (<1%) except when comparing sorted samples to their matched input (diagonal on the bottom left quarter of the heatmap), which can go up to 10-20%. This is because sorted samples represent a sub-population of the unsorted input:
+The last heatmap shows the overlap between the usable insertions, expressed in %, across all samples, after applying the dc.cutoff. Ideally, all the values should be very low (\<1%) except when comparing sorted samples to their matched input (diagonal on the bottom left quarter of the heatmap), which can go up to 10-20%. This is because sorted samples represent a sub-population of the unsorted input:
 
 ```{r insertion_heatmap, echo=FALSE, out.width="40%", fig.align="center", fig.cap= "Insertion overlaps between samples."}
 knitr::include_graphics(system.file("images/insertion_ov_heatmap.png", package = "vlite"))
@@ -665,7 +678,7 @@ The pdf file will contain the DC density plot after meging the samples, and a vo
 knitr::include_graphics(system.file("images/ORFtag_volcano.png", package = "vlite"))
 ```
 
-Finally, the bed files will contain the merged sorted and unsorted (input) insertions that were used to call the hits, meaning they met dc.cutoff and distance requirements (200kb from the closest downstream non-first exon). They are split between the positive and negative strand (see the '_ps.bed' and '_ns.bed' extensions).
+Finally, the bed files will contain the merged sorted and unsorted (input) insertions that were used to call the hits, meaning they met dc.cutoff and distance requirements (200kb from the closest downstream non-first exon). They are split between the positive and negative strand (see the '\_ps.bed' and '\_ns.bed' extensions).
 
 ## 8- Visual inspection
 
@@ -711,7 +724,7 @@ vlite::bwScreenshot(
 
 # VI- The PRO-seq pipeline
 
-Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.  
+Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.
 
 In bioinformatics, a pipeline is a sequence of computational steps that processes raw data into results. This package includes pipelines for analyzing ORFtag, CUT&RUN, PRO‑seq, and ORFeome screens (other pipelines are available but are less well benchmarked). **However, note that these functions do not process data directly in R. Instead, they assemble a script that contains the commands needed for the analysis, starting from de‑multiplexed FASTQ files. You must then submit the resulting script to your compute cluster to run the analysis**. Then, post-processing (hits callling, differential analysis...) is generally performed in R using regular functions.
 
@@ -782,13 +795,13 @@ cmd <- vlite::cmd_demultiplexVBCfile(
 )
 ```
 
-The cmd object that you just created (and that you can expect using `cmd[]`) is simply a table specifying the file.type of the output (fq1, fq2), the path of the output file (output_folder/output.prefix...), the cmd that will be used for demultiplexing, optional parameters for the job (number of cores, job.name and potentially many other) etc... Nothing was analysed yet! Let's now have a quick look at the command itself, using `unique(cmd$cmd)`:  
+The cmd object that you just created (and that you can expect using `cmd[]`) is simply a table specifying the file.type of the output (fq1, fq2), the path of the output file (output_folder/output.prefix...), the cmd that will be used for demultiplexing, optional parameters for the job (number of cores, job.name and potentially many other) etc... Nothing was analysed yet! Let's now have a quick look at the command itself, using `unique(cmd$cmd)`:
 
-```bash
+``` bash
 samtools view -@ 7 /groups/stark/projects/PE36_20211113_PROseq/HM2CVBGXK_1_20211112B_20211113.bam | perl /groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl  'PAIRED' 'ACAGTG' 'none' 14 12 'fq//AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1' 'ATCG' 10
 ```
 
-As you can see, the command uses 'samtools view' to open the BAM file and pass it to a perl script using the pipe '|' command. The perl script (located at `"/groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl"`) will do the real job, using the parameters that we specified after it (PAIRED reads with specified i7 barcodes, no i5 ('none') and eBC sequences at the beginning of the read, followed by a 10nt long UMI sequence. The output file will be saved in 'fq/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1'.
+As you can see, the command uses 'samtools view' to open the BAM file and pass it to a perl script using the pipe '\|' command. The perl script (located at `"/groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl"`) will do the real job, using the parameters that we specified after it (PAIRED reads with specified i7 barcodes, no i5 ('none') and eBC sequences at the beginning of the read, followed by a 10nt long UMI sequence. The output file will be saved in 'fq/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1'.
 
 ### c- Submit to the cluster
 
@@ -815,9 +828,9 @@ If the command has been successfully submitted, you should see something like:
 knitr::include_graphics(system.file("images/submit.png", package = "vlite"))
 ```
 
-To make sure that your command has been properly submitted, list the jobs that are queued/running on the cluster using `vlite::vl_squeue(user= "vincent.loubiere")` with your own user name. Once the jobs are finished, which can take up to ~2h (or even more for very large novaSeq files), they will disappear from this list, and demultiplexed FASTQ files should have appeared in your output folder. You can check on them using the terminal (or any other file browser):
+To make sure that your command has been properly submitted, list the jobs that are queued/running on the cluster using `vlite::vl_squeue(user= "vincent.loubiere")` with your own user name. Once the jobs are finished, which can take up to \~2h (or even more for very large novaSeq files), they will disappear from this list, and demultiplexed FASTQ files should have appeared in your output folder. You can check on them using the terminal (or any other file browser):
 
-```bash
+``` bash
 # cd to uor working directory
 cd /scratch-cbe/users/vincent.loubiere/vlite/PROseq/
 # cd to the fq subfolder
@@ -833,7 +846,7 @@ knitr::include_graphics(system.file("images/check_fq.png", package = "vlite"))
 You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example. Note that here, I recommend setting the `output.prefix` parameter to NULL, which will ensure that the output file names are unique. This is very important because, if several input file/BC combinations are given the same output.prefix (re-sequencing, sample split on two lanes...), they will overwrite each other:
 
 ```{r loop_example_PROseq, eval = FALSE}
-# Loop over the sampleID values (see the 'by=' argument on the last line)
+# For each line in the metadata file (see the `by=` argument on the last line)
 meta.demultiplex <- meta[, {
   cmd <- vlite::cmd_demultiplexVBCfile(
     vbcFile = bam_path,
@@ -857,7 +870,7 @@ meta.demultiplex <- meta[, {
   )
   # Return the output files paths
   transpose(cmd[, .(file.type, path)], make.names = T)
-}, by= names(meta)] # For each line in the file
+}, by= names(meta)] # By specifying all column names here, each line will be processed separately
 
 # Create a folder to save RDS files
 dir.create("Rdata", recursive = T, showWarnings = F)
@@ -872,14 +885,14 @@ At the end, don't forget to save the paths to the demultiplexed fastq files that
 
 ### d- Troubleshooting
 
-**Once the demultiplexing jobs have been fully completed**, if your fastq files are missing, empty or very small, something might have gone wrong. Here is a checklist for troubleshooting:  
+**Once the demultiplexing jobs have been fully completed**, if your fastq files are missing, empty or very small, something might have gone wrong. Here is a checklist for troubleshooting:
 
-- Go in the folder were the log files are saved (in this example: `"db/logs/demultiplex/"`) and open the '.err' file corresponding to your job. This is the standard error file, which gathers the potential errors associated to your job. If the job ran Out Of Memory (and was 'OOM killed') or out of time, it should be written here. If this is the case, simply increase the 'mem' (RAM in Gb) and 'time' parameters in the vl_submit function call.  
-- After this check the other '.out' log file (standard output), which might also contain information about what happened.
-- If you did not find anything in the logs, than the job migh have run normally. In this case, maybe your demultiplexing parameters were wrong and this is why you ended up with few reads. Make sure that the layout ('PAIRED' or 'SINGLE'), barcode sequences as well as other sequencing-related parameters are correct.
-- If this is the case, maybe the i7/i5 columns indices are wrong (note that this can only be a problem when demultiplexing BAM files, not tar.gz. files). To be sure, check the head of your BAM file using 'samtools view file.bam | head' and look at columns 12 and 14. the BC column (i7) should start with 'BC:'. 
-- Sometimes, depending on the sequencer, i5/i7 sequences have to be reverse complemented, which you can do using `Biostrings::reverseComplement(Biostrings::DNAString("ATCG"))`.
-- If none of these approaches worked, maybe your sequencing failed. For BAM files, open them with 'samtools view' (or import them in R using `?vlite::importBamRaw()`, which might require a lot of RAM) and see how they look. For tar.gz files, use the following function to directly submit a command to the cluster and save the head of the fastq files present inside your tar files:
+-   Go in the folder were the log files are saved (in this example: `"db/logs/demultiplex/"`) and open the '.err' file corresponding to your job. This is the standard error file, which gathers the potential errors associated to your job. If the job ran Out Of Memory (and was 'OOM killed') or out of time, it should be written here. If this is the case, simply increase the 'mem' (RAM in Gb) and 'time' parameters in the vl_submit function call.\
+-   After this check the other '.out' log file (standard output), which might also contain information about what happened.
+-   If you did not find anything in the logs, than the job migh have run normally. In this case, maybe your demultiplexing parameters were wrong and this is why you ended up with few reads. Make sure that the layout ('PAIRED' or 'SINGLE'), barcode sequences as well as other sequencing-related parameters are correct.
+-   If this is the case, maybe the i7/i5 columns indices are wrong (note that this can only be a problem when demultiplexing BAM files, not tar.gz. files). To be sure, check the head of your BAM file using 'samtools view file.bam \| head' and look at columns 12 and 14. the BC column (i7) should start with 'BC:'.
+-   Sometimes, depending on the sequencer, i5/i7 sequences have to be reverse complemented, which you can do using `Biostrings::reverseComplement(Biostrings::DNAString("ATCG"))`.
+-   If none of these approaches worked, maybe your sequencing failed. For BAM files, open them with 'samtools view' (or import them in R using `?vlite::importBamRaw()`, which might require a lot of RAM) and see how they look. For tar.gz files, use the following function to directly submit a command to the cluster and save the head of the fastq files present inside your tar files:
 
 ```{r tar_QC_PROseq, eval = FALSE}
 # Check help
@@ -896,7 +909,7 @@ checkVBCfile(
 )
 ```
 
-- Once the job is completed, the output folder should contain .fastq files with "R1", "R2", "I1" and "I2" inside their names, and contain the first 10,000 Read 1, Read2, i7 and i5 index sequences, respectively. We will import them in R to see whether your index sequences are there and in which amounts:
+-   Once the job is completed, the output folder should contain .fastq files with "R1", "R2", "I1" and "I2" inside their names, and contain the first 10,000 Read 1, Read2, i7 and i5 index sequences, respectively. We will import them in R to see whether your index sequences are there and in which amounts:
 
 ```{r FQ_QC_PROseq, eval = FALSE}
 # Retrieve read files
@@ -919,8 +932,8 @@ i5[, .N, seq][order(N, decreasing= T)][1:10]
 i7[, .N, seq][order(N, decreasing= T)][1:10]
 ```
 
-- If you can't find your i7/i5 sequences among the top-represented ones, try to find them lower down the list or see whether their reverse complement sequences are somewhere there.
-- If all these approaches failed, contact the facility and see what they think about the QC of the lane.
+-   If you can't find your i7/i5 sequences among the top-represented ones, try to find them lower down the list or see whether their reverse complement sequences are somewhere there.
+-   If all these approaches failed, contact the facility and see what they think about the QC of the lane.
 
 ## 3- Run the pipeline
 
@@ -933,11 +946,11 @@ We can now generate the commands to align the reads to the reference and the spi
 # Import the demultiplexed fastq metadata generated earlier
 meta.demultiplex <- readRDS("Rdata/demultiplexed_fastqs.rds")
 
-# Generate the commands and submit to the server
+# Process each combination of the columns specified in `by` (see last line) separately
 meta.processed <- meta.demultiplex[, {
   # Create the command
   cmd <- vlite::proseqProcessing(
-    fq1= fq1, # Only the first read is used
+    fq1= fq1, # Only the first read is used. Note that several files can be specified (re-sequencing...)
     ref.genome = genome, # Genome to which the reads should first be aligned
     output.prefix = sampleID, # Output file name prefix
     spike.genome = spikein_genome, # The read that did not align to the reference genome will then be aligned to the spike in genome
@@ -956,8 +969,10 @@ meta.processed <- meta.demultiplex[, {
     logs = "db/logs/processing/", # Where to save the logs
   )
   # Return commands and output files
-  transpose(cmd[, c(1, 2)], make.names = T)
-}, by= names(meta.demultiplex)] # For each sampleID
+  transpose(cmd[, .(path= paste0(path, collapse= ",")), file.type], make.names = T)
+}, by= .(user, batch, experiment, cell_line, treatment, replicate, sampleID,
+         DESeq2_name, DESeq2_condition, DESeq2_control,
+         genome, spikein_genome)] # Each group of the specified columns will be processed separately.
 
 # Save the metadata containing processed files
 saveRDS(meta.processed, "Rdata/processed_files.rds")
@@ -969,22 +984,22 @@ To understand how this works, inspect your logs folder. It should contain 3 file
 knitr::include_graphics(system.file("images/screenshot_sh_script_PROseq.png", package = "vlite"))
 ```
 
-This is the whole point of the pipeline: it generates this shell script that gets saved by the `vl_submit()` command and submitted to the cluster. By looking at these commands, you can therefore exactly know how the data was analysed and which tools were used in which order.  
+This is the whole point of the pipeline: it generates this shell script that gets saved by the `vl_submit()` command and submitted to the cluster. By looking at these commands, you can therefore exactly know how the data was analysed and which tools were used in which order.
 
 ## 4- Output files
 
-As you can guess from the `vlite::proseqProcessing()` function call, the command generated by the pipeline delivers several output files. Some are **intermediate files that you will generally not manipulate yourself** (except for debugging purposes). These include:  
-- Trimmed fastq files (stored in the fq.output.folder).  
-- BAM files containing the aligned reads (stored in the bam.output.folder).  
+As you can guess from the `vlite::proseqProcessing()` function call, the command generated by the pipeline delivers several output files. Some are **intermediate files that you will generally not manipulate yourself** (except for debugging purposes). These include:\
+- Trimmed fastq files (stored in the fq.output.folder).\
+- BAM files containing the aligned reads (stored in the bam.output.folder).
 
-**The files you care about are:**   
-- Alignment statistics (stored in the alignment.stats.output.folder).  
-- Bigwig coverage files for the positive and negative strands (stored in the bw.output.folder).  
+**The files you care about are:**\
+- Alignment statistics (stored in the alignment.stats.output.folder).\
+- Bigwig coverage files for the positive and negative strands (stored in the bw.output.folder).
 
-**And the most important of all:**  
-- count statistics (stored in the counts.stats.output.folder).  
-- count files (stored in the counts.output.folder).  
-Let's have a look at them one per one.  
+**And the most important of all:**\
+- count statistics (stored in the counts.stats.output.folder).\
+- count files (stored in the counts.output.folder).\
+Let's have a look at them one per one.
 
 ### a- Alignment statistics
 
@@ -1016,7 +1031,7 @@ knitr::include_graphics(system.file("images/dm3_stats.png", package = "vlite"))
 
 ### d- The counts files
 
-Finally comes the most important: the UMI-collapsed read counts file (`"db/counts/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1_mm10_UMI_counts.txt"`). The first 'coor' column specifies the genomic coordinates of the mapping position, and the two next columns contain the number of supporting reads before ('total_counts') or after ('umi_counts') UMI-collapsing: 
+Finally comes the most important: the UMI-collapsed read counts file (`"db/counts/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1_mm10_UMI_counts.txt"`). The first 'coor' column specifies the genomic coordinates of the mapping position, and the two next columns contain the number of supporting reads before ('total_counts') or after ('umi_counts') UMI-collapsing:
 
 ```{r check_mm10_counts, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "mm10 UMI-collapsed counts (reference genome)."}
 knitr::include_graphics(system.file("images/mm10_counts.png", package = "vlite"))
@@ -1032,12 +1047,9 @@ knitr::include_graphics(system.file("images/dm3_counts.png", package = "vlite"))
 
 ### a- Vanja annotation
 
-For PROseq, we use CAGE-defined TSSs annotations to quantify the reads at TSSs, transcript and gene bodies. I already made these annotation files for mm10 using the script below (adapted from Vanja Haberle), and backed them up in our shared annotations folder here:  
-`/groups/stark/annotations/mm10/PROseq/`  
-The files of interest are: 
-- mm10_transcript.rds -> CAGE-TSS to transcript end.
-- mm10_promoters.rds -> CAGE-TSS to CAGE-TSS+150bp
-- mm10_genebody.rds -> CAGE-TSS+150bp to transcript end.
+For PROseq, we use CAGE-defined TSSs annotations to quantify the reads at TSSs, transcript and gene bodies. I already made these annotation files for mm10 using the script below (adapted from Vanja Haberle), and backed them up in our shared annotations folder here:\
+`/groups/stark/annotations/mm10/PROseq/`\
+The files of interest are: - mm10_transcript.rds -\> CAGE-TSS to transcript end. - mm10_promoters.rds -\> CAGE-TSS to CAGE-TSS+150bp - mm10_genebody.rds -\> CAGE-TSS+150bp to transcript end.
 
 ```{r PROseq annotation files, eval= FALSE}
 setwd("/groups/stark/vloubiere/genomes/Mus_musculus/PROseq/")
@@ -1088,31 +1100,10 @@ saveRDS(as.data.table(transcript.gr), "/groups/stark/vloubiere/genomes/Mus_muscu
 
 ### b- EPD annotation
 
-I started to develop a new annotation file, whose purpose is to be coupled to a clear and transparent extensive database, which contains a bunch of information for each promoter:  
-- cluster.id: unique PROseq ID
-- EPD_id: Eukaryotic Core Promoter gene ID
-- gene_id: ENSEMBLE gene id
-- transcript_id: ENSEMBLE transcript id
-- coor: Coordinates of the CAGE promoter
-- seqnames: chromosome
-- start: transcript start (CAGE-TSS for + strand)
-- end: transcript end (CAGE-TSS for - strand)
-- tissue_specificty: Low to High
-- CAGE_tot: CAGE total counts
-- CAGE_max: CAGE max count
-- PROseq_log2_norm: PROseq log2 normalized counts
-- PROseq_act: Is the gene active? (based on PROseq counts)
-- motif_cluster: motif-based clusters
-- GAGA, BREu, TATA, BREd, XCPE1, XCPE2, Motif1, dTCT, hTCT, BBCABW, hInr, dInr, MTE, bridge, DPE, PB: motif score (only for the motif that lay in relevant positions within the promoter)
-- overlaps_CGI: TRUE/FALSE
-- CGI_length: Length of the overlapping CGI
-- GC_perc: % of GC
-- obsExpCpG: Observed versus expected CG ratio
-- chrom_cluster: Chromatin cluster
-- Pol2_log2enr, DNASe_log2enr, K27Ac_log2enr, K4me3_log2enr, K4me1_log2enr, K119ub1_log2enr, K27me3_log2enr, K9me3_log2enr, methylation_log2enr: enrichment for various PTMs + methyltion
-- ORFtag_promoters: promoters used in ORFtag.  
-  
-To assemble this table, I used data from different promoter databases, including the [Eukaryotic Promoter Database]( https://epd.expasy.org/epd/mouse/mouse_database.php?db=mouse) and the [Element core database](https://www.juven-gershonlab.org/resources/core-2023/). These data were then processed and compiled using the scripts listed below (and linked: `file.edit("/groups/stark/vloubiere/projects/ORFTRAP_PcG/git_ORFtag_PcG/main.R")`), which you can read to precisely understand how each column was computed:
+I started to develop a new annotation file, whose purpose is to be coupled to a clear and transparent extensive database, which contains a bunch of information for each promoter:\
+- cluster.id: unique PROseq ID - EPD_id: Eukaryotic Core Promoter gene ID - gene_id: ENSEMBLE gene id - transcript_id: ENSEMBLE transcript id - coor: Coordinates of the CAGE promoter - seqnames: chromosome - start: transcript start (CAGE-TSS for + strand) - end: transcript end (CAGE-TSS for - strand) - tissue_specificty: Low to High - CAGE_tot: CAGE total counts - CAGE_max: CAGE max count - PROseq_log2_norm: PROseq log2 normalized counts - PROseq_act: Is the gene active? (based on PROseq counts) - motif_cluster: motif-based clusters - GAGA, BREu, TATA, BREd, XCPE1, XCPE2, Motif1, dTCT, hTCT, BBCABW, hInr, dInr, MTE, bridge, DPE, PB: motif score (only for the motif that lay in relevant positions within the promoter) - overlaps_CGI: TRUE/FALSE - CGI_length: Length of the overlapping CGI - GC_perc: % of GC - obsExpCpG: Observed versus expected CG ratio - chrom_cluster: Chromatin cluster - Pol2_log2enr, DNASe_log2enr, K27Ac_log2enr, K4me3_log2enr, K4me1_log2enr, K119ub1_log2enr, K27me3_log2enr, K9me3_log2enr, methylation_log2enr: enrichment for various PTMs + methyltion - ORFtag_promoters: promoters used in ORFtag.
+
+To assemble this table, I used data from different promoter databases, including the [Eukaryotic Promoter Database](https://epd.expasy.org/epd/mouse/mouse_database.php?db=mouse) and the [Element core database](https://www.juven-gershonlab.org/resources/core-2023/). These data were then processed and compiled using the scripts listed below (and linked: `file.edit("/groups/stark/vloubiere/projects/ORFTRAP_PcG/git_ORFtag_PcG/main.R")`), which you can read to precisely understand how each column was computed:
 
 ```{r PROseq annot EPD, eval= FALSE}
 # Set working directory
@@ -1139,9 +1130,7 @@ file.edit("git_ORFtag_PcG/subscripts/EPD_CP_define_chromatin_clusters.R")
 file.edit("git_ORFtag_PcG/subscripts/Mm_EPDnew_make_database.R")
 ```
 
-The most important script is the last one, where I assemble the actual database as well as the PROseq annotation file. Both files where finally backed in our shared annotations folder:
-- PROseq annot (CAGE-TSS -10nt to transcript end) -> `/groups/stark/annotations/mm10/PROseq/EPD_core_promoters_mm10_final_db.rds`
-- Database: `/groups/stark/annotations/mm10/PROseq/EPD_core_promoters_mm10_final_db.rds`
+The most important script is the last one, where I assemble the actual database as well as the PROseq annotation file. Both files where finally backed in our shared annotations folder: - PROseq annot (CAGE-TSS -10nt to transcript end) -\> `/groups/stark/annotations/mm10/PROseq/EPD_core_promoters_mm10_final_db.rds` - Database: `/groups/stark/annotations/mm10/PROseq/EPD_core_promoters_mm10_final_db.rds`
 
 ### c- Blacklisted regions
 
@@ -1198,7 +1187,7 @@ It includes most non-coding PolI/PolIII RNAs (rRNAs, tRNAs, Mt_rRNA, Mt_tRNA, sn
 
 ## 6- Count reads
 
-Now, we will used the annotation files described above to count the number UMI collapsed reads associated to each gene promoter, transcript or gene body. But before this, we ideally want to used the annotated blacklisted regions to remove reads from PolI/PolIIItranscripts. In this example, I will show how to do the counting for full-length transcripts, and you can later repeat the operation for promoters or gene bodies if needed:  
+Now, we will used the annotation files described above to count the number UMI collapsed reads associated to each gene promoter, transcript or gene body. But before this, we ideally want to used the annotated blacklisted regions to remove reads from PolI/PolIIItranscripts. In this example, I will show how to do the counting for full-length transcripts, and you can later repeat the operation for promoters or gene bodies if needed:
 
 ```{r count_reads_PROseq, eval = FALSE}
 # Check the help function
@@ -1207,7 +1196,10 @@ Now, we will used the annotation files described above to count the number UMI c
 # Import the demultiplexed fastq metadata generated earlier
 meta.processed <- readRDS("Rdata/processed_files.rds")
 
-# Generate the commands and submit to the server
+# At this point, each sample should correspond to a unique entry in the metadata
+stopifnot(uniqueN(meta.processed$sampleID)==nrow(meta.processed))
+
+# For each line in the metadata file (see the `by=` argument on the last line)
 meta.counts <- meta.processed[, {
   # Create the command
   cmd <- vlite::cmd_countPROseqReads(
@@ -1226,8 +1218,8 @@ meta.counts <- meta.processed[, {
     logs = "db/logs/counting/", # Where to save the logs
   )
   # Return commands and output files
-  transpose(cmd[, c(1, 2)], make.names = T)
-}, by= names(meta.processed)] # For each sampleID
+  transpose(cmd[, .(file.type, path)], make.names = T)
+}, by= names(meta.processed)] # By specifying all column names here, each line will be processed separately (one sampleID/line)
 
 # Save the metadata containing count files
 saveRDS(meta.counts, "Rdata/count_files.rds")
@@ -1238,8 +1230,8 @@ First you should check the fraction of blacklisted reads that were removed, and 
 ```{r removed_counts, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "Number of removed reads."}
 knitr::include_graphics(system.file("images/removed_counts.png", package = "vlite"))
 ```
-  
-Let's now look one of the resulting count files (for example using `fread("db/count_tables/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1_mm10_UMI_counts_transcript_counts.txt")`). The first ID column contains the UCSC gene id followed by the gene name and the coordinates of the corresponding CAGE promoter, separated by '__'. So the Xkr4 transcript has 41 UMI-collapsed associated reads in this condition:
+
+Let's now look one of the resulting count files (for example using `fread("db/count_tables/AID.Hcfc1_IAA_0h_Hcfc1.depl.N_rep1_mm10_UMI_counts_transcript_counts.txt")`). The first ID column contains the UCSC gene id followed by the gene name and the coordinates of the corresponding CAGE promoter, separated by '\_\_'. So the Xkr4 transcript has 41 UMI-collapsed associated reads in this condition:
 
 ```{r transcript_counts, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "UMI-collapsed counts per transcript."}
 knitr::include_graphics(system.file("images/transcript_counts.png", package = "vlite"))
@@ -1247,7 +1239,7 @@ knitr::include_graphics(system.file("images/transcript_counts.png", package = "v
 
 ## 7- Run DESeq2
 
-It is now time to perform the differential expression analysis between your different conditions using DESeq2. The following function generates the command to create the DESeq2 object, which should contain **all the samples that you want to directly compare. This is an important point**: if you have different experiments (e.g. two different AID cell lines (for example against HCFC1 and PPRC1...) derived from different parental cell lines or measured on different days), you'd better create two DESeq2 objects.  
+It is now time to perform the differential expression analysis between your different conditions using DESeq2. The following function generates the command to create the DESeq2 object, which should contain **all the samples that you want to directly compare. This is an important point**: if you have different experiments (e.g. two different AID cell lines (for example against HCFC1 and PPRC1...) derived from different parental cell lines or measured on different days), you'd better create two DESeq2 objects.\
 Here we will create one unique DESeq2 object, containing our four samples (two auxin-treated (AID+) replicates and two untreated (AID-) control replicates):
 
 ```{r DESeq2_analysis_PROseq, eval= FALSE}
@@ -1257,7 +1249,7 @@ Here we will create one unique DESeq2 object, containing our four samples (two a
 # Import the counts metadata
 meta.counts <- readRDS("Rdata/count_files.rds")
 
-# Differential analysis
+# Process each experiment separately (see the `by=` argument on the last line)
 meta.FC <- meta.counts[, {
   # Generate the command
   cmd <- vlite::cmd_DESeq2_PROseq(
@@ -1281,21 +1273,20 @@ meta.FC <- meta.counts[, {
     logs= "db/logs/DESeq2/"
   )
   # Return output files paths
-  data.table::transpose(cmd[, c(1,2)], make.names = T)
-}] # If you want to analyse several experiments separately, use the "by" argument to split the samples accordingly and create separated objects.
+  data.table::transpose(cmd[, .(file.type, path)], make.names = T)
+}, experiment] # For each experiment (one DESeq2 object/experiment)
+
 ```
 
 ## 8- Output files
 
-The above command generates 3 types of files:
-- The usual DESeq2 FC tables for each DESeq2_condition/DESeq2_control combination specified in the corresponding columns of the metadata. Thus, there is only one here: IAA_3h vs. control (see previous section).
-- For each FC table, the corresponding MA plot.  
-- The DESEq2 object that can be imported in R to access raw/normalized counts, plot PCA/PCC, compare other sample pairs...    
+The above command generates 3 types of files: - The usual DESeq2 FC tables for each DESeq2_condition/DESeq2_control combination specified in the corresponding columns of the metadata. Thus, there is only one here: IAA_3h vs. control (see previous section). - For each FC table, the corresponding MA plot.\
+- The DESEq2 object that can be imported in R to access raw/normalized counts, plot PCA/PCC, compare other sample pairs...\
 Let's look at these files one per one.
 
 ### a- The foldChange tables
 
-For each DESeq2_condition/DESeq2_control pair that was present in the metadata, the FC table will be computed and stored in the specified output folder (here: `"db/FC_tables/"`). **If the comparison that you are interested in is missing, or if you would like to perform other (new) comparisons, directly go to the [c- The DESeq2 object](#c--the-deseq2-object) section below.** FC tables contain, for each gene feature (one per row), the baseMean (mean counts across all conditions), the log2FoldChange between the conditions as well as the associated adjusted p-value (padj). I also add an extra column called 'diff', specifying whether the gene is significantly Down-regulated (padj < 0.05 & log2FoldChange < -log2(1.5)), Up-regulated (padj < 0.05 & log2FoldChange > log2(1.5)) or Unaffected:
+For each DESeq2_condition/DESeq2_control pair that was present in the metadata, the FC table will be computed and stored in the specified output folder (here: `"db/FC_tables/"`). **If the comparison that you are interested in is missing, or if you would like to perform other (new) comparisons, directly go to the [c- The DESeq2 object](#c--the-deseq2-object) section below.** FC tables contain, for each gene feature (one per row), the baseMean (mean counts across all conditions), the log2FoldChange between the conditions as well as the associated adjusted p-value (padj). I also add an extra column called 'diff', specifying whether the gene is significantly Down-regulated (padj \< 0.05 & log2FoldChange \< -log2(1.5)), Up-regulated (padj \< 0.05 & log2FoldChange \> log2(1.5)) or Unaffected:
 
 ```{r FC_table_HCFC1, echo=FALSE, out.width="100%", fig.align="center", fig.cap= "DESeq2 FC table."}
 knitr::include_graphics(system.file("images/FC_table_HCFC1.png", package = "vlite"))
@@ -1309,13 +1300,13 @@ knitr::include_graphics(system.file("images/diff_genes_HCFC1.png", package = "vl
 
 ### b- The MA plots
 
-MA plots are a nice way to visualize the output of a transcriptome. The x axis corresponds to the mean count across all conditions (so the most expressed genes appear on the right), and the y axis shows their log2FoldChange. A color code highlights the genes that are significantly up or down, while outlier values (that would expand beyond the limits of the plots) are clipped and appear as triangles (see on top and bottom of the example below). For HCFC1 we get a clear picture: most affected genes are strongly down-regulated (~3,200 vs 55 up):
+MA plots are a nice way to visualize the output of a transcriptome. The x axis corresponds to the mean count across all conditions (so the most expressed genes appear on the right), and the y axis shows their log2FoldChange. A color code highlights the genes that are significantly up or down, while outlier values (that would expand beyond the limits of the plots) are clipped and appear as triangles (see on top and bottom of the example below). For HCFC1 we get a clear picture: most affected genes are strongly down-regulated (\~3,200 vs 55 up):
 
 ```{r HCFC1_MA_plot, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "MA plot"}
 knitr::include_graphics(system.file("images/HCFC1_MA_plot.png", package = "vlite"))
 ```
 
-### c- The DESeq2 object
+### c- The DESeq2 object {#c--the-deseq2-object}
 
 The DESeq2 object is a specialized R object that stores the raw and the normalized counts, and is therefore used to plot PCA/PCC between samples, or to perform new differential analyses. Lets first look at PCA/PCC plots, which are useful sanity checks.
 
@@ -1366,7 +1357,7 @@ points(
 knitr::include_graphics(system.file("images/HCFC1_PCC.png", package = "vlite"))
 ```
 
-Here, the two replicates from the IAA_3h condition (in red) have a PCC of ~0.992, same for the controls (in cyan), while the PCC between samples and control are lower (0.970). This is ideal.
+Here, the two replicates from the IAA_3h condition (in red) have a PCC of \~0.992, same for the controls (in cyan), while the PCC between samples and control are lower (0.970). This is ideal.
 
 #### 2- Perform other comparisons
 
@@ -1393,6 +1384,7 @@ old <- fread("db/FC_tables/HCFC1_AID_depletion_transcript_spikeIn_norm_DESeq2_FC
 plot(FC$log2FoldChange, old$log2FoldChange, xlab= "FC control vs 3h_HCFC1_IAA", ylab= "FC 3h_HCFC1_IAA vs control")
 
 ```
+
 Of course in this case, we get the exact opposite Fold Changes:
 
 ```{r FC_comp, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "Comparison between FCs."}
@@ -1401,7 +1393,7 @@ knitr::include_graphics(system.file("images/FC_comparison.png", package = "vlite
 
 # VII- The CUT&RUN pipeline
 
-Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.  
+Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.
 
 In bioinformatics, a pipeline is a sequence of computational steps that processes raw data into results. This package includes pipelines for analyzing ORFtag, CUT&RUN, PRO‑seq, and ORFeome screens (other pipelines are available but are less well benchmarked). **However, note that these functions do not process data directly in R. Instead, they assemble a script that contains the commands needed for the analysis, starting from de‑multiplexed FASTQ files. You must then submit the resulting script to your compute cluster to run the analysis**. Then, post-processing (hits callling, differential analysis...) is generally performed in R using regular functions.
 
@@ -1472,13 +1464,13 @@ cmd <- vlite::cmd_demultiplexVBCfile(
 )
 ```
 
-The cmd object that you just created (and that you can expect using `cmd[]`) is simply a table specifying the file.type of the output (fq1, fq2), the path of the output file (output_folder/output.prefix...), the cmd that will be used for demultiplexing, optional parameters for the job (number of cores, job.name and potentially many other) etc... Nothing was analysed yet! Let's now have a quick look at the command itself, using `unique(cmd$cmd)`:  
+The cmd object that you just created (and that you can expect using `cmd[]`) is simply a table specifying the file.type of the output (fq1, fq2), the path of the output file (output_folder/output.prefix...), the cmd that will be used for demultiplexing, optional parameters for the job (number of cores, job.name and potentially many other) etc... Nothing was analysed yet! Let's now have a quick look at the command itself, using `unique(cmd$cmd)`:
 
-```bash
+``` bash
 samtools view -@ 7 /groups/stark/projects/PE36_20230623_CutNRun_FN/HNF5HBGXT_1_20230620B_20230621.bam | perl /groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl  'SINGLE' 'TGACCA' 'TAAGATTA' 14 12 'db/fq//V5_AID.Hcfc1_noTreatment_exp4_rep1'
 ```
 
-As you can see, the command uses 'samtools view' to open the BAM file and pass it to a perl script using the pipe '|' command. The perl script (located at `"/groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl"`) will do the real job, using the parameters that we specified after it (PAIRED reads containing two different i7 barcodes and no i5 ('none'). i7 barcodes are stored in column 12 and the output file will be saved in `"db/fq/V5_AID.Hcfc1_noTreatment_exp4_rep1"`.
+As you can see, the command uses 'samtools view' to open the BAM file and pass it to a perl script using the pipe '\|' command. The perl script (located at `"/groups/stark/vloubiere/vlite/inst/perl/vbc_bam_demultiplexing.pl"`) will do the real job, using the parameters that we specified after it (PAIRED reads containing two different i7 barcodes and no i5 ('none'). i7 barcodes are stored in column 12 and the output file will be saved in `"db/fq/V5_AID.Hcfc1_noTreatment_exp4_rep1"`.
 
 ### c- Submit to the cluster
 
@@ -1505,9 +1497,9 @@ If the command has been successfully submitted, you should see something like:
 knitr::include_graphics(system.file("images/submit.png", package = "vlite"))
 ```
 
-To make sure that your command has been properly submitted, list the jobs that are queued/running on the cluster using `vlite::vl_squeue(user= "vincent.loubiere")` with your own user name. Once the jobs are finished, which can take up to ~2h (or even more for very large novaSeq files), they will disappear from this list, and demultiplexed FASTQ files should have appeared in your output folder. You can check on them using the terminal (or any other file browser):
+To make sure that your command has been properly submitted, list the jobs that are queued/running on the cluster using `vlite::vl_squeue(user= "vincent.loubiere")` with your own user name. Once the jobs are finished, which can take up to \~2h (or even more for very large novaSeq files), they will disappear from this list, and demultiplexed FASTQ files should have appeared in your output folder. You can check on them using the terminal (or any other file browser):
 
-```bash
+``` bash
 # cd to the directory where fq files are saved
 cd /scratch-cbe/users/vincent.loubiere/vlite/ORFtag/db/fq/
 # List files
@@ -1521,7 +1513,7 @@ knitr::include_graphics(system.file("images/check_fq.png", package = "vlite"))
 You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example. Note that here, I recommend setting the `output.prefix` parameter to NULL, which will ensure that the output file names are unique. This is very important because, if several input file/BC combinations are given the same output.prefix (re-sequencing, sample split on two lanes...), they will overwrite each other:
 
 ```{r loop_example_CUTNRUN, eval = FALSE}
-# Loop over the sampleID values (see the 'by=' argument on the last line)
+# For each line in the metadata file (see the `by=` argument on the last line)
 meta.demultiplex <- meta[, {
   # Generate command
   cmd <- vlite::cmd_demultiplexVBCfile(
@@ -1545,7 +1537,7 @@ meta.demultiplex <- meta[, {
   )
   # Return the output files paths
   transpose(cmd[, .(file.type, path)], make.names = T)
-}, by= .(antibody, cell_line, treatment, replicate, condition, sampleID, barcode, i5, input, layout, bam_path, genome)] # For each sampleID/bam_path combination
+}, by= names(meta)] # By specifying all column names here, each line will be processed separately
 
 # Create a directory to save RDS files
 dir.create("Rdata", recursive = T, showWarnings = FALSE)
@@ -1560,14 +1552,14 @@ At the end, don't forget to save the paths to the demultiplexed fastq files that
 
 ### d- Troubleshooting
 
-**Once the demultiplexing jobs have been fully completed**, if your fastq files are missing, empty or very small, something might have gone wrong. Here is a checklist for troubleshooting:  
+**Once the demultiplexing jobs have been fully completed**, if your fastq files are missing, empty or very small, something might have gone wrong. Here is a checklist for troubleshooting:
 
-- Go in the folder were the log files are saved (in this example: `"db/logs/demultiplex/"`) and open the '.err' file corresponding to your job. This is the standard error file, which gathers the potential errors associated to your job. If the job ran Out Of Memory (and was 'OOM killed') or out of time, it should be written here. If this is the case, simply increase the 'mem' (RAM in Gb) and 'time' parameters in the vl_submit function call.  
-- After this check the other '.out' log file (standard output), which might also contain information about what happened.
-- If you did not find anything in the logs, than the job migh have run normally. In this case, maybe your demultiplexing parameters were wrong and this is why you ended up with few reads. Make sure that the layout ('PAIRED' or 'SINGLE'), barcode sequences as well as other sequencing-related parameters are correct.
-- If this is the case, maybe the i7/i5 columns indices are wrong (note that this can only be a problem when demultiplexing BAM files, not tar.gz. files). To be sure, check the head of your BAM file using 'samtools view file.bam | head' and look at columns 12 and 14. the BC column (i7) should start with 'BC:'. 
-- Sometimes, depending on the sequencer, i5/i7 sequences have to be reverse complemented, which you can do using `Biostrings::reverseComplement(Biostrings::DNAString("ATCG"))`.
-- If none of these approaches worked, maybe your sequencing failed. For BAM files, open them with 'samtools view' (or import them in R using `?vlite::importBamRaw()`, which might require a lot of RAM) and see how they look. For tar.gz files, use the following function to directly submit a command to the cluster and save the head of the fastq files present inside your tar files:
+-   Go in the folder were the log files are saved (in this example: `"db/logs/demultiplex/"`) and open the '.err' file corresponding to your job. This is the standard error file, which gathers the potential errors associated to your job. If the job ran Out Of Memory (and was 'OOM killed') or out of time, it should be written here. If this is the case, simply increase the 'mem' (RAM in Gb) and 'time' parameters in the vl_submit function call.\
+-   After this check the other '.out' log file (standard output), which might also contain information about what happened.
+-   If you did not find anything in the logs, than the job migh have run normally. In this case, maybe your demultiplexing parameters were wrong and this is why you ended up with few reads. Make sure that the layout ('PAIRED' or 'SINGLE'), barcode sequences as well as other sequencing-related parameters are correct.
+-   If this is the case, maybe the i7/i5 columns indices are wrong (note that this can only be a problem when demultiplexing BAM files, not tar.gz. files). To be sure, check the head of your BAM file using 'samtools view file.bam \| head' and look at columns 12 and 14. the BC column (i7) should start with 'BC:'.
+-   Sometimes, depending on the sequencer, i5/i7 sequences have to be reverse complemented, which you can do using `Biostrings::reverseComplement(Biostrings::DNAString("ATCG"))`.
+-   If none of these approaches worked, maybe your sequencing failed. For BAM files, open them with 'samtools view' (or import them in R using `?vlite::importBamRaw()`, which might require a lot of RAM) and see how they look. For tar.gz files, use the following function to directly submit a command to the cluster and save the head of the fastq files present inside your tar files:
 
 ```{r tar_QC_CUTNRUN, eval = FALSE}
 # Check help
@@ -1584,7 +1576,7 @@ checkVBCfile(
 )
 ```
 
-- Once the job is completed, the output folder should contain .fastq files with "R1", "R2", "I1" and "I2" inside their names, and contain the first 10,000 Read 1, Read2, i7 and i5 index sequences, respectively. We will import them in R to see whether your index sequences are there and in which amounts:
+-   Once the job is completed, the output folder should contain .fastq files with "R1", "R2", "I1" and "I2" inside their names, and contain the first 10,000 Read 1, Read2, i7 and i5 index sequences, respectively. We will import them in R to see whether your index sequences are there and in which amounts:
 
 ```{r FQ_QC_CUTNRUN, eval = FALSE}
 # Retrieve read files
@@ -1607,8 +1599,8 @@ i5[, .N, seq][order(N, decreasing= T)][1:10]
 i7[, .N, seq][order(N, decreasing= T)][1:10]
 ```
 
-- If you can't find your i7/i5 sequences among the top-represented ones, try to find them lower down the list or see whether their reverse complement sequences are somewhere there.
-- If all these approaches failed, contact the facility and see what they think about the QC of the lane.
+-   If you can't find your i7/i5 sequences among the top-represented ones, try to find them lower down the list or see whether their reverse complement sequences are somewhere there.
+-   If all these approaches failed, contact the facility and see what they think about the QC of the lane.
 
 ## 3- Run the pipeline
 
@@ -1621,7 +1613,7 @@ We can now generate the commands to align the reads to the genome, and submit th
 # Import the demultiplexed fastq metadata generated earlier
 meta.demultiplex <- readRDS("Rdata/demultiplexed_fastqs.rds")
 
-# Generate the commands and submit to the server
+# For each sampleID/genome combination (see the `by=` argument on the last line)
 meta.processed <- meta.demultiplex[, {
   # Create the command
   cmd <- vlite::cutnrunProcessing(
@@ -1644,8 +1636,8 @@ meta.processed <- meta.demultiplex[, {
     logs = "db/logs/processing/", # Where to save the logs
   )
   # Return commands and output files
-  transpose(cmd[, c(1, 2)], make.names = T)
-}, by= .(sampleID, genome)] # For each sampleID
+  transpose(cmd[, .(path= paste0(path, collapse= ",")), file.type], make.names = T)
+}, by= .(sampleID, genome)] # Each group of the specified columns will be processed separately.
 
 # Save the metadata containing processed files
 saveRDS(meta.processed, "Rdata/processed_files.rds")
@@ -1657,19 +1649,19 @@ To understand how this works, inspect your logs folder. It should contain 3 file
 knitr::include_graphics(system.file("images/screenshot_sh_script_CUTNRUN.png", package = "vlite"))
 ```
 
-This is the whole point of the pipeline: it generates this shell script that gets saved by the `vl_submit()` command and submitted to the cluster. By looking at these commands, you can therefore exactly know how the data was analysed and which tools were used in which order.  
+This is the whole point of the pipeline: it generates this shell script that gets saved by the `vl_submit()` command and submitted to the cluster. By looking at these commands, you can therefore exactly know how the data was analysed and which tools were used in which order.
 
 ## 4- Alignment statistics
 
-As you can guess from the `vlite::cutnrunProcessing()` function call, it will output BAM files that contain the aligned reads (stored in the bam.output.folder) and alignment statistics (stored in alignment.stats.output.folder). For each sample there are two different statistics files: one whose name ends with 'mm10_stats.txt' and the other one with 'mm10_mapq30_stats.txt'. We will have a look at these two files, as they constitute a first important sanity check.  
+As you can guess from the `vlite::cutnrunProcessing()` function call, it will output BAM files that contain the aligned reads (stored in the bam.output.folder) and alignment statistics (stored in alignment.stats.output.folder). For each sample there are two different statistics files: one whose name ends with 'mm10_stats.txt' and the other one with 'mm10_mapq30_stats.txt'. We will have a look at these two files, as they constitute a first important sanity check.
 
-The first files shows the fraction of reads that aligned to the genome. For the first sample (`"db/stats/V5_AID.Hcfc1_noTreatment_exp4_rep1_mm10_stats.txt"`), 10,419,042 were processed out of which 7,998,146 (76.76%) aligned exactly 1 time and 2,250,490 (21.60%) aligned >1 times, which are decent numbers for CUTNRUN:
+The first files shows the fraction of reads that aligned to the genome. For the first sample (`"db/stats/V5_AID.Hcfc1_noTreatment_exp4_rep1_mm10_stats.txt"`), 10,419,042 were processed out of which 7,998,146 (76.76%) aligned exactly 1 time and 2,250,490 (21.60%) aligned \>1 times, which are decent numbers for CUTNRUN:
 
 ```{r check_stats_CUTNRUN, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "Bowtie2 alignment statistics."}
 knitr::include_graphics(system.file("images/alignment_stats_CUTNRUN.png", package = "vlite"))
 ```
 
-The second file (with mapq30 in the name, (`"db/stats/V5_AID.Hcfc1_noTreatment_exp4_rep1_mm10_mapq30_stats.txt"`)) shows the number of reads that had a bowtie2 mapping quality (MAPQ) bigger or equal to 30. For a detailed understanding of this score, read the [bowtie 2 manual](https://bowtie-bio.sourceforge.net/bowtie2/manual.shtml), but basically it means that the aligner is confident about the fact that the read can be unambiguously mapped to a unique genomic position (~1e-3 error). This way we get rid of most multimappers which may accumulate at repetitive or low complexity regions. For this sample we end up with 8,536,395 usable reads (the 7,998,146 unique mappers plus few multi mappers for which the best alignment is likely correct):
+The second file (with mapq30 in the name, (`"db/stats/V5_AID.Hcfc1_noTreatment_exp4_rep1_mm10_mapq30_stats.txt"`)) shows the number of reads that had a bowtie2 mapping quality (MAPQ) bigger or equal to 30. For a detailed understanding of this score, read the [bowtie 2 manual](https://bowtie-bio.sourceforge.net/bowtie2/manual.shtml), but basically it means that the aligner is confident about the fact that the read can be unambiguously mapped to a unique genomic position (\~1e-3 error). This way we get rid of most multimappers which may accumulate at repetitive or low complexity regions. For this sample we end up with 8,536,395 usable reads (the 7,998,146 unique mappers plus few multi mappers for which the best alignment is likely correct):
 
 ```{r check_mapq_stats_CUTNRUN, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "MAPQ>=30 statistics (unique alignments)"}
 knitr::include_graphics(system.file("images/map30_alignment_stats_CUTNRUN.png", package = "vlite"))
@@ -1677,7 +1669,7 @@ knitr::include_graphics(system.file("images/map30_alignment_stats_CUTNRUN.png", 
 
 ## 5- Peak calling and generate bigwig tracks
 
-We will use the aligned BAM files to call peaks using [MACS2](https://open.bioqueue.org/home/knowledge/showKnowledge/sig/macs2). MACS2 also generates the coverage tracks in [bedgraph format](https://genome.ucsc.edu/goldenpath/help/bedgraph.html) (.bdg), which will be converted to [bigwig coverage tracks](https://genome.ucsc.edu/goldenpath/help/bigWig.html) that can be visualized in the [IGV genome browser](https://igv.org/).  
+We will use the aligned BAM files to call peaks using [MACS2](https://open.bioqueue.org/home/knowledge/showKnowledge/sig/macs2). MACS2 also generates the coverage tracks in [bedgraph format](https://genome.ucsc.edu/goldenpath/help/bedgraph.html) (.bdg), which will be converted to [bigwig coverage tracks](https://genome.ucsc.edu/goldenpath/help/bigWig.html) that can be visualized in the [IGV genome browser](https://igv.org/).\
 First we call the peaks using merge reads (from the two biological replicates):
 
 ```{r CUTNRUN_peakCalling, eval = FALSE}
@@ -1718,11 +1710,8 @@ vl_submit(
 )
 ```
 
-Once the job is completed, the peaks.output.folder (here 'db/peaks') will contain 5 files:  
-- The .narrowPeak file containing the peaks (52,054 peaks called here)
-- A .xls excel file containing the job parameters and the peaks
-- A _treat_pileup.bdg file that contains the reads pile up for the sample (here the V5.HCFC1)
-- A _control_lambda.bdg file that contains the local background computed by MACS2.
+Once the job is completed, the peaks.output.folder (here 'db/peaks') will contain 5 files:\
+- The .narrowPeak file containing the peaks (52,054 peaks called here) - A .xls excel file containing the job parameters and the peaks - A \_treat_pileup.bdg file that contains the reads pile up for the sample (here the V5.HCFC1) - A \_control_lambda.bdg file that contains the local background computed by MACS2.
 
 In general we only use the narrowPeak file whose columns are described [here](https://genome.ucsc.edu/FAQ/FAQformat.html#format12), and the bedgraph (BDG) are converted into bigwig files that are saved in the bw.output.folder (here 'db/bw/') and we visualize them in [IGV](https://igv.org/):
 
@@ -1796,19 +1785,19 @@ vl_submit(
 )
 ```
 
-The PDF file saved in the pdf.output.folder contains 4 plots:  
--1: Quantification of the control/input (in grey) and the sample (in pink) signal at a set of randomly sampled regions (same number and width as peaks) or at called peaks (see labels on the x axis). Ideally, the signal should be much stronger at called peaks, specifically in the sample and not in the input, which is the case here.  
--2: signalValue (which correspond to the enrichment) at all the peaks. Here, ~20,000 peaks have enrichment values <5, and we will discuss in the next section how to define a more stringent set of confident peaks.  
--3: Peaks are split into 5 quantiles (see x axis), for which the signalValue is shown.  
--4: Sample average signal around the five quantiles defined in the previous plot (red shades), and at random regions (in grey). Peaks are very strong compared to random, which is good (of note, the control input track is not shown).  
+The PDF file saved in the pdf.output.folder contains 4 plots:\
+-1: Quantification of the control/input (in grey) and the sample (in pink) signal at a set of randomly sampled regions (same number and width as peaks) or at called peaks (see labels on the x axis). Ideally, the signal should be much stronger at called peaks, specifically in the sample and not in the input, which is the case here.\
+-2: signalValue (which correspond to the enrichment) at all the peaks. Here, \~20,000 peaks have enrichment values \<5, and we will discuss in the next section how to define a more stringent set of confident peaks.\
+-3: Peaks are split into 5 quantiles (see x axis), for which the signalValue is shown.\
+-4: Sample average signal around the five quantiles defined in the previous plot (red shades), and at random regions (in grey). Peaks are very strong compared to random, which is good (of note, the control input track is not shown).
 
 ```{r CUTNRUN_QC_fig, echo=FALSE, out.width="100%", fig.align="center", fig.cap= "CUTNRUN QC"}
 knitr::include_graphics(system.file("images/CUTNRUN_QC.png", package = "vlite"))
 ```
 
-Note that this QC remains somewhat qualitative and subjective, as you might expect very different number of peaks and different heights depending on the factor you are studying (TF vs HTM, peaks vs domains etc...). Other metrics can be used to assess the quality of ChIP/CUTNRUN, such as the fraction of reads within peaks vs outside (FRiP, etc... learn more  [here](https://genome.ucsc.edu/encode/qualityMetrics.html)).  
-**But in all cases, nothing can replace the critical, visual inspection of the bigwig tracks in IGV, which is the best way to assess the quality of your ChIP/CUTNRUN.** Ideally you want sharp, strong and well defined peaks. If you have positive and negative control regions you can think of, also look at them. However, if your tracks are noisy and few peaks are called by MACS2, you should be careful.  
-The CUTNRUN that we took as example here looks very good (coincidence?) with many high and sharply defined peaks, so we will proceed with the identification of confident peaks. 
+Note that this QC remains somewhat qualitative and subjective, as you might expect very different number of peaks and different heights depending on the factor you are studying (TF vs HTM, peaks vs domains etc...). Other metrics can be used to assess the quality of ChIP/CUTNRUN, such as the fraction of reads within peaks vs outside (FRiP, etc... learn more [here](https://genome.ucsc.edu/encode/qualityMetrics.html)).\
+**But in all cases, nothing can replace the critical, visual inspection of the bigwig tracks in IGV, which is the best way to assess the quality of your ChIP/CUTNRUN.** Ideally you want sharp, strong and well defined peaks. If you have positive and negative control regions you can think of, also look at them. However, if your tracks are noisy and few peaks are called by MACS2, you should be careful.\
+The CUTNRUN that we took as example here looks very good (coincidence?) with many high and sharply defined peaks, so we will proceed with the identification of confident peaks.
 
 ## 7- Define confident peaks
 
@@ -1901,8 +1890,8 @@ vl_submit(
 )
 ```
 
-Confident peaks are saved in the conf.peaks.output.folder and a diagnostic PDF will be saved in the pdf.output.folder (here, `"db/peaks/conf/"`).  
-For each peak called using merged reads, the first plot shows the highest qValue (adjust p-value) associated to overlapping peaks in rep1 (x axis) or in rep2 (y axis). As expected for good biological replicates, there is a strong correlation (r= 0.91) between the two replicates, but also a subset of irreproducible peaks that are not found in at least one of the two replicates (in grey) and can be discarded. These overlaps are explicitely shown on the right upset plot.  
+Confident peaks are saved in the conf.peaks.output.folder and a diagnostic PDF will be saved in the pdf.output.folder (here, `"db/peaks/conf/"`).\
+For each peak called using merged reads, the first plot shows the highest qValue (adjust p-value) associated to overlapping peaks in rep1 (x axis) or in rep2 (y axis). As expected for good biological replicates, there is a strong correlation (r= 0.91) between the two replicates, but also a subset of irreproducible peaks that are not found in at least one of the two replicates (in grey) and can be discarded. These overlaps are explicitely shown on the right upset plot.\
 For this example, we are left with 29,926 reproducible, confident peaks:
 
 ```{r reproducible_peaks, echo=FALSE, out.width="100%", fig.align="center", fig.cap= "Identify reproducible peaks"}
@@ -1911,15 +1900,14 @@ knitr::include_graphics(system.file("images/conf_peaks_screenshot.png", package 
 
 # VIII- The eORFeome pipeline
 
-The eORFeome pipeline is different from others, as it was implemented in the lab, and all the related scripts can be found here:  
-`file.edit("/groups/stark/vloubiere/projects/ORFscreen_tomas/git_ORFscreen/main.R")`. Therefore there will be two main parts:    
+The eORFeome pipeline is different from others, as it was implemented in the lab, and all the related scripts can be found here:\
+`file.edit("/groups/stark/vloubiere/projects/ORFscreen_tomas/git_ORFscreen/main.R")`. Therefore there will be two main parts:
 
-1- Make the dictionary index
-2- Use the pipeline.  
+1- Make the dictionary index 2- Use the pipeline.
 
 ## 1- Make the BC dictionary
 
-This section describes how to generate the dictionary index (that contains ORF/BC combinations and will later be used by the bowtie2 aligner) and the simplified Mater ORF table (that will later be used to annotate the hits). The version of these files used for Tomas paper are saved in:  
+This section describes how to generate the dictionary index (that contains ORF/BC combinations and will later be used by the bowtie2 aligner) and the simplified Mater ORF table (that will later be used to annotate the hits). The version of these files used for Tomas paper are saved in:
 
 ```{r dict_files, eval=FALSE}
 # bowtie2 index (1,001,229 BC/ORF in total):
@@ -1938,7 +1926,7 @@ This section describes how to generate the dictionary index (that contains ORF/B
 
 All the different scripts that we will be using here are saved in my folder at `"/groups/stark/vloubiere/projects/ORFscreen_tomas/"`. The simplest way if you want to modify or re-run them is to create a local copy in one of your folders. For this example, we will use the terminal to create a copy on scratch-cbe and use it as a working directory:
 
-```bash
+``` bash
 # cd to scratch
 cd /scratch-cbe/users/vincent.loubiere/vlite/
 # create folder and cd
@@ -2036,7 +2024,7 @@ The comments within the script explain the different steps. In brief, we first r
 
 ### c- Build the dictionary
 
-As you can see in the main.R file, making the dictionary indexes requires five different steps: 
+As you can see in the main.R file, making the dictionary indexes requires five different steps:
 
 ```{r make dictionary, eval= FALSE}
 # Make dictionary ----
@@ -2068,7 +2056,7 @@ The second file `file.edit("git_ORFscreen/subscripts/make_ORF_bowtie2_index.R")`
 
 #### 3- Retrieve ORF and BC from the reads
 
-The reads that were sequenced to make the dictionary look like this: 
+The reads that were sequenced to make the dictionary look like this:
 
 ```{r dictionary_reads, eval=FALSE}
 # Construct: AttB1 > ORF full sequence > AttB2 > 22nt > illF > BC(30nt) < illR
@@ -2076,12 +2064,9 @@ The reads that were sequenced to make the dictionary look like this:
 # read2                           <--------------------------------------
 ```
 
-We therefore use different trimming strategies to extract the two parts we are interested in: the ORF and the 30nt BC, as specified in `file.edit("git_ORFscreen/subscripts/trim_BC_ORF_reads.R")`:  
-- For the BC part, we used cutadapt to trim illF and illR sequences from read2, and only retain the sequences that are at least 25nt long. 
-- For the ORF part, we have 3 strategies:  
-  1- Trim AttB1 and 2 from read 1. 
-  2- Remove the first 30nt of read 1. 
-  3- Remove the last 30nt of read 2. 
+We therefore use different trimming strategies to extract the two parts we are interested in: the ORF and the 30nt BC, as specified in `file.edit("git_ORFscreen/subscripts/trim_BC_ORF_reads.R")`:\
+- For the BC part, we used cutadapt to trim illF and illR sequences from read2, and only retain the sequences that are at least 25nt long. - For the ORF part, we have 3 strategies:\
+1- Trim AttB1 and 2 from read 1. 2- Remove the first 30nt of read 1. 3- Remove the last 30nt of read 2.
 
 #### 4- Align the ORF part of the read
 
@@ -2089,13 +2074,11 @@ Now we align the ORF part of the read to the index generated in [b- Make bowtie2
 
 #### 5- Make the dictionary index
 
-We are now ready to make the dictionary index by combining the trimmed BC sequences and the aligned ORF sequences (of note, we keep track of the BC/ORF pairs using the unique read IDs they share). Thist last step is done here: `file.edit("git_ORFscreen/subscripts/make_dictionary_indexes.R")`.  
+We are now ready to make the dictionary index by combining the trimmed BC sequences and the aligned ORF sequences (of note, we keep track of the BC/ORF pairs using the unique read IDs they share). Thist last step is done here: `file.edit("git_ORFscreen/subscripts/make_dictionary_indexes.R")`.
 
-To do the actual job, this script uses the function defined in `file.edit("/groups/stark/vloubiere/vlite/inst/Rscript/ORFeome_make_dictionary.R")` and involves the following steps:  
-- Select BCs that are 25 to 30 nt long and match the expected pattern: `"([GC][AT]){4}[GCAT]{5}([GC][AT]){5}[GCAT]{2}"`.  
-- For each read, only the ORF alignment with the highest mapping quality (MAPQ) were kept, and we required a minimum value of  30. This indicates that the aligner is very confident about the correctness of the alignment (error 1e-03). Therefore, it is almost impossible to get two different ORFs with MAPQ>=30.
-- Then, BC/ORF pairs were combined, and all the BC sequences that were associated to > 1 ORF sequence were discarded (ambiguous). 
-- Finally, only the BC/ORF pairs with at least 3 supporting reads were considered.  
+To do the actual job, this script uses the function defined in `file.edit("/groups/stark/vloubiere/vlite/inst/Rscript/ORFeome_make_dictionary.R")` and involves the following steps:\
+- Select BCs that are 25 to 30 nt long and match the expected pattern: `"([GC][AT]){4}[GCAT]{5}([GC][AT]){5}[GCAT]{2}"`.\
+- For each read, only the ORF alignment with the highest mapping quality (MAPQ) were kept, and we required a minimum value of 30. This indicates that the aligner is very confident about the correctness of the alignment (error 1e-03). Therefore, it is almost impossible to get two different ORFs with MAPQ\>=30. - Then, BC/ORF pairs were combined, and all the BC sequences that were associated to \> 1 ORF sequence were discarded (ambiguous). - Finally, only the BC/ORF pairs with at least 3 supporting reads were considered.
 
 The remaining sequences are then used to assemble a bowtie2 index.
 
@@ -2106,17 +2089,17 @@ Before analyzing the screens, there is an extra step were we clean the Master OR
 ```{r clean_masterORF, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "Cleaning of the masterORF table"}
 knitr::include_graphics(system.file("images/masterORF_collapsing.png", package = "vlite"))
 ```
- 
-The different steps involve:  
-1- The idenfitication of sequences with similarities and adding mmseq homology groups to the table.  
-2- The removal of Pseudomonas sequences (I don't remember why).  
-3- Removal of ORF sequences for which no confident BC could be determined.  
+
+The different steps involve:\
+1- The idenfitication of sequences with similarities and adding mmseq homology groups to the table.\
+2- The removal of Pseudomonas sequences (I don't remember why).\
+3- Removal of ORF sequences for which no confident BC could be determined.
 
 We end up with 4,754 usable ORF sequences (3,843 of which do not share any similarity with other sequences).
 
 ## 2- Use the pipeline
 
-Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.  
+Before using this pipeline, read the [III- Before using pipelines](#iii--before-using-pipelines) section.
 
 In bioinformatics, a pipeline is a sequence of computational steps that processes raw data into results. This package includes pipelines for analyzing ORFtag, CUTNRUN, PRO‑seq, and ORFeome screens (other pipelines are available but are less well benchmarked). **However, note that these functions do not process data directly in R. Instead, they assemble a script that contains the commands needed for the analysis, starting from de‑multiplexed FASTQ files. You must then submit the resulting script to your compute cluster to run the analysis**. Then, post-processing (hits callling, differential analysis...) is generally performed in R using regular functions.
 
@@ -2187,9 +2170,9 @@ cmd <- vlite::cmd_demultiplexVBCfile(
 )
 ```
 
-The cmd object that you just created (and that you can expect using `cmd[]`) is simply a table specifying the file.type of the output (fq1, fq2), the path of the output file (output_folder/output.prefix...), the cmd that will be used for demultiplexing, optional parameters for the job (number of cores, job.name and potentially many other) etc... Nothing was analysed yet! Let's now have a quick look at the command itself, using `unique(cmd$cmd)`:  
+The cmd object that you just created (and that you can expect using `cmd[]`) is simply a table specifying the file.type of the output (fq1, fq2), the path of the output file (output_folder/output.prefix...), the cmd that will be used for demultiplexing, optional parameters for the job (number of cores, job.name and potentially many other) etc... Nothing was analysed yet! Let's now have a quick look at the command itself, using `unique(cmd$cmd)`:
 
-```bash
+``` bash
 perl /groups/stark/vloubiere/vlite/inst/perl/vbc_tar_demultiplexing.pl  '/groups/stark/projects/PE75_20250807_TP/2440652727_1_R19310_fqfull_20250807.tar.gz' 'GGCTAC' 'none' 'db/fq/NFkB_2_input_A549_rep1' 'PAIRED' --threads 8
 ```
 
@@ -2220,9 +2203,9 @@ If the command has been successfully submitted, you should see something like:
 knitr::include_graphics(system.file("images/submit.png", package = "vlite"))
 ```
 
-To make sure that your command has been properly submitted, list the jobs that are queued/running on the cluster using `vlite::vl_squeue(user= "vincent.loubiere")` with your own user name. Once the jobs are finished, which can take up to ~2h (or even more for very large novaSeq files), they will disappear from this list, and demultiplexed FASTQ files should have appeared in your output folder. You can check on them using the terminal (or any other file browser):
+To make sure that your command has been properly submitted, list the jobs that are queued/running on the cluster using `vlite::vl_squeue(user= "vincent.loubiere")` with your own user name. Once the jobs are finished, which can take up to \~2h (or even more for very large novaSeq files), they will disappear from this list, and demultiplexed FASTQ files should have appeared in your output folder. You can check on them using the terminal (or any other file browser):
 
-```bash
+``` bash
 # cd to the directory where fq files are saved
 cd /scratch-cbe/users/vincent.loubiere/vlite/ORFeome/db/fq/
 # List files
@@ -2236,7 +2219,7 @@ knitr::include_graphics(system.file("images/check_fq.png", package = "vlite"))
 You can now repeat the operation for all your samples, either by repeating the previous operation by hand or by using a programmatic loop, like in this example. Note that here, I recommend setting the `output.prefix` parameter to NULL, which will ensure that the output file names are unique. This is very important because, if several input file/BC combinations are given the same output.prefix (re-sequencing, sample split on two lanes...), they will overwrite each other:
 
 ```{r loop_example_ORFeome, eval = FALSE}
-# Loop over the sampleID values (see the 'by=' argument on the last line)
+# Process each screen/condition/cell_line/replicate/sampleID/MAGeCK_sort/dictionary/i7/layout/tar_path combination separately (see the `by` arg on the last line)
 meta.demultiplex <- meta[, {
   # Generate command
   cmd <- vlite::cmd_demultiplexVBCfile(
@@ -2258,7 +2241,7 @@ meta.demultiplex <- meta[, {
   )
   # Return the output files paths
   transpose(cmd[, .(file.type, path)], make.names = T)
-}, by= .(screen, condition, cell_line, replicate, sampleID, MAGeCK_sort, dictionary, i7, layout, tar_path)] # For each sampleID/bam_path combination
+}, by= names(meta)] # By specifying all column names here, each line will be processed separately
 
 # Create a directory to save the demultiplexed metadata
 dir.create("Rdata", recursive = T, showWarnings = FALSE)
@@ -2273,14 +2256,14 @@ At the end, don't forget to save the paths to the demultiplexed fastq files that
 
 ### d- Troubleshooting
 
-**Once the demultiplexing jobs have been fully completed**, if your fastq files are missing, empty or very small, something might have gone wrong. Here is a checklist for troubleshooting:  
+**Once the demultiplexing jobs have been fully completed**, if your fastq files are missing, empty or very small, something might have gone wrong. Here is a checklist for troubleshooting:
 
-- Go in the folder were the log files are saved (in this example: `"db/logs/demultiplex/"`) and open the '.err' file corresponding to your job. This is the standard error file, which gathers the potential errors associated to your job. If the job ran Out Of Memory (and was 'OOM killed') or out of time, it should be written here. If this is the case, simply increase the 'mem' (RAM in Gb) and 'time' parameters in the vl_submit function call.  
-- After this check the other '.out' log file (standard output), which might also contain information about what happened.
-- If you did not find anything in the logs, than the job migh have run normally. In this case, maybe your demultiplexing parameters were wrong and this is why you ended up with few reads. Make sure that the layout ('PAIRED' or 'SINGLE'), barcode sequences as well as other sequencing-related parameters are correct.
-- If this is the case, maybe the i7/i5 columns indices are wrong (note that this can only be a problem when demultiplexing BAM files, not tar.gz. files). To be sure, check the head of your BAM file using 'samtools view file.bam | head' and look at columns 12 and 14. the BC column (i7) should start with 'BC:'. 
-- Sometimes, depending on the sequencer, i5/i7 sequences have to be reverse complemented, which you can do using `Biostrings::reverseComplement(Biostrings::DNAString("ATCG"))`.
-- If none of these approaches worked, maybe your sequencing failed. For BAM files, open them with 'samtools view' (or import them in R using `?vlite::importBamRaw()`, which might require a lot of RAM) and see how they look. For tar.gz files, use the following function to directly submit a command to the cluster and save the head of the fastq files present inside your tar files:
+-   Go in the folder were the log files are saved (in this example: `"db/logs/demultiplex/"`) and open the '.err' file corresponding to your job. This is the standard error file, which gathers the potential errors associated to your job. If the job ran Out Of Memory (and was 'OOM killed') or out of time, it should be written here. If this is the case, simply increase the 'mem' (RAM in Gb) and 'time' parameters in the vl_submit function call.\
+-   After this check the other '.out' log file (standard output), which might also contain information about what happened.
+-   If you did not find anything in the logs, than the job migh have run normally. In this case, maybe your demultiplexing parameters were wrong and this is why you ended up with few reads. Make sure that the layout ('PAIRED' or 'SINGLE'), barcode sequences as well as other sequencing-related parameters are correct.
+-   If this is the case, maybe the i7/i5 columns indices are wrong (note that this can only be a problem when demultiplexing BAM files, not tar.gz. files). To be sure, check the head of your BAM file using 'samtools view file.bam \| head' and look at columns 12 and 14. the BC column (i7) should start with 'BC:'.
+-   Sometimes, depending on the sequencer, i5/i7 sequences have to be reverse complemented, which you can do using `Biostrings::reverseComplement(Biostrings::DNAString("ATCG"))`.
+-   If none of these approaches worked, maybe your sequencing failed. For BAM files, open them with 'samtools view' (or import them in R using `?vlite::importBamRaw()`, which might require a lot of RAM) and see how they look. For tar.gz files, use the following function to directly submit a command to the cluster and save the head of the fastq files present inside your tar files:
 
 ```{r tar_QC_ORFeome, eval = FALSE}
 # Check help
@@ -2297,7 +2280,7 @@ checkVBCfile(
 )
 ```
 
-- Once the job is completed, the output folder should contain .fastq files with "R1", "R2", "I1" and "I2" inside their names, and contain the first 10,000 Read 1, Read2, i7 and i5 index sequences, respectively. We will import them in R to see whether your index sequences are there and in which amounts:
+-   Once the job is completed, the output folder should contain .fastq files with "R1", "R2", "I1" and "I2" inside their names, and contain the first 10,000 Read 1, Read2, i7 and i5 index sequences, respectively. We will import them in R to see whether your index sequences are there and in which amounts:
 
 ```{r FQ_QC_ORFeome, eval = FALSE}
 # Retrieve read files
@@ -2320,8 +2303,8 @@ i5[, .N, seq][order(N, decreasing= T)][1:10]
 i7[, .N, seq][order(N, decreasing= T)][1:10]
 ```
 
-- If you can't find your i7/i5 sequences among the top-represented ones, try to find them lower down the list or see whether their reverse complement sequences are somewhere there.
-- If all these approaches failed, contact the facility and see what they think about the QC of the lane.
+-   If you can't find your i7/i5 sequences among the top-represented ones, try to find them lower down the list or see whether their reverse complement sequences are somewhere there.
+-   If all these approaches failed, contact the facility and see what they think about the QC of the lane.
 
 ## 3- Run the pipeline
 
@@ -2334,7 +2317,7 @@ We can now generate the command to 1/ align the reads to the BC library and 2/ c
 # Import the demultiplexed fastq metadata generated earlier
 meta.demultiplex <- readRDS("Rdata/demultiplexed_fastqs.rds")
 
-# Generate the commands and submit to the server
+# Process each sampleID separately (see the `by` arg on the last line)
 meta.processed <- meta.demultiplex[, {
   # Create the command
   cmd <- vlite::orfeomeProcessing(
@@ -2357,8 +2340,8 @@ meta.processed <- meta.demultiplex[, {
     logs = "db/logs/processing/", # Where to save the logs
   )
   # Return commands and output files
-  transpose(cmd[, c(1, 2)], make.names = T)
-}, by= .(sampleID)] # For each sampleID
+  transpose(cmd[, .(path= paste0(path, collapse= ",")), file.type], make.names = T)
+}, by= .(sampleID)] # Each group of the specified columns will be processed separately.
 
 # Save the metadata containing processed files
 saveRDS(meta.processed, "Rdata/processed_files.rds")
@@ -2374,19 +2357,19 @@ This is the whole point of the pipeline: it generates this shell script that get
 
 ## 4- Output files
 
-As you can guess from the `vlite::orfeomeProcessing()` function call, the command generated by the pipeline delivers several output files. Some are **intermediate files that you will generally not manipulate yourself** (except for debugging purposes). These include:  
-- Trimmed fastq files (stored in the fq.output.folder).  
-- BAM files containing the aligned reads (stored in the bam.output.folder).  
+As you can guess from the `vlite::orfeomeProcessing()` function call, the command generated by the pipeline delivers several output files. Some are **intermediate files that you will generally not manipulate yourself** (except for debugging purposes). These include:\
+- Trimmed fastq files (stored in the fq.output.folder).\
+- BAM files containing the aligned reads (stored in the bam.output.folder).
 
-**The files you care about are:**   
-- Alignment statistics (stored in the alignment.stats.output.folder).  
-- Counts files (stored in the counts.output.folder). 
+**The files you care about are:**\
+- Alignment statistics (stored in the alignment.stats.output.folder).\
+- Counts files (stored in the counts.output.folder).
 
-Let's have a look at these two last files.  
+Let's have a look at these two last files.
 
 ### a- Alignment statistics
 
-There are two statistic files per sample: one that finishes with '_ORF_stats.txt' and the other one with '_ORF_mapq30_stats.txt'. For the first screen sample (`"db/stats/NFkB_2_screen_A549_rep1_lib200_stats.txt"`), 25,255,760 reads were processed of which 6,636,539 (26.28%) aligned exactly one time and 3,732,443 (14.78%) aligned >1 times:
+There are two statistic files per sample: one that finishes with '\_ORF_stats.txt' and the other one with '\_ORF_mapq30_stats.txt'. For the first screen sample (`"db/stats/NFkB_2_screen_A549_rep1_lib200_stats.txt"`), 25,255,760 reads were processed of which 6,636,539 (26.28%) aligned exactly one time and 3,732,443 (14.78%) aligned \>1 times:
 
 ```{r check_stats_ORFeome, echo=FALSE, out.width="60%", fig.align="center", fig.cap= "Bowtie2 alignment statistics."}
 knitr::include_graphics(system.file("images/stats_NFKB_screen.png", package = "vlite"))
@@ -2400,7 +2383,7 @@ knitr::include_graphics(system.file("images/mapq_stats_NFKB.png", package = "vli
 
 ### b- The counts files
 
-The count files contain, for each ORF/BC combination present in the library index (1,001,229 BCs in total), the number of associated reads. If we look at the head of the first screen replicate `"db/counts/NFkB_2_screen_A549_rep1_lib200_counts.txt"`, it contains two columns: the first one (seqnames) contains the ORF ID and the associated BC, separated by "__" (for example, 1000__BC1 corresponds to the first BC associated to the ORF with the ID #1000 in the dictionary). Out of the 1,001,229 BCs present in the library, 122,290 received at least one count in this particular sample:
+The count files contain, for each ORF/BC combination present in the library index (1,001,229 BCs in total), the number of associated reads. If we look at the head of the first screen replicate `"db/counts/NFkB_2_screen_A549_rep1_lib200_counts.txt"`, it contains two columns: the first one (seqnames) contains the ORF ID and the associated BC, separated by "\_\_" (for example, 1000\_\_BC1 corresponds to the first BC associated to the ORF with the ID #1000 in the dictionary). Out of the 1,001,229 BCs present in the library, 122,290 received at least one count in this particular sample:
 
 ```{r check_BC_counts, eval=FALSE}
 # Import counts
@@ -2452,9 +2435,9 @@ vl_submit(
 )
 ```
 
-The original MAGeCK output files will be saved in the MAGeCK.output.folder, and you can refer to the MAGeCK documentation to understand them. However, **the most important files will be saved in the FC.output.folder, and consists of two main files:**    
-- A `'FC_MAGeCK.txt'` file that contains the results of the screen (foldchange...).  
-- A volcano plot that can be used to quickly look at hits.  
+The original MAGeCK output files will be saved in the MAGeCK.output.folder, and you can refer to the MAGeCK documentation to understand them. However, **the most important files will be saved in the FC.output.folder, and consists of two main files:**\
+- A `'FC_MAGeCK.txt'` file that contains the results of the screen (foldchange...).\
+- A volcano plot that can be used to quickly look at hits.\
 We will now look at these two files.
 
 ## 6- The MAGeCK FC output file
@@ -2480,19 +2463,14 @@ DT::datatable(
 )
 ```
 
-The FC output file contains the following columns:  
-- id: ORF	ID.  
-- lfc:	The log2 fold change of the ORF's abundance in the selected population compared to the input.  
-- fdr:	The false discovery rate, representing the statistical significance of the enrichment.  
-- rank:	The rank of the ORF based on  it's MAGeCK score. 
-- score:	MAGeCK's Robust Rank Aggregation score of the enrichment of this ORF in the selected population. 
-- num:	The total number of unique barcodes (BCs) detected for this ORF across all samples. 
-- goodsgrna: The number of BCs for this ORF showing significant enrichment in the selected population. 
-- hit: indicate which ORFs are bona fide hits, meaning they satisfy the cutoffs defined in function call (lfc >= log2(1.5) & FDR<=0.05). In this case, we retrieved 24 bona fide hits (`table(FC$hit)`). 
+The FC output file contains the following columns:\
+- id: ORF ID.\
+- lfc: The log2 fold change of the ORF's abundance in the selected population compared to the input.\
+- fdr: The false discovery rate, representing the statistical significance of the enrichment.\
+- rank: The rank of the ORF based on it's MAGeCK score. - score: MAGeCK's Robust Rank Aggregation score of the enrichment of this ORF in the selected population. - num: The total number of unique barcodes (BCs) detected for this ORF across all samples. - goodsgrna: The number of BCs for this ORF showing significant enrichment in the selected population. - hit: indicate which ORFs are bona fide hits, meaning they satisfy the cutoffs defined in function call (lfc \>= log2(1.5) & FDR\<=0.05). In this case, we retrieved 24 bona fide hits (`table(FC$hit)`).
 
-The table also contains all the additional columns present in the master.table.rds:  
-- similar.id: ids of highly similar ORFs. 
-- Gene: gene name...  
+The table also contains all the additional columns present in the master.table.rds:\
+- similar.id: ids of highly similar ORFs. - Gene: gene name...
 
 ## 7- The volcano plot
 

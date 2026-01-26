@@ -8,7 +8,7 @@ importJASPAR(
   combinedFile,
   bg = c(A = 0.25, C = 0.25, G = 0.25, T = 0.25),
   pseudocount = 0.8,
-  schneider = TRUE,
+  schneider = FALSE,
   simplify.names = T
 )
 }
@@ -19,7 +19,8 @@ importJASPAR(
 
 \item{pseudocount}{Pseudocount added to PFMs before computing PPMs, PWMs and ICMs. Default= .8.}
 
-\item{schneider}{Should schneider correction be used for ICMs? Default= TRUE.}
+\item{schneider}{Should schneider correction be used for ICMs? Default= FALSE (similar to
+what is shown on JASPAR website).}
 }
 \value{
 A list containing PPM and PWM matrices stored in TFBSTools::PWMatrix sublists.

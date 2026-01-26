@@ -2,7 +2,7 @@
 % Please edit documentation in R/vl_rocAUC_grid.R
 \name{vl_rocAUC_grid}
 \alias{vl_rocAUC_grid}
-\title{rocAUC for many ranks.labels}
+\title{Paralle ROC AUC}
 \usage{
 vl_rocAUC_grid(
   ranks,
@@ -32,6 +32,20 @@ vl_rocAUC_grid(
 
 \item{cleanup.cache}{Should the temporary files be overwritten?}
 }
+\value{
+ROC AUC values and NES for all ranks/labels combinations.
+}
 \description{
-A wrapper around vl_rocAUC to compute many rank/label combinations in paralle.
+A wrapper around vl_rocAUC that computes ROC AUC and NES for many rank/label combinations.
+}
+\examples{
+# Create synthetic data
+rank <- 10:1
+ranks <- matrix(c(rank, rev(rank)), ncol= 2)
+label <- rep(c(T, F), each= 5)
+labels <- matrix(c(label, rev(label)), ncol= 2)
+
+# Compute ROC AUC
+vl_rocAUC_grid(ranks= ranks, labels= labels)
+
 }

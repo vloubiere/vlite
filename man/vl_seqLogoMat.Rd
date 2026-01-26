@@ -15,7 +15,7 @@ vl_seqLogoMat(
 )
 }
 \arguments{
-\item{mat}{A matrix with rows 'A', 'C', 'G', 'T'.}
+\item{mat}{A matrix (or a TFBSTools PFMatrix, PWMatrix or ICMatrix) with rows 'A', 'C', 'G', 'T'.}
 
 \item{name}{The name of the motif which will be added as a title.}
 
@@ -35,10 +35,10 @@ Generic function that plots a logo out of an arbitrary numeric matrix.
 \examples{
 # Select br PPM
 pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-PPM <- importJASPAR(pfm.file)$PPM[["br"]]
+PPM <- importJASPAR(pfm.file, pseudocount = 0)$PPM[["br"]]
 
 # Plot
 vl_par()
-vl_seqLogoMat(PPM@profileMatrix, name= "br")
+vl_seqLogoMat(PPM, name= "br")
 
 }
