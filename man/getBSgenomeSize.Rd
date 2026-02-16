@@ -2,7 +2,7 @@
 % Please edit documentation in R/getBSgenomeSize.R
 \name{getBSgenomeSize}
 \alias{getBSgenomeSize}
-\title{Get BS genome sizes}
+\title{Get BS chromosome sizes}
 \usage{
 getBSgenomeSize(genome)
 }
@@ -13,9 +13,9 @@ getBSgenomeSize(genome)
 data.table containing chromosomes start and end coordinates
 }
 \description{
-Get BS genome sizes
+Get BS chromosome sizes
 }
 \examples{
-getBSgenomeSize("mm10")
+getBSchromSizes("mm10")
 
 }

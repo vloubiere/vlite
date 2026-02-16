@@ -32,9 +32,8 @@ Used only when nbins is not specified.}
 combination with bins.width. Default= bins.width, resulting in non-overlapping bins.
 Smaller values create overlapping bins.}
 
-\item{ignore.strand}{Although bins will always start from the leftmost coordinates, this argument
-controls whether bins' indices respect feature's orientation. Default= FALSE (i.e. downstream bins
-receive higher indices).}
+\item{ignore.strand}{Bins are always generated left-to-right. If ignore.strand=FALSE (default), bin.idx is
+reversed on `-` strand so indices increase 5′→3′.}
 }
 \value{
 A gr data.table with columns:
@@ -48,7 +47,7 @@ A gr data.table with columns:
 }
 }
 \description{
-A wrapper around ?GenomicRanges::tile and ?GenomicRanges::slidingWindows, that creates fixed-size
+A wrapper around `GenomicRanges::tile()` and `GenomicRanges::slidingWindows()`, that creates fixed-size
 or sliding window bins from genomic ranges.
 }
 \details{
@@ -71,14 +70,16 @@ binBed(regions, bins.width = 50, steps.width = 50)
 binBed(regions, bins.width = 50, steps.width = 25)
 
 # Compare start-anchored vs. centered binning
-nc1 <- binBed(regions, nbins= 5)
-c1 <- binBed(regions, nbins= 5, center.nbins = TRUE)
-nc2 <- binBed(regions, bins.width = 25)
+nbins <- 5
+bins.width <- 25
+nc1 <- binBed(regions, nbins= nbins)
+c1 <- binBed(regions, nbins= nbins, center.nbins = TRUE)
+nc2 <- binBed(regions, bins.width = bins.width)
 
 plot(x= c(50, 250), y= c(4, 10), type= "n", xlab= "coordinates", ylab= NA, yaxt= "n")
 abline(v= c(100, 200))
-nc1[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 9, pos= 3, "nbins=5"); rect(start, 8, end, 9)}]
+nc1[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 9, pos= 3, paste0("nbins=", nbins)); rect(start, 8, end, 9)}]
 c1[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 7, pos= 3, "centered"); rect(start, 6, end, 7)}]
-nc2[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 5, pos= 3, "bins.width=25"); rect(start, 4, end, 5)}]
+nc2[line.idx==2][, {text(x= mean(c(start[1], end[.N])), y= 5, pos= 3, paste0("bins.width=", bins.width)); rect(start, 4, end, 5)}]
 
 }

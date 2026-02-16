@@ -13,7 +13,7 @@ if (length(args) != 4) {
 # Load packges ----
 suppressMessages(library(data.table, warn.conflicts = FALSE))
 suppressMessages(library(devtools, warn.conflicts = FALSE))
-devtools::load_all("/groups/stark/vloubiere/vlite/")
+devtools::load_all("/zssd/scratch/vincent.loubiere/vlite/")
 
 # Parse arguments ----
 rep.files <- unlist(tstrsplit(args[1], ","))
@@ -55,17 +55,20 @@ if(nrow(merge)) {
       x[is.na(x)] <- 0
       y <- merge[[.n]]
       y[is.na(y)] <- 0
-
-      vl_plot(x,
-              y,
-              col= adjustcolor(ifelse(x==0 | y==0, "grey", "red"), .3),
-              xlab= "-log10(qValue) rep 1",
-              ylab= paste0("-log10(qValue) rep ", i),
-              cex= .5)
+      
+      vl_plot(
+        x,
+        y,
+        col= adjustcolor(ifelse(x==0 | y==0, "grey", "red"), .3),
+        xlab= "-log10(qValue) rep 1",
+        ylab= paste0("-log10(qValue) rep ", i),
+        cex= .5
+      )
       addPcc(cor(x,y))
+      title(main= gsub(".pdf$", "", basename(pdf.file)), cex.main= 1, cex.font= 1, line = 2)
     }
   }
-
+  
   # Upset plot ----
   pl <- melt(merge,
              id.vars = "name",

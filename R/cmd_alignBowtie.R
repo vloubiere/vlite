@@ -7,9 +7,8 @@
 #' @param fq1 A character vector of .fq (or .fq.gz) file paths.
 #' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
 #' @param output.prefix Prefix for the output file.
-#' @param genome Reference genome name (e.g., "mm10", "hg38", "dm3").
-#'        If not provided, `genome.idx` must be specified.
-#' @param genome.idx Path to the Bowtie genome index. Default= NULL.
+#' @param genome Reference genome identifier  (supported genomes: 'dm6', 'mm10'). Required if genome.idx is not provided. Default= NULL.
+#' @param genome.idx Path to Bowtie2 index files (without extensions). Can be automatically defined using the `genome` argument. Default= NULL.
 #' @param max.mismatch Maximum number of mismatches allowed. Default= 2.
 #' @param max.ins Maximum insert size for PAIRED reads. Default= 500.
 #' @param bam.output.folder Directory for the output BAM file. Default= "db/bam/".
@@ -60,20 +59,27 @@ cmd_alignBowtie <- function(fq1,
     stop("fq1 and fq2 file paths should end up with `.fq`, `.fastq`, `.fq.gz` or `.fastq.gz`")
   if(!is.null(fq2) && length(fq1) != length(fq2))
     stop("When provided, fq2 files should match fq1 files.")
-  if(missing(genome) && is.null(genome.idx))
-    stop("genome is missing and and genome.idx is set to NULL -> exit")
+  if(is.null(genome) & is.null(genome.idx))
+    stop("Supported genome or genome.idx should be provided.")
 
   # Retrieve index ----
-  if(!missing(genome)) {
-    genome.idx <- switch(genome,
-                         "mm10" = "/groups/stark/indices/bowtie/mm10/mm10",
-                         "mm9" = "/groups/stark/indices/bowtie/mm9/mm9",
-                         "hg38" = "/groups/stark/indices/bowtie/hg38/hg38",
-                         "dm3"= "/groups/stark/indices/bowtie/dm3/dm3")
-  } else {
-    genome <- basename(genome.idx)
+  if(is.null(genome.idx)) {
+    # Check genome is supported 
+    genome <- base::match.arg(genome, c("dm6", "mm10"), several.ok= FALSE)
+    # Retrieve bowtie2 index
+    genome.idx <- switch(
+      genome,
+      # "mm10" = "/groups/stark/indices/bowtie/mm10/mm10",
+      # "mm9" = "/groups/stark/indices/bowtie/mm9/mm9",
+      # "hg38" = "/groups/stark/indices/bowtie/hg38/hg38",
+      # "dm3"= "/groups/stark/indices/bowtie/dm3/dm3",
+      "dm6" = "/zssd/scratch/vincent.loubiere/genomes/Drosophila_melanogaster/UCSC/dm6/Sequence/BowtieIndex/genome",
+      "mm10" = "/zssd/scratch/vincent.loubiere/genomes/Mus_musculus/UCSC/mm10/Sequence/BowtieIndex/genome"
+    )
   }
-
+  if(is.null(genome))
+    genome <- basename(genome.idx)
+  
   # Output files paths ----
   bam <- file.path(bam.output.folder, paste0(output.prefix, "_", genome, ".bam"))
   stats <- file.path(alignment.stats.output.folder, paste0(output.prefix, "_", genome, "_stats.txt"))

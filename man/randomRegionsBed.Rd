@@ -12,7 +12,8 @@ randomRegionsBed(
 )
 }
 \arguments{
-\item{bed}{Input genomic ranges, in any format compatible with ?importBed.}
+\item{bed}{Input genomic ranges (in any format compatible with ?importBed) from which random regions
+are drawn.}
 
 \item{widths}{Integer vector specifying the width of the regions to sample. The length of the vector
 determines the number of sampled regions.}
@@ -27,16 +28,16 @@ avoided. If set to TRUE (default), overlaps on both strands are avoided.}
 A data.table of sampled control regions.
 }
 \description{
-Randomly sample genomic regions from a bed, matching specified widths and potentially avoiding overlaps
-with other regions.
+Randomly sample genomic regions from a bed with replacement, matching specified widths and potentially
+avoiding overlaps with another set or regions.
 }
 \examples{
-# Using widths
-bed <- importBed(c("chr2L:1000-2000", "chr3R:1000-2000"))
-randomRegionsBed(bed= bed,  widths= rep(10, 10))
+# Draw regions from dm6 canonical chromosomes
+dm6.sizes <- getBSgenomeSize(genome= "dm6")
+dm6.sizes <- dm6.sizes[seqnames \%in\% c("chr2L", "chr2R")]
+randomRegionsBed(bed= dm6.sizes,  widths= rep(10, 10))
 
-# Using a sample.bed file
-no.overlaps <- importBed(c("chr2L:1800-2000", "chr3R:1800-2000"))
-randomRegionsBed(bed= bed, widths= rep(10, 10), no.overlaps= no.overlaps)
+# Avoid overlaps with specific region
+randomRegionsBed(bed= dm6.sizes, widths= rep(10, 10), no.overlaps= dm6.sizes[2])
 
 }

@@ -4,12 +4,7 @@
 \alias{vl_pie}
 \title{Clean pie chart}
 \usage{
-vl_pie(
-  x,
-  col = adjustcolor(rainbow(length(unique(x))), 0.3),
-  labels = "r",
-  ...
-)
+vl_pie(x, col = NULL, labels = "r", remove.zeros = TRUE, ...)
 }
 \arguments{
 \item{x}{Variable to be summarized}

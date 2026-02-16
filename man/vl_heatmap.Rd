@@ -9,7 +9,8 @@ vl_heatmap(
   cluster.rows = TRUE,
   cluster.cols = FALSE,
   kmeans.k = NA,
-  kmeans.order = FALSE,
+  som.grid = NULL,
+  order.cl = FALSE,
   breaks = NULL,
   col = NULL,
   row.annotations = NULL,
@@ -32,6 +33,7 @@ vl_heatmap(
   show.col.clusters = "top",
   show.row.dendro = TRUE,
   show.col.dendro = TRUE,
+  row.gap.axis = NA,
   row.gap.width = 1/10,
   col.gap.width = 1/10,
   cluster.seed = 3453,
@@ -47,7 +49,7 @@ vl_heatmap(
   grid.lwd = 0.25,
   plot = T,
   pdf.file = NULL,
-  pdf.cell.size = 0.12,
+  pdf.cell.size = 1,
   pdf.par = TRUE,
   pdf.close = TRUE
 )
@@ -65,6 +67,10 @@ vl_heatmap(
 Default= FALSE.}
 
 \item{kmeans.k}{Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).}
+
+\item{som.grid}{Vector of two integers specifying the size of the grid to use for SOM-based clustering (see ?somClustering). Default= NULL.}
+
+\item{order.cl}{Should clusters be ordered from top left to bottom right? Default= FALSE.}
 
 \item{breaks}{A numeric vector specifying the breakpoints for color mapping.
 Can either be the length of col (centered breaks) or one element longer (in which case breaks will correspond to edges).
@@ -117,6 +123,8 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 
 \item{show.col.dendro}{If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.}
 
+\item{row.gap.axis}{Default= NA.}
+
 \item{row.gap.width}{The height of the gap between row clusters, expressed as a fraction of rows' height. Default= 1/10.}
 
 \item{col.gap.width}{The width of the gap between column clusters, expressed as a fraction of columns' height. Default= 1/10.}
@@ -146,7 +154,7 @@ Possible values are TRUE, FALSE, "right" (similar to TRUE) or "top". Default= "r
 \item{pdf.file}{If specified, the heatmap will be saved into the provided pdf file, with an optimized and nice layout.
 Default= NULL}
 
-\item{pdf.cell.size}{The cell size on printed pdf in inches. Default= .12.
+\item{pdf.cell.size}{The cell size on printed pdf in inches. Default= 1.
 Default= NULL}
 
 \item{pdf.par}{If TRUE, the plotting parameters of the PDF will be automatically set to nice default values. Otherwise,

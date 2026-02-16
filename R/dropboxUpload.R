@@ -18,7 +18,8 @@
 dropboxUpload <- function(local.path,
                           remote.path= "./")
 {
-  cmd <- paste("sh  /groups/stark/vloubiere/apps/dropbox/dropbox_uploader.sh upload", local.path, remote.path)
+  # cmd <- paste("sh /groups/stark/vloubiere/apps/dropbox/dropbox_uploader.sh upload", local.path, remote.path)
+  cmd <- paste("bash /usr/local/bin/dropbox_uploader.sh upload", local.path, remote.path)
   system(cmd)
 }
 

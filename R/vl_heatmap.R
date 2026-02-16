@@ -13,6 +13,8 @@
 #' @param cluster.cols Similar to cluster.rows but for columns (of note, 'matrix' option is not available here).
 #' Default= FALSE.
 #' @param kmeans.k Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).
+#' @param som.grid Vector of two integers specifying the size of the grid to use for SOM-based clustering (see ?somClustering). Default= NULL.
+#' @param order.cl Should clusters be ordered from top left to bottom right? Default= FALSE.
 #' @param breaks A numeric vector specifying the breakpoints for color mapping.
 #'   Can either be the length of col (centered breaks) or one element longer (in which case breaks will correspond to edges).
 #'   If set to NULL, defaults to the different levels for factors (centered breaks), a diverging scale
@@ -42,6 +44,7 @@
 #' @param show.col.clusters Character specifying the position of column cluster visualization: "top", "bottom", or FALSE.
 #' @param show.row.dendro If rows are clustered using hclust, should the dendrogram be shown? Default= TRUE.
 #' @param show.col.dendro If cols are clustered using hclust, should the dendrogram be shown? Default= TRUE.
+#' @param row.gap.axis Default= NA.
 #' @param row.gap.width The height of the gap between row clusters, expressed as a fraction of rows' height. Default= 1/10.
 #' @param col.gap.width The width of the gap between column clusters, expressed as a fraction of columns' height. Default= 1/10.
 #' @param cluster.seed Integer seed for reproducible clustering. Default= 3453.
@@ -57,7 +60,7 @@
 #' @param grid.lwd Line width used for the grid.
 #' @param pdf.file If specified, the heatmap will be saved into the provided pdf file, with an optimized and nice layout.
 #' Default= NULL
-#' @param pdf.cell.size The cell size on printed pdf in inches. Default= .12.
+#' @param pdf.cell.size The cell size on printed pdf in inches. Default= 1.
 #' Default= NULL
 #' @param pdf.par If TRUE, the plotting parameters of the PDF will be automatically set to nice default values. Otherwise,
 #' the current par() settings will be used. Default= TRUE.
@@ -94,7 +97,8 @@ vl_heatmap <- function(x,
                        cluster.rows= TRUE,
                        cluster.cols= FALSE,
                        kmeans.k= NA,
-                       kmeans.order= FALSE,
+                       som.grid= NULL,
+                       order.cl= FALSE,
                        breaks= NULL,
                        col= NULL,
                        row.annotations= NULL,
@@ -117,6 +121,7 @@ vl_heatmap <- function(x,
                        show.col.clusters= "top",
                        show.row.dendro= TRUE,
                        show.col.dendro= TRUE,
+                       row.gap.axis= NA,
                        row.gap.width= 1/10,
                        col.gap.width= 1/10,
                        cluster.seed= 3453,
@@ -132,7 +137,7 @@ vl_heatmap <- function(x,
                        grid.lwd= .25,
                        plot= T,
                        pdf.file= NULL,
-                       pdf.cell.size= 0.12,
+                       pdf.cell.size= 1,
                        pdf.par= TRUE,
                        pdf.close= TRUE)
 {
@@ -146,7 +151,7 @@ vl_heatmap <- function(x,
     colnames(x) <- seq(ncol(x))
   if(is.null(rownames(x)))
     rownames(x) <- seq(nrow(x))
-
+  
   # Check clustering parameters values ----
   # Rows
   if(nrow(x)==1 && isTRUE(cluster.rows))
@@ -166,14 +171,25 @@ vl_heatmap <- function(x,
     } else
       stop("cluster.rows format not recognized.")
   }
-  if(!is.logical(kmeans.order) || kmeans.order>1)
-    stop("kmeans.order should be TRUE or FALSE.")
+  if(!is.logical(order.cl) || order.cl>1)
+    stop("order.cl should be TRUE or FALSE.")
+  if(order.cl && is.na(kmeans.k) && is.null(som.grid) && isTRUE(cluster.rows)) {
+    if(is.null(cutree.rows)) {
+      warning("order.cl irrelevant for hierarchical clustering -> set to FALSE.")
+      order.cl <- FALSE
+    } else
+      warning("order.cl is TRUE -> hclust row dendrogram will be ignored!")
+  }
+  if(order.cl && is.matrix(cluster.rows))
+    warning("order.cl will be performed using plotted values from `x` (and the cluter.rows matrix)")
   if(isTRUE(show.row.clusters))
     show.row.clusters <- "left"
   if(!show.row.clusters %in% c(FALSE, "left", "right"))
     stop("show.row.clusters should be one of TRUE, FALSE, 'left' or 'right'.")
   if(isTRUE(cluster.rows) && clustering.distance.rows %in% c("pearson", "spearman") && ncol(x)==1)
     stop("Error: Rows cannot be clustered using pearson or spearman when ncol(x)==1")
+  if(!is.na(kmeans.k) & !is.null(som.grid))
+    warning("som.grid will be ignored because kmeans.k is specified.")
   # Columns
   if(ncol(x)==1 && isTRUE(cluster.cols))
     cluster.cols <- FALSE
@@ -192,7 +208,7 @@ vl_heatmap <- function(x,
     stop("show.col.clusters should be one of TRUE, FALSE, 'bottom' or 'top'.")
   if(isTRUE(cluster.cols) && clustering.distance.cols %in% c("pearson", "spearman") && nrow(x)==1)
     stop("Error: Columns cannot be clustered using pearson or spearman when nrow(x)==1")
-
+  
   # Check annotations ----
   if(!is.null(row.annotations)){
     if(is.vector(row.annotations))
@@ -212,7 +228,7 @@ vl_heatmap <- function(x,
     } else
       stop("col.annotations format not recognized.")
   }
-
+  
   # Check legend parameters ----
   if(isTRUE(show.legend))
     show.legend <- "right"
@@ -228,7 +244,7 @@ vl_heatmap <- function(x,
     show.numbers <- as.matrix(show.numbers)
   if(is.matrix(show.numbers) & !identical(dim(show.numbers), dim(x)))
     stop("show.numbers matrix should have the same dimensions as x.")
-
+  
   # Default breaks ----
   if(is.null(breaks)) {
     breaks <- if(checkClass=="factor") {
@@ -247,7 +263,9 @@ vl_heatmap <- function(x,
           length.out= 20)
     }
   }
-
+  if(diff(range(breaks))==0)
+    breaks <- seq(breaks[1]-0.1, breaks[1]+0.1, length.out= length(breaks))
+  
   # Default colors ----
   if(is.null(col)) {
     col <- if(checkClass=="factor") {
@@ -261,7 +279,7 @@ vl_heatmap <- function(x,
       colorRampPalette(c("white", "red"))(length(breaks)-1)
     }
   }
-
+  
   # Center breaks if they are the same length as col ----
   if(length(breaks)==length(col)) {
     d <- diff(breaks)
@@ -274,40 +292,47 @@ vl_heatmap <- function(x,
     # By default, breaks are used as edges
     col <- colorRampPalette(col)(length(breaks)-1)
   }
-
+  
   # Cluster columns object ----
-  cols <- heatmap.get.clusters(dim= "col",
-                               x = x,
-                               annot = col.annotations,
-                               clusters = cluster.cols,
-                               distance = clustering.distance.cols,
-                               method = clustering.method,
-                               cutree = cutree.cols,
-                               kmeans.k = NA, # Kmeans not implemented for columns
-                               cluster.seed = cluster.seed,
-                               cluster.col = col.clusters.col,
-                               annot.col = col.annotations.col,
-                               gap.width = col.gap.width)
+  cols <- heatmap.get.clusters(
+    dim= "col",
+    x = x,
+    annot = col.annotations,
+    clusters = cluster.cols,
+    distance = clustering.distance.cols,
+    method = clustering.method,
+    cutree = cutree.cols,
+    kmeans.k = NA, # Kmeans not implemented for columns
+    som.grid = NULL, # SOM clustering not implemented for columns
+    order.cl = NULL, # Not implemented for columns
+    cluster.seed = cluster.seed,
+    cluster.col = col.clusters.col,
+    annot.col = col.annotations.col,
+    gap.width = col.gap.width
+  )
   cdend <- cols$dend
   cols <- cols$obj
-
+  
   # Cluster rows object ----
-  rows <- heatmap.get.clusters(dim= "row",
-                               x = if(exists("cx")) cx else x,
-                               annot = row.annotations,
-                               clusters = cluster.rows,
-                               distance = clustering.distance.rows,
-                               method = clustering.method,
-                               cutree = cutree.rows,
-                               kmeans.k = kmeans.k,
-                               kmeans.cl.names = if(kmeans.order) cols$name else NULL,
-                               cluster.seed = cluster.seed,
-                               cluster.col = row.clusters.col,
-                               annot.col = row.annotations.col,
-                               gap.width = row.gap.width)
+  rows <- heatmap.get.clusters(
+    dim= "row",
+    x = if(exists("cx")) cx else x,
+    annot = row.annotations,
+    clusters = cluster.rows,
+    distance = clustering.distance.rows,
+    method = clustering.method,
+    cutree = cutree.rows,
+    kmeans.k = kmeans.k,
+    som.grid = som.grid,
+    order.cl= if(order.cl) x[, cols$name] else NULL,
+    cluster.seed = cluster.seed,
+    cluster.col = row.clusters.col,
+    annot.col = row.annotations.col,
+    gap.width = row.gap.width
+  )
   rdend <- rows$dend
   rows <- rows$obj
-
+  
   # Clip outlier values to min/max color breaks ----
   x[x<min(breaks)] <- min(breaks, na.rm= TRUE)
   x[x>max(breaks)] <- max(breaks, na.rm= TRUE)
@@ -316,7 +341,7 @@ vl_heatmap <- function(x,
   # Adjust breaks to afford NAs
   NAbreaks <- c(breaks[1]-c(2,1), breaks[-1])
   NAcols <- c(na.col, col)
-
+  
   # Initiate pdf file ----
   if(!is.null(pdf.file)) {
     # Compute adjusted number of rows heatmap
@@ -331,13 +356,13 @@ vl_heatmap <- function(x,
     }
     # Compute adjusted number of rows heatmap
     pdf(pdf.file,
-        width= Ncols*pdf.cell.size+6,
-        height = Nrows*pdf.cell.size+4)
+        width= Ncols*(pdf.cell.size*0.12)+6,
+        height = Nrows*(pdf.cell.size*0.12)+4)
     if(pdf.par) {
       vl_par(mai= c(2,4,2,2))
     }
   }
-
+  
   # Plotting ----
   if(plot) {
     # Plot heatmap ----
@@ -351,7 +376,7 @@ vl_heatmap <- function(x,
           xlab= NA,
           ylab= NA,
           axes= FALSE)
-
+    
     # Plot clusters iteratively ----
     rows[, {
       cols[, {
@@ -386,7 +411,7 @@ vl_heatmap <- function(x,
              xpd= NA)
       }, cluster]
     }, cluster]
-
+    
     # Plot numbers ----
     if(!isFALSE(show.numbers)) {
       text(x= rep(cols$x.pos, each= nrow(rows)),
@@ -394,7 +419,7 @@ vl_heatmap <- function(x,
            labels = c(show.numbers[rows$line.idx, cols$column.idx, drop= FALSE]),
            cex= numbers.cex)
     }
-
+    
     # Plot axes ----
     # X axis
     if(show.rownames) {
@@ -423,13 +448,13 @@ vl_heatmap <- function(x,
              padj= -1.25)
       }
     }
-
+    
     # Compute margins positions and define line width/height (used for plotting) ----
     right.mar <- par("usr")[2]
     top.mar <- par("usr")[4]
     line.width <- diff(grconvertX(c(0,1), "line", "user"))
     line.height <- diff(grconvertY(c(0,1), "line", "user"))
-
+    
     # Plot row annotations ----
     if(!is.null(row.annotations)) {
       # Adjust margin
@@ -447,7 +472,7 @@ vl_heatmap <- function(x,
       # Adjust margin
       right.mar <- right.mar+line.width*.5
     }
-
+    
     # Plot col annotations ----
     if(!is.null(col.annotations)) {
       # Adjust margin
@@ -465,7 +490,7 @@ vl_heatmap <- function(x,
       # Adjust margin
       top.mar <- top.mar+line.height*.5
     }
-
+    
     # Plot row clusters ----
     if(sum(!is.na(rows$cluster)) && !isFALSE(show.row.clusters)) {
       # Plot on the right side
@@ -495,13 +520,16 @@ vl_heatmap <- function(x,
         right.mar <- right.mar+line.width
       } else if(show.row.clusters=="left") {
         # Plot on the left side
-        axis(2,
-             at = rows[, mean(y.pos), cluster]$V1,
-             labels = rows[, paste0(cluster, " (n= ", formatC(.N, big.mark = ","), ")"), cluster]$V1,
-             tick = FALSE)
+        axis(
+          2,
+          at = rows[, mean(y.pos), cluster]$V1,
+          labels = rows[, paste0(cluster, " (n= ", formatC(.N, big.mark = ","), ")"), cluster]$V1,
+          tick = FALSE,
+          gap.axis= row.gap.axis
+        )
       }
     }
-
+    
     # Plot column clusters ----
     if(sum(!is.na(cols$cluster)) && !isFALSE(show.col.clusters)) {
       # On the top
@@ -536,7 +564,7 @@ vl_heatmap <- function(x,
              tick = FALSE)
       }
     }
-
+    
     # Add rows dendrogram ----
     if(!is.null(rdend) && show.row.dendro) {
       segments(right.mar + rdend$x0 * line.width,
@@ -548,7 +576,7 @@ vl_heatmap <- function(x,
       # Adjust margin
       right.mar <- right.mar + line.width
     }
-
+    
     # Add columns dendrogram ----
     if(!is.null(cdend) && show.col.dendro) {
       segments(cdend$x0,
@@ -560,7 +588,7 @@ vl_heatmap <- function(x,
       # Adjust margin
       top.mar <- top.mar+line.height
     }
-
+    
     # Add heatkeys ----
     if(!isFALSE(show.legend)) {
       # Adjust plotting position
@@ -583,7 +611,7 @@ vl_heatmap <- function(x,
               main = legend.title)
       # Adjust top margin
       top.mar <- top.mar+((show.legend=="top")*3*line.height)
-
+      
       # Row annotations
       if(!is.null(row.annotations)) {
         # Adjust plotting position
@@ -601,7 +629,7 @@ vl_heatmap <- function(x,
                 cex = legend.cex,
                 main = row.annotations.title)
       }
-
+      
       # Col annotations
       if(!is.null(col.annotations)) {
         # Adjust plotting position
@@ -620,19 +648,19 @@ vl_heatmap <- function(x,
                 main = col.annotations.title)
       }
     }
-
+    
     # Add title ----
     if(!is.na(main))
       title(main= main,
             line = max(c(1, (top.mar-par("usr")[4])/line.height+.25)))
   }
-
+  
   # Close pdf ----
   if(!is.null(pdf.file) && pdf.close) {
     dev.off()
     print(paste0("file.show(", shQuote(pdf.file), ")"))
   }
-
+  
   # Return clusters ----
   obj <- list(rows= rows[order(line.idx), .(name, line.idx, cluster, order, y.pos)],
               cols= cols[order(column.idx), .(name, column.idx, cluster, order, x.pos)])

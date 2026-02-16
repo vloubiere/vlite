@@ -20,6 +20,7 @@ dropboxDownload <- function(remote.path,
 {
   if(!dir.exists(dirname(local.path)))
     warning("local directory does not exist!")
-  cmd <- paste("sh  /groups/stark/vloubiere/apps/dropbox/dropbox_uploader.sh download", remote.path, local.path)
+  # cmd <- paste("sh /groups/stark/vloubiere/apps/dropbox/dropbox_uploader.sh download", remote.path, local.path)
+  cmd <- paste("bash /usr/local/bin/dropbox_uploader.sh download", remote.path, local.path)
   system(cmd)
 }

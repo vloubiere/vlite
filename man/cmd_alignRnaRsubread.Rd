@@ -23,9 +23,9 @@ cmd_alignRnaRsubread(
 
 \item{output.prefix}{Prefix for the output files.}
 
-\item{genome}{Reference genome name (e.g., "mm10", "dm6"). If not provided, genome.idx must be specified.}
+\item{genome}{Reference genome identifier  (supported genomes: 'dm6', 'mm10'). Required if genome.idx is not provided. Default= NULL.}
 
-\item{genome.idx}{Path to the Rsubread genome index. Default= NULL.}
+\item{genome.idx}{Path to Bowtie2 index files (without extensions). Can be automatically defined using the `genome` argument. Default= NULL.}
 
 \item{bam.output.folder}{Directory for the output BAM file. Default= "db/bam.output.folder/".}
 

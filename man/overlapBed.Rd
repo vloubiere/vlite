@@ -4,18 +4,15 @@
 \alias{overlapBed}
 \title{Find Overlapping Regions Between Two Sets of Genomic Intervals}
 \usage{
-overlapBed(a, b, maxgap = -1L, minoverlap = 0L, ignore.strand = TRUE)
+overlapBed(a, b, minoverlap = 1L, ignore.strand = TRUE)
 }
 \arguments{
-\item{a}{Query regions in any format compatible with ?importBed.}
+\item{a}{Query regions in any format compatible with `importBed()`.}
 
-\item{b}{Target regions in any format compatible with ?importBed.}
-
-\item{maxgap}{A single integer specifying the maximum gap allowed between 2 ranges for them to
-be considered as overlapping. Default= -1.}
+\item{b}{Target regions in any format compatible with `importBed()`.}
 
 \item{minoverlap}{A single integer specifying the minimum overlap between 2 ranges for them to
-be considered as overlapping. Default= 0.}
+be considered as overlapping. Default= 1L.}
 
 \item{ignore.strand}{If set to FALSE, only reports overlaps between regions that are on the same strand.
 If set to TRUE (default), reports overlaps on both strands.}
@@ -24,15 +21,15 @@ If set to TRUE (default), reports overlaps on both strands.}
 A data.table with columns:
 \itemize{
   \item idx.a: line index of the region in a.
-  \item idx.b: line index of the overlapping region in b (NA if no overlap).
-  \item overlap.start: overlap starting position (NA if no overlap).
-  \item overlap.end: overlap ending position (NA if no overlap).
-  \item overlap.width: overlap width (0 if no overlap).
+  \item idx.b: line index of the overlapping region in b.
+  \item overlap.start: overlap starting position.
+  \item overlap.end: overlap ending position.
+  \item overlap.width: overlap width.
 }
 Of note, regions in a with no overlap in b are not returned.
 }
 \description{
-A wrapper around ?GenomicRanges::findOverlaps() that identifies, for each genomic range in a,
+A wrapper around `GenomicRanges::findOverlaps()` that identifies, for each genomic range in a,
 the overlapping regions in b.
 }
 \examples{

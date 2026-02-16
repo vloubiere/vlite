@@ -2,7 +2,7 @@
 args = commandArgs(trailingOnly=TRUE)
 
 # Test if there are 10-11 args: if not, return an error
-if (!length(args) %in% c(12, 13)) {
+if (!length(args) %in% c(13, 14)) {
   stop("Please specify:\n
        [required] 1/ A comma-separated list of .txt count files (ref genome)\n
        [required] 2/ A comma-separated list of sample names \n
@@ -11,12 +11,13 @@ if (!length(args) %in% c(12, 13)) {
        [required] 5/ min-count filter 'x,y': keep genes with count >= x in at least y samples (e.g. 3,2) \n
        [required] 6/ max-count filter 'z': keep genes with max(count) <= z across all samples (e.g. Inf) \n
        [required] 7/ padj cutoff \n
-       [required] 8/ log2FoldChange cutoff \n
-       [required] 9/ dds output folder \n
-       [required] 10/ FC tables output folder \n
-       [required] 11/ PDF output folder \n
-       [required] 12/ Experiment \n
-       [required] 13/ A comma-separated vector of spike-in or libsize counts for normalization (matching the number
+       [required] 8/ Should the log2FoldChange values be shrinked? \n
+       [required] 9/ log2FoldChange cutoff \n
+       [required] 10/ dds output folder \n
+       [required] 11/ FC tables output folder \n
+       [required] 12/ PDF output folder \n
+       [required] 13/ Experiment \n
+       [required] 14/ A comma-separated vector of spike-in or libsize counts for normalization (matching the number
        of count files being provided)\n")
 }
 
@@ -50,13 +51,14 @@ controls <- gsub("-", ".", controls) # Names and conditions do not tolerate "-"
 min.cutoff <- unlist(tstrsplit(args[5], ",", type.convert = T))
 max.cutoff <- as.numeric(args[6])
 padj.cutoff <- as.numeric(args[7])
-log2FC.cutoff <- as.numeric(args[8])
-dds_output_folder <- args[9]
-FC_output_folder <- args[10]
-PDF_output_folder <- args[11]
-experiment <- args[12]
-norm.counts <- if(length(args)==13)
-  as.numeric(unlist(tstrsplit(args[13], ","))) else
+log2FC.shrinkage <- as.logical(args[8])
+log2FC.cutoff <- as.numeric(args[9])
+dds_output_folder <- args[10]
+FC_output_folder <- args[11]
+PDF_output_folder <- args[12]
+experiment <- args[13]
+norm.counts <- if(length(args)==14)
+  as.numeric(unlist(tstrsplit(args[14], ","))) else
     NULL
 
 # Import data ----
@@ -97,8 +99,10 @@ if(!is.null(norm.counts))
 
 # Compute model and save object ----
 dds <- DESeq(dds)
-saveRDS(dds,
-        paste0(dds_output_folder, "/", experiment, "_DESeq2.dds"))
+saveRDS(
+  dds,
+  paste0(dds_output_folder, "/", experiment, "_DESeq2.dds")
+)
 
 # Open pdf to save MA plot ----
 outputPdf <- paste0(PDF_output_folder, "/", experiment, "_MAplots.pdf")
@@ -121,8 +125,14 @@ for(ctl in unique(controls))
   for(cdition in setdiff(unique(conditions), ctl))
   {
     # Compute FC table
-    res <- results(dds,
-                   contrast = c("condition", cdition, ctl))
+    res <- if(log2FC.shrinkage) {
+      DESeq2::lfcShrink(dds,
+                        type= "ashr",
+                        contrast= c("condition", cdition, ctl))
+    } else {
+      results(dds,
+              contrast = c("condition", cdition, ctl))
+    }
     res <- as.data.frame(res)
     res <- as.data.table(res, keep.rownames = "gene_id")
     # Compute diff column
@@ -134,25 +144,25 @@ for(ctl in unique(controls))
     res[, control:= ctl]
     # Add to FC list
     FC[[paste0(cdition, "_vs_", ctl)]] <- data.table::copy(res)
-
+    
     # MA plot colors
     res[, col:= {
       fcase(diff=="Up-regulated", "tomato",
             diff=="Down-regulated", "cornflowerblue",
             default = "lightgrey")
     }]
-
+    
     # Plot unaffected genes first
     res <- res[order(col=="lightgrey", decreasing = TRUE)]
-
+    
     # Compute limits and pch
     lims <- quantile(res$log2FoldChange, c(0.001, 0.999))
     res[, pch:= ifelse(between(log2FoldChange, lims[1], lims[2]), 16, 17)]
-
+    
     # Clip outliers
     res[log2FoldChange<lims[1], log2FoldChange:= lims[1]]
     res[log2FoldChange>lims[2], log2FoldChange:= lims[2]]
-
+    
     # Plot
     res[, {
       plot(
@@ -168,7 +178,7 @@ for(ctl in unique(controls))
       )
       axis(1, padj= -1.45)
       abline(h= 0, lty= 3)
-
+      
       # Legend
       nUp <- sum(diff=="Up-regulated")
       nUp <- formatC(nUp, big.mark = ",")

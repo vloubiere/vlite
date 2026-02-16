@@ -33,7 +33,7 @@ cmd_DESeq2_PROseq(
 
 \item{spikein.stat.files}{A character vector of paths to spike-in statistics files in `.txt` format.}
 
-\item{normalization}{A character string specifying the normalization method. Options are `default`, `libsize`, or `spikeIn`.
+\item{normalization}{A character string specifying the normalization method. Options are `default`, `libSize`, or `spikeIn`.
 Default: `spikeIn`.}
 
 \item{output.prefix}{A character string specifying the prefix for output files.}

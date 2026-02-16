@@ -7,9 +7,10 @@
 somClustering(
   layers,
   grid = c(2, 3),
-  clip.perc = c(0.05, 0.95),
+  clip.perc = c(0, 1),
   scale = FALSE,
   user.weights = NULL,
+  normalizeDataLayers = TRUE,
   init.seed = 1,
   maxNA.fraction = 0L
 )
@@ -17,13 +18,18 @@ somClustering(
 \arguments{
 \item{layers}{Either a matrix or a list of matrices to cluster.}
 
-\item{grid}{THe size of the grid. Default= c(2,3).}
+\item{grid}{The size of the grid. Default= c(2,3).}
 
-\item{clip.perc}{Percentile used to clip numeric matrices. Set to c(0,1) to skip clipping.}
+\item{clip.perc}{An integer vector of length 2 (or a list of such vectors) specifying the upper and lower 
+percentile used to clip numeric layers data before clustering (ignored for characters/factors categorical layers).
+Default= NULL, meaning no clipping is performed.}
 
-\item{scale}{Should the data be scaled using z-score? Default= FALSE}
+\item{scale}{Should numeric layers be scaled (z-scored) before clustering? Default= FALSE.}
 
 \item{user.weights}{User-defined weights for the different layers. Length should be match the length of layers' list. Default= 1 for all layers.}
+
+\item{normalizeDataLayers}{Boolean indicating whether distance.weights should be calculated (see details section).
+If set to FALSE, user weights are applied to the data immediately. Default= TRUE.}
 
 \item{init.seed}{Seed used for random initialization/}
 

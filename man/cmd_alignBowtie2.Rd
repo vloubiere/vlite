@@ -24,9 +24,9 @@ cmd_alignBowtie2(
 
 \item{output.prefix}{Prefix for output files.}
 
-\item{genome}{Reference genome identifier (e.g., "mm10", "hg38"). Required if genome.idx is not provided.}
+\item{genome}{Reference genome identifier  (supported genomes: 'dm6', 'mm10'). Required if genome.idx is not provided. Default= NULL.}
 
-\item{genome.idx}{Path to Bowtie2 index files (without extensions). Required if genome is not provided.}
+\item{genome.idx}{Path to Bowtie2 index files (without extensions). Can be automatically defined using the `genome` argument. Default= NULL.}
 
 \item{mapq}{MAPQ score threshold for filtering alignments. Default= NULL (no filtering).}
 

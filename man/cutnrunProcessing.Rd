@@ -8,7 +8,7 @@ cutnrunProcessing(
   fq1,
   fq2 = NULL,
   output.prefix,
-  genome,
+  genome = NULL,
   genome.idx = NULL,
   max.ins = 1000,
   fq.output.folder = "db/fq/CUTNRUN/",

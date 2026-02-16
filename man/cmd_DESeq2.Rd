@@ -12,6 +12,7 @@ cmd_DESeq2(
   min.cutoff = c(3, 2),
   max.cutoff = Inf,
   norm.counts = NULL,
+  log2FC.shrinkage = FALSE,
   padj.cutoff = 0.05,
   log2FC.cutoff = log2(1.5),
   output.prefix,
@@ -36,6 +37,8 @@ cmd_DESeq2(
 
 \item{norm.counts}{A comma-separated vector of spike-in/libsize counts that will be used for normalization.
 Default = NULL (use default method to degine sizeFactors).}
+
+\item{log2FC.shrinkage}{Should the log2FC values be shrinked using the ashr method (see ?DESeq2::lfcShrink).}
 
 \item{padj.cutoff}{The p.adjust cutoff to call differentially expressed genes. Default= 0.05.}
 

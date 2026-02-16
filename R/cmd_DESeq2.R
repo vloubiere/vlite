@@ -8,6 +8,7 @@
 #' @param max.cutoff max-count filter 'z': keep genes with max(count) <= z across all samples (e.g. Inf).
 #' @param norm.counts A comma-separated vector of spike-in/libsize counts that will be used for normalization.
 #' Default = NULL (use default method to degine sizeFactors).
+#' @param log2FC.shrinkage Should the log2FC values be shrinked using the ashr method (see ?DESeq2::lfcShrink).
 #' @param padj.cutoff The p.adjust cutoff to call differentially expressed genes. Default= 0.05.
 #' @param log2FC.cutoff The log2FoldChange cutoff to call differentially expressed genes. Default= log2(1.5).
 #' @param output.prefix Output prefix to be used for output files.
@@ -24,6 +25,7 @@ cmd_DESeq2 <- function(count.files,
                        min.cutoff= c(3,2),
                        max.cutoff= Inf,
                        norm.counts= NULL,
+                       log2FC.shrinkage= FALSE,
                        padj.cutoff= 0.05,
                        log2FC.cutoff= log2(1.5),
                        output.prefix,
@@ -65,6 +67,7 @@ cmd_DESeq2 <- function(count.files,
     paste0(min.cutoff, collapse = ","), # min-count filter 'x,y': keep genes with count >= x in at least y samples (e.g. 3,2).
     max.cutoff, # max-count filter 'z': keep genes with max(count) <= z across all samples (e.g. Inf).
     padj.cutoff, # p adjust cutoff to call diff genes
+    log2FC.shrinkage, # Should the FC values be shrinked (ashr method)?
     log2FC.cutoff, # log2FC cutoff to call diff genes
     dds.output.folder, # dds output folder
     FC.tables.output.folder, # FC tables output folder

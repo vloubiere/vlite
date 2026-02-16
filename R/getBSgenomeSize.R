@@ -1,8 +1,8 @@
-#' Get BS genome sizes
+#' Get BS chromosome sizes
 #'
 #' @param genome BSgenome object to use: "dm6", "mm10"...
 #' @examples
-#' getBSgenomeSize("mm10")
+#' getBSchromSizes("mm10")
 #'
 #' @return data.table containing chromosomes start and end coordinates
 #' @export

@@ -40,7 +40,7 @@
 cutnrunProcessing <- function(fq1,
                               fq2= NULL,
                               output.prefix,
-                              genome,
+                              genome= NULL,
                               genome.idx= NULL,
                               max.ins= 1000,
                               fq.output.folder= "db/fq/CUTNRUN/",
@@ -52,6 +52,7 @@ cutnrunProcessing <- function(fq1,
   # Trimming illumina adaptors ----
   cmd <- cmd_trimIlluminaAdaptors(fq1= fq1,
                                   fq2= fq2,
+                                  cores= cores,
                                   fq.output.folder= fq.output.folder)
 
   # * If several fq1/fq2 files provided, they will be merged during alignment ----

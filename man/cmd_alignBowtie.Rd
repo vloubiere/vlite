@@ -24,10 +24,9 @@ cmd_alignBowtie(
 
 \item{output.prefix}{Prefix for the output file.}
 
-\item{genome}{Reference genome name (e.g., "mm10", "hg38", "dm3").
-If not provided, `genome.idx` must be specified.}
+\item{genome}{Reference genome identifier  (supported genomes: 'dm6', 'mm10'). Required if genome.idx is not provided. Default= NULL.}
 
-\item{genome.idx}{Path to the Bowtie genome index. Default= NULL.}
+\item{genome.idx}{Path to Bowtie2 index files (without extensions). Can be automatically defined using the `genome` argument. Default= NULL.}
 
 \item{max.mismatch}{Maximum number of mismatches allowed. Default= 2.}
 

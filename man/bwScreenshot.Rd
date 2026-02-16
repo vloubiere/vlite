@@ -8,17 +8,19 @@ bwScreenshot(
   bed,
   tracks = character(),
   track.names = function(x) gsub("(.*)[.].*$", "\\\\1", x),
+  show.bed.track.names = TRUE,
   col = colorRampPalette(c("grey60", "grey10"))(length(tracks)),
   border.col = NA,
   border.lwd = 0.5,
   bw.max = NA,
   bw.min = NA,
+  nbins = NA,
   bw.n.breaks = 100,
   genome,
   ngenes = 1,
   sel.gene.symbols = NULL,
-  cex.symbol = 0.7,
-  offset.symbol = 0.25,
+  cex.gene.symbol = 1,
+  offset.gene.symbol = 1,
   col.ns = "cornflowerblue",
   col.ps = "tomato",
   exon.border = NA,
@@ -27,13 +29,13 @@ bwScreenshot(
   gtf.exon = "exon",
   gtf.symbol = "gene_symbol",
   gtf.transcript.id = "transcript_id",
-  region.width = 100,
-  space.width = 30,
-  bw.height = 100,
-  bed.height = 20,
-  space.height = 2,
-  gene.height = 4,
-  gene.space.height = 7,
+  region.width = 1,
+  space.width = 1,
+  bw.height = 1,
+  bed.height = 1,
+  space.height = 1,
+  gene.height = 1,
+  gene.space.height = 1,
   add = FALSE
 )
 }
@@ -49,13 +51,18 @@ bwScreenshot(
 \item{track.names}{Function or character vector for track labels. Default extracts names
 from file basenames.}
 
+\item{show.bed.track.names}{If set to FALSE, the names of bed tracks are not plotted (useful for peak tracks). Default= TRUE.}
+
 \item{col}{Colors for tracks. Default is a grey gradient from grey60 to grey10.}
 
 \item{bw.max}{Numeric. Maximum signal value for BigWig tracks. Values above this
 will be clipped. Default (NA) uses track maximum.}
 
-\item{bw.n.breaks}{The number of breaks to which the signal will be simplified, to avoid polygon vector with too many points.
-If set to NA, the signal is not simplified and is plotted as is.}
+\item{nbins}{If specified, each region is split in nbins, and bw.n.breaks is disregarded (redundant). Default= NA (no binning).}
+
+\item{bw.n.breaks}{If nbins is set to NA, specifies the number of breaks to which the signal will be 
+simplified, to avoid polygon vector with too many points. If set to NA, the signal is not simplified and
+is plotted as is.}
 
 \item{genome}{Character. Genome assembly (e.g., "mm10", "dm6") for gene annotations.
 If specified, nearby genes will be displayed.}
@@ -63,6 +70,16 @@ If specified, nearby genes will be displayed.}
 \item{ngenes}{Integer. Number of nearest genes to display. Default = 1.}
 
 \item{sel.gene.symbols}{If specified, only selected gene symbols will be plotted. Default= NULL.}
+
+\item{cex.gene.symbol}{Size of gene symbols (default = 1)}
+
+\item{offset.gene.symbol}{Vertical offset for gene symbols (default = 1)}
+
+\item{col.ns}{Color for negative strand genes (default = "cornflowerblue")}
+
+\item{col.ps}{Color for positive strand genes (default = "tomato")}
+
+\item{exon.border}{Color for exon rectangle borders (default = NA, meaning no border)}
 
 \item{gtf}{Character path to a custom GTF file for custom gene annotations (alternative to the 'genome' parameter).}
 
@@ -75,6 +92,20 @@ If specified, nearby genes will be displayed.}
 
 \item{gtf.transcript.id}{Character. Name of the attribute containing transcript IDs in the GTF file
 (default = "transcript_id").}
+
+\item{region.width}{Width of each genomic region (default = 1)}
+
+\item{space.width}{Horizontal space between regions (default = 1)}
+
+\item{bw.height}{Height of BigWig tracks (default = 1)}
+
+\item{bed.height}{Height of BED tracks (default = 1)}
+
+\item{space.height}{Vertical space between tracks (default = 1)}
+
+\item{gene.height}{Height of gene tracks (default = 1)}
+
+\item{gene.space.height}{Space between genes (default = 1)}
 }
 \value{
 A screenshot of the genomic tracks/regions.
@@ -86,33 +117,6 @@ Creates publication-quality genomic screenshots displaying BigWig signal tracks,
 BED regions, and optional gene annotations for specified genomic regions. Multiple
 regions can be displayed side by side for comparison.
 }
-\section{Visual Parameters}{
-
-**Track Appearance:**
-\itemize{
-  \item `bw.height`: Height of BigWig tracks (default = 100)
-  \item `bed.height`: Height of BED tracks (default = 20)
-  \item `space.height`: Vertical space between tracks (default = 2)
-}
-
-**Region Layout:**
-\itemize{
-  \item `region.width`: Width of each genomic region (default = 100)
-  \item `space.width`: Horizontal space between regions (default = 30)
-}
-
-**Gene Annotations:**
-\itemize{
-  \item `gene.height`: Height of gene tracks (default = 4)
-  \item `gene.space.height`: Space between genes (default = 7)
-  \item `cex.symbol`: Size of gene symbols (default = 0.7)
-  \item `offset.symbol`: Vertical offset for gene symbols (default = 0.25)
-  \item `col.ns`: Color for negative strand genes (default = "cornflowerblue")
-  \item `col.ps`: Color for positive strand genes (default = "tomato")
-  \item `exon.border`: Color for exon rectangle borders (default = NA, meaning no border)
-}
-}
-
 \examples{
 # Plotting parameters for a nice layout
 par(mai = c(0.9, 0.9, 0.9, 0.9),

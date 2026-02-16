@@ -8,8 +8,8 @@
 #' @param fq1 A character vector of .fq (or .fq.gz) file paths.
 #' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
 #' @param output.prefix Prefix for output files.
-#' @param genome Reference genome identifier (e.g., "mm10", "hg38"). Required if genome.idx is not provided.
-#' @param genome.idx Path to Bowtie2 index files (without extensions). Required if genome is not provided.
+#' @param genome Reference genome identifier  (supported genomes: 'dm6', 'mm10'). Required if genome.idx is not provided. Default= NULL.
+#' @param genome.idx Path to Bowtie2 index files (without extensions). Can be automatically defined using the `genome` argument. Default= NULL.
 #' @param mapq MAPQ score threshold for filtering alignments. Default= NULL (no filtering).
 #' @param max.ins Maximum insert size for paired-end alignment. Default= 500.
 #' @param bam.output.folder Directory for BAM files.
@@ -66,22 +66,27 @@ cmd_alignBowtie2 <- function(fq1,
     stop("When provided, fq2 files should match fq1 files.")
   if(length(max.ins)!=1 || max.ins %% 1 != 0)
     stop("max.ins should be a unique integer value.")
+  if(is.null(genome) & is.null(genome.idx))
+    stop("Supported genome or genome.idx should be provided.")
 
   # Retrieve index ----
-  if(!is.null(genome)) {
+  if(is.null(genome.idx)) {
+    # Check genome is supported 
+    genome <- base::match.arg(genome, c("dm6", "mm10"), several.ok= FALSE)
+    # Retrieve bowtie2 index
     genome.idx <- switch(
       genome,
-      "dm3" = "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/UCSC/dm3/Sequence/Bowtie2Index/Bowtie2Index/genome",
-      "dm6" = "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome",
-      "mm9" = "/groups/stark/indices/bowtie2/mm9/mm9",
-      "mm10" = "/groups/stark/vloubiere/genomes/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome",
-      "hg38" = "/groups/stark/vloubiere/genomes/Homo_sapiens/hg38/Bowtie2Index/genome"
+      # "dm3" = "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/UCSC/dm3/Sequence/Bowtie2Index/Bowtie2Index/genome",
+      # "dm6" = "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome",
+      # "mm9" = "/groups/stark/indices/bowtie2/mm9/mm9",
+      # "mm10" = "/groups/stark/vloubiere/genomes/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome",
+      # "hg38" = "/groups/stark/vloubiere/genomes/Homo_sapiens/hg38/Bowtie2Index/genome",
+      "dm6" = "/zssd/scratch/vincent.loubiere/genomes/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome",
+      "mm10" = "/zssd/scratch/vincent.loubiere/genomes/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome"
     )
-  } else {
-    genome <- basename(genome.idx)
   }
-  if(is.null(genome.idx))
-    stop("genome is missing and and genome.idx is set to NULL -> exit")
+  if(is.null(genome))
+    genome <- basename(genome.idx)
 
   # Output files paths ----
   bam <- file.path(bam.output.folder, paste0(output.prefix, "_", genome, ".bam"))

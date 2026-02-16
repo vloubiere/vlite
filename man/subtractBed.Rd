@@ -4,15 +4,12 @@
 \alias{subtractBed}
 \title{Subtract Genomic Regions from Reference Intervals}
 \usage{
-subtractBed(a, b, minoverlap = 1L, ignore.strand = TRUE)
+subtractBed(a, b, ignore.strand = TRUE)
 }
 \arguments{
 \item{a}{Query regions in any format compatible with ?importBed.}
 
 \item{b}{Target regions in any format compatible with ?importBed.}
-
-\item{minoverlap}{A single integer specifying the minimum overlap with regions in for them to
-be subtracted. Default= 1L.}
 
 \item{ignore.strand}{If set to FALSE, only subtracts features that are on the same strand.
 If set to TRUE (default), subtracts overlapping feature(s) regardless of their strand(s).}

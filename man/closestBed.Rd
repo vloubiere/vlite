@@ -26,17 +26,17 @@ A data.table with columns:
 }
 }
 \description{
-A wrapper around ?GenomicRanges::nearest and ?GenomicRanges::nearestKNeighbors that computes,
+A wrapper around `GenomicRanges::nearest()` and `GenomicRanges::nearestKNeighbors()` that computes,
 for each genomic range in a, the nearest genomic ranges in b and the stranded distance between them.
 }
 \details{
 **Distance Calculation**:
-- Features that have no nearest neighbor (e.g., chromsome missing in b) are not returned
+- Features that have no nearest neighbor (e.g., chromosome missing in b) are not returned
 - For overlapping features, a distance of 0 is returned.
 - For non-overlapping features, the genomic distance between their closest boundaries are returned:
   * Negative distances indicate upstream features.
   * Positive distances indicate downstream features.
-  * Unstranded features are treated as '+'.
+  * Unstranded (*) features are treated as `+`.
 }
 \examples{
 # Create example regions

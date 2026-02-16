@@ -4,12 +4,19 @@
 \alias{cmd_trimIlluminaAdaptors}
 \title{Generate Trim Galore Commands for FASTQ Files}
 \usage{
-cmd_trimIlluminaAdaptors(fq1, fq2 = NULL, fq.output.folder = "db/fq/")
+cmd_trimIlluminaAdaptors(
+  fq1,
+  fq2 = NULL,
+  cores = 1,
+  fq.output.folder = "db/fq/"
+)
 }
 \arguments{
 \item{fq1}{A character vector of .fq (or .fq.gz) file paths.}
 
 \item{fq2}{For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.}
+
+\item{cores}{The number of cores to use.}
 
 \item{fq.output.folder}{Directory for trimmed FASTQ files. Default= "db/fq/".}
 }

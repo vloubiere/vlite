@@ -24,7 +24,7 @@ collapseBed(
 instead of collapsing them. Default= FALSE.}
 
 \item{ignore.strand}{If set to FALSE, only overlapping regions that are on the same strand are merged.
-If set to TRUE (default), regions are merged irrespective of their strand.}
+If set to TRUE (default), regions are merged irrespective of their strand, which will be set to `*`.}
 }
 \value{
 If return.idx.only = FALSE: a gr data.table with columns:
@@ -38,7 +38,7 @@ If return.idx.only = TRUE: a run-length type id indicating overlapping regions b
 that can be merged.
 }
 \description{
-A wrapper around ?GenomicRanges::reduce that merges overlapping genomic ranges.
+A wrapper around `GenomicRanges::reduce()` that merges overlapping genomic ranges.
 }
 \examples{
 # Create example regions

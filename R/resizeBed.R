@@ -74,7 +74,20 @@ resizeBed <- function(bed,
   # Clip regions outside of chromosomes ----
   if(!is.null(genome)) {
     sizes <- vlite::getBSgenomeSize(genome = genome)
-    current <- vlite::clipBed(current, sizes)
+    missing.chr <- unique(setdiff(current$seqnames, sizes$seqnames))
+    if(length(missing.chr))
+      warning(
+        paste0(
+          paste0(
+            "The following chromosomes are missing from the genome file and will be removed (n=",
+            sum(current$seqnames %in% missing.chr),
+            "):\n"
+          ),
+          paste0(missing.chr, collapse = ", ")
+        )
+      )
+    # if(any(current$seqnames %in% ))
+    current <- suppressWarnings(vlite::clipBed(current, sizes)) # Warnings about start/end coordinates
   }
   
   # Sanity check ----

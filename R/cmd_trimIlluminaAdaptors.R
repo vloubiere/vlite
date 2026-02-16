@@ -6,6 +6,7 @@
 #'
 #' @param fq1 A character vector of .fq (or .fq.gz) file paths.
 #' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
+#' @param cores The number of cores to use.
 #' @param fq.output.folder Directory for trimmed FASTQ files. Default= "db/fq/".
 #'
 #' @return A `data.table` with:
@@ -26,6 +27,7 @@
 #' @export
 cmd_trimIlluminaAdaptors <- function(fq1,
                                      fq2= NULL,
+                                     cores= 1,
                                      fq.output.folder= "db/fq/")
 {
   # Check (!Do not check if fq1 or fq2 files exist to allow wrapping!) ----
@@ -57,10 +59,10 @@ cmd_trimIlluminaAdaptors <- function(fq1,
   # Trimming commands ----
   cmd <- if(is.null(fq2)) {
     # Single-end reads
-    sapply(fq1, function(x) paste("trim_galore --gzip -o", fq.output.folder, x))
+    sapply(fq1, function(x) paste("trim_galore --cores", cores, "--gzip -o", fq.output.folder, x))
   } else {
     # Paired-end reads
-    sapply(seq(fq1), function(i) paste("trim_galore --gzip --paired -o", fq.output.folder, fq1[i], fq2[i]))
+    sapply(seq(fq1), function(i) paste("trim_galore --cores", cores, "--gzip --paired -o", fq.output.folder, fq1[i], fq2[i]))
   }
 
   # Wrap commands output ----

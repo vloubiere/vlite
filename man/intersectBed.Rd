@@ -8,7 +8,7 @@ intersectBed(
   a,
   b,
   maxgap = -1L,
-  minoverlap = 0L,
+  minoverlap = 1L,
   invert = FALSE,
   ignore.strand = TRUE
 )
@@ -19,10 +19,11 @@ intersectBed(
 \item{b}{Target regions in any format compatible with ?importBed.}
 
 \item{maxgap}{A single integer specifying the maximum gap allowed between 2 ranges for them to
-be considered as overlapping. Default= -1.}
+be considered as overlapping e.g., with maxgap= 0, touching regions will be considered as overlapping
+Default= -1L (>= 1 overlapping base).}
 
 \item{minoverlap}{A single integer specifying the minimum overlap between 2 ranges for them to
-be considered as overlapping. Default= 0.}
+be considered as overlapping Default= 1L.}
 
 \item{invert}{If set to TRUE, returns regions in a that have no overlap(s) in b.
 If set to FALSE (default), overlapping regions are returned.}

@@ -7,8 +7,8 @@
 #' @param fq1 A character vector of .fq (or .fq.gz) file paths.
 #' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
 #' @param output.prefix Prefix for the output files.
-#' @param genome Reference genome name (e.g., "mm10", "dm6"). If not provided, genome.idx must be specified.
-#' @param genome.idx Path to the Rsubread genome index. Default= NULL.
+#' @param genome Reference genome identifier  (supported genomes: 'dm6', 'mm10'). Required if genome.idx is not provided. Default= NULL.
+#' @param genome.idx Path to Bowtie2 index files (without extensions). Can be automatically defined using the `genome` argument. Default= NULL.
 #' @param bam.output.folder Directory for the output BAM file. Default= "db/bam.output.folder/".
 #' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/".
 #' @param Rpath Path to the Rscript binary. Default= "Rscript".
@@ -58,17 +58,22 @@ cmd_alignRnaRsubread <- function(fq1,
     stop("fq1 and fq2 file paths should end up with `.fq`, `.fastq`, `.fq.gz` or `.fastq.gz`")
   if(!is.null(fq2) && length(fq1) != length(fq2))
     stop("When provided, fq2 files should match fq1 files.")
-  if(missing(genome) && is.null(genome.idx))
-    stop("genome is missing and and genome.idx is set to NULL -> exit")
+  if(is.null(genome) & is.null(genome.idx))
+    stop("Supported genome or genome.idx should be provided.")
 
   # Retrieve index ----
-  if(!missing(genome)) {
-    genome.idx <- switch(genome,
-                         "mm10"= "/groups/stark/vloubiere/genomes/Mus_musculus/subreadr_mm10/subreadr_mm10_index",
-                         "dm6"= "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/subreadr_dm6/subreadr_dm6_index")
-  } else {
-    genome <- basename(genome.idx)
+  if(is.null(genome.idx)) {
+    # Check genome is supported 
+    genome <- base::match.arg(genome, c("dm6", "mm10"), several.ok= FALSE)
+    # Retrieve bowtie2 index
+    genome.idx <- switch(
+      genome,
+      "mm10"= "/groups/stark/vloubiere/genomes/Mus_musculus/subreadr_mm10/subreadr_mm10_index",
+      "dm6"= "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/subreadr_dm6/subreadr_dm6_index"
+    )
   }
+  if(is.null(genome))
+    genome <- basename(genome.idx)
 
   # Output files paths ----
   bam <- file.path(bam.output.folder, paste0(output.prefix, "_", genome, ".bam"))
