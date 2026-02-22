@@ -270,6 +270,8 @@ file.edit("R/addPval.R")
 file.edit("R/vl_plot.R")
 file.edit("R/rasterScatterplot.R")
 file.edit("R/addDensity.R")
+### Profile plot
+file.edit("R/profilePlot.R")
 ### Add repel labels (imperfect, but the best I can do)
 file.edit("R/helperFunctionRepelLabels.R")
 file.edit("R/addRepelLabels.R")

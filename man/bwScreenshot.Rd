@@ -8,23 +8,22 @@ bwScreenshot(
   bed,
   tracks = character(),
   track.names = function(x) gsub("(.*)[.].*$", "\\\\1", x),
-  show.bed.track.names = TRUE,
   col = colorRampPalette(c("grey60", "grey10"))(length(tracks)),
-  border.col = NA,
-  border.lwd = 0.5,
   bw.max = NA,
-  bw.min = NA,
-  nbins = NA,
-  bw.n.breaks = 100,
+  nbins = 500,
   genome,
-  ngenes = 1,
-  sel.gene.symbols = NULL,
-  cex.gene.symbol = 1,
-  offset.gene.symbol = 1,
-  col.ns = "cornflowerblue",
-  col.ps = "tomato",
-  exon.border = NA,
   gtf,
+  sel.gene.symbols = NULL,
+  border.col = NA,
+  border.lwd = 1,
+  bw.min = NA,
+  bw.n.breaks = 100,
+  ngenes = 1,
+  cex.gene.symbol = 1,
+  offset.gene.symbol = 0.25,
+  col.gene.ps = "tomato",
+  col.gene.ns = "cornflowerblue",
+  exon.border = NA,
   gtf.transcript = "mRNA",
   gtf.exon = "exon",
   gtf.symbol = "gene_symbol",
@@ -51,37 +50,39 @@ bwScreenshot(
 \item{track.names}{Function or character vector for track labels. Default extracts names
 from file basenames.}
 
-\item{show.bed.track.names}{If set to FALSE, the names of bed tracks are not plotted (useful for peak tracks). Default= TRUE.}
-
 \item{col}{Colors for tracks. Default is a grey gradient from grey60 to grey10.}
 
-\item{bw.max}{Numeric. Maximum signal value for BigWig tracks. Values above this
-will be clipped. Default (NA) uses track maximum.}
+\item{bw.max}{Maximum value at which bigwig coverage values will be clipped. Default= NA (no clipping).}
 
-\item{nbins}{If specified, each region is split in nbins, and bw.n.breaks is disregarded (redundant). Default= NA (no binning).}
+\item{nbins}{The number of bins used to quantify the signal (overrides bw.n.breaks). Default= NA (no binning).}
 
-\item{bw.n.breaks}{If nbins is set to NA, specifies the number of breaks to which the signal will be 
-simplified, to avoid polygon vector with too many points. If set to NA, the signal is not simplified and
-is plotted as is.}
-
-\item{genome}{Character. Genome assembly (e.g., "mm10", "dm6") for gene annotations.
+\item{genome}{Genome assembly (e.g., "mm10", "dm6") for gene annotations.
 If specified, nearby genes will be displayed.}
 
-\item{ngenes}{Integer. Number of nearest genes to display. Default = 1.}
+\item{gtf}{Character path to a custom GTF file for custom gene annotations (alternative to the 'genome' parameter).}
 
 \item{sel.gene.symbols}{If specified, only selected gene symbols will be plotted. Default= NULL.}
 
-\item{cex.gene.symbol}{Size of gene symbols (default = 1)}
+\item{border.col}{The color used for track borders. Default= NA.}
 
-\item{offset.gene.symbol}{Vertical offset for gene symbols (default = 1)}
+\item{border.lwd}{The line width used for track borders. Default= 1.}
 
-\item{col.ns}{Color for negative strand genes (default = "cornflowerblue")}
+\item{bw.min}{Minimum signal value at which bigwig coverage values will be clipped. Default= NA (no clipping).}
 
-\item{col.ps}{Color for positive strand genes (default = "tomato")}
+\item{bw.n.breaks}{If nbins is set to NA, specifies the maximum number of levels to which the signal
+should be simplified to avoid polygons with too many points. Default= 100.}
 
-\item{exon.border}{Color for exon rectangle borders (default = NA, meaning no border)}
+\item{ngenes}{Integer. Number of nearest genes to display. Default = 1.}
 
-\item{gtf}{Character path to a custom GTF file for custom gene annotations (alternative to the 'genome' parameter).}
+\item{cex.gene.symbol}{Size of gene symbols. Default = 1.}
+
+\item{offset.gene.symbol}{Vertical offset for gene symbols. Default= 1.}
+
+\item{col.gene.ps}{Color for positive strand genes. Default = "tomato".}
+
+\item{col.gene.ns}{Color for negative strand genes. Default = "cornflowerblue".}
+
+\item{exon.border}{Color for exon rectangle borders. Default = NA, meaning no border.}
 
 \item{gtf.transcript}{Character. Name of transcript features in the GTF file (default = "mRNA").}
 
@@ -93,19 +94,21 @@ If specified, nearby genes will be displayed.}
 \item{gtf.transcript.id}{Character. Name of the attribute containing transcript IDs in the GTF file
 (default = "transcript_id").}
 
-\item{region.width}{Width of each genomic region (default = 1)}
+\item{region.width}{Width of each genomic region. Default= 1.}
 
-\item{space.width}{Horizontal space between regions (default = 1)}
+\item{space.width}{Horizontal space between regions. Default= 1.}
 
-\item{bw.height}{Height of BigWig tracks (default = 1)}
+\item{bw.height}{Height of BigWig tracks. Default= 1.}
 
-\item{bed.height}{Height of BED tracks (default = 1)}
+\item{bed.height}{Height of BED tracks. Default= 1.}
 
-\item{space.height}{Vertical space between tracks (default = 1)}
+\item{space.height}{Vertical space between tracks. Default= 1.}
 
-\item{gene.height}{Height of gene tracks (default = 1)}
+\item{gene.height}{Height of gene tracks. Default= 1.}
 
-\item{gene.space.height}{Space between genes (default = 1)}
+\item{gene.space.height}{Space between genes. Default= 1.}
+
+\item{add}{Should the plot beadded to the existing one? Default= FALSE.}
 }
 \value{
 A screenshot of the genomic tracks/regions.

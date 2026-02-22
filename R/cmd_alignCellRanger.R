@@ -21,13 +21,15 @@
 #' )
 #'
 #' @export
-cmd_alignCellRanger <- function(fq.prefix,
-                                index,
-                                GEX.multiome= FALSE,
-                                output.prefix,
-                                output.folder= "db/scRNASeq_10X/",
-                                cores= 10,
-                                mem= 64)
+cmd_alignCellRanger <- function(
+    fq.prefix,
+    index,
+    GEX.multiome= FALSE,
+    output.prefix,
+    output.folder= "db/scRNASeq_10X/",
+    cores= 10,
+    mem= 64
+)
 {
   # Check (!Do not check if fq1 or fq2 files exist to allow wrapping!) ----
   fq.prefix <- unique(fq.prefix)
@@ -35,17 +37,18 @@ cmd_alignCellRanger <- function(fq.prefix,
     stop("Error: unique(fq.prefix)>1.
     All fq files should be in the same folder and share the same prefix before 'S*_L.*'.
          If necessary, rename them consistently.")
-  # Check number of fastq files
+  
+  # Check number of fastq files ----
   fq.dir <- dirname(fq.prefix)
   fq.basename <- basename(fq.prefix)
   check <- list.files(fq.dir, fq.basename)
   if(length(check)<2 | !all(grepl(".fq$|.fastq$|.fq.gz$|.fastq.gz$", check)))
     stop("Less than two fq files were found.") else
       print(paste0(length(check), " fastq files found!"))
-
+  
   # Output files paths ----
   bam <- file.path(output.folder, paste0(output.prefix, ".bam"))
-
+  
   # Output files paths ----
   cmd <- paste0(
     "cd ", output.folder, ";",
@@ -57,20 +60,22 @@ cmd_alignCellRanger <- function(fq.prefix,
     " --localcores=", cores,
     " --localmem=", mem
   )
-
+  
   # To analyze only the GEX part of a multiome dataset ----
   if(GEX.multiome)
     cmd <- paste0(cmd, " --chemistry=ARC-v1")
-
+  
   # Wrap commands output ----
-  cmd <- data.table(file.type= "bam",
-                    path= bam,
-                    cmd= cmd,
-                    cores= cores,
-                    mem= mem,
-                    job.name= "cellRanger",
-                    modules= c("build-env/f2022", "cellranger/9.0.0"))
-
+  cmd <- data.table(
+    file.type= "bam",
+    path= bam,
+    cmd= cmd,
+    cores= cores,
+    mem= mem,
+    job.name= "cellRanger",
+    modules= c("build-env/f2022", "cellranger/9.0.0")
+  )
+  
   # Return ----
   return(cmd)
 }

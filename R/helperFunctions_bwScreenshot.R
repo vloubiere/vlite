@@ -9,7 +9,7 @@
                 default = as.character(NA))
   if(anyNA(type))
     stop("File extension should be one of .bed, .narrowPeak, .broadPeak, .bw, .bigWig, .gtf")
-
+  
   return(type)
 }
 
@@ -23,42 +23,38 @@
   # gtf.transcript.id= column containing transcript id in the gtf file
   params <- if(genome=="dm6")
   {
-    list(gtf= "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/flybase/dm6/dmel-all-r6.36.gtf",
-         gtf.transcript= "mRNA",
+    list(gtf= "/zssd/scratch/vincent.loubiere/genomes/Drosophila_melanogaster/flybase/dm6/dmel-all-r6.36.gtf",
+         gtf.transcript= NULL,
          gtf.exon= "exon",
          gtf.symbol= "gene_symbol",
          gtf.transcript.id= "transcript_id")
-  }else if(genome=="mm9") {
-    list(gtf= "/groups/stark/vloubiere/genomes/Mus_musculus/mm9/mm9.ensGene.gtf",
-         gtf.transcript= "transcript",
-         gtf.exon= "exon",
-         gtf.symbol= "gene_name",
-         gtf.transcript.id= "transcript_id")
   } else if(genome=="mm10") {
-    list(gtf= "/groups/stark/vloubiere/genomes/Mus_musculus/GENCODE/gencode.vM25.basic.annotation_for_viewer.gtf.gz",
-         gtf.transcript= "transcript",
+    list(gtf= "/zssd/scratch/vincent.loubiere/genomes/Mus_musculus/GENCODE/gencode.vM25.basic.annotation_for_viewer.gtf.gz",
+         gtf.transcript= NULL,
          gtf.exon= "exon",
          gtf.symbol= "gene_name",
          gtf.transcript.id= "transcript_id")
   } else
     stop("Genome not supported")
-
+  
   # Return parameters
   return(params)
 }
 
 # Method to import gene features from gtf for plotting with ?bwScreenshot()
-.genomeGTFfeatures <- function(genome,
-                               regions,
-                               ngenes,
-                               sel.gene.symbols= NULL,
-                               gene.height,
-                               gene.space.height,
-                               gtf,
-                               gtf.transcript,
-                               gtf.exon,
-                               gtf.symbol,
-                               gtf.transcript.id)
+.genomeGTFfeatures <- function(
+    genome,
+    regions,
+    ngenes,
+    sel.gene.symbols= NULL,
+    gene.height,
+    gene.space.height,
+    gtf,
+    gtf.transcript,
+    gtf.exon,
+    gtf.symbol,
+    gtf.transcript.id
+)
 {
   # Import parameters using helper function
   if(!missing(genome))
@@ -66,57 +62,83 @@
     params <- .genomeGTFparameters(genome)
     list2env(params, envir = environment())
   }
-
+  
   # Import features
-  feat <- rtracklayer::import(gtf,
-                              colnames = c("type", gtf.symbol, gtf.transcript.id),
-                              feature.type= c(gtf.transcript, gtf.exon))
-  seqlevelsStyle(feat) <- "UCSC"
+  feat <- rtracklayer::import(
+    gtf,
+    colnames = c("type", gtf.symbol, gtf.transcript.id)
+  )
+  GenomeInfoDb::seqlevelsStyle(feat) <- "UCSC"
   feat <- vlite::importBed(feat)
-  feat <- vlite::clipBed(feat, regions)
-
-  # Make feat column names and type column reproducible
-  setnames(feat,
-           c(gtf.symbol, gtf.transcript.id),
-           c("symbol", "id"))
+  
+  # Make column names and types reproducible
+  setnames(feat, c(gtf.symbol, gtf.transcript.id), c("symbol", "id"))
   feat[, type:= as.character(type)]
-  feat[type==gtf.transcript, type:= "mRNA"]
-  feat[type==gtf.exon, type:= "exon"]
-
-  # Remove exons from non-coding transcripts
-  feat <- feat[id %in% feat[type=="mRNA", id]]
-
+  
+  # Check
+  if(!gtf.exon %in% feat$type)
+    warning("gtf.exon type is missing from the provided gtf file. No genes will be plotted.")
+  
+  # Select transcripts with and id
+  if(anyNA(feat$id)) {
+    rm <- feat[,is.na(id)]
+    print(paste0(sum(rm), " gtf entries with NA ", gtf.transcript.id, " were removed."))
+    feat <- feat[!is.na(id)]
+  }
+  
+  # Select specific transcripts if relevant
+  if(!is.null(gtf.transcript)) {
+    if(!gtf.transcript %in% feat$type)
+      warning("gtf.transcript type is missing from the provided gtf file. No genes will be plotted.")
+    feat <- feat[type %in% c(gtf.transcript, gtf.exon)]
+    # Remove exons of non-selected transcripts
+    feat <- feat[id %in% feat[type!=gtf.exon, id]]
+  }
+  
+  # Clip genes to regions of interest
+  feat <- vlite::clipBed(feat, regions)
+  
+  # Simplify
+  feat[, type:= ifelse(type==gtf.exon, "exon", "transcript")]
+  feat[type=="transcript", c("start", "end"):= .(min(start), max(end)), id]
+  feat <- unique(feat)
+  
   # Compute y order for plotting
   feat[, ov:= collapseBed(feat, return.idx.only = TRUE)]
   setorderv(feat, "start")
   feat[, y:= as.numeric(factor(id, unique(id))), ov]
-
+  
   # Select n first genes to be plotted
   feat <- feat[y <= ngenes]
-
+  
   # Select gene symbols of interest
   if(!is.null(sel.gene.symbols))
     feat[!symbol %in% sel.gene.symbols, symbol:= NA]
-
+  
   # Add plot limits
   feat[, ytop:= (max(c(y, 0))-y+1)*(gene.height+gene.space.height)]
   feat[, ybottom:= ytop-gene.height]
-
+  
   # Return gene features (to plot with .screenshotGtfMethod)
   return(feat)
 }
 
 # Method to plot bw file in bwScreenshot ----
-.screenshotBwMethod <- function(regions,
-                                track.file,
-                                bw.n.breaks,
-                                track.name,
-                                track.col,
-                                track.cutoff.min,
-                                track.cutoff.max,
-                                track.height,
-                                ybottom,
-                                ytop)
+.screenshotBwMethod <- function(
+    regions,
+    track.file,
+    nbins,
+    bw.n.breaks,
+    track.name,
+    track.col,
+    track.cutoff.min,
+    track.cutoff.max,
+    track.height,
+    ybottom,
+    ytop,
+    border.col,
+    border.lwd
+)
 {
   # Import bw score
   gr <- GenomicRanges::GRanges(regions)
@@ -130,7 +152,8 @@
   gaps <- subtractBed(regions[, .(seqnames, start, end)],
                       var)
   gaps[, score:= as.numeric(0)]
-  var <- rbind(var, gaps, fill = TRUE)
+  if(nrow(gaps))
+    var <- rbind(var, gaps, fill = TRUE)
   # Clip score based on cutoffs
   if(is.na(track.cutoff.min))
     track.cutoff.min <- min(c(0, var$score))
@@ -141,7 +164,7 @@
   # Compute range
   score.range <- track.cutoff.max-track.cutoff.min
   # Simplify signal (nbreaks)
-  if(!is.na(bw.n.breaks)) {
+  if(is.na(nbins) && !is.na(bw.n.breaks)) {
     breaks <- score.range/bw.n.breaks
     var[, score:= round(score/breaks)*breaks]
     var <- var[, .(start= start[1], end= end[.N]), .(seqnames, score, rleid(score))]
@@ -175,38 +198,64 @@
          lwd= 0,
          las= 1)
   }
-  # Compute polygons and plot ----
+  # Clip/bin signal, smooth and plot ----
   regions[, {
     # Clip Polygons to region
     poly <- clipBed(var, .SD)
+    
+    # Bin signal
+    if(!is.na(nbins)) {
+      # Bin window
+      binned <- binBed(.SD, nbins = nbins)
+      # Overlap
+      ov <- overlapBed(binned, poly)
+      ov[, seqnames:= binned$seqnames[idx.a]]
+      ov[, start:= binned$start[idx.a]]
+      ov[, end:= binned$end[idx.a]]
+      ov[, ypos:= poly$ypos[idx.b]]
+      # Average
+      poly <- ov[, .(ypos= sum(ypos*overlap.width)/sum(overlap.width)), .(idx= idx.a, start, end)]
+    }
+    
+    # If there is signal to plot
     if(nrow(poly)) {
       poly[, idx:= .I]
-      poly <- poly[, .(coor= c(start, end), ypos), idx]
-
+      
+      # No interpolation (old)
+      # poly <- poly[, .(coor= c(start, end), ypos), idx]
+      
+      # Interpolate values (smoothing)
+      poly <- poly[, .(coor= rowMeans(.SD), ypos), idx, .SDcols= c("start", "end")]
+      
       # Scale polygons
       poly$coor <- (poly$coor-start)/width*diff(c(xleft, xright))+xleft
-
+      
       # Plot polygons
       poly[, {
-        polygon(c(xleft, coor, xright),
-                c(baseline, ypos, baseline),
-                col= track.col,
-                border= NA)
+        polygon(
+          c(xleft, coor, xright),
+          c(baseline, ypos, baseline),
+          col= track.col,
+          border= border.col,
+          lwd= border.lwd
+        )
       }]
     }
   }, region.idx]
 }
 
 # Method to plot bed file in bwScreenshot----
-.screenshotBedMethod <- function(regions,
-                                 track.file,
-                                 track.col,
-                                 track.height,
-                                 track.name,
-                                 ybottom,
-                                 ytop,
-                                 border.col,
-                                 border.lwd)
+.screenshotBedMethod <- function(
+    regions,
+    track.file,
+    track.col,
+    track.height,
+    track.name,
+    ybottom,
+    ytop,
+    border.col,
+    border.lwd
+)
 {
   # Import bed
   var <- importBed(track.file)
@@ -260,9 +309,9 @@
       current$start <- (current$start-start)/width*diff(c(xleft, xright))+xleft
       current$end <- (current$end-start)/width*diff(c(xleft, xright))+xleft
       # Only keep the gene symbol for the lowest transcript on the plot
-      current[type=="mRNA", symbol:= ifelse(y<max(y), NA, symbol), symbol]
+      current[type=="transcript", symbol:= ifelse(y<max(y), NA, symbol), symbol]
       # Plot gene bodies (segments)
-      current[type=="mRNA", {
+      current[type=="transcript", {
         segments(start,
                  (ytop+ybottom)/2,
                  end,

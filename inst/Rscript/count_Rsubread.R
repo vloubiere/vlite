@@ -40,15 +40,17 @@ GTF.attrType.extra <- if(length(args)==7)
     NULL
 
 # Count ----
-.c <- Rsubread::featureCounts(files= bam,
-                              annot.ext= annot.ext,
-                              isGTFAnnotationFile = isGTFAnnotationFile,
-                              GTF.featureType= "exon",
-                              GTF.attrType= "gene_id",
-                              GTF.attrType.extra= if(isGTFAnnotationFile) GTF.attrType.extra else NULL,
-                              allowMultiOverlap = allowMultiOverlap,
-                              isPairedEnd = layout=="PAIRED",
-                              nthreads = max(c(1, data.table::getDTthreads()-1)))
+.c <- Rsubread::featureCounts(
+  files= bam,
+  annot.ext= annot.ext,
+  isGTFAnnotationFile = isGTFAnnotationFile,
+  GTF.featureType= "exon",
+  GTF.attrType= "gene_id",
+  GTF.attrType.extra= if(isGTFAnnotationFile) GTF.attrType.extra else NULL,
+  allowMultiOverlap = allowMultiOverlap,
+  isPairedEnd = layout=="PAIRED",
+  nthreads = max(c(1, data.table::getDTthreads()-1))
+)
 
 # Save statistics ----
 count_stats <- .c$stat
