@@ -2,9 +2,23 @@ setwd("/zssd/scratch/vincent.loubiere/vlite/")
 devtools::load_all("./")
 
 # Development --------------------------------------------------------------------------------------------
+## hicScreenshot ----
+file.edit("R/hicScreenshot.R")
+## vl_fisher_test ----
+file.edit("R/vl_fisher.R")
 ## Hilbert curves ----
 file.edit("R/vl_hilbertCurves.R")
 file.edit("R/HelperFunctions_hilbertCurves.R")
+## iCistarget genes method ----
+file.edit("R/vl_iCisTarget.genes.R")
+## Microscopy ----
+file.edit("R/getMetadataImage.R")
+file.edit("R/importImage.R")
+file.edit("R/clipImage.R")
+file.edit("R/maxProjectionImage.R")
+file.edit("R/compositeImage.R")
+file.edit("R/bindImage.R")
+file.edit("R/saveImage.R")
 
 # Needs to be checked ------------------------------------------------------------------------------------
 ## PWM manipulation tools ----

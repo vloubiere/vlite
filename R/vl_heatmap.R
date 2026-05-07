@@ -13,7 +13,8 @@
 #' @param cluster.cols Similar to cluster.rows but for columns (of note, 'matrix' option is not available here).
 #' Default= FALSE.
 #' @param kmeans.k Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).
-#' @param som.grid Vector of two integers specifying the size of the grid to use for SOM-based clustering (see ?somClustering). Default= NULL.
+#' @param som.grid Vector of two integers specifying the size of the grid to use for SOM-based clustering, using the default
+#' parameters specific in ?somClustering. Default= NULL.
 #' @param order.cl Should clusters be ordered from top left to bottom right? Default= FALSE.
 #' @param breaks A numeric vector specifying the breakpoints for color mapping.
 #'   Can either be the length of col (centered breaks) or one element longer (in which case breaks will correspond to edges).

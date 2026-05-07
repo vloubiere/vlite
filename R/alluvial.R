@@ -68,6 +68,7 @@ alluvial <- function(x,
                      ylim= NULL,
                      xaxt= "s",
                      yaxt= "s",
+                     tilt.names= TRUE,
                      show.labels= TRUE,
                      labels.pos= "center",
                      labels.min.N= 0,
@@ -78,12 +79,12 @@ alluvial <- function(x,
 {
   # Copy for encapsulation
   dat <- data.table::copy(x)
-
+  
   # Check ordering
   if(keep.order)
     dat[, (names(dat)) := lapply(.SD, function(x) factor(x, unique(x)))]
   setorderv(dat, names(dat))
-
+  
   # Checks
   if(length(bars.widths)!=ncol(dat))
     bars.widths <- rep(bars.widths, length.out= ncol(dat))
@@ -93,7 +94,7 @@ alluvial <- function(x,
   if(is.null(ylim))
     ylim <- c(0,
               nrow(dat)+max(sapply(dat, data.table::uniqueN)-1)*space)
-
+  
   # Initiate plot
   plot(NA,
        xlim= xlim,
@@ -104,19 +105,28 @@ alluvial <- function(x,
        xlab= xlab,
        ylab= ylab)
   if(xaxt!="n") {
-    axis(1,
-         at = seq(dat),
-         labels = names(dat),
-         lwd = 0,
-         padj= -1.25)
+    if(tilt.names) {
+      vlite::tiltAxis(
+        x = seq(dat),
+        labels = names(dat)
+      )
+    } else {
+      axis(
+        1,
+        at = seq(dat),
+        labels = names(dat),
+        lwd = 0,
+        padj= -1.25
+      )
+    }
   }
-
+  
   # Initiate labels (plotted last)
   labs <- data.table(x= numeric(),
                      y= numeric(),
                      N= numeric(),
                      lab= character())
-
+  
   # For each column
   for(i in 1:ncol(dat)) {
     # Make 2-columns object
@@ -126,29 +136,29 @@ alluvial <- function(x,
       dat[, c(i, i), with= FALSE]
     setnames(.c, c("V1", "V2"))
     setorderv(.c, c("V1", "V2"), c(-1, -1))
-
+    
     # Compute colors based on 1st category
     .c[, col:= colorRampPalette(col)(.NGRP)[.GRP], V1]
-
+    
     # Compute boxes limits coordinates
     .c[, top0:= max(.I)+(.GRP-1)*space, V1]
     .c[, top0:= top0+(ylim[2]-max(top0))/2]
     .c[, bot0:= top0-.N, V1]
-
+    
     # Compute left connections top coordinates
     .c[, top1:= max(.I), .(V1, V2)]
     .c[, top1:= top1+(.GRP-1)*space, V1]
     .c[, top1:= top1+(ylim[2]-max(top1))/2]
-
+    
     # Compute right connections top coordinates
     setorderv(.c, "V2", -1)
     .c[, top2:= max(.I), .(V2, V1)]
     .c[, top2:= top2+(.GRP-1)*space, V2]
     .c[, top2:= top2+(ylim[2]-max(top2))/2]
-
+    
     # Compute connection height
     .c[, h:= .N, .(V1, V2)]
-
+    
     # Plot Categories
     .c[, {
       rect(xleft= i-bars.widths[i],
@@ -158,7 +168,7 @@ alluvial <- function(x,
            border= border,
            col= adjustcolor(col[1], alpha.f = alpha.categories))
     }, .(top0, bot0, col)]
-
+    
     # Retrieve labels
     .l <- .c[, {
       .(x= ifelse(labels.pos=="right", i+bars.widths[i], i),
@@ -167,7 +177,7 @@ alluvial <- function(x,
     }, .(lab= V1, top0, bot0)]
     .l$top0 <- .l$bot0 <- NULL
     labs <- rbind(labs, .l)
-
+    
     # Plot connections
     if(i<ncol(dat)) {
       .c[, {
@@ -185,7 +195,7 @@ alluvial <- function(x,
       }, .(top1, top2, h, col)]
     }
   }
-
+  
   # Plot labels
   if(show.labels && any(labs$N>=labels.min.N)) {
     labs[N>=labels.min.N, {

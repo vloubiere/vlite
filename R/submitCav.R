@@ -20,6 +20,9 @@ submitCav <- function(
     wdir= getwd()
 )
 {
+  # Checks ----
+  stopifnot(length(name)==1)
+  
   # Check if output files exist ----
   if(!overwrite)
     cmd <- cmd[is.na(path) | !file.exists(path)]

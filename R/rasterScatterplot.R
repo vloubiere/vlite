@@ -28,6 +28,7 @@ rasterScatterplot <- function(x,
                               yaxt= "s",
                               xaxs= "r",
                               yaxs= "r",
+                              axes= T,
                               add= F,
                               tmpdir= tempdir(),
                               ...)
@@ -44,8 +45,9 @@ rasterScatterplot <- function(x,
          yaxt= yaxt,
          xaxs= xaxs,
          yaxs= yaxs,
+         axes= axes,
          ...)
-    if(xaxt!="n")
+    if(axes && xaxt!="n")
       axis(1, padj= -1.25)
   }
 

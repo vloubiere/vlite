@@ -6,6 +6,7 @@
 #' @param fq.prefix Prefix shared between input fastq files: '/path/to/fastq/prefix'.
 #' cellranger will only search for file names matching 'prefix_S*_L.*'.
 #' @param index Path to the Cell Ranger reference transcriptome. e.g.: '/groups/stark/vloubiere/genomes/Drosophila_melanogaster/cellranger_dm6_TG/index/'
+#' @param force.N.cells Force pipeline to use this number of cells, bypassing cell calling algorithm (minimum= 10). Default= NA.
 #' @param GEX.multiome Do the fastq files correspond to the GEX part of a multiome experiment? Default= F
 #' @param output.prefix Prefix for output files.
 #' @param output.folder Directory where output files will be saved. Default= 'db/scRNASeq_10X/'.
@@ -24,6 +25,7 @@
 cmd_alignCellRanger <- function(
     fq.prefix,
     index,
+    force.N.cells= NA,
     GEX.multiome= FALSE,
     output.prefix,
     output.folder= "db/scRNASeq_10X/",
@@ -64,6 +66,11 @@ cmd_alignCellRanger <- function(
   # To analyze only the GEX part of a multiome dataset ----
   if(GEX.multiome)
     cmd <- paste0(cmd, " --chemistry=ARC-v1")
+  
+  # If force number of cells ----
+  if(!is.na(force.N.cells))
+    cmd <- paste0(cmd, " --force-cells=", force.N.cells)
+  
   
   # Wrap commands output ----
   cmd <- data.table(

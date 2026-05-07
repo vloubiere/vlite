@@ -70,7 +70,11 @@ heatmap.get.clusters <- function(dim= "row",
     } else if(!is.null(som.grid)) {
       
       # Self-organizing maps ----
-      som.model <- vlite::somClustering(layers = x, grid = som.grid, init.seed = cluster.seed)
+      som.model <- vlite::somClustering(
+        layers = x,
+        grid = som.grid,
+        init.seed = cluster.seed
+      )
       obj[, cluster:= factor(som.model$unit.classif)]
       obj[, order:= order(cluster)]
       
@@ -143,7 +147,7 @@ heatmap.get.clusters <- function(dim= "row",
   
   # Compute dendrograms' plotting positions ----
   if(exists("dend") && is.null(order.cl)) {
-      
+    
     # interpolate cluster gaps
     dend[, s.start := {
       start <- obj$pos[floor(x)]

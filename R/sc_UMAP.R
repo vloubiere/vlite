@@ -53,7 +53,7 @@ sc_UMAP <- function(umap,
   if(!all(c("cellID", "umap_1", "umap_2") %in% names(coor)))
     stop("umap should be a Seurat object or a data.table/matrix/data.frame containing columns 'cellID', 'umap_1', 'umap_2'")
   if(class(umap)[1]=="Seurat" && is.null(value.var))
-    value.var <- Idents(umap)
+    value.var <- Seurat::Idents(umap)
   if(class(umap)[1]!="Seurat" && is.null(value.var))
     stop("value.var is missing.")
 
@@ -136,7 +136,8 @@ sc_UMAP <- function(umap,
       col = adjustcolor(coor$col, transparency),
       xlab= "UMAP 1",
       ylab= "UMAP 2",
-      pch= pch
+      pch= pch,
+      axes= F
     )
   }
 

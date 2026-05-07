@@ -146,7 +146,7 @@
   var <- rtracklayer::import.bw(track.file, selection= sel)
   var <- data.table::as.data.table(var)
   var <- var[, .(seqnames, start, end, score)]
-  # Rplace NAs with 0
+  # Replace NAs with 0
   var[is.na(score), score:= 0]
   # Fill gaps with 0s
   gaps <- subtractBed(regions[, .(seqnames, start, end)],
@@ -164,7 +164,7 @@
   # Compute range
   score.range <- track.cutoff.max-track.cutoff.min
   # Simplify signal (nbreaks)
-  if(is.na(nbins) && !is.na(bw.n.breaks)) {
+  if(is.null(nbins) && !is.null(bw.n.breaks)) {
     breaks <- score.range/bw.n.breaks
     var[, score:= round(score/breaks)*breaks]
     var <- var[, .(start= start[1], end= end[.N]), .(seqnames, score, rleid(score))]
@@ -204,7 +204,7 @@
     poly <- clipBed(var, .SD)
     
     # Bin signal
-    if(!is.na(nbins)) {
+    if(!is.null(nbins)) {
       # Bin window
       binned <- binBed(.SD, nbins = nbins)
       # Overlap
@@ -261,7 +261,7 @@
   var <- importBed(track.file)
   var[, score:= 1]
   # Check with of regions to plot
-  if(any(var[,end-start]==0) & is.na(border.col))
+  if(any(var[,end-start]==0) & is.null(border.col))
     warning("Some regions in bed file(s) are width 1 and might not appear because border.col is set to NA. Consider border.col= 'black'")
   # Plot
   regions[, {
@@ -323,7 +323,7 @@
              pos= 1,
              offset= offset.symbol,
              cex= cex.symbol,
-             xpd= TRUE)
+             xpd= NA)
       }]
       # Plot exons (rectangles)
       current[type=="exon", {

@@ -51,6 +51,7 @@ heatkey <- function(breaks,
                     thickness= 0.75,
                     length= 4,
                     main= NA,
+                    log10.labels= F,
                     cex= 1)
 {
   # Checks ----
@@ -87,7 +88,11 @@ heatkey <- function(breaks,
     if(!is.null(labels))
       labels <- rev(labels)
   }
-
+  # Check log10 labels
+  if(log10.labels && !is.numeric(labels)) {
+    warning("Non-numeric labels -> log10.labels set to FALSE")
+    log10.labels <- FALSE
+  }
 
   # Compute line width and heigh (used as reference) ----
   line.width <- diff(grconvertX(c(0, 1), "line", "user"))
@@ -177,7 +182,7 @@ heatkey <- function(breaks,
   text(
     x= x1+xadj,
     y= y0+yadj,
-    labels = labels,
+    labels = if(log10.labels) 10^labels else labels,
     cex= cex*0.7,
     pos= ifelse(position=="top", 3, 4),
     xpd= NA,

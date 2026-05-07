@@ -68,8 +68,10 @@ cmd_alignRnaRsubread <- function(fq1,
     # Retrieve bowtie2 index
     genome.idx <- switch(
       genome,
-      "mm10"= "/groups/stark/vloubiere/genomes/Mus_musculus/subreadr_mm10/subreadr_mm10_index",
-      "dm6"= "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/subreadr_dm6/subreadr_dm6_index"
+      # "mm10"= "/groups/stark/vloubiere/genomes/Mus_musculus/subreadr_mm10/subreadr_mm10_index",
+      # "dm6"= "/groups/stark/vloubiere/genomes/Drosophila_melanogaster/subreadr_dm6/subreadr_dm6_index"
+      "mm10"= "/zssd/scratch/vincent.loubiere/genomes/Mus_musculus/subreadr_mm10/subreadr_mm10_index",
+      "dm6"= "/zssd/scratch/vincent.loubiere/genomes/Drosophila_melanogaster/subreadr_dm6/subreadr_dm6_index"
     )
   }
   if(is.null(genome))

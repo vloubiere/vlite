@@ -15,7 +15,8 @@
 MAplot <- function(data,
                    main= NA,
                    padj.cutoff= 0.05,
-                   log2FC.cutoff= log2(1.5))
+                   log2FC.cutoff= log2(1.5),
+                   ylim= NULL)
 {
   # Checks
   if(!is.data.table(data)){
@@ -48,12 +49,18 @@ MAplot <- function(data,
     # Clip
     clip <- quantile(log2FoldChange, c(0.001, 0.999))
     y <- log2FoldChange
-    y[y<clip[1]] <- clip[1]
-    y[y>clip[2]] <- clip[2]
+    if(is.null(ylim)) {
+      y[y<clip[1]] <- clip[1]
+      y[y>clip[2]] <- clip[2]
+    } else {
+      y[y<ylim[1]] <- ylim[1]
+      y[y>ylim[2]] <- ylim[2]
+    }
 
     # Plot
     plot(log10(baseMean),
          y,
+         ylim= ylim,
          col= adjustcolor(col, .5),
          pch= ifelse(y!=log2FoldChange, 17, 16),
          ylab= "PRO-Seq fold change (log2)",

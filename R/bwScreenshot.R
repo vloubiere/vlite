@@ -14,17 +14,19 @@
 #' @param track.names Function or character vector for track labels. Default extracts names
 #'   from file basenames.
 #' @param col Colors for tracks. Default is a grey gradient from grey60 to grey10.
-#' @param nbins The number of bins used to quantify the signal (overrides bw.n.breaks). Default= NA (no binning). 
+#' @param nbins The number of bins used to quantify the signal (overrides bw.n.breaks). Default= 500. 
 #' @param bw.max Maximum value at which bigwig coverage values will be clipped. Default= NA (no clipping).
 #' @param genome Genome assembly (e.g., "mm10", "dm6") for gene annotations.
 #'   If specified, nearby genes will be displayed.
 #' @param gtf Character path to a custom GTF file for custom gene annotations (alternative to the 'genome' parameter).
 #' @param sel.gene.symbols If specified, only selected gene symbols will be plotted. Default= NULL.
-#' @param border.col The color used for track borders. Default= NA.
-#' @param border.lwd The line width used for track borders. Default= 1.
+#' @param bw.border.col The color used for bw track borders. Default= NA.
+#' @param bw.border.lwd The line width used for bw track borders. Default= 1.
+#' @param bed.border.col The color used for bed track borders. Default= NA.
+#' @param bed.border.lwd The line width used for bed track borders. Default= 1.
 #' @param bw.min Minimum signal value at which bigwig coverage values will be clipped. Default= NA (no clipping).
 #' @param bw.n.breaks If nbins is set to NA, specifies the maximum number of levels to which the signal
-#' should be simplified to avoid polygons with too many points. Default= 100.
+#' should be simplified to avoid polygons with too many points. Default= NA.
 #' @param ngenes Integer. Number of nearest genes to display. Default = 1.
 #' @param cex.gene.symbol Size of gene symbols. Default = 1.
 #' @param offset.gene.symbol Vertical offset for gene symbols. Default= 1.
@@ -42,6 +44,7 @@
 #' @param space.height Vertical space between tracks. Default= 1.
 #' @param gene.height Height of gene tracks. Default= 1.
 #' @param gene.space.height Space between genes. Default= 1.
+#' @param show.scale.bar Should the scale bar be plotted? Default= T.
 #' @param add Should the plot beadded to the existing one? Default= FALSE.
 #'
 #' @return
@@ -87,10 +90,12 @@ bwScreenshot <- function(
     genome,
     gtf,
     sel.gene.symbols= NULL,
-    border.col= NA,
-    border.lwd= 1,
+    bed.border.col= NULL,
+    bed.border.lwd= 1,
+    bw.border.col= NULL,
+    bw.border.lwd= 1,
     bw.min= NA,
-    bw.n.breaks= 100,
+    bw.n.breaks= NULL,
     ngenes= 1,
     cex.gene.symbol= 1,
     offset.gene.symbol= 0.25,
@@ -108,11 +113,13 @@ bwScreenshot <- function(
     space.height= 1,
     gene.height= 1,
     gene.space.height= 1,
+    show.scale.bar= T,
     add= FALSE
 )
 {
   # Scale expansion factors ----
-  border.lwd <- border.lwd*.5
+  bw.border.lwd <- bw.border.lwd*.5
+  bed.border.lwd <- bed.border.lwd*.5
   cex.gene.symbol <- cex.gene.symbol*.7
   region.width <- region.width*100
   space.width <- space.width*30
@@ -124,7 +131,7 @@ bwScreenshot <- function(
   
   # Import bed regions ----
   regions <- vlite::importBed(bed = bed)[, .(seqnames, start, end)]
-  stopifnot(is.na(nbins) || min(regions[, end-start+1])>nbins)
+  stopifnot(is.null(nbins) || min(regions[, end-start+1])>nbins)
   # Add index, width and plot limits
   regions[, region.idx:= .I]
   regions[, width:= end-start+1]
@@ -148,6 +155,10 @@ bwScreenshot <- function(
       gtf.transcript.id= gtf.transcript.id
     )
   }
+  
+  # Check colors length ----
+  if(length(col)>length(tracks))
+    col <- col[1:length(tracks)]
   
   # Format tracks metadata table ----
   meta <- data.table(track.file= tracks,
@@ -219,8 +230,8 @@ bwScreenshot <- function(
           track.height= track.height[1],
           ybottom= ybottom[1],
           ytop= ytop[1],
-          border.col= border.col,
-          border.lwd= border.lwd
+          border.col= bw.border.col,
+          border.lwd= bw.border.lwd
         )
       }else if(track.class=="bed")
       {
@@ -233,34 +244,35 @@ bwScreenshot <- function(
           track.name= track.name[1],
           ybottom= ybottom[1],
           ytop= ytop[1],
-          border.col= border.col,
-          border.lwd= border.lwd
+          border.col= bed.border.col,
+          border.lwd= bed.border.lwd
         )
       }
       .SD
     }, track.idx]
   
   # Plot scale bar ----
-  regions[, {
-    # Compute ideal scale bar
-    bar <- 10^floor(log10(width))
-    x0 <- xright-(bar/width*(xright-xleft))
-    segments(x0,
-             par("usr")[4],
-             xright[1],
-             par("usr")[4],
-             xpd= T)
-    # Simplif label
-    bar <- if(bar>1e3)
-      paste0(bar/1000, "kb") else if(bar>1e6)
-        paste0(bar/1000, "Mb") else
-          paste(bar, "bp")
-    text((x0+xright)/2,
-         par("usr")[4],
-         bar,
-         pos= 3,
-         xpd= T)
-  }, .(width, xright)]
+  if(show.scale.bar)
+    regions[, {
+      # Compute ideal scale bar
+      bar <- 10^floor(log10(width))
+      x0 <- xright-(bar/width*(xright-xleft))
+      segments(x0,
+               par("usr")[4],
+               xright[1],
+               par("usr")[4],
+               xpd= T)
+      # Simplif label
+      bar <- if(bar>1e3)
+        paste0(bar/1000, "kb") else if(bar>1e6)
+          paste0(bar/1000, "Mb") else
+            paste(bar, "bp")
+      text((x0+xright)/2,
+           par("usr")[4],
+           bar,
+           pos= 3,
+           xpd= T)
+    }, .(width, xright)]
   
   
   # Plot genes if genome specified ----

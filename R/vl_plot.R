@@ -32,7 +32,7 @@ vl_plot <- function(x,
        xaxt= "n",
        frame= frame,
        ...)
-  if(xaxt!="n")
+  if(axes && xaxt!="n")
     axis(1,
          padj= -1.25)
 }
