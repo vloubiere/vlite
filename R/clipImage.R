@@ -16,10 +16,12 @@ clipImage <- function(im, clip= 0) {
       im[, , i, ] else
         im[, , i]
     
-    q <- quantile(as.numeric(.c), c(clip, 1 - clip))
-    .c <- (.c - q[1]) / diff(q)
-    .c[.c < 0] <- 0
-    .c[.c > 1] <- 1
+    if(!all(as.numeric(.c)==0)) {
+      q <- quantile(as.numeric(.c), c(clip, 1 - clip))
+      .c <- (.c - q[1]) / diff(q)
+      .c[.c < 0] <- 0
+      .c[.c > 1] <- 1
+    }
     
     if(length(dim(im)) == 4)
       im[, , i, ] <- .c else

@@ -68,7 +68,8 @@ Default= FALSE.}
 
 \item{kmeans.k}{Integer specifying the number of k-means clusters for rows. Defaults= NA (uses hierarchical clustering).}
 
-\item{som.grid}{Vector of two integers specifying the size of the grid to use for SOM-based clustering (see ?somClustering). Default= NULL.}
+\item{som.grid}{Vector of two integers specifying the size of the grid to use for SOM-based clustering, using the default
+parameters specific in ?somClustering. Default= NULL.}
 
 \item{order.cl}{Should clusters be ordered from top left to bottom right? Default= FALSE.}
 

@@ -7,6 +7,7 @@
 cmd_confidentPeaks(
   replicates.peaks.files,
   merge.peaks.file,
+  blacklisted.regions.bed = NULL,
   output.prefix,
   conf.peaks.output.folder = "db/peaks/",
   pdf.output.folder = "db/peaks/",
@@ -17,6 +18,8 @@ cmd_confidentPeaks(
 \item{replicates.peaks.files}{Vector of paths to replicate peak files in .narrowPeak or .broadPeak format.}
 
 \item{merge.peaks.file}{Path to the merged peak file in .narrowPeak or .broadPeak format.}
+
+\item{blacklisted.regions.bed}{Optional path to a list of blacklisted regions to remove. Default= NULL.}
 
 \item{output.prefix}{Prefix for the output file.}
 

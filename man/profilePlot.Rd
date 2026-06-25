@@ -4,12 +4,26 @@
 \alias{profilePlot}
 \title{Title}
 \usage{
-profilePlot(x, col, xlim = NULL, ylim = NULL, ...)
+profilePlot(
+  x,
+  col,
+  labels = NULL,
+  names = colnames(x),
+  ylab = "Variable",
+  xlim = NULL,
+  ylim = NULL,
+  main = NA,
+  ...
+)
 }
 \arguments{
 \item{x}{}
 
 \item{col}{}
+
+\item{labels}{labels to be added to the lines (right part of the plot).}
+
+\item{names}{The condition names to be plotted below the x axis. Default= colnames(x).}
 
 \item{xlim}{}
 

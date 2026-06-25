@@ -12,6 +12,7 @@ vl_plot(
   col = adjustcolor("grey", 0.7),
   xaxt = "s",
   frame = F,
+  axes = T,
   ...
 )
 }
@@ -25,6 +26,10 @@ vl_plot(
 \item{col}{Default= adjustcolor("grey", .7)}
 
 \item{xaxt}{Default= "s"}
+
+\item{frame}{Default= F}
+
+\item{axes}{Default= T}
 }
 \description{
 A wrapper around ?plot with nicer default settings.

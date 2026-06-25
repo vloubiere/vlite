@@ -20,6 +20,7 @@ rasterScatterplot(
   yaxt = "s",
   xaxs = "r",
   yaxs = "r",
+  axes = T,
   add = F,
   tmpdir = tempdir(),
   ...

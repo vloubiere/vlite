@@ -7,23 +7,23 @@
 #'
 #' @param x A data.table where each column represents a categorical variable and each row is an entry (see examples).
 #' @param bars.widths Numeric vector specifying the width of the vertical bars. If a single value is provided,
-#'        it will be recycled for all columns. Default is 0.3
-#' @param col Vector of colors used for the color gradient of categories. Default is rainbow(12)
-#' @param xlab Character string for x-axis label. Default is "Categories"
-#' @param ylab Character string for y-axis label. Default is "N"
-#' @param keep.order Logical indicating whether to maintain the original order of factor levels. Default is FALSE
-#' @param border Color of the border for vertical bars. Default is "black"
-#' @param xlim Numeric vector of length 2 giving the x coordinate range. Default is NULL (automatically computed)
-#' @param ylim Numeric vector of length 2 giving the y coordinate range. Default is NULL (automatically computed)
-#' @param xaxt Character specifying x-axis type. Default is "n" (no axis)
-#' @param yaxt Character specifying y-axis type. Default is "s" (standard axis)
-#' @param show.labels Logical indicating whether to show category labels. Default is TRUE
+#'        it will be recycled for all columns. Default= 0.3
+#' @param col Vector of colors used for the color gradient of categories. Default= rainbow(12)
+#' @param xlab Character string for x-axis label. Default= "Categories"
+#' @param ylab Character string for y-axis label. Default= "N"
+#' @param border Color of the border for vertical bars. Default= "black"
+#' @param xlim Numeric vector of length 2 giving the x coordinate range. Default= NULL (automatically computed)
+#' @param ylim Numeric vector of length 2 giving the y coordinate range. Default= NULL (automatically computed)
+#' @param xaxt Character specifying x-axis type. Default= "n" (no axis)
+#' @param yaxt Character specifying y-axis type. Default= "s" (standard axis)
+#' @param show.labels Logical indicating whether to show category labels. Default= TRUE.
+#' @param add.numbers Logical indicating whether to show number of observations per category. Default= TRUE
 #' @param labels.min.N Numeric threshold for showing labels (only shows labels for categories with N >= labels.min.N).
-#'        Default is 0
-#' @param labels.cex Numeric scaling factor for label size. Default is 0.8
-#' @param alpha.categories Numeric value between 0 and 1 for the transparency of category bars. Default is 0.8
-#' @param alpha.connections Numeric value between 0 and 1 for the transparency of connecting polygons. Default is 0.5
-#' @param space Numeric value specifying the vertical space between category groups. Default is 0
+#'        Default= 0
+#' @param labels.cex Numeric scaling factor for label size. Default= 0.8
+#' @param alpha.categories Numeric value between 0 and 1 for the transparency of category bars. Default= 0.8
+#' @param alpha.connections Numeric value between 0 and 1 for the transparency of connecting polygons. Default= 0.5
+#' @param space Numeric value specifying the vertical space between category groups. Default= 0
 #'
 #' @return
 #' Creates a plot on the current graphics device. No value is returned.
@@ -62,7 +62,6 @@ alluvial <- function(x,
                      col= rainbow(12),
                      xlab= "Categories",
                      ylab= "N",
-                     keep.order= FALSE,
                      border= "black",
                      xlim= NULL,
                      ylim= NULL,
@@ -70,6 +69,7 @@ alluvial <- function(x,
                      yaxt= "s",
                      tilt.names= TRUE,
                      show.labels= TRUE,
+                     add.numbers= TRUE,
                      labels.pos= "center",
                      labels.min.N= 0,
                      labels.cex= .8,
@@ -77,33 +77,46 @@ alluvial <- function(x,
                      alpha.connections= .5,
                      space= 0)
 {
-  # Copy for encapsulation
+  # Copy for encapsulation ----
   dat <- data.table::copy(x)
   
-  # Check ordering
-  if(keep.order)
-    dat[, (names(dat)) := lapply(.SD, function(x) factor(x, unique(x)))]
+  # Convert to factors and order ----
+  if(!all(sapply(dat, is.factor))) {
+    all.lvls <- sort(unique(unlist(dat)))
+    dat <- dat[, lapply(.SD, factor, all.lvls)]
+  }
   setorderv(dat, names(dat))
   
-  # Checks
+  # Checks ----
   if(length(bars.widths)!=ncol(dat))
-    bars.widths <- rep(bars.widths, length.out= ncol(dat))
+    bars.widths <- rep(
+      bars.widths,
+      length.out= ncol(dat)
+    )
   if(is.null(xlim))
-    xlim <- c(1-data.table::first(bars.widths),
-              ncol(dat)+data.table::last(bars.widths))
+    xlim <- c(
+      1-data.table::first(bars.widths),
+      ncol(dat)+data.table::last(bars.widths)
+    )
   if(is.null(ylim))
-    ylim <- c(0,
-              nrow(dat)+max(sapply(dat, data.table::uniqueN)-1)*space)
+    ylim <- c(
+      0,
+      nrow(dat)+max(sapply(dat, data.table::uniqueN)-1)*space
+    )
   
-  # Initiate plot
-  plot(NA,
-       xlim= xlim,
-       ylim= ylim,
-       frame= FALSE,
-       yaxt= yaxt,
-       xaxt= "n",
-       xlab= xlab,
-       ylab= ylab)
+  # Initiate plot ----
+  plot(
+    NA,
+    xlim= xlim,
+    ylim= ylim,
+    frame= FALSE,
+    yaxt= yaxt,
+    xaxt= "n",
+    xlab= xlab,
+    ylab= ylab
+  )
+  
+  # Plot axes ----
   if(xaxt!="n") {
     if(tilt.names) {
       vlite::tiltAxis(
@@ -121,55 +134,61 @@ alluvial <- function(x,
     }
   }
   
-  # Initiate labels (plotted last)
-  labs <- data.table(x= numeric(),
-                     y= numeric(),
-                     N= numeric(),
-                     lab= character())
+  # Initiate object to store labels ----
+  labs <- data.table(
+    x= numeric(),
+    y= numeric(),
+    N= numeric(),
+    lab= character()
+  )
   
-  # For each column
+  # For each column to be plotted as a bar ----
   for(i in 1:ncol(dat)) {
-    # Make 2-columns object
-    .c <- if(i<ncol(dat)) {
+    
+    # Make 2-columns object connecting to the next column ----
+    .c <- if(i < ncol(dat)) {
       dat[, c(i, i+1), with= FALSE]
     } else
       dat[, c(i, i), with= FALSE]
     setnames(.c, c("V1", "V2"))
     setorderv(.c, c("V1", "V2"), c(-1, -1))
     
-    # Compute colors based on 1st category
-    .c[, col:= colorRampPalette(col)(.NGRP)[.GRP], V1]
+    # Compute colors based on 1st ('origin') column ----
+    Cc <- colorRampPalette(col)(length(levels(.c[[1]])))
+    .c[, col:= Cc[V1]]
     
     # Compute boxes limits coordinates
     .c[, top0:= max(.I)+(.GRP-1)*space, V1]
-    .c[, top0:= top0+(ylim[2]-max(top0))/2]
     .c[, bot0:= top0-.N, V1]
     
     # Compute left connections top coordinates
     .c[, top1:= max(.I), .(V1, V2)]
     .c[, top1:= top1+(.GRP-1)*space, V1]
-    .c[, top1:= top1+(ylim[2]-max(top1))/2]
     
     # Compute right connections top coordinates
     setorderv(.c, "V2", -1)
     .c[, top2:= max(.I), .(V2, V1)]
     .c[, top2:= top2+(.GRP-1)*space, V2]
-    .c[, top2:= top2+(ylim[2]-max(top2))/2]
     
     # Compute connection height
     .c[, h:= .N, .(V1, V2)]
     
-    # Plot Categories
+    # Plot category bars ----
     .c[, {
-      rect(xleft= i-bars.widths[i],
-           ybottom= bot0[1],
-           xright= i+bars.widths[i],
-           ytop= top0[1],
-           border= border,
-           col= adjustcolor(col[1], alpha.f = alpha.categories))
+      rect(
+        xleft= i-bars.widths[i],
+        ybottom= bot0[1],
+        xright= i+bars.widths[i],
+        ytop= top0[1],
+        border= border,
+        col= adjustcolor(
+          col[1],
+          alpha.f = alpha.categories
+        )
+      )
     }, .(top0, bot0, col)]
     
-    # Retrieve labels
+    # Retrieve and store labels ----
     .l <- .c[, {
       .(x= ifelse(labels.pos=="right", i+bars.widths[i], i),
         y= mean(c(top0, bot0)),
@@ -178,8 +197,8 @@ alluvial <- function(x,
     .l$top0 <- .l$bot0 <- NULL
     labs <- rbind(labs, .l)
     
-    # Plot connections
-    if(i<ncol(dat)) {
+    # Plot connections ----
+    if(i < ncol(dat)) {
       .c[, {
         # Define control points for bezier curves
         x <- c(i+bars.widths[i], i+1-bars.widths[i+1])
@@ -188,29 +207,44 @@ alluvial <- function(x,
         cp <- matrix(c(x,y), ncol= 2)
         curve <- bezier::bezier(t = seq(0, 1, length.out = 20), p = cp)
         # Plot connections polygon
-        polygon(c(curve[,1], rev(curve[,1])),
-                c(curve[,2], rev(curve[,2])-h),
-                border= NA,
-                col= adjustcolor(col[1], alpha.f = alpha.connections))
+        polygon(
+          c(curve[,1], rev(curve[,1])),
+          c(curve[,2], rev(curve[,2])-h),
+          border= NA,
+          col= adjustcolor(
+            col[1],
+            alpha.f = alpha.connections
+          )
+        )
       }, .(top1, top2, h, col)]
     }
   }
   
-  # Plot labels
-  if(show.labels && any(labs$N>=labels.min.N)) {
-    labs[N>=labels.min.N, {
+  # If labels should be plotted ----
+  if(show.labels && any(labs$N >= labels.min.N)) {
+    
+    # Add numbers to labels ----
+    if(add.numbers)
+      labs[, lab:= paste0(lab, "\n(", formatC(N, big.mark = ","), ")")]
+    
+    # Plot ----
+    labs[N >= labels.min.N, {
       if(labels.pos=="right") {
-        text(x,
-             y,
-             lab,
-             cex= labels.cex,
-             pos = 4,
-             xpd= TRUE)
+        text(
+          x,
+          y,
+          lab,
+          cex= labels.cex,
+          pos = 4,
+          xpd= TRUE
+        )
       } else {
-        text(x,
-             y,
-             lab,
-             cex= labels.cex)
+        text(
+          x,
+          y,
+          lab,
+          cex= labels.cex
+        )
       }
     }]
   }

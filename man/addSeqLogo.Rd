@@ -2,54 +2,44 @@
 % Please edit documentation in R/addSeqLogo.R
 \name{addSeqLogo}
 \alias{addSeqLogo}
-\title{Add ICM logos to an existing plot}
+\title{Plot logo from a numeric matrix}
 \usage{
 addSeqLogo(
-  ICM,
-  sel = NULL,
-  x = NULL,
-  y = NULL,
-  pos = 2,
+  mat,
+  x = 0,
+  y = 0,
+  width = 1,
+  pos = 4,
   cex.width = 1,
-  cex.height = 1
+  cex.height = 1,
+  ...
 )
 }
 \arguments{
-\item{ICM}{A list of ICMs to be plotted.}
+\item{mat}{A matrix (or a TFBSTools PFMatrix, PWMatrix or ICMatrix) with rows 'A', 'C', 'G', 'T'.}
 
-\item{sel}{Indices or names of the ICM that should be plotted. Should match the length of x and y.
-Default= NULL.}
+\item{...}{Extra parameters for the plot function.}
 
-\item{x}{x positions (see pos argument).}
+\item{name}{The name of the motif which will be added as a title.}
 
-\item{y}{y positions (centered).}
+\item{xlab}{xlab. Default= "Index".}
 
-\item{pos}{Either 2 (left) of 4 (right)}
+\item{ylab}{ylab. Default= "Frequency".}
 
-\item{cex.width}{width expansion factor.}
+\item{xlim}{xlim for the plot. Default= NULL.}
 
-\item{cex.height}{height expansion factor.}
-
-\item{min.content}{Flanks with a smaller summed content are not plotted.}
+\item{ylim}{ylim for the plot. Default= NULL.}
 }
 \description{
-plot seqlogo from pwm matrix
+Generic function that plots a logo out of an arbitrary numeric matrix.
 }
 \examples{
-# Retrieve br motif
+# Select br PPM
 pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-ICM <- importJASPAR(pfm.file)$ICM
+PPM <- importJASPAR(pfm.file, pseudocount = 0)$PPM[["br"]]
 
 # Plot
-plot(0, 1, type= "n")
-addSeqLogo(
-ICM, 
-x = -1,
-y= seq(0.8, 1.2, .2),
-sel= c("br", "dl", "Eip74EF"),
-cex.height = 1.5,
-cex.width = 1, 
-pos= 2
-)
+vl_par()
+addSeqLogo(PPM, name= "br")
 
 }

@@ -7,8 +7,9 @@
 somClustering(
   layers,
   grid = c(2, 3),
-  clip.perc = c(0, 1),
-  scale = FALSE,
+  clip.perc = NULL,
+  clip.per.column = TRUE,
+  scale.layers = FALSE,
   user.weights = NULL,
   normalizeDataLayers = TRUE,
   init.seed = 1,
@@ -18,23 +19,31 @@ somClustering(
 \arguments{
 \item{layers}{Either a matrix or a list of matrices to cluster.}
 
-\item{grid}{The size of the grid. Default= c(2,3).}
+\item{grid}{The size of the grid. Default= c(2, 3).}
 
-\item{clip.perc}{An integer vector of length 2 (or a list of such vectors) specifying the upper and lower 
-percentile used to clip numeric layers data before clustering (ignored for characters/factors categorical layers).
-Default= NULL, meaning no clipping is performed.}
+\item{clip.perc}{An integer vector of length 2 (or a list of length(layers)) specifying the upper and lower 
+percentile (between [0-1]) used for the clipping of numeric layers prior to scaling and clustering. Ignored for
+character/factor categorical layers. Default= NULL, meaning no clipping is performed.}
 
-\item{scale}{Should numeric layers be scaled (z-scored) before clustering? Default= FALSE.}
+\item{clip.per.column}{If set to FALSE, clipping will be performed matrix-wide. Default= TRUE.}
 
-\item{user.weights}{User-defined weights for the different layers. Length should be match the length of layers' list. Default= 1 for all layers.}
+\item{scale.layers}{A boolean value (or a vector of length(layers)) specifying whether numeric layers should be
+scaled (z-scored) per column after clipping and prior to clustering. Setting it to TRUE will emphasizes patterns
+between conditions/columns, while keeping it to FALSE (default) emphasizes differences in magnitude. Ignored for
+character/factor categorical layers. Default= FALSE.}
 
-\item{normalizeDataLayers}{Boolean indicating whether distance.weights should be calculated (see details section).
-If set to FALSE, user weights are applied to the data immediately. Default= TRUE.}
+\item{user.weights}{User-defined weights for the different layers. Length should be match the length of layers' list.
+Default= 1 for all layers.}
 
-\item{init.seed}{Seed used for random initialization/}
+\item{normalizeDataLayers}{Boolean indicating whether distance.weights should be calculated, in order to avoid some
+layers to overwhelm others, simply because of the scale of the data points. If set to TRUE, these distance.weights
+are applied first, and user weights are applied on top. If set to FALSE, user weights are applied to the data immediately.
+Default= TRUE.}
+
+\item{init.seed}{Seed used for random initialization.}
 
 \item{maxNA.fraction}{The maxNA fraction tolerated for a given line. Default= 0L.}
 }
 \description{
-A wrapper around the som kohonen function to allow quick tests.
+Wrapper around kohonen::supersom for quick SOM clustering of matrices..
 }

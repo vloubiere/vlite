@@ -10,13 +10,14 @@ alluvial(
   col = rainbow(12),
   xlab = "Categories",
   ylab = "N",
-  keep.order = FALSE,
   border = "black",
   xlim = NULL,
   ylim = NULL,
   xaxt = "s",
   yaxt = "s",
+  tilt.names = TRUE,
   show.labels = TRUE,
+  add.numbers = TRUE,
   labels.pos = "center",
   labels.min.N = 0,
   labels.cex = 0.8,
@@ -29,38 +30,38 @@ alluvial(
 \item{x}{A data.table where each column represents a categorical variable and each row is an entry (see examples).}
 
 \item{bars.widths}{Numeric vector specifying the width of the vertical bars. If a single value is provided,
-it will be recycled for all columns. Default is 0.3}
+it will be recycled for all columns. Default= 0.3}
 
-\item{col}{Vector of colors used for the color gradient of categories. Default is rainbow(12)}
+\item{col}{Vector of colors used for the color gradient of categories. Default= rainbow(12)}
 
-\item{xlab}{Character string for x-axis label. Default is "Categories"}
+\item{xlab}{Character string for x-axis label. Default= "Categories"}
 
-\item{ylab}{Character string for y-axis label. Default is "N"}
+\item{ylab}{Character string for y-axis label. Default= "N"}
 
-\item{keep.order}{Logical indicating whether to maintain the original order of factor levels. Default is FALSE}
+\item{border}{Color of the border for vertical bars. Default= "black"}
 
-\item{border}{Color of the border for vertical bars. Default is "black"}
+\item{xlim}{Numeric vector of length 2 giving the x coordinate range. Default= NULL (automatically computed)}
 
-\item{xlim}{Numeric vector of length 2 giving the x coordinate range. Default is NULL (automatically computed)}
+\item{ylim}{Numeric vector of length 2 giving the y coordinate range. Default= NULL (automatically computed)}
 
-\item{ylim}{Numeric vector of length 2 giving the y coordinate range. Default is NULL (automatically computed)}
+\item{xaxt}{Character specifying x-axis type. Default= "n" (no axis)}
 
-\item{xaxt}{Character specifying x-axis type. Default is "n" (no axis)}
+\item{yaxt}{Character specifying y-axis type. Default= "s" (standard axis)}
 
-\item{yaxt}{Character specifying y-axis type. Default is "s" (standard axis)}
+\item{show.labels}{Logical indicating whether to show category labels. Default= TRUE.}
 
-\item{show.labels}{Logical indicating whether to show category labels. Default is TRUE}
+\item{add.numbers}{Logical indicating whether to show number of observations per category. Default= TRUE}
 
 \item{labels.min.N}{Numeric threshold for showing labels (only shows labels for categories with N >= labels.min.N).
-Default is 0}
+Default= 0}
 
-\item{labels.cex}{Numeric scaling factor for label size. Default is 0.8}
+\item{labels.cex}{Numeric scaling factor for label size. Default= 0.8}
 
-\item{alpha.categories}{Numeric value between 0 and 1 for the transparency of category bars. Default is 0.8}
+\item{alpha.categories}{Numeric value between 0 and 1 for the transparency of category bars. Default= 0.8}
 
-\item{alpha.connections}{Numeric value between 0 and 1 for the transparency of connecting polygons. Default is 0.5}
+\item{alpha.connections}{Numeric value between 0 and 1 for the transparency of connecting polygons. Default= 0.5}
 
-\item{space}{Numeric value specifying the vertical space between category groups. Default is 0}
+\item{space}{Numeric value specifying the vertical space between category groups. Default= 0}
 }
 \value{
 Creates a plot on the current graphics device. No value is returned.

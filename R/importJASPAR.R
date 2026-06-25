@@ -67,12 +67,22 @@ importJASPAR <- function(combinedFile,
                            type = "prob",
                            pseudocounts = pseudocount,
                            bg = bg)
+  PPM <- lapply(seq_along(PPM), function(i) {
+    x <- PPM[[i]]
+    x@matrixClass <- "prob"
+    x
+  })
 
   # Convert to PWM ----
   PWM  <- TFBSTools::toPWM(x= PFM,
                            type = "log2probratio",
                            pseudocounts = pseudocount,
                            bg = bg)
+  PWM <- lapply(seq_along(PWM), function(i) {
+    x <- PWM[[i]]
+    x@matrixClass <- "log2probratio"
+    x
+  })
 
   # Convert to ICM ----
   ICM  <- TFBSTools::toICM(x= PFM,

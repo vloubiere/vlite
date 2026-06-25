@@ -56,7 +56,8 @@ cmd_downloadSRA <- function(SRR,
   }
 
   # Download command ----
-  cmd <- "module load build-env/f2022; module load sra-toolkit/3.1.1-centos_linux64; fasterq-dump"
+  # cmd <- "module load build-env/f2022; module load sra-toolkit/3.1.1-centos_linux64; fasterq-dump"
+  cmd <- "fasterq-dump"
   if(layout=="PAIRED")
     cmd <- paste(cmd, "--split-files")
   cmd <- paste(cmd, "--threads", threads, "--mem", mem, "--temp", tmp.folder, "--outdir", fq.output.folder, SRR)

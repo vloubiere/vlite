@@ -7,6 +7,7 @@
 cmd_alignCellRanger(
   fq.prefix,
   index,
+  force.N.cells = NA,
   GEX.multiome = FALSE,
   output.prefix,
   output.folder = "db/scRNASeq_10X/",
@@ -19,6 +20,8 @@ cmd_alignCellRanger(
 cellranger will only search for file names matching 'prefix_S*_L.*'.}
 
 \item{index}{Path to the Cell Ranger reference transcriptome. e.g.: '/groups/stark/vloubiere/genomes/Drosophila_melanogaster/cellranger_dm6_TG/index/'}
+
+\item{force.N.cells}{Force pipeline to use this number of cells, bypassing cell calling algorithm (minimum= 10). Default= NA.}
 
 \item{GEX.multiome}{Do the fastq files correspond to the GEX part of a multiome experiment? Default= F}
 

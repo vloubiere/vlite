@@ -2,12 +2,13 @@
 
 # Check whether required arguments are provided ----
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) != 4) {
+if (!length(args) %in% c(4, 5)) {
   stop("Usage:
        [required] 1/ replicates .narrowPeak files (comma separated) \n
        [required] 2/ merged .narrowPeak (or .broadPeak) file \n
        [required] 3/ output_file.narrowPeak (or .broadPeak) \n
-       [required] 4/ output_file.pdf path \n")
+       [required] 4/ output_file.pdf path \n
+       [required] 5/ An optional path to a bed file containing blacklisted region \n")
 }
 
 # Load packges ----
@@ -20,6 +21,9 @@ rep.files <- unlist(tstrsplit(args[1], ","))
 merged.file <- args[2]
 output.file <- args[3]
 pdf.file <- args[4]
+blacklisted.regions.bed <- if(length(args)==5)
+  as.character(args[5]) else
+    NULL
 
 # Import replicates peaks ----
 reps <- lapply(rep.files, function(x) {
@@ -36,6 +40,17 @@ col.names <- c("seqnames", "start", "end", "name", "score", "strand", "signalVal
 setnames(merge,
          col.names[1:ncol(merge)])
 merge[, start:= start+1] # 0 base to 1 base
+
+# Remove blacklisted regions ----
+if(!is.null(blacklisted.regions.bed)) {
+  blacklisted.regions <- importBed(blacklisted.regions.bed)
+  for(i in seq(reps)) {
+    clean <- blacklisted.regions[reps[[i]], .N, on= c("seqnames", "start<=end", "end>=start"), .EACHI]$N==0
+    reps[[i]] <- reps[[i]][(clean)]
+  }
+  clean <- blacklisted.regions[merge, .N, on= c("seqnames", "start<=end", "end>=start"), .EACHI]$N==0
+  merge <- merge[(clean)]
+}
 
 # Initiate plot ----
 pdf(pdf.file, 8, 4)

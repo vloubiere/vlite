@@ -31,15 +31,17 @@
 #' plot.vl_enr(enrichment_results, padj.cutoff = 0.01, top.enrich = 10, min.counts = 5)
 #'
 #' @export
-plot.vl_enr <- function(obj,
-                        log2OR.abs.cutoff= 0,
-                        padj.cutoff= 0.05,
-                        top.enrich= Inf,
-                        min.counts= 3L,
-                        order= "log2OR",
-                        xlab= "Odd Ratio (log2)",
-                        breaks= NULL,
-                        col= c("blue", "red"))
+plot.vl_enr <- function(
+    obj,
+    log2OR.abs.cutoff= 0,
+    padj.cutoff= 0.05,
+    top.enrich= Inf,
+    min.counts= 3L,
+    order= "log2OR",
+    xlab= "Odd Ratio (log2)",
+    breaks= NULL,
+    col= c("blue", "red")
+)
 {
   # Checks
   if(!all(c("name", "log2OR", "padj", "set_hit") %in% names(obj)))
@@ -48,11 +50,11 @@ plot.vl_enr <- function(obj,
     stop("Possible values for order are 'padj', 'log2OR'")
   if(any(obj[, .N, name]$N > 1))
     stop("Several lines were found with similar name.")
-
+  
   # Import and select based on padj and min.counts cutoff
   DT <- data.table::copy(obj)
-  DT <- DT[padj<=padj.cutoff & set_hit>=min.counts & abs(log2OR) >= abs(log2OR.abs.cutoff)]
-
+  DT <- DT[!is.na(name) & set_hit >= min.counts & padj <= padj.cutoff & abs(log2OR) >= abs(log2OR.abs.cutoff)]
+  
   # Checks
   if(any(is.infinite(DT$log2OR)))
     stop("Infinite enrichment values should be capped before plotting.")
@@ -60,18 +62,18 @@ plot.vl_enr <- function(obj,
     stop("Some padjust are equal to 0 and should be set to a minimum positive value before plotting.")
   if(!nrow(DT))
     stop("No enrichment found with current cutoffs!")
-
+  
   # Order
   if(order=="padj") {
     setorderv(DT, "padj")
   } else if(order=="log2OR") {
     DT <- DT[order(-abs(log2OR))]
   }
-
+  
   # Select top.enrich
   if(nrow(DT)>top.enrich)
     DT <- DT[seq(nrow(DT))<=top.enrich]
-
+  
   # Plot
   if(is.null(breaks))
   {
@@ -83,24 +85,28 @@ plot.vl_enr <- function(obj,
                   length.out= length(col))
   }
   Cc <- circlize::colorRamp2(breaks, colorRampPalette(col)(length(breaks)))
-
+  
   # Reorder by Log2OR before plotting
   setorderv(DT, "log2OR")
-
+  
   # Barplot
-  DT[, y:= barplot(log2OR,
-                   horiz= T,
-                   names.arg= name,
-                   border= NA,
-                   col= ifelse(padj>0.05, "lightgrey", Cc(-log10(padj))),
-                   las= 1,
-                   xlab= xlab)]
-
+  DT[, y:= barplot(
+    log2OR,
+    horiz= T,
+    names.arg= name,
+    border= NA,
+    col= ifelse(padj>0.05, "lightgrey", Cc(-log10(padj))),
+    las= 1,
+    xlab= xlab
+  )]
+  
   # Plot heatkey
-  heatkey(breaks = breaks,
-          col = Cc(breaks),
-          main = "p.adjust (-log10)")
-
+  heatkey(
+    breaks = breaks,
+    col = Cc(breaks),
+    main = "p.adjust (-log10)"
+  )
+  
   # Return
   invisible(DT)
 }

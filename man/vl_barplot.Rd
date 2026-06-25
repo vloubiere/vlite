@@ -2,37 +2,90 @@
 % Please edit documentation in R/vl_barplot.R
 \name{vl_barplot}
 \alias{vl_barplot}
-\title{Title}
+\title{vl_barplot}
 \usage{
 vl_barplot(
   x,
-  names.arg = NULL,
-  show.sd = TRUE,
-  show.points = TRUE,
-  beside = FALSE,
-  width = 0.6,
   xlim = NULL,
   ylim = NULL,
+  names.arg = NULL,
+  ylab = NA,
+  bar.height.FUN = function(x) round(x, 0.1),
+  bar.height.cex = 0.7,
   col = NULL,
-  sd.arrow.lwd = 0.5,
-  sd.arrow.length = width/5,
+  beside = FALSE,
+  width = 0.8,
+  space = NULL,
   pch = 16,
   pch.col = adjustcolor("grey20", 0.7),
   pch.cex = 0.5,
-  pch.jitter = 0.2,
+  pch.jitter = mean(width)/10,
   xaxt = "s",
-  xaxs = "i",
-  frame = F,
-  horiz = FALSE,
-  add = F,
-  xlab = "",
-  ylab = "",
-  ...
+  yaxt = "s",
+  sd.arrow.lwd = 0.5,
+  sd.arrow.length = width/10,
+  horiz = F,
+  add = F
 )
 }
 \arguments{
-\item{...}{}
+\item{x}{A vector, matrix, data.table or list of variables to plot. If a list is provided,
+then the bars will correspond to the mean of each sublists and individual points and
+standard deviation will be added.}
+
+\item{xlim}{Limits for the x axis.}
+
+\item{ylim}{Limits for the y axis.}
+
+\item{names.arg}{A vector of names to be plotted below each bar or group of bars.}
+
+\item{bar.height.FUN}{A function specifying how to process bar height before plotting. 
+If set to NULL, no value is plotted.}
+
+\item{bar.height.cex}{Bar height cex.}
+
+\item{col}{Color used for bars.}
+
+\item{beside}{If set to TRUE and x is a data.table or a matrix, columns are shown
+as juxtaposed bars. Default= FALSE.}
+
+\item{width}{Bar width should be smaller than 1. If beside= TRUE, then each group
+of bar will sum to this value. Default= 0.8.}
+
+\item{space}{Space between each bar. By default, it arranges them so tha they are regularly
+spaced and aligned on increasing integer indices.}
+
+\item{pch}{When x is a list, pch for the individual points.}
+
+\item{pch.col}{When x is a list, color for individual points.}
+
+\item{pch.cex}{When x is a list, cex for the individual points.}
+
+\item{pch.jitter}{When x is a list, jitter value for individual points.}
+
+\item{xaxt}{Default= "s".}
+
+\item{yaxt}{Default= "s".}
+
+\item{sd.arrow.lwd}{When x is a list, line width for the sd arrows.}
+
+\item{sd.arrow.length}{When x is a list, length of the sd arrow heads.}
+
+\item{horiz}{Should the plot be horizontal? Default= F.}
+
+\item{add}{Should the plot be added to an existing plot? Default= F.}
+}
+\value{
+Plots a nice barplot with regularly spaced bars align on integers.
 }
 \description{
-Title
+A wrapper around the barplot function where the bars are regularly spaced at round values.
+}
+\examples{
+vl_par(mfrow= c(2,2))
+vl_barplot(c("AAAAAA"=1, "B"=2, "C"=3), horiz = F)
+vl_barplot(c("A"=1, "B"=2, "C"=3), horiz = T)
+vl_barplot(matrix(1:6, nrow= 2), beside = T)
+vl_barplot(list(c(1,2,3), c(4,5,6), c(7,8,9)), beside = T, horiz= F)
+
 }

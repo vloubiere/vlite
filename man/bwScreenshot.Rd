@@ -10,21 +10,23 @@ bwScreenshot(
   track.names = function(x) gsub("(.*)[.].*$", "\\\\1", x),
   col = colorRampPalette(c("grey60", "grey10"))(length(tracks)),
   bw.max = NA,
-  nbins = 500,
+  show.bw.range = TRUE,
+  nbins = 1000,
   genome,
   gtf,
   sel.gene.symbols = NULL,
   border.col = NA,
   border.lwd = 1,
+  bw.border.col = NA,
+  bw.border.lwd = 1,
   bw.min = NA,
-  bw.n.breaks = 100,
   ngenes = 1,
   cex.gene.symbol = 1,
   offset.gene.symbol = 0.25,
   col.gene.ps = "tomato",
   col.gene.ns = "cornflowerblue",
   exon.border = NA,
-  gtf.transcript = "mRNA",
+  gtf.transcript = NULL,
   gtf.exon = "exon",
   gtf.symbol = "gene_symbol",
   gtf.transcript.id = "transcript_id",
@@ -35,6 +37,7 @@ bwScreenshot(
   space.height = 1,
   gene.height = 1,
   gene.space.height = 1,
+  show.scale.bar = T,
   add = FALSE
 )
 }
@@ -54,7 +57,9 @@ from file basenames.}
 
 \item{bw.max}{Maximum value at which bigwig coverage values will be clipped. Default= NA (no clipping).}
 
-\item{nbins}{The number of bins used to quantify the signal (overrides bw.n.breaks). Default= NA (no binning).}
+\item{show.bw.range}{Should the range of bw tracks be plotted? Default= TRUE.}
+
+\item{nbins}{The number of bins used to quantify the signal (per region). Default= 1000}
 
 \item{genome}{Genome assembly (e.g., "mm10", "dm6") for gene annotations.
 If specified, nearby genes will be displayed.}
@@ -69,9 +74,6 @@ If specified, nearby genes will be displayed.}
 
 \item{bw.min}{Minimum signal value at which bigwig coverage values will be clipped. Default= NA (no clipping).}
 
-\item{bw.n.breaks}{If nbins is set to NA, specifies the maximum number of levels to which the signal
-should be simplified to avoid polygons with too many points. Default= 100.}
-
 \item{ngenes}{Integer. Number of nearest genes to display. Default = 1.}
 
 \item{cex.gene.symbol}{Size of gene symbols. Default = 1.}
@@ -84,15 +86,13 @@ should be simplified to avoid polygons with too many points. Default= 100.}
 
 \item{exon.border}{Color for exon rectangle borders. Default = NA, meaning no border.}
 
-\item{gtf.transcript}{Character. Name of transcript features in the GTF file (default = "mRNA").}
+\item{gtf.transcript}{If specified, only features with the corresponding biotype will be plotted as transcripts. Default = NULL.}
 
-\item{gtf.exon}{Character. Name of exon features in the GTF file (default = "exon").}
+\item{gtf.exon}{Name of exon features in the GTF file (default = "exon").}
 
-\item{gtf.symbol}{Character. Name of the attribute containing gene symbols in the GTF file
-(default = "gene_symbol").}
+\item{gtf.symbol}{Name of the attribute containing gene symbols in the GTF file. Default = "gene_symbol".}
 
-\item{gtf.transcript.id}{Character. Name of the attribute containing transcript IDs in the GTF file
-(default = "transcript_id").}
+\item{gtf.transcript.id}{Name of the attribute containing transcript IDs in the GTF file. Default = "transcript_id".}
 
 \item{region.width}{Width of each genomic region. Default= 1.}
 
@@ -107,6 +107,8 @@ should be simplified to avoid polygons with too many points. Default= 100.}
 \item{gene.height}{Height of gene tracks. Default= 1.}
 
 \item{gene.space.height}{Space between genes. Default= 1.}
+
+\item{show.scale.bar}{Should the scale bar be plotted? Default= T.}
 
 \item{add}{Should the plot beadded to the existing one? Default= FALSE.}
 }

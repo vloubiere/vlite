@@ -29,8 +29,18 @@ gr <- rtracklayer::import(bdg.file, format = "bedGraph")
 if(scaling.factor!=1)
   gr$score <- gr$score/scaling.factor
 
-# Add seqLengths ----
+# Retrieve chromosome lenghts from specified genome ----
 chrLengths <- GenomeInfoDb::seqlengths(BSgenome::getBSgenome(genome))
+
+# Remove chromosomes that are not found in the genome ----
+# common.seqlevels <- intersect(seqlevels(gr), names(chrLengths))
+# gr <- GenomeInfoDb::keepSeqlevels(
+#   gr,
+#   value = common.seqlevels,
+#   pruning.mode = "coarse"
+# )
+
+# Add seqLengths ----
 seqlengths(gr) <- chrLengths[seqlevels(gr)]
 
 # Export as BigWig

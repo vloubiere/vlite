@@ -49,7 +49,14 @@ GTF.attrType.extra <- if(length(args)==7)
   GTF.attrType.extra= if(isGTFAnnotationFile) GTF.attrType.extra else NULL,
   allowMultiOverlap = allowMultiOverlap,
   isPairedEnd = layout=="PAIRED",
-  nthreads = max(c(1, data.table::getDTthreads()-1))
+  nthreads = max(c(1, data.table::getDTthreads()-1)),
+  # Default values
+  countMultiMappingReads = TRUE,
+  ignoreDup = FALSE, # Should duplicated reads be ignored?
+  countReadPairs = TRUE, # For paire-end reads, count fragments instead of reads
+  requireBothEndsMapped = FALSE, # When paired-end reads, only count fragments for which both mates are successfully mapped
+  checkFragLength = FALSE, # Should fragment length be checked before counting?
+  countChimericFragments = TRUE # Should chimeric fragments (two mates on different chr) be counted?
 )
 
 # Save statistics ----

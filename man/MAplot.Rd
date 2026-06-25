@@ -4,7 +4,13 @@
 \alias{MAplot}
 \title{Plots a nice MA plot}
 \usage{
-MAplot(data, main = NA, padj.cutoff = 0.05, log2FC.cutoff = log2(1.5))
+MAplot(
+  data,
+  main = NA,
+  padj.cutoff = 0.05,
+  log2FC.cutoff = log2(1.5),
+  ylim = NULL
+)
 }
 \arguments{
 \item{data}{Either a valid path to a '.txt' file or a data.table object corresponding

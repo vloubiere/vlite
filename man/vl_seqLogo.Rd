@@ -2,29 +2,46 @@
 % Please edit documentation in R/vl_seqLogo.R
 \name{vl_seqLogo}
 \alias{vl_seqLogo}
-\title{Plot PWM seqlogo}
+\title{Plot motif logo from a PFM, PPM or ICM matrix}
 \usage{
-vl_seqLogo(ICM, sel = 1, name = NULL, ...)
+vl_seqLogo(
+  mat,
+  name = NULL,
+  xlab = "Position",
+  ylab = NULL,
+  xlim = NULL,
+  ylim = NULL,
+  add = F,
+  ...
+)
 }
 \arguments{
-\item{ICM}{A TFBSTools ICMatrix or ICMatrixList.}
+\item{mat}{A matrix (or a TFBSTools PFMatrix, PWMatrix or ICMatrix) with rows 'A', 'C', 'G', 'T'.}
 
-\item{sel}{If ICM is an ICMatrixList, index or name of the ICM that should be plotted.
-Default= 1.}
+\item{name}{The name of the motif which will be added as a title.}
 
-\item{name}{Name of the motif to plot as a title. By default, the name stored in the ICM will be used.}
+\item{xlab}{xlab. Default= "Position".}
 
-\item{...}{Extra plotting parameters for the plot funciton.}
+\item{ylab}{ylab. Default= "Frequency" for PFMatrix, "Probability" for PWMatrix and "Bits" for ICMatrix.}
+
+\item{xlim}{xlim for the plot. Default= NULL.}
+
+\item{ylim}{ylim for the plot. Default= NULL.}
+
+\item{...}{Extra parameters for the plot function.}
 }
 \description{
-Plots an ICM after removing low information bases (see ICM schneider correction).
+Generic function that plots a motif logo out of a matrix.
 }
 \examples{
-# Import motifs ICMs
+# Select br PPM
 pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-ICM <- importJASPAR(pfm.file, pseudocount = 0)$ICM
+mot <- vlite::importJASPAR(pfm.file)
 
 # Plot
-vl_seqLogo(ICM, sel= "br")
+vl_par()
+vl_seqLogo(mot$PFM[[1]], name= "br")
+vl_seqLogo(mot$PPM[[1]], name= "br")
+vl_seqLogo(mot$ICM[[1]], name= "br")
 
 }

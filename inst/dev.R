@@ -24,9 +24,8 @@ file.edit("R/saveImage.R")
 ## PWM manipulation tools ----
 file.edit("R/importJASPAR.R") # Import a combined JASPAR file
 file.edit("R/plotDNAletter.R") # Helper function
-file.edit("R/vl_seqLogoMat.R") # Plot percentage or frequency matrix
-file.edit("R/vl_seqLogo.R") # Plot the logo of a given ICM
-file.edit("R/addSeqLogo.R") # Add logo to an existing plot
+file.edit("R/vl_seqLogo.R") # Plot a motif logo from PFM/PPM?ICM
+file.edit("R/addSeqLogo.R") # Adds logo to an existing plot
 
 # Stable functions ---------------------------------------------------------------------------------------
 ## Submit jobs ----
@@ -94,6 +93,7 @@ file.edit("R/importFq.R") # ?fread wrapper to quickly import fq files in R
 ## bamtools ----
 file.edit("R/importBam.R") # Import bam file in R (Rsamtools wrapper)
 file.edit("R/covBam.R") # Wrapper around bedtools coverage
+file.edit("R/cmd_filterBamChrs.R") # Filter bam files based on regexpr on seqnames
 
 ## BSgenomes tools ----
 file.edit("R/getBSsequence.R") # Wrapper around ?getSeq
@@ -167,6 +167,11 @@ file.edit("inst/Rscript/bam_to_bigwig.R") # R subscript
 ### BED to bigwig
 file.edit("R/cmd_bedToBigwig.R") # Wrapper
 file.edit("inst/Rscript/bed_to_bigwig.R") # R subscript
+
+## gDNA processing ----
+file.edit("R/dnaProcessing.R")
+file.edit("R/cmd_alignDnaRsubread.R")
+file.edit("inst/Rscript/align_dna_Rsubread.R") # R subscript
 
 ## RNA-Seq pipeline ----
 ### Pipeline
@@ -284,6 +289,7 @@ file.edit("R/addPval.R")
 file.edit("R/vl_plot.R")
 file.edit("R/rasterScatterplot.R")
 file.edit("R/addDensity.R")
+file.edit("R/ggrepelScatterplot.R")
 ### Profile plot
 file.edit("R/profilePlot.R")
 ### Add repel labels (imperfect, but the best I can do)
@@ -300,6 +306,7 @@ file.edit("R/balloons_plot.R")
 file.edit("R/MAplot.R")
 file.edit("R/plotTable.R")
 file.edit("R/upsetPlot.R")
+file.edit("R/volcanoPlot.R")
 
 ## Deeplearning tools ----
 ### Deep learning contrib

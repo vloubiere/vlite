@@ -79,11 +79,18 @@
   if(!gtf.exon %in% feat$type)
     warning("gtf.exon type is missing from the provided gtf file. No genes will be plotted.")
   
-  # Select transcripts with and id
+  # Remove transcripts with no id
   if(anyNA(feat$id)) {
-    rm <- feat[,is.na(id)]
-    print(paste0(sum(rm), " gtf entries with NA ", gtf.transcript.id, " were removed."))
+    feat[, {
+      print(
+        paste(
+          sum(is.na(id)), "/", .N, shQuote(type), "gtf entries with NA", gtf.transcript.id, "were removed."
+        )
+      )
+    }, type]
     feat <- feat[!is.na(id)]
+    if(length(unique(feat$type))<2)
+      warning("GTF: only one feature type was left after removing entries with NA.")
   }
   
   # Select specific transcripts if relevant
@@ -128,11 +135,11 @@
     regions,
     track.file,
     nbins,
-    bw.n.breaks,
     track.name,
     track.col,
     track.cutoff.min,
     track.cutoff.max,
+    show.bw.range,
     track.height,
     ybottom,
     ytop,
@@ -140,20 +147,33 @@
     border.lwd
 )
 {
-  # Import bw score
-  gr <- GenomicRanges::GRanges(regions)
-  sel <- rtracklayer::BigWigSelection(gr, "score")
-  var <- rtracklayer::import.bw(track.file, selection= sel)
-  var <- data.table::as.data.table(var)
-  var <- var[, .(seqnames, start, end, score)]
-  # Replace NAs with 0
-  var[is.na(score), score:= 0]
-  # Fill gaps with 0s
-  gaps <- subtractBed(regions[, .(seqnames, start, end)],
-                      var)
-  gaps[, score:= as.numeric(0)]
-  if(nrow(gaps))
-    var <- rbind(var, gaps, fill = TRUE)
+  if(is.null(nbins)) {
+    # Import bw score
+    gr <- GenomicRanges::GRanges(regions)
+    sel <- rtracklayer::BigWigSelection(gr, "score")
+    var <- rtracklayer::import.bw(track.file, selection= sel)
+    var <- data.table::as.data.table(var)
+    var <- var[, .(seqnames, start, end, score)]
+    # Replace NAs with 0
+    var[is.na(score), score:= 0]
+    # Fill gaps with 0s
+    gaps <- subtractBed(regions[, .(seqnames, start, end)],
+                        var)
+    gaps[, score:= as.numeric(0)]
+    if(nrow(gaps))
+      var <- rbind(var, gaps, fill = TRUE)
+    # Extract bins for each region
+    var <- regions[, {
+      # Clip Polygons to region
+      clipBed(var, .SD)
+    }, .(region.idx, width, xleft, xright)]
+  } else {
+    # Bin regions
+    var <- binBed(regions, nbins = nbins)
+    var[, score:= bwCoverage(var, track.file)]
+    var[is.na(score), score:= 0]
+    var <- var[, .(region.idx, width, xleft, xright, seqnames, start, end, score)]
+  }
   # Clip score based on cutoffs
   if(is.na(track.cutoff.min))
     track.cutoff.min <- min(c(0, var$score))
@@ -163,85 +183,51 @@
   var[score>track.cutoff.max, score:= track.cutoff.max]
   # Compute range
   score.range <- track.cutoff.max-track.cutoff.min
-  # Simplify signal (nbreaks)
-  if(is.null(nbins) && !is.null(bw.n.breaks)) {
-    breaks <- score.range/bw.n.breaks
-    var[, score:= round(score/breaks)*breaks]
-    var <- var[, .(start= start[1], end= end[.N]), .(seqnames, score, rleid(score))]
-  }
   # Scale signal for plotting
   var[, ypos:= (score-track.cutoff.min)/score.range]  # From 0 to 1
   var[, ypos:= ypos*track.height] # Scale to track height
   var[, ypos:= ypos+ybottom] # align to bottom
   # Baseline
   baseline <- -track.cutoff.min/score.range*track.height+ybottom
-  # Plot labels (y axis)
+  # Plot track name (y axis)
   axis(2,
        at= ybottom+track.height/2,
        labels = track.name,
        lwd= 0,
        las= 1,
        cex.axis= par("cex.lab"))
-  axis(2,
-       at= ytop,
-       labels = formatC(track.cutoff.max,
-                        format = "e",
-                        digits = 1),
-       lwd= 0,
-       las= 1)
-  if(track.cutoff.min!=0) {
+  # Plot range limits (y axis)
+  if(show.bw.range) {
     axis(2,
-         at= ybottom,
-         labels = formatC(track.cutoff.min,
+         at= ytop,
+         labels = formatC(track.cutoff.max,
                           format = "e",
                           digits = 1),
          lwd= 0,
          las= 1)
+    if(track.cutoff.min != 0) {
+      axis(2,
+           at= ybottom,
+           labels = formatC(track.cutoff.min,
+                            format = "e",
+                            digits = 1),
+           lwd= 0,
+           las= 1)
+    }
   }
-  # Clip/bin signal, smooth and plot ----
-  regions[, {
-    # Clip Polygons to region
-    poly <- clipBed(var, .SD)
-    
-    # Bin signal
-    if(!is.null(nbins)) {
-      # Bin window
-      binned <- binBed(.SD, nbins = nbins)
-      # Overlap
-      ov <- overlapBed(binned, poly)
-      ov[, seqnames:= binned$seqnames[idx.a]]
-      ov[, start:= binned$start[idx.a]]
-      ov[, end:= binned$end[idx.a]]
-      ov[, ypos:= poly$ypos[idx.b]]
-      # Average
-      poly <- ov[, .(ypos= sum(ypos*overlap.width)/sum(overlap.width)), .(idx= idx.a, start, end)]
-    }
-    
-    # If there is signal to plot
-    if(nrow(poly)) {
-      poly[, idx:= .I]
-      
-      # No interpolation (old)
-      # poly <- poly[, .(coor= c(start, end), ypos), idx]
-      
-      # Interpolate values (smoothing)
-      poly <- poly[, .(coor= rowMeans(.SD), ypos), idx, .SDcols= c("start", "end")]
-      
-      # Scale polygons
-      poly$coor <- (poly$coor-start)/width*diff(c(xleft, xright))+xleft
-      
-      # Plot polygons
-      poly[, {
-        polygon(
-          c(xleft, coor, xright),
-          c(baseline, ypos, baseline),
-          col= track.col,
-          border= border.col,
-          lwd= border.lwd
-        )
-      }]
-    }
-  }, region.idx]
+  # Scale polygons and plot ----
+  var[, coor:= rowMeans(.SD), .SDcols= c("start", "end")]
+  var[, coor:= (coor-start[1])/width*diff(c(xleft, xright))+xleft, .(region.idx, width, xleft, xright)]
+  # plot
+  var[, {
+    polygon(
+      c(xleft, coor, xright),
+      c(baseline, ypos, baseline),
+      col= track.col,
+      border= border.col,
+      lwd= border.lwd
+    )
+  }, .(region.idx, xleft, xright)]
 }
 
 # Method to plot bed file in bwScreenshot----
@@ -261,7 +247,7 @@
   var <- importBed(track.file)
   var[, score:= 1]
   # Check with of regions to plot
-  if(any(var[,end-start]==0) & is.null(border.col))
+  if(any(var[,end-start]==0) & is.na(border.col))
     warning("Some regions in bed file(s) are width 1 and might not appear because border.col is set to NA. Consider border.col= 'black'")
   # Plot
   regions[, {
@@ -317,13 +303,14 @@
                  end,
                  (ytop+ybottom)/2,
                  col= ifelse(strand=="-", col.ns, col.ps))
-        text((start+end)/2,
-             ybottom,
-             symbol,
-             pos= 1,
-             offset= offset.symbol,
-             cex= cex.symbol,
-             xpd= NA)
+        if(.N>0)
+          text((start+end)/2,
+               ybottom,
+               symbol,
+               pos= 1,
+               offset= offset.symbol,
+               cex= cex.symbol,
+               xpd= NA)
       }]
       # Plot exons (rectangles)
       current[type=="exon", {

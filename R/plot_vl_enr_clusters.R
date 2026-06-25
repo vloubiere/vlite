@@ -53,10 +53,13 @@ plot.vl_enr_cl <- function(obj,
     stop("Possible values for order are 'padj', 'log2OR'")
   if(verbose && any(is.na(obj$name)))
     warning(paste(sum(is.na(obj$name)), " names in DT are NA and will be removed."))
+  stopifnot(log2OR.cutoff>=0)
 
   # Import and select based on padj and min.counts
   DT <- data.table::copy(obj)
-  DT <- DT[set_hit >= min.counts & padj <= padj.cutoff & log2OR >= log2OR.cutoff & !is.na(name)]
+  DT <- DT[!is.na(name) & padj < 0.05 & log2OR > 0] # Significant enrichment
+  DT[, sel:= any(padj <= padj.cutoff & set_hit >= min.counts & log2OR >= log2OR.cutoff), name] # At least one stringent enrichment
+  DT <- DT[(sel)]
 
   # Should the data be simplified?
   if(any(DT[, .N, .(name, cl)]$N > 1))

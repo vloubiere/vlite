@@ -1,91 +1,75 @@
-#' Add ICM logos to an existing plot
+#' Plot logo from a numeric matrix
 #'
-#' plot seqlogo from pwm matrix
+#' Generic function that plots a logo out of an arbitrary numeric matrix. 
 #'
-#' @param ICM A list of ICMs to be plotted.
-#' @param sel Indices or names of the ICM that should be plotted. Should match the length of x and y.
-#' Default= NULL.
-#' @param x x positions (see pos argument).
-#' @param y y positions (centered).
-#' @param pos Either 2 (left) of 4 (right)
-#' @param cex.width width expansion factor.
-#' @param cex.height height expansion factor.
-#' @param min.content Flanks with a smaller summed content are not plotted.
+#' @param mat A matrix (or a TFBSTools PFMatrix, PWMatrix or ICMatrix) with rows 'A', 'C', 'G', 'T'.
+#' @param x Th x position where the logo should start or finish (depending on 'pos' argument).
+#' @param y The y position of the bottom part of the logo. Default= 0.
+#' @param cex.width A width expansion factor applied to letter widths.
+#' @param cex.width A width expansion factor applied to letter heights.
+#' @param pos Specifies on which side of the x position the logo should be plotted. Wither 2 (left) or 4 (right). Default= 4.
 #'
 #' @examples
-#' # Retrieve br motif
+#' # Select br PPM
 #' pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-#' ICM <- importJASPAR(pfm.file)$ICM
+#' mot <- vlite::importJASPAR(pfm.file)
 #'
 #' # Plot
-#' plot(0, 1, type= "n")
-#' addSeqLogo(
-#' ICM, 
-#' x = -1,
-#' y= seq(0.8, 1.2, .2),
-#' sel= c("br", "dl", "Eip74EF"),
-#' cex.height = 1.5,
-#' cex.width = 1, 
-#' pos= 2
-#' )
-#'
+#' vl_par()
+#' plot(0, 0, type= "n")
+#' addSeqLogo(mot$PFM[[1]], x= -1, y= .5)
+#' addSeqLogo(mot$PPM[[1]], x= -0.5, y= 0)
+#' addSeqLogo(mot$ICM[[1]], x= 0, y= -0.5)
+#' 
 #' @export
-addSeqLogo <- function(ICM,
-                       sel= NULL,
-                       x= NULL,
-                       y= NULL,
-                       pos= 2,
-                       cex.width= 1,
-                       cex.height= 1)
+addSeqLogo <- function(
+    mat,
+    x,
+    y,
+    cex.width= 1,
+    cex.height= 1,
+    pos= 4
+)
 {
   # Checks ----
-  if(class(ICM)=="ICMatrix")
-    ICM <- TFBSTools::ICMatrixList(ICM)
-  stopifnot(inherits(ICM, "ICMatrixList"))
-  if(!is.null(sel))
-    ICM <- ICM[sel]
-  if(length(x)==1)
-    x <- rep(x, length(ICM))
-  if(length(y)==1)
-    y <- rep(y, length(ICM))
-  stopifnot(length(x)==length(ICM))
-  stopifnot(length(y)==length(ICM))
+  if(inherits(mat, c("PFMatrix", "PWMatrix", "ICMatrix"))) {
+    mat <- mat@profileMatrix
+  }
+  if(min(mat, na.rm = T) < 0)
+    stop("This method should not be used to represent matrices with negative values (e.g. log2probratio PWM...)")
+  stopifnot(is.matrix(mat))
+  stopifnot(identical(rownames(mat), c('A', 'C', 'G', 'T')))
+  if(any(abs(mat)==Inf))
+    stop("Infinite values not allowed. Use a pseudocount.")
+  stopifnot(pos %in% c(2, 4))
   
-  # Compute width and height ----
-  .w <- strwidth("M", cex= cex.width)
-  .h <- strheight("M", cex= cex.height)
-  
-  # Loop ----
-  lapply(seq_along(ICM), function(i) {
-    # ICM to mat ----
-    mat <- ICM[[i]]@profileMatrix
-    
-    # Remove low information bases ----
+  # Remove low information bases (ICM only) ----
+  if(class(mat)[1]=="ICMatrix") {
     mat[, colSums(mat) < 0] <- 0
     mat[mat < 0] <- 0
     sel <- range(which(colSums(mat)>0))
     mat <- mat[, sel[1]:sel[2]]
-    
-    # Compute plotting positions ----
-    dat <- as.data.table(mat, keep.rownames = "base")
-    .c <- melt(dat, "base", variable.name = "xleft", value.name = "height")
-    .c[, xleft:= x[i]+as.numeric(xleft)*.w]
-    setorderv(.c, "height", 1)
-    .c[, height:= height/max(height)*.h]
-    .c[, ytop:= y[i]+cumsum(height)-.h/2, xleft]
-    
-    # Revert ----
-    if(pos==4)
-      .c[, xleft:= xleft-(ncol(mat)+2)*.w]
-    
-    # Plot ----
-    .c[, {
-      plotDNAletter(base[1],
-                    xleft[1],
-                    ytop[1],
-                    .w,
-                    height[1])
-    }, .(base, xleft, height, ytop)]
   }
-  )
+  
+  # Compute plotting position ----
+  dat <- melt(as.data.table(mat, keep.rownames = T), id.vars = 'rn')
+  setorderv(dat, c('variable', 'value'))
+  dat[, width:= strwidth("M")*cex.width]
+  dat[, left:= (.GRP-1)*width+x, variable]
+  max.height <- max(dat[, sum(value), variable]$V1)
+  dat[, value:= value/max.height*(strheight("M")*(cex.height*2))]
+  dat[, ytop:= cumsum(value)+y, variable]
+  if(pos==2)
+    dat[, left:= left-diff(range(left))-width]
+  
+  # Plot ----
+  dat[, {
+    vlite::plotDNAletter(
+      letter = rn,
+      xleft = left,
+      ytop = ytop,
+      height = value,
+      width = width
+    )
+  }, .(rn, left, ytop, value, width)]
 }

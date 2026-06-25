@@ -9,13 +9,16 @@ ggrepelScatterplot(
   y,
   col,
   label = rep("", length(x)),
-  label.col = NULL,
+  label.col = "black",
+  xlim = NULL,
+  ylim = NULL,
   xlab = NULL,
   ylab = NULL,
   main = NULL,
   cex = 1,
-  point_size = 2.5,
-  label_size = 3
+  cex.pts = 1,
+  cex.lab = 1,
+  plot = T
 )
 }
 \arguments{

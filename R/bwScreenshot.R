@@ -14,19 +14,16 @@
 #' @param track.names Function or character vector for track labels. Default extracts names
 #'   from file basenames.
 #' @param col Colors for tracks. Default is a grey gradient from grey60 to grey10.
-#' @param nbins The number of bins used to quantify the signal (overrides bw.n.breaks). Default= 500. 
+#' @param nbins The number of bins used to quantify the signal (per region). Default= 1000 
 #' @param bw.max Maximum value at which bigwig coverage values will be clipped. Default= NA (no clipping).
+#' @param show.bw.range Should the range of bw tracks be plotted? Default= TRUE.
 #' @param genome Genome assembly (e.g., "mm10", "dm6") for gene annotations.
 #'   If specified, nearby genes will be displayed.
 #' @param gtf Character path to a custom GTF file for custom gene annotations (alternative to the 'genome' parameter).
 #' @param sel.gene.symbols If specified, only selected gene symbols will be plotted. Default= NULL.
-#' @param bw.border.col The color used for bw track borders. Default= NA.
-#' @param bw.border.lwd The line width used for bw track borders. Default= 1.
-#' @param bed.border.col The color used for bed track borders. Default= NA.
-#' @param bed.border.lwd The line width used for bed track borders. Default= 1.
+#' @param border.col The color used for track borders. Default= NA.
+#' @param border.lwd The line width used for track borders. Default= 1.
 #' @param bw.min Minimum signal value at which bigwig coverage values will be clipped. Default= NA (no clipping).
-#' @param bw.n.breaks If nbins is set to NA, specifies the maximum number of levels to which the signal
-#' should be simplified to avoid polygons with too many points. Default= NA.
 #' @param ngenes Integer. Number of nearest genes to display. Default = 1.
 #' @param cex.gene.symbol Size of gene symbols. Default = 1.
 #' @param offset.gene.symbol Vertical offset for gene symbols. Default= 1.
@@ -86,16 +83,16 @@ bwScreenshot <- function(
     track.names= function(x) gsub("(.*)[.].*$", "\\1", x),
     col= colorRampPalette(c("grey60", "grey10"))(length(tracks)),
     bw.max= NA,
-    nbins= 500,
+    show.bw.range= TRUE,
+    nbins= 1000,
     genome,
     gtf,
     sel.gene.symbols= NULL,
-    bed.border.col= NULL,
-    bed.border.lwd= 1,
-    bw.border.col= NULL,
+    border.col= NA,
+    border.lwd= 1,
+    bw.border.col= NA,
     bw.border.lwd= 1,
     bw.min= NA,
-    bw.n.breaks= NULL,
     ngenes= 1,
     cex.gene.symbol= 1,
     offset.gene.symbol= 0.25,
@@ -118,15 +115,14 @@ bwScreenshot <- function(
 )
 {
   # Scale expansion factors ----
-  bw.border.lwd <- bw.border.lwd*.5
-  bed.border.lwd <- bed.border.lwd*.5
+  border.lwd <- border.lwd*.5
   cex.gene.symbol <- cex.gene.symbol*.7
   region.width <- region.width*100
   space.width <- space.width*30
   bw.height <- bw.height*100
   bed.height <- bed.height*20
   space.height <- space.height*2
-  gene.height <- gene.height*4
+  gene.height <- gene.height*24
   gene.space.height <- gene.space.height*7
   
   # Import bed regions ----
@@ -161,9 +157,13 @@ bwScreenshot <- function(
     col <- col[1:length(tracks)]
   
   # Format tracks metadata table ----
-  meta <- data.table(track.file= tracks,
-                     track.class= .checkTrackClass(tracks),
-                     track.col= col)
+  meta <- data.table(
+    track.file= tracks,
+    track.class= .checkTrackClass(tracks),
+    track.col= col,
+    border.col= border.col,
+    border.lwd= border.lwd
+  )
   if(nrow(meta))
   {
     # Add names
@@ -222,16 +222,16 @@ bwScreenshot <- function(
           regions= regions,
           track.file= track.file[1],
           nbins= nbins,
-          bw.n.breaks= bw.n.breaks,
           track.name= track.name[1],
           track.col= track.col[1],
           track.cutoff.min= track.cutoff.min[1],
           track.cutoff.max= track.cutoff.max[1],
+          show.bw.range= show.bw.range,
           track.height= track.height[1],
           ybottom= ybottom[1],
           ytop= ytop[1],
-          border.col= bw.border.col,
-          border.lwd= bw.border.lwd
+          border.col= border.col[1],
+          border.lwd= border.lwd[1]
         )
       }else if(track.class=="bed")
       {
@@ -244,8 +244,8 @@ bwScreenshot <- function(
           track.name= track.name[1],
           ybottom= ybottom[1],
           ytop= ytop[1],
-          border.col= bed.border.col,
-          border.lwd= bed.border.lwd
+          border.col= border.col[1],
+          border.lwd= border.lwd[1]
         )
       }
       .SD
@@ -273,7 +273,6 @@ bwScreenshot <- function(
            pos= 3,
            xpd= T)
     }, .(width, xright)]
-  
   
   # Plot genes if genome specified ----
   if(exists("genes", inherits = F) && nrow(genes)>0)

@@ -1,16 +1,20 @@
-#' Generate Commands for RNA Sequence Alignment Using Rsubread
+#' Generate Commands for DNA Sequence Alignment Using Rsubread
 #'
 #' @description
-#' Creates shell commands to align sequencing reads to a reference genome using the Rsubread aligner.
-#' Outputs a BAM file and alignment statistics.
+#' Creates shell commands to align gDNA sequencing reads to a reference genome
+#' using the Rsubread aligner. Outputs a BAM file and alignment statistics.
 #'
 #' @param fq1 A character vector of .fq (or .fq.gz) file paths.
-#' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching fq1 files. Default= NULL.
+#' @param fq2 For paired-end data, a character vector of .fq (or .fq.gz) file paths matching
+#' fq1 files. Default= NULL.
 #' @param output.prefix Prefix for the output files.
-#' @param genome Reference genome identifier  (supported genomes: 'dm6', 'mm10'). Required if genome.idx is not provided. Default= NULL.
-#' @param genome.idx Path to Bowtie2 index files (without extensions). Can be automatically defined using the `genome` argument. Default= NULL.
+#' @param genome Reference genome identifier  (supported genomes: 'dm6', 'mm10'). Required if
+#' genome.idx is not provided. Default= NULL.
+#' @param genome.idx Path to Bowtie2 index files (without extensions).
+#' Can be automatically defined using the `genome` argument. Default= NULL.
 #' @param bam.output.folder Directory for the output BAM file. Default= "db/bam.output.folder/".
-#' @param alignment.stats.output.folder Directory for alignment statistics. Default= "db/alignment_stats/".
+#' @param alignment.stats.output.folder Directory for alignment statistics.
+#' Default= "db/alignment_stats/".
 #' @param Rpath Path to the Rscript binary. Default= "Rscript".
 #' @param cores Number of CPU cores to use. Default= 8.
 #'
@@ -23,7 +27,7 @@
 #'
 #' @examples
 #' # Align single-end reads to the mm10 genome
-#' cmd <- cmd_alignRnaRsubread(
+#' cmd <- cmd_alignDnaRsubread(
 #'   fq1 = "sample_R1.fq.gz",
 #'   output.prefix = "sample",
 #'   genome = "mm10"
@@ -31,7 +35,7 @@
 #' vl_submit(cmd, execute= FALSE)
 #'
 #' # Align paired-end reads using a custom genome index
-#' cmd <- cmd_alignRnaRsubread(
+#' cmd <- cmd_alignDnaRsubread(
 #'   fq1 = "sample_R1.fq.gz",
 #'   fq2 = "sample_R2.fq.gz",
 #'   output.prefix = "sample",
@@ -40,15 +44,17 @@
 #' vl_submit(cmd, execute= FALSE)
 #'
 #' @export
-cmd_alignRnaRsubread <- function(fq1,
-                                 fq2= NULL,
-                                 output.prefix,
-                                 genome= NULL,
-                                 genome.idx= NULL,
-                                 bam.output.folder= "db/bam.output.folder/",
-                                 alignment.stats.output.folder= "db/alignment_stats/",
-                                 Rpath= "Rscript",
-                                 cores= 8)
+cmd_alignDnaRsubread <- function(
+    fq1,
+    fq2= NULL,
+    output.prefix,
+    genome= NULL,
+    genome.idx= NULL,
+    bam.output.folder= "db/bam/DNAseq/",
+    alignment.stats.output.folder= "db/alignment_stats/DNAseq/",
+    Rpath= "Rscript",
+    cores= 8
+)
 {
   # Check (!Do not check if fq1 or fq2 files exist to allow wrapping!) ----
   fq1 <- unique(fq1)
@@ -60,7 +66,7 @@ cmd_alignRnaRsubread <- function(fq1,
     stop("When provided, fq2 files should match fq1 files.")
   if(is.null(genome) & is.null(genome.idx))
     stop("Supported genome or genome.idx should be provided.")
-
+  
   # Retrieve index ----
   if(is.null(genome.idx)) {
     # Check genome is supported 
@@ -76,33 +82,33 @@ cmd_alignRnaRsubread <- function(fq1,
   }
   if(is.null(genome))
     genome <- basename(genome.idx)
-
+  
   # Output files paths ----
   bam <- file.path(bam.output.folder, paste0(output.prefix, "_", genome, ".bam"))
   stats <- paste0(bam, ".summary")
-
+  
   # Align command ----
   # * If several fq1/fq2 files provided, they will be merged at this step
   cmd <- paste(
     Rpath,
-    system.file("Rscript", "align_rna_Rsubread.R", package = "vlite"),
+    system.file("Rscript", "align_dna_Rsubread.R", package = "vlite"),
     paste0(fq1, collapse= ","),
     ifelse(is.null(fq2), "''", paste0(fq2, collapse= ",")),
     genome.idx,
     bam
   )
-
+  
   # Move alignment statistics ----
   stats.new <- file.path(alignment.stats.output.folder, basename(stats))
   cmd <- paste(cmd, "; mv", stats, stats.new)
-
+  
   # Wrap commands output ----
   cmd <- data.table(file.type= c("bam", "align.stats"),
                     path= c(bam, stats.new),
                     cmd= cmd,
                     cores= cores,
                     job.name= "alnRsub")
-
+  
   # Return ----
   return(cmd)
 }

@@ -14,6 +14,7 @@ heatkey(
   thickness = 0.75,
   length = 4,
   main = NA,
+  log10.labels = F,
   cex = 1
 )
 }

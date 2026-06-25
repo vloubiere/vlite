@@ -8,6 +8,8 @@
 #' @param cex Default= .8
 #' @param col Default= adjustcolor("grey", .7)
 #' @param xaxt Default= "s"
+#' @param frame Default= F
+#' @param axes Default= T
 #'
 #' @return
 #' @export
@@ -22,6 +24,7 @@ vl_plot <- function(x,
                     col= adjustcolor("grey", .7),
                     xaxt= "s",
                     frame= F,
+                    axes= T,
                     ...)
 {
   plot(x= x,

@@ -2,7 +2,8 @@
 #' 
 #' Wrapper around HiCExperiment::import and vlite::bwScreenshot to plot a HiC matrix with bw tracks.
 #'
-#' @param mcool.file Path to the mcool file to be plotted
+#' @param mcool.file Path to the mcool file to be plotted.
+#' @param mcool.file Path to the misha file to be plotted.
 #' @param region String specifying a unique region to plot, in the format "chr2L:16300000-16600000".
 #' @param resolution The resolution to be used. Only the ones existing in the mcool file will work (see ?HiCExperiment::availableResolutions)
 #' @param map.name The name of the hic map. By default, the basename of the mcool file will be used.
@@ -16,9 +17,10 @@
 #' @examples
 hicScreenshot <- function(
     mcool.file,
+    misha.track,
     region,
     resolution,
-    map.name= gsub(".mcool$", "", basename(mcool.file)),
+    map.name= gsub(".mcool$|.track$", "", basename(mcool.file)),
     pdf.file= NULL,
     screenshot.cex.height= 1,
     tracks= character(),
@@ -29,12 +31,9 @@ hicScreenshot <- function(
     genome,
     gtf,
     sel.gene.symbols= NULL,
-    bw.border.col= NULL,
-    bw.border.lwd= 1,
-    bed.border.col= NULL,
-    bed.border.lwd= 1,
+    border.col= NA,
+    border.lwd= 1,
     bw.min= NA,
-    bw.n.breaks= 100,
     ngenes= 1,
     cex.gene.symbol= 1,
     offset.gene.symbol= 0.25,
@@ -60,15 +59,64 @@ hicScreenshot <- function(
   region <- region[, paste0(seqnames, ":", start, "-", end)]
   if(length(region)!=1)
     stop("For now hicScreenshot can only plot one region at once. Refer to you bioinformatics overlord bitteschönn")
+  stopifnot(missing(mcool.file) | missing(misha.track))
   
-  # Import hic data ----
-  hic <- HiCExperiment::import(
-    con = mcool.file,
-    focus = region,
-    resolution = resolution
-  )
-  dmat <- as.data.table(hic@interactions)
-  dmat[, score:= hic@scores$balanced]
+  # Dispatch based on the input file ----
+  if(!missing(mcool.file)) {
+    
+    # Import hic data ----
+    hic <- HiCExperiment::import(
+      con = mcool.file,
+      focus = region,
+      resolution = resolution
+    )
+    dmat <- as.data.table(hic@interactions)
+    dmat[, score:= hic@scores$balanced]
+    
+  } else if(!missing(misha.track)) {
+    
+    # Load misha db ----
+    library("misha", lib.loc = "/home/michael.szalay/anaconda3/envs/misha/lib/R/library/")
+    # library("misha")
+    mDBloc <- '/zdata/data/mishaDB/trackdb/'
+    db <- 'dm6'
+    dbDir <- paste0(mDBloc, db, '/')
+    gdb.init(dbDir)
+    gdb.reload()
+    misha.track <- gtrack.ls(misha.track)
+    
+    # Import misha track data ----
+    coor <- unlist(tstrsplit(region, ":|-"))
+    chrom <- coor[1]
+    start <- as.integer(coor[2])
+    end <- as.integer(coor[3])
+    
+    # Create iterator ----
+    interval2D <- gintervals.2d(chrom, start, end, chrom, start, end)
+    binnedIterator <- giterator.intervals(
+      intervals= interval2D,
+      iterator= c(resolution, resolution)
+    )
+    
+    # Extract iterator data ----
+    data <- gextract(
+      misha.track,
+      binnedIterator,
+      iterator= binnedIterator,
+      colnames = "score"
+    )
+    
+    # Format similar to cool files ----
+    dmat <- as.data.table(data)
+    colnames(dmat) <- c(
+      "seqnames1", "start1", "end1",
+      "seqnames2", "start2", "end2",
+      "score", "intervalID"
+    )
+    dmat$bin_id1 <- (dmat$end1-start) / resolution
+    dmat$bin_id2 <- (dmat$end2-start) / resolution
+  } else 
+    stop("input file could not be determined.")
   
   # Adjust region to closest hic bins ----
   adj.region <- paste0(dmat[1, seqnames1], ":", dmat[1, start1], "-", dmat[.N, end2])
@@ -89,31 +137,49 @@ hicScreenshot <- function(
   mat <- as.matrix(mat, 1)
   mat[lower.tri(mat)] <- t(mat)[lower.tri(mat)]
   
-  # HiC plotting paramters ----
-  # Color
-  Cc <- c(
-    "#FFFFFF",
-    "#FFFFCC",
-    "#FFEDA0",
-    "#FED976",
-    "#FEB24C",
-    "#FD8D3C",
-    "#FC4E2A",
-    "#E31A1C",
-    "#BD0026",
-    "#800026",
-    "#000000"
-  )
-  Cc_256 <- colorRampPalette(Cc)(256)
-  # Min and max values are defined on a log scale
-  vmin <- 0.0001
-  vmax <- 0.1
-  mat_log <- log10(mat)
-  breaks <- seq(
-    log10(vmin),
-    log10(vmax),
-    length.out = length(Cc_256) + 1
-  )
+  # Set plotting parameters ----
+  if(!missing(mcool.file)) {
+    # Color
+    c(
+      "#FFFFFF",
+      "#FFFFCC",
+      "#FFEDA0",
+      "#FED976",
+      "#FEB24C",
+      "#FD8D3C",
+      "#FC4E2A",
+      "#E31A1C",
+      "#BD0026",
+      "#800026",
+      "#000000"
+    )
+    Cc <- colorRampPalette(Cc)(256)
+    
+    # Min and max values are defined on a log scale
+    vmin <- 0.0001
+    vmax <- 0.1
+    mat_log <- log10(mat)
+    breaks <- seq(
+      log10(vmin),
+      log10(vmax),
+      length.out = length(Cc) + 1
+    )
+    
+  } else {
+    
+    # Color
+    Cc <- c("darkblue", "white", "darkred")
+    Cc <- colorRampPalette(Cc)(200)
+    
+    # Min and max values 
+    vmin <- -100
+    vmax <- 100
+    breaks <- seq(
+      vmin,
+      vmax,
+      length.out= length(Cc) + 1
+    )
+  }
   
   # Initiate plot ----
   if(is.character(pdf.file)) {
@@ -151,46 +217,54 @@ hicScreenshot <- function(
   
   # Plot heatmap ----
   vl_heatmap(
-    mat_log,
+    if(!missing(mcool.file)) mat_log else mat,
     breaks= breaks,
     cluster.rows = F,
     show.rownames = F,
     show.colnames = F,
-    col= Cc_256,
+    col= Cc,
     na.col = "white",
-    show.legend = F
+    show.legend = !missing(misha.track),
+    legend.title = "Score"
   )
-  title(main= map.name, outer = T, line = 2)
-  # Add special heatkey
-  vlite::heatkey(
-    breaks= seq(-4, -1, length.out= 256),
-    labels = seq(-4, -1, 1),
-    log10.labels= T, # 10^labels will be plotted instead of actual labels
-    col= Cc_256, 
-    main = "ICE norm."
+  title(
+    main= map.name,
+    outer = T,
+    line = 2
   )
-  # Add scale bar
-  bar <- 10^floor(log10(region.width))
-  xleft <- par("usr")[1]
-  xright <- par("usr")[2]
-  x0 <- xright-(bar/region.width*(xright-xleft))
-  scale.y <- par("usr")[4]+strheight("M")/2
-  segments(x0,
-           scale.y,
-           xright,
-           scale.y,
-           xpd= NA)
-  # Simplif label
-  bar <- if(bar>1e3)
-    paste0(bar/1000, "kb") else if(bar>1e6)
-      paste0(bar/1000, "Mb") else
-        paste(bar, "bp")
-  text((x0+xright)/2,
-       scale.y,
-       bar,
-       pos= 3,
-       offset= 0.15,
-       xpd= NA)
+  
+  # Add special heatkey ----
+  if(!missing(mcool.file)) {
+    vlite::heatkey(
+      breaks= seq(log10(vmin), log10(vmax), length.out= 256),
+      labels = seq(log10(vmin), log10(vmax), 1),
+      log10.labels= T, # 10^labels will be plotted instead of actual labels
+      col= Cc, 
+      main = "ICE norm."
+    )
+    # Add scale bar
+    bar <- 10^floor(log10(region.width))
+    xleft <- par("usr")[1]
+    xright <- par("usr")[2]
+    x0 <- xright-(bar/region.width*(xright-xleft))
+    scale.y <- par("usr")[4]+strheight("M")/2
+    segments(x0,
+             scale.y,
+             xright,
+             scale.y,
+             xpd= NA)
+    # Simplif label
+    bar <- if(bar>1e3)
+      paste0(bar/1000, "kb") else if(bar>1e6)
+        paste0(bar/1000, "Mb") else
+          paste(bar, "bp")
+    text((x0+xright)/2,
+         scale.y,
+         bar,
+         pos= 3,
+         offset= 0.15,
+         xpd= NA)
+  }
   
   # Plot tracks ----
   vlite::bwScreenshot(
@@ -203,12 +277,9 @@ hicScreenshot <- function(
     genome= genome,
     gtf= gtf,
     sel.gene.symbols= sel.gene.symbols,
-    bw.border.col= bw.border.col,
-    bw.border.lwd= bw.border.lwd,
-    bed.border.col= bed.border.col,
-    bed.border.lwd= bed.border.lwd,
+    border.col= border.col,
+    border.lwd= border.lwd,
     bw.min= bw.min,
-    bw.n.breaks= bw.n.breaks,
     ngenes= ngenes,
     cex.gene.symbol= cex.gene.symbol,
     offset.gene.symbol= offset.gene.symbol,

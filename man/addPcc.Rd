@@ -4,22 +4,58 @@
 \alias{addPcc}
 \title{Plots Rsq or PCC coeff}
 \usage{
-addPcc(pcc, pos = "topleft", bty = "n", digits = 2, ...)
+addPcc(
+  x = "topleft",
+  y,
+  pcc,
+  digits = 2,
+  fill,
+  x.adj = 0,
+  y.adj = 0,
+  x.log = par("xlog"),
+  y.log = par("ylog"),
+  bty = "n",
+  xpd = T,
+  cex = 7/12,
+  border = NA,
+  ...
+)
 }
 \arguments{
+\item{x}{Numeric x-coordinate for legend position or a keyword. Default= par("usr")[2].}
+
+\item{y}{Numeric y-coordinate for legend position. Default= par("usr")[4].}
+
 \item{pcc}{PCC value. If numeric, will be rounded, while characters will be printed as is}
-
-\item{pos}{Position. Default= "topleft" (see x argument in ?legend for more detail).}
-
-\item{bty}{Box around the legend? Default= FALSE.}
 
 \item{digits}{Rounding digits. Default= 2.}
 
-\item{...}{}
+\item{fill}{Vector of colors for legend key boxes.}
+
+\item{x.adj}{If specified, x plotting position is shifted by x.adj*line.width. Default= 0.}
+
+\item{y.adj}{If specified, y plotting positions is shifted by y.adj*line.height. Default= 0.}
+
+\item{x.log}{Should the x value be logged? Default= par("xlog").}
+
+\item{y.log}{Should the x value be logged? Default= par("ylog").}
+
+\item{bty}{Character specifying box type around legend. Default is "n" (no box).}
+
+\item{xpd}{Logical controlling clipping. Default is TRUE (allow legend outside plot region).}
+
+\item{cex}{Numeric scaling factor for legend text. Default is 7/12 (≈0.58).}
+
+\item{border}{Color for borders of legend boxes. Default is NA (no
+borders).}
+
+\item{...}{Additional arguments passed to legend().}
+
+\item{legend}{Character vector of legend labels.}
 }
 \value{
 Add PCC as a legend on aplot
 }
 \description{
-Plots Rsq or PCC coeff
+Wrapper around vl_legend to add pcc to a plot.
 }

@@ -6,6 +6,7 @@
 #'
 #' @param replicates.peaks.files Vector of paths to replicate peak files in .narrowPeak or .broadPeak format.
 #' @param merge.peaks.file Path to the merged peak file in .narrowPeak or .broadPeak format.
+#' @param blacklisted.regions.bed Optional path to a list of blacklisted regions to remove. Default= NULL.
 #' @param output.prefix Prefix for the output file.
 #' @param conf.peaks.output.folder Directory for the confident peaks file. Default= "db/peaks/".
 #' @param pdf.output.folder Directory for the pdf containing diagnostic plots. Default= "db/peaks/".
@@ -29,6 +30,7 @@
 #' @export
 cmd_confidentPeaks <- function(replicates.peaks.files,
                                merge.peaks.file,
+                               blacklisted.regions.bed= NULL,
                                output.prefix,
                                conf.peaks.output.folder= "db/peaks/",
                                pdf.output.folder= "db/peaks/",
@@ -54,7 +56,8 @@ cmd_confidentPeaks <- function(replicates.peaks.files,
     paste0(replicates.peaks.files, collapse= ","), # Replicates
     merge.peaks.file, # Merged reads
     peaks.file, # Diagnostic pdf
-    pdf.file # Diagnostic pdf
+    pdf.file, # Diagnostic pdf
+    blacklisted.regions.bed # Optional blacklisted reigons.
   )
 
   # Wrap commands output ----
