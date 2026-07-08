@@ -4,12 +4,27 @@
 \alias{clipImage}
 \title{Title}
 \usage{
-clipImage(im, clip = 0)
+clipImage(
+  im,
+  channels = NULL,
+  min.quantile = 0.001,
+  max.quantile = 0.999,
+  min.value = NULL,
+  max.value = NULL
+)
 }
 \arguments{
-\item{im}{}
+\item{im}{Image to clip.}
 
-\item{clip}{}
+\item{channels}{Which channels should be clipped (by default, they all will).}
+
+\item{min.quantile}{The minimum quantile to which values will be clipped. Default= 0.001.}
+
+\item{max.quantile}{The maximum quantile to which values will be clipped. Default= 0.999.}
+
+\item{min.value}{If specified, hard thresholding will be performed (instead of quantile based). Default= NULL.}
+
+\item{max.value}{If specified, hard thresholding will be performed (instead of quantile based). Default= NULL.}
 }
 \description{
 Title

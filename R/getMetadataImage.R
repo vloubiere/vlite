@@ -1,31 +1,90 @@
 #' Title
 #'
-#' @param file 
+#' @param paths A vector of file paths for which metadata should be extracted 
 #'
 #' @returns
 #' @export
 #'
 #' @examples
-getMetadataImage <- function(file) {
-  stopifnot(length(file)==1)
+getMetadataImage <- function(
+    paths,
+    tmp.dir= tempdir()
+) {
+  # Checks ----
+  stopifnot(all(grepl(".czi$|.lif$", paths)))
+  stopifnot(all(sapply(paths, file.exists)))
   
-  # Import metadata
-  meta <- RBioFormats::read.metadata(file)
+  # Assemble dat ----
+  dat <- data.table(path= paths)
   
-  # Format
-  meta <- cbind(as.data.table(meta$coreMetadata), as.data.table(meta$globalMetadata))
-  
-  # Compute pixel size
-  pixelX <- as.numeric(strsplit(meta$`ImageScaling|ImagePixelSize`, ",")[[1]][1])
-  pixelY <- as.numeric(strsplit(meta$`ImageScaling|ImagePixelSize`, ",")[[1]][2])
-  obj <- as.numeric(meta$`Information|Instrument|Objective|NominalMagnification`)
-  magnif <- as.numeric(meta$`Scaling|AutoScaling|CameraAdapterMagnification`)
-  magnif <- (magnif*obj)
-  pxSizeX <- pixelX/magnif
-  pxSizeY <- pixelY/magnif
-  
-  # Select information
-  meta <- meta[, .(sizeX, sizeY, sizeZ, sizeC, magnification= magnif, pxSizeX_um= pxSizeX, pxSizeY_um= pxSizeY)]
+  # Check if file exists ----
+  dir.create(tmp.dir, showWarnings = F, recursive = T)
+  tmp <- vlite::vl_cache_file(input.list = list(dat= dat), tmp.dir = tmp.dir)
+  if(!file.exists(tmp)) {
+    
+    # For each file ----
+    meta <- dat[, {
+      # Import metadata
+      meta <- RBioFormats::read.metadata(path, filter.metadata = T)
+      stopifnot(class(meta)[1] %in% c("ImageMetadata", "ImageMetadataList"))
+      if(class(meta)[1]=="ImageMetadata")
+        meta <- list(meta)
+      
+      # Extract metadata
+      meta <- lapply(
+        meta,
+        function(x) {
+          cur <- lapply(
+            x,
+            function(y) {
+              y <- as.data.table(y)
+              if(nrow(y))
+                data.table::transpose(y, keep.names = "var")
+              else
+                NULL
+            }
+          )
+          rbindlist(cur)
+        }
+      )
+      meta <- rbindlist(meta, idcol = "serie")
+      setnames(meta, "V1", "value")
+      
+      # Compute pixel size ----
+      meta[, sizeX:= as.numeric(value[var=="sizeX"]), serie]
+      meta[, sizeY:= as.numeric(value[var=="sizeY"]), serie]
+      meta[, sizeZ:= as.numeric(value[var=="sizeZ"]), serie]
+      meta[, sizeC:= as.numeric(value[var=="sizeC"]), serie]
+      if(grepl(".czi", path)) { # Aptotome
+        meta[, name:= gsub("(.*)-ApoTome.*", "\\1", basename(path))]
+        meta[, c("pixelX", "pixelY"):= tstrsplit(value[var=="ImageScaling|ImagePixelSize"], ",", type.convert = T)]
+        meta[, objective:= as.numeric(value[var=="Information|Instrument|Objective|NominalMagnification"])]
+        meta[, magnification:= as.numeric(value[var=="Scaling|AutoScaling|CameraAdapterMagnification"])]
+        meta[, magnification:= magnification*objective]
+        meta[, pxSizeX_um:= pixelX/magnification]
+        meta[, pxSizeY_um:= pixelY/magnification]
+      }
+      if(grepl(".lif", path)) { # Confocal
+        meta[, name:= as.character(value[var=="Image name"]), serie]
+        meta[, imageSizeX:= as.numeric(value[var=="Image #0|DimensionDescription #4|Length"])*1e6, serie] # Given in meters
+        meta[, imageSizeY:= as.numeric(value[var=="Image #0|DimensionDescription #5|Length"])*1e6, serie] # Given in meters
+        meta[, objective:= as.numeric(value[var=="Image #0|ATLConfocalSettingDefinition #0|Magnification"]), serie]
+        meta[, magnification:= as.numeric(value[var=="Image #0|ATLConfocalSettingDefinition #0|Zoom"]), serie]
+        meta[, pxSizeX_um:= imageSizeX/sizeX]
+        meta[, pxSizeY_um:= imageSizeY/sizeY]
+      }
+      
+      # Select important fields
+      unique(meta[, .(serie, name, sizeX, sizeY, sizeZ, sizeC, objective, magnification, pxSizeX_um, pxSizeY_um)])
+    }, path]
+    
+    # Order columns
+    setcolorder(meta, "path", after = "pxSizeY_um")
+    
+    # Save
+    saveRDS(meta, tmp)
+  } else
+    meta <- readRDS(tmp)
   
   # Return
   return(meta)

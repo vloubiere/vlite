@@ -86,6 +86,8 @@ vl_motifPos <- function(sequences,
     stop("sequences of bed regions should be specified.")
   if(is.null(genome) && (missing(sequences) | bg=="genome"))
     stop("genome is set to NULL.")
+  if(is.list(sequences))
+    sequences <- unlist(sequences)
   if(!"PWMatrixList" %in% class(pwm_log_odds))
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
   if(anyDuplicated(sapply(pwm_log_odds, TFBSTools::name)))
@@ -98,6 +100,7 @@ vl_motifPos <- function(sequences,
     bed <- importBed(bed)
     sequences <- getBSsequence(bed, genome)
   }
+  stopifnot(is.character(sequences))
 
   # Make sure sequence names are unique ----
   if(is.null(names(sequences)) || anyDuplicated(names(sequences)))

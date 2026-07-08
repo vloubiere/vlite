@@ -51,7 +51,7 @@ importJASPAR <- function(combinedFile,
     # Make unique
     if(anyDuplicated(simp.names))
       warning("Duplicated simplified names will be made unique")
-    simp.names <- make.unique(simp.names)
+    simp.names <- make.unique(simp.names, sep = "__")
     # Replace
     PFM <- lapply(seq_along(PFM), function(i) {
       x <- PFM[[i]]
@@ -67,22 +67,16 @@ importJASPAR <- function(combinedFile,
                            type = "prob",
                            pseudocounts = pseudocount,
                            bg = bg)
-  PPM <- lapply(seq_along(PPM), function(i) {
-    x <- PPM[[i]]
-    x@matrixClass <- "prob"
-    x
-  })
+  for(i in seq_along(PPM))
+    PPM[[i]]@matrixClass <- "prob"
 
   # Convert to PWM ----
   PWM  <- TFBSTools::toPWM(x= PFM,
                            type = "log2probratio",
                            pseudocounts = pseudocount,
                            bg = bg)
-  PWM <- lapply(seq_along(PWM), function(i) {
-    x <- PWM[[i]]
-    x@matrixClass <- "log2probratio"
-    x
-  })
+  for(i in seq_along(PPM))
+    PPM[[i]]@matrixClass <- "log2probratio"
 
   # Convert to ICM ----
   ICM  <- TFBSTools::toICM(x= PFM,

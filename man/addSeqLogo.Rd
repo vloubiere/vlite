@@ -4,31 +4,18 @@
 \alias{addSeqLogo}
 \title{Plot logo from a numeric matrix}
 \usage{
-addSeqLogo(
-  mat,
-  x = 0,
-  y = 0,
-  width = 1,
-  pos = 4,
-  cex.width = 1,
-  cex.height = 1,
-  ...
-)
+addSeqLogo(mat, x, y, cex.width = 1, cex.height = 1, pos = 4)
 }
 \arguments{
 \item{mat}{A matrix (or a TFBSTools PFMatrix, PWMatrix or ICMatrix) with rows 'A', 'C', 'G', 'T'.}
 
-\item{...}{Extra parameters for the plot function.}
+\item{x}{Th x position where the logo should start or finish (depending on 'pos' argument).}
 
-\item{name}{The name of the motif which will be added as a title.}
+\item{y}{The y position of the center part of the logo. Default= 0.}
 
-\item{xlab}{xlab. Default= "Index".}
+\item{cex.width}{A width expansion factor applied to letter heights.}
 
-\item{ylab}{ylab. Default= "Frequency".}
-
-\item{xlim}{xlim for the plot. Default= NULL.}
-
-\item{ylim}{ylim for the plot. Default= NULL.}
+\item{pos}{Specifies on which side of the x position the logo should be plotted. Wither 2 (left) or 4 (right). Default= 4.}
 }
 \description{
 Generic function that plots a logo out of an arbitrary numeric matrix.
@@ -36,10 +23,13 @@ Generic function that plots a logo out of an arbitrary numeric matrix.
 \examples{
 # Select br PPM
 pfm.file <- system.file("extdata/hand_curated_Dmel_motifs_SCENIC_lite_Dec_2025.pfm", package = "vlite")
-PPM <- importJASPAR(pfm.file, pseudocount = 0)$PPM[["br"]]
+mot <- vlite::importJASPAR(pfm.file)
 
 # Plot
 vl_par()
-addSeqLogo(PPM, name= "br")
+plot(0, 0, type= "n")
+addSeqLogo(mot$PFM[[1]], x= -1, y= .5)
+addSeqLogo(mot$PPM[[1]], x= -0.5, y= 0)
+addSeqLogo(mot$ICM[[1]], x= 0, y= -0.5)
 
 }

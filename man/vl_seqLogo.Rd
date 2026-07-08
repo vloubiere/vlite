@@ -11,7 +11,6 @@ vl_seqLogo(
   ylab = NULL,
   xlim = NULL,
   ylim = NULL,
-  add = F,
   ...
 )
 }
@@ -40,8 +39,8 @@ mot <- vlite::importJASPAR(pfm.file)
 
 # Plot
 vl_par()
-vl_seqLogo(mot$PFM[[1]], name= "br")
-vl_seqLogo(mot$PPM[[1]], name= "br")
-vl_seqLogo(mot$ICM[[1]], name= "br")
+vl_seqLogo(mot$PFM[[1]])
+vl_seqLogo(mot$PPM[[1]])
+vl_seqLogo(mot$ICM[[1]])
 
 }

@@ -1,25 +1,17 @@
 #' Title
 #'
-#' @param file 
+#' @param path 
 #'
 #' @returns
 #' @export
 #'
 #' @examples
-importImage <- function(file) {
-  stopifnot(length(file)==1)
-  # Import metadata
-  meta <- RBioFormats::read.metadata(file)
-  names <- if(grepl(".lif$", file)) {
-    make.unique(sapply(meta@.Data, function(x) x$seriesMetadata$`Image name`))
-  } else if(grepl(".czi$", file)) {
-    gsub("(.*)-ApoTome.*", "\\1", basename(file))
-  }
+importImage <- function(path, serie= 1) {
+  stopifnot(length(serie)==1)
   
-  # Import images
-  im <- lapply(seq(names), function(i) read.image(file, series = i, normalize = TRUE))
-  names(im) <- names
-  message(length(im), " image(s) imported into a list.")
+  # Import image
+  im <- RBioFormats::read.image(path, series = serie, normalize = TRUE, read.metadata = FALSE)
+  im <- im@.Data
   
   # Return
   return(im)

@@ -4,7 +4,7 @@
 #'
 #' @param mat A matrix (or a TFBSTools PFMatrix, PWMatrix or ICMatrix) with rows 'A', 'C', 'G', 'T'.
 #' @param x Th x position where the logo should start or finish (depending on 'pos' argument).
-#' @param y The y position of the bottom part of the logo. Default= 0.
+#' @param y The y position of the center part of the logo. Default= 0.
 #' @param cex.width A width expansion factor applied to letter widths.
 #' @param cex.width A width expansion factor applied to letter heights.
 #' @param pos Specifies on which side of the x position the logo should be plotted. Wither 2 (left) or 4 (right). Default= 4.
@@ -58,7 +58,8 @@ addSeqLogo <- function(
   dat[, left:= (.GRP-1)*width+x, variable]
   max.height <- max(dat[, sum(value), variable]$V1)
   dat[, value:= value/max.height*(strheight("M")*(cex.height*2))]
-  dat[, ytop:= cumsum(value)+y, variable]
+  max.height <- max(dat[, sum(value), variable]$V1)
+  dat[, ytop:= cumsum(value)+y-max.height/2, variable]
   if(pos==2)
     dat[, left:= left-diff(range(left))-width]
   

@@ -4,10 +4,10 @@
 \alias{getMetadataImage}
 \title{Title}
 \usage{
-getMetadataImage(file)
+getMetadataImage(paths)
 }
 \arguments{
-\item{file}{}
+\item{paths}{A vector of file paths for which metadata should be extracted}
 }
 \description{
 Title

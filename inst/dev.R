@@ -11,21 +11,17 @@ file.edit("R/vl_hilbertCurves.R")
 file.edit("R/HelperFunctions_hilbertCurves.R")
 ## iCistarget genes method ----
 file.edit("R/vl_iCisTarget.genes.R")
+
+# Needs to be checked ------------------------------------------------------------------------------------
 ## Microscopy ----
 file.edit("R/getMetadataImage.R")
 file.edit("R/importImage.R")
-file.edit("R/clipImage.R")
 file.edit("R/maxProjectionImage.R")
+file.edit("R/clipImage.R")
 file.edit("R/compositeImage.R")
+file.edit("R/plotImage.R")
+file.edit("R/addImageLegend.R")
 file.edit("R/bindImage.R")
-file.edit("R/saveImage.R")
-
-# Needs to be checked ------------------------------------------------------------------------------------
-## PWM manipulation tools ----
-file.edit("R/importJASPAR.R") # Import a combined JASPAR file
-file.edit("R/plotDNAletter.R") # Helper function
-file.edit("R/vl_seqLogo.R") # Plot a motif logo from PFM/PPM?ICM
-file.edit("R/addSeqLogo.R") # Adds logo to an existing plot
 
 # Stable functions ---------------------------------------------------------------------------------------
 ## Submit jobs ----
@@ -37,6 +33,13 @@ file.edit("R/vl_submit.R") # Wrapper around bsub to automatically submit pipelin
 file.edit("R/vl_squeue.R") # See user jobs
 file.edit("R/vl_scancel.R") # Cancel all jobs except interactive R session
 file.edit("R/vl_last_err.R") # Show the most recent error file from a logs folder
+
+## PWM manipulation tools ----
+file.edit("R/importJASPAR.R") # Import a combined JASPAR file
+file.edit("R/plotDNAletter.R") # Helper function
+file.edit("R/vl_seqLogo.R") # Plot a motif logo from PFM/PPM?ICM
+file.edit("R/addSeqLogo.R") # Adds logo to an existing plot
+file.edit("R/addSeqLogoEnrPlot.R") # Adds logo to a cluster enrichment plot
 
 ## SOM clustering ----
 file.edit("R/somClustering.R")

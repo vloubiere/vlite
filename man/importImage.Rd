@@ -4,10 +4,10 @@
 \alias{importImage}
 \title{Title}
 \usage{
-importImage(file)
+importImage(path, serie = 1)
 }
 \arguments{
-\item{file}{}
+\item{path}{}
 }
 \description{
 Title
