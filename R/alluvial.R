@@ -6,6 +6,7 @@
 #' relationships between consecutive categories.
 #'
 #' @param x A data.table where each column represents a categorical variable and each row is an entry (see examples).
+#' @param levels If specified, levels will be ordered accordingly.
 #' @param bars.widths Numeric vector specifying the width of the vertical bars. If a single value is provided,
 #'        it will be recycled for all columns. Default= 0.3
 #' @param col Vector of colors used for the color gradient of categories. Default= rainbow(12)
@@ -58,6 +59,7 @@
 #'
 #' @export
 alluvial <- function(x,
+                     levels,
                      bars.widths= .3,
                      col= rainbow(12),
                      xlab= "Categories",
@@ -80,11 +82,13 @@ alluvial <- function(x,
   # Copy for encapsulation ----
   dat <- data.table::copy(x)
   
-  # Convert to factors and order ----
-  if(!all(sapply(dat, is.factor))) {
-    all.lvls <- sort(unique(unlist(dat)))
-    dat <- dat[, lapply(.SD, factor, all.lvls)]
-  }
+  # Convert to factors----
+  if(missing(levels))
+    levels <- sort(unique(unlist(dat)))
+  dat <- dat[, lapply(.SD, factor, levels)]
+  message(paste("The following levels will be used:", paste0( levels, collapse = ", ")))
+  
+  # Order ----
   setorderv(dat, names(dat))
   
   # Checks ----

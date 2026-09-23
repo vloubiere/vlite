@@ -4,6 +4,7 @@
 #'
 #' @param layers Either a matrix or a list of matrices to cluster.
 #' @param grid The size of the grid. Default= c(2, 3).
+#' @param reorder.cl Vector of cluster names used for reordering. Default= NULL.
 #' @param clip.perc An integer vector of length 2 (or a list of length(layers)) specifying the upper and lower 
 #' percentile (between [0-1]) used for the clipping of numeric layers prior to scaling and clustering. Ignored for
 #' character/factor categorical layers. Default= NULL, meaning no clipping is performed.
@@ -28,6 +29,7 @@
 somClustering <- function(
     layers,
     grid= c(2, 3),
+    reorder.cl= NULL,
     clip.perc= NULL,
     clip.per.column= TRUE,
     scale.layers= FALSE,
@@ -66,9 +68,10 @@ somClustering <- function(
       # Coerce to matrix
       var <- as.matrix(var)
       
-      # Clip
+      # Clip extreme values
       if(!is.null(clip.perc[[i]])) {
         if(clip.per.column) {
+          
           # Per-column clipping
           var <- apply(var, 2, function(x) {
             lim <- quantile(x, clip.perc[[i]], na.rm= T)
@@ -78,6 +81,7 @@ somClustering <- function(
           }
           )
         } else {
+          
           # Matrix-wide clipping
           clip <- quantile(var, clip.perc[[i]], na.rm= T)
           var[var<clip[1]] <- clip[1]
@@ -139,6 +143,14 @@ somClustering <- function(
     maxNA.fraction = maxNA.fraction,
     normalizeDataLayers = normalizeDataLayers
   )
+  
+  # Reorder cl ----
+  if(!is.null(reorder.cl)) {
+    som$unit.classif <- factor(
+      som$unit.classif,
+      levels = c(reorder.cl, setdiff(unique(som$unit.classif), reorder.cl))
+    )
+  }
   
   # Return som object ----
   som$clip.perc <- clip.perc

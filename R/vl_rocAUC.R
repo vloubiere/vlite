@@ -7,6 +7,7 @@
 #' @param compute.NES Should the Normalized Enrichment Score be computed (Niter= 1000)? Default= TRUE.
 #' @param N.iter Number of iterations used to compute the NES. Default= 100L
 #' @param decreasing Should the sort order for rank be decreasing? Default= TRUE.
+#' @param Ntop If specified, only the top N ranks will be used.
 #' @param plot Should the ROC be plotted? Default= FALSE.
 #' @param main Main title Default= "ROC".
 #' @param xlab xlab. Default= "FPR".
@@ -22,23 +23,29 @@
 #' @return ROC AUC, NES and/or the ROC curve.
 #' 
 #' @export
-vl_rocAUC <- function(rank,
-                      label,
-                      compute.NES= TRUE,
-                      N.iter= 100L,
-                      decreasing= TRUE,
-                      plot= FALSE,
-                      main= "ROC",
-                      xlab= "FPR",
-                      ylab= "TPR",
-                      type= "l",
-                      add= FALSE,
-                      ...)
+vl_rocAUC <- function(
+    rank,
+    label,
+    compute.NES= TRUE,
+    N.iter= 100L,
+    seed= 123,
+    decreasing= TRUE,
+    Ntop,
+    plot= FALSE,
+    main= "ROC",
+    xlab= "FPR",
+    ylab= "TPR",
+    type= "l",
+    add= FALSE,
+    col= "black",
+    ...
+)
 {
   # Checks ----
   if(!is.logical(label))
     label <- as.logical(label)
   stopifnot(is.logical(label))
+  stopifnot(any(label), any(!label))
   stopifnot(length(label)==length(rank))
   
   # Compute ROC auc ----
@@ -46,47 +53,54 @@ vl_rocAUC <- function(rank,
     response= label,
     predictor= rank,
     direction= ifelse(decreasing, "<", ">"),
-    levels= c(F, T)
+    levels= c(F, T),
+    na.rm= TRUE
   )
   auc <- as.numeric(pROC::auc(ROC))
   
   # Compute NES ---
   if(compute.NES) {
-    set.seed(123)
+    set.seed(seed)
     rdm <- sapply(seq(N.iter), function(i) {
-      ROC <- pROC::roc(
+      rdm.ROC <- pROC::roc(
         response= sample(label),
         predictor= rank,
         direction= ifelse(decreasing, "<", ">"),
         levels= c(F, T)
       )
-      as.numeric(pROC::auc(ROC))
+      as.numeric(pROC::auc(rdm.ROC))
     })
     NES <- (auc - mean(rdm)) / sd(rdm)
-  }
+  } else
+    NA <- as.numeric(NA)
   
   # Plot ----
+  x.FPR <- 1-ROC$specificities # FPR= 1-specificity
+  y.TPR <- ROC$sensitivities # TPR= sensitivity
   if(add)
   {
-    lines(1-ROC$specificities, # FPR= 1-specificity
-          ROC$sensitivities, # TPR= sensitivity
-          col= "red",
-          ...)
+    lines(
+      x.FPR,
+      y.TPR,
+      col= col,
+      ...
+    )
   } else if(plot)
   {
-    plot(1-ROC$specificities, # FPR= 1-specificity
-         ROC$sensitivities, # TPR= sensitivity
-         xlab= xlab,
-         ylab= ylab,
-         type= type,
-         main= main,
-         ...)
+    plot(
+      x.FPR,
+      y.TPR,
+      xlab= xlab,
+      ylab= ylab,
+      type= type,
+      main= main,
+      col= col,
+      ...
+    )
     abline(0, 1, lty = 2, col = "grey")
   }
   
   # Return ----
-  var <- if(compute.NES)
-    data.table(auc= auc, NES= NES) else
-      data.table(auc= auc)
+  var <- data.table(auc= auc, NES= NES, x.FPR= x.FPR, y.TPR= y.TPR)
   return(var)
 }

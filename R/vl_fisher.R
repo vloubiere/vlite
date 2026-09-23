@@ -17,11 +17,11 @@ vl_fisher <- function(x, y= NULL, ...) {
   }
   # Compute test
   .f <- fisher.test(x, y= NULL, ...)
-  
+
   # Add corrected log2OR
   .f$log2OR.corr <- if(any(x==0)) {
     x <- x+.5
-    (x[1,1] * x[2,2]) / (x[2,1] * x[1,2])
+    log2((x[1,1] * x[2,2]) / (x[2,1] * x[1,2]))
   } else {
     log2(.f$estimate)
   }

@@ -4,14 +4,16 @@
 \alias{addImageLegend}
 \title{Title}
 \usage{
-addImageLegend(channels = "DAPI", col = "blue", title = "Image")
+addImageLegend(channels = "DAPI", col = "blue", title, cex = 1)
 }
 \arguments{
-\item{channels}{}
+\item{channels}{A vector of names for the channels (DAPI, GFP...).}
 
-\item{col}{}
+\item{col}{Channel colors}
 
-\item{title}{}
+\item{title}{A title for the image.}
+
+\item{cex}{Expansion factor applied to test.}
 }
 \description{
 Title

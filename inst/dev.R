@@ -6,21 +6,32 @@ devtools::load_all("./")
 file.edit("R/hicScreenshot.R")
 ## vl_fisher_test ----
 file.edit("R/vl_fisher.R")
+file.edit("R/fisherTests.R")
 ## Hilbert curves ----
 file.edit("R/vl_hilbertCurves.R")
 file.edit("R/HelperFunctions_hilbertCurves.R")
 ## iCistarget genes method ----
 file.edit("R/vl_iCisTarget.genes.R")
+## Add labels on the right of heatmap ----
+file.edit("R/addRepelAxis.R")
+## vl_motif ----
+file.edit("R/helperFunctions_motifEnrichRanks.R")
+file.edit("R/vl_motifEnrichRanks.R")
+file.edit("R/plot.vl_enrRank.R")
+file.edit("R/vl_iCisEnrich.R")
+file.edit("R/plot.vl_iCisEnr.R")
 
 # Needs to be checked ------------------------------------------------------------------------------------
 ## Microscopy ----
 file.edit("R/getMetadataImage.R")
 file.edit("R/importImage.R")
 file.edit("R/maxProjectionImage.R")
+file.edit("R/threshImage.R")
 file.edit("R/clipImage.R")
 file.edit("R/compositeImage.R")
 file.edit("R/plotImage.R")
 file.edit("R/addImageLegend.R")
+file.edit("R/addImageHisto.R")
 file.edit("R/bindImage.R")
 
 # Stable functions ---------------------------------------------------------------------------------------

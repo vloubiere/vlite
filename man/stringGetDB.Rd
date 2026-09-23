@@ -4,14 +4,21 @@
 \alias{stringGetDB}
 \title{Build STRING db}
 \usage{
-stringGetDB(species, network_type = "full", version = "11.0")
+stringGetDB(
+  species,
+  network_type = "full",
+  version = "12.0",
+  input_directory = tempdir()
+)
 }
 \arguments{
 \item{species}{either "Dm" or "Mm"}
 
 \item{network_type}{The type of interactions to be used. Can be one of "full" (full functional, default) or "physical" if only physical interactions are to be considered}
 
-\item{version}{databse version. default= "10"}
+\item{version}{databse version. default= "12.0"}
+
+\item{input.directory}{The input directory where db will be saved. Default= tempdir().}
 }
 \description{
 Build STRING db

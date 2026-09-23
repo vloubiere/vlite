@@ -8,9 +8,13 @@
 #' @param xlim Limits for the x axis.
 #' @param ylim Limits for the y axis.
 #' @param names.arg A vector of names to be plotted below each bar or group of bars. 
-#' @param bar.height.FUN A function specifying how to process bar height before plotting. 
+#' @param show.bar.numbers Should bar numbers be shown? If set to TRUE, the height of the bar will be
+#' added, after applying the bar.numbers.FUN function. If a vector of matching length is provided, it will
+#' be plotted as is.
+#' @param bar.numbers.FUN A function specifying how to process bar height before plotting. 
 #' If set to NULL, no value is plotted.
-#' @param bar.height.cex Bar height cex.
+#' @param bar.numbers.cex Bar number labels cex.
+#' @param bar.numbers.offset Bar number labels offset. Default= .5.
 #' @param col Color used for bars.
 #' @param beside If set to TRUE and x is a data.table or a matrix, columns are shown
 #' as juxtaposed bars. Default= FALSE.
@@ -28,6 +32,7 @@
 #' @param sd.arrow.length When x is a list, length of the sd arrow heads.
 #' @param horiz Should the plot be horizontal? Default= F.
 #' @param add Should the plot be added to an existing plot? Default= F.
+#' @param ... Additional arguments to be passed to barplot().
 #'
 #' @return Plots a nice barplot with regularly spaced bars align on integers.
 #'
@@ -45,8 +50,10 @@ vl_barplot <- function(
     ylim= NULL,
     names.arg= NULL,
     ylab= NA,
-    bar.height.FUN= function(x) round(x, .1),
-    bar.height.cex= .7,
+    show.bar.numbers= TRUE,
+    bar.numbers.FUN= function(x) round(x, .1),
+    bar.numbers.cex= .7,
+    bar.numbers.offset= .5,
     col= NULL,
     beside= FALSE,
     width= .8,
@@ -60,7 +67,8 @@ vl_barplot <- function(
     sd.arrow.lwd= .5,
     sd.arrow.length= width/10,
     horiz= F,
-    add= F
+    add= F,
+    ...
 ) {
   # Checks ----
   stopifnot(width<=1)
@@ -124,7 +132,8 @@ vl_barplot <- function(
     xaxt= ifelse(horiz, "s", "n"),
     yaxt= ifelse(horiz, "n", "s"),
     col= col,
-    ylab= ylab
+    ylab= ylab,
+    ...
   )
   bars <- c(bar)
   
@@ -176,18 +185,30 @@ vl_barplot <- function(
     }
     )
   } else {
-    if(is.function(bar.height.FUN)) {
-      # Comput values to plot
+    if(!isFALSE(show.bar.numbers)) {
+      # Compute bars height
       bar.height <- if(!beside && !is.null(nrow(x)) && nrow(x)>1)
         apply(x, sum) else
           unlist(x)
+      
+      # Compute labels
+      bar.labels <- if(isTRUE(show.bar.numbers))
+        bar.numbers.FUN(bar.height) else if (is.vector(show.bar.numbers) && length(show.bar.numbers)==length(bars))
+          show.bar.numbers else
+            stop("Error while computing labels to plot")
+      
+      # Plot 
+      x.lab <- if(horiz) bar.height else bars
+      y.lab <- if(horiz) bars else bar.height
+      pos.lab <- if(horiz) ifelse(bar.height>0, 4, 2) else ifelse(bar.height>0, 3, 1)
       text(
-        x = bars,
-        y = bar.height,
-        labels = bar.height.FUN(bar.height),
-        cex = bar.height.cex,
+        x = x.lab,
+        y = y.lab,
+        labels = bar.labels,
+        cex = bar.numbers.cex,
         xpd= NA,
-        pos= ifelse(bar.height>0, 3, 1)
+        pos= pos.lab,
+        offset= bar.numbers.offset
       )
     }
   }

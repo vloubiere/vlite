@@ -49,7 +49,7 @@ cmd_download <- function(url,
 
   # Submit or return command ----
   if(submit) {
-    vl_submit(cmd, cores = 1, mem = 1, job.name = "dl", logs = "~/")
+    submitCav(cmd, logs = output.folder, conda = NULL, name = "dl", create.output.dirs = T, overwrite = F)
   } else {
     # Return
     return(cmd)

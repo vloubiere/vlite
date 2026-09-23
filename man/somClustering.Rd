@@ -7,6 +7,7 @@
 somClustering(
   layers,
   grid = c(2, 3),
+  reorder.cl = NULL,
   clip.perc = NULL,
   clip.per.column = TRUE,
   scale.layers = FALSE,
@@ -20,6 +21,8 @@ somClustering(
 \item{layers}{Either a matrix or a list of matrices to cluster.}
 
 \item{grid}{The size of the grid. Default= c(2, 3).}
+
+\item{reorder.cl}{Vector of cluster names used for reordering. Default= NULL.}
 
 \item{clip.perc}{An integer vector of length 2 (or a list of length(layers)) specifying the upper and lower 
 percentile (between [0-1]) used for the clipping of numeric layers prior to scaling and clustering. Ignored for

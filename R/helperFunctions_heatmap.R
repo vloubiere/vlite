@@ -16,8 +16,14 @@ toNumMatrix <-  function(x)
   } else {
     checkClass <- "non-factor"
   }
-  if(is.logical(x))
-    x <- apply(x, 2, as.numeric)
+  if(is.logical(x)) {
+    x <- matrix(
+      as.numeric(x),
+      nrow = nrow(x),
+      ncol = ncol(x),
+      dimnames = list(rownames(x), colnames(x))
+    )
+  }
   if(!is.numeric(x))
     stop("x should contain numeric values, factors or logical values.")
   
@@ -116,13 +122,13 @@ heatmap.get.clusters <- function(dim= "row",
     stopifnot(dim=="row")
     # Extract centers
     centers <- rbindlist(split(as.data.table(order.cl), obj$cluster), idcol = "cluster")
-    centers <- centers[, lapply(.SD, mean), cluster]
+    centers <- centers[, lapply(.SD, mean, na.rm= T), cluster]
     centers <- as.matrix(centers, 1)
     
     # zscore
     centers <- t(scale(t(centers), center= F))
     max.col <- apply(centers, 1, which.max)
-    max.var <- apply(centers, 1, max)
+    max.var <- apply(centers, 1, max, na.rm= T)
     ordered <- levels(obj$cluster)[order(max.col, -max.var)]
     # Save new order
     obj[, cluster:= factor(cluster, ordered)]

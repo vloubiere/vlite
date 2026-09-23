@@ -8,6 +8,7 @@ randomRegionsBSgenome(
   genome,
   widths,
   restrict.seqnames = NULL,
+  replace = T,
   no.overlaps = NULL,
   ignore.strand = TRUE
 )

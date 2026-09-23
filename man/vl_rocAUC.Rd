@@ -9,13 +9,16 @@ vl_rocAUC(
   label,
   compute.NES = TRUE,
   N.iter = 100L,
+  seed = 123,
   decreasing = TRUE,
+  Ntop,
   plot = FALSE,
   main = "ROC",
   xlab = "FPR",
   ylab = "TPR",
   type = "l",
   add = FALSE,
+  col = "black",
   ...
 )
 }
@@ -29,6 +32,8 @@ vl_rocAUC(
 \item{N.iter}{Number of iterations used to compute the NES. Default= 100L}
 
 \item{decreasing}{Should the sort order for rank be decreasing? Default= TRUE.}
+
+\item{Ntop}{If specified, only the top N ranks will be used.}
 
 \item{plot}{Should the ROC be plotted? Default= FALSE.}
 

@@ -13,7 +13,7 @@ tiltAxis(
   pos = 2,
   xpd = NA,
   cex = par("cex.axis"),
-  ticks = FALSE,
+  lwd = NA,
   ...
 )
 }
@@ -37,6 +37,8 @@ Default is 0.25.}
 (plotting allowed outside plot region).}
 
 \item{cex}{Numeric character expansion factor. Default is par("cex.axis").}
+
+\item{lwd}{Line width used to plot the axes. Default= NA (no axis line).}
 
 \item{...}{Additional arguments passed to text().}
 }

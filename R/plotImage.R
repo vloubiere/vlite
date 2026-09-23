@@ -1,10 +1,8 @@
 #' Title
 #'
-#' @param im 
-#' @param jpeg.file 
-#' @param main 
-#' @param col 
-#' @param cex 
+#' @param im Two-dimensional image to plot.
+#' @param pxSizeX_um Pixel width in micrometres.
+#' @param scale.bar Scale-bar length in micrometres. Use `NA` or `NULL` to omit it.
 #'
 #' @returns
 #' @export
@@ -13,19 +11,24 @@
 plotImage <- function(
     im,
     pxSizeX_um= NULL,
-    scale.bar= 100,
-    all= FALSE
+    scale.bar= 100
 ) {
-  stopifnot(class(im)[1] %in% c("matrix", "array", "Image"))
+  stopifnot(inherits(im, c("matrix", "array", "Image")))
   
   # Adjust plotting parameters
-  par(xaxs= "i", yaxs= "i", pty= "s")
+  if(nrow(im)==ncol(im))
+    par(xaxs= "i", yaxs= "i", pty= "s") else
+      par(xaxs= "i", yaxs= "i")
   
   # Plot image
-  EBImage::display(im, method= "raster", all= all)
+  EBImage::display(
+    im,
+    method= "raster",
+    all= all # all frames of a stacked EBI image will be arranged in a grid
+  )
   
   # Add scale bar
-  if(!is.na(scale.bar)) {
+  if(!is.null(scale.bar) && !is.na(scale.bar)) {
     if(is.null(pxSizeX_um)) {
       warning("pxSizeX_um missing -> scale bar skipped!")
     } else {

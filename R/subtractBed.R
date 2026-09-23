@@ -50,6 +50,7 @@ subtractBed <- function(a,
   # Retrieve additional columns ----
   add <- a[, !c("seqnames", "start", "end", "strand")]
   add <- a[(row.idx), env= list(row.idx= row.idx)]
+  setnames(add, function(x) paste0(x, ".a"))
   res <- cbind(sub, add)
 
   # Return ----

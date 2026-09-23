@@ -19,6 +19,7 @@
 #' @param xpd Logical or NA controlling clipping region. Default is NA
 #'   (plotting allowed outside plot region).
 #' @param cex Numeric character expansion factor. Default is par("cex.axis").
+#' @param lwd Line width used to plot the axes. Default= NA (no axis line).
 #' @param ... Additional arguments passed to text().
 #'
 #' @return
@@ -45,16 +46,18 @@
 #' \code{\link{gImage}} for heatmap plotting function
 #'
 #' @export
-tiltAxis <- function(x,
-                     y= NULL,
-                     labels,
-                     srt= 45,
-                     offset= 0.1,
-                     pos= 2,
-                     xpd= NA,
-                     cex= par("cex.axis"),
-                     ticks= FALSE,
-                     ...)
+tiltAxis <- function(
+    x,
+    y= NULL,
+    labels,
+    srt= 45,
+    offset= 0.1,
+    pos= 2,
+    xpd= NA,
+    cex= par("cex.axis"),
+    lwd= NA,
+    ...
+)
 {
   # Checks
   if(is.null(y)) {
@@ -62,7 +65,7 @@ tiltAxis <- function(x,
     adj <- line.width*par("mgp")[2]
     y <- par("usr")[3]-adj
   }
-
+  
   # Plot
   text(x,
        rep(y, length.out= length(x)),
@@ -73,14 +76,16 @@ tiltAxis <- function(x,
        xpd= xpd,
        cex= cex,
        ...)
-
-  # Ticks
-  if(ticks)
+  
+  # Axis line
+  if(!is.na(lwd))
   {
-    segments(x,
-             par("usr")[3],
-             x,
-             par("usr")[3]-strheight("M")*offset/2,
-             xpd= xpd)
+    axis(
+      1,
+      lwd= lwd,
+      xpd= xpd,
+      at= x,
+      labels = FALSE
+    )
   }
 }

@@ -67,12 +67,11 @@ hicScreenshot <- function(
     # Import hic data ----
     hic <- HiCExperiment::import(
       con = mcool.file,
-      focus = region,
-      resolution = resolution
+      resolution = resolution,
+      focus = region
     )
     dmat <- as.data.table(hic@interactions)
     dmat[, score:= hic@scores$balanced]
-    
   } else if(!missing(misha.track)) {
     
     # Load misha db ----
@@ -140,7 +139,7 @@ hicScreenshot <- function(
   # Set plotting parameters ----
   if(!missing(mcool.file)) {
     # Color
-    c(
+    Cc <- c(
       "#FFFFFF",
       "#FFFFCC",
       "#FFEDA0",

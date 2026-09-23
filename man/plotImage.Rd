@@ -4,18 +4,14 @@
 \alias{plotImage}
 \title{Title}
 \usage{
-plotImage(im, pxSizeX_um = NULL, scale.bar = 100, all = FALSE)
+plotImage(im, pxSizeX_um = NULL, scale.bar = 100)
 }
 \arguments{
-\item{im}{}
+\item{im}{Two-dimensional image to plot.}
 
-\item{jpeg.file}{}
+\item{pxSizeX_um}{Pixel width in micrometres.}
 
-\item{main}{}
-
-\item{col}{}
-
-\item{cex}{}
+\item{scale.bar}{Scale-bar length in micrometres. Use `NA` or `NULL` to omit it.}
 }
 \description{
 Title

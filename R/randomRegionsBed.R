@@ -27,6 +27,7 @@
 #' @export
 randomRegionsBed <- function(bed,
                              widths= rep(100, 1000),
+                             replace= T,
                              no.overlaps= NULL,
                              ignore.strand= TRUE)
 {
@@ -43,26 +44,33 @@ randomRegionsBed <- function(bed,
     )
   }
   
-  # Update width after subtraction ----
-  bed[, width:= end-start+1]
-  
-  # Sanity check ----
-  if(any(widths>max(bed$width)))
+  # Compute prob. based on width (after subtraction) ----
+  bed[, prob:= end-start+1]
+  # Sanity check
+  if(any(widths>max(bed$prob)))
     stop("Some widths are wider than any remaining region.")
+  if("width" %in% names(bed))
+    bed$width <- NULL
   
-  # Join input regions that are wide enough for sampling ----
+  # Sample input regions that are wide enough for sampling ----
   rdm <- data.table(width= widths)
-  rdm[, row.idx:= .I]
-  rdm <- bed[rdm, on= "width>=width"]
-  
-  # Compute number of valid starting positions ----
-  rdm[, npos:= (end-start+1) - width + 1]
-  stopifnot(all(rdm$npos>0))
-  
-  # Sample input regions accordingly ----
-  rdm <- rdm[, .SD[sample(.N, prob = npos, size = 1)], row.idx]
+  rdm <- rdm[, {
+    # Select based on size
+    sel <- bed$prob>=width
+    # Sample
+    idx <- sample(
+      x = which(sel),
+      prob = bed$prob[sel],
+      size= .N,
+      replace = replace
+    )
+    bed[idx]
+  }, width]
   
   # Randomly sample starting coordinates ----
+  # Compute number of possible starts (increments)
+  rdm[, npos:= prob-width+1]
+  # Sample
   rdm[, add:= sample.int(npos, size= .N, replace= T)-1, npos]
   rdm[, new.start:= start+add]
   rdm <- rdm[, .(seqnames, start= new.start, end= new.start+width-1, strand, width)]

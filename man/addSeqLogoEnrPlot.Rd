@@ -7,7 +7,10 @@
 addSeqLogoEnrPlot(obj, ICM, cex.width = 1, cex.height = 1)
 }
 \arguments{
-\item{obj}{An `vl_enr_cl` object as returned by the ?plot.vl_enr_cl funciton.}
+\item{obj}{Either a data.table containing 'name' and 'y' columns, similar to the $rows data.table
+returned by vl_heatmap or the `vl_enr_cl` object returned by the ?plot.vl_enr_cl function.
+The 'name' values should match the motif names present in the provided ICMatrixList (see next arugment),
+and y corresponds to the y plotting positions of each row.}
 
 \item{cex.width}{A width expansion factor applied to letter heights.}
 
@@ -16,7 +19,7 @@ addSeqLogoEnrPlot(obj, ICM, cex.width = 1, cex.height = 1)
 \item{ICMatrixList}{An ICMatrixList object containing the motifs to add.}
 }
 \description{
-Specialized funciton used to plot motif logs on the left of a vl_enr_cl plot.
+Specialized funciton used to plot motif logs on the left of a heatmap/balloon plot.
 }
 \examples{
 # Select br PPM

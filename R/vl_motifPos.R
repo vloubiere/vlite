@@ -86,26 +86,39 @@ vl_motifPos <- function(sequences,
     stop("sequences of bed regions should be specified.")
   if(is.null(genome) && (missing(sequences) | bg=="genome"))
     stop("genome is set to NULL.")
-  if(is.list(sequences))
-    sequences <- unlist(sequences)
   if(!"PWMatrixList" %in% class(pwm_log_odds))
     pwm_log_odds <- do.call(TFBSTools::PWMatrixList, pwm_log_odds)
   if(anyDuplicated(sapply(pwm_log_odds, TFBSTools::name)))
     stop("Duplicated motif names in provided PWMs. Check them using TFBSTools::name().")
   if(!is.numeric(p.cutoff) || p.cutoff>1)
     stop("p.cutoff should be a numeric value <= 1")
-
+  
   # Get sequences ----
   if(missing(sequences)) {
     bed <- importBed(bed)
     sequences <- getBSsequence(bed, genome)
+    # Check names are unique
+    if(any(duplicated(names(sequences)))) {
+      message(
+        paste(
+          c(
+            "The following sequence names were duplicated and will be made unique:",
+            names(sequences)[duplicated(names(sequences))]),
+          collapse = "\n"
+        )
+      )
+      names(sequences) <- make.unique(names(sequences))
+    }
   }
+  # Check format
+  if(is.list(sequences))
+    sequences <- unlist(sequences)
   stopifnot(is.character(sequences))
-
+  
   # Make sure sequence names are unique ----
   if(is.null(names(sequences)) || anyDuplicated(names(sequences)))
     stop("All sequences should have a unique name!")
-
+  
   # Create tmp output folder ----
   params <- list(sequences,
                  ifelse(bg=="genome", genome, bg),
@@ -117,7 +130,7 @@ vl_motifPos <- function(sequences,
   dir.create(tmp.folder,
              showWarnings = FALSE,
              recursive = TRUE)
-
+  
   # Create final file cache name ----
   final.file <- vl_cache_file(
     list(
@@ -129,25 +142,25 @@ vl_motifPos <- function(sequences,
     tmp.dir = tmp.folder,
     extension = ".rds"
   )
-
+  
   # Main function ----
   if(!file.exists(final.file) | cleanup.cache) {
-
+    
     # Retrieve unique motif names ----
     mot.names <- sapply(pwm_log_odds, TFBSTools::name)
     mot.names <- make.unique(mot.names)
-
+    
     # Generate output file names ----
     output.files <- paste0(tmp.folder, "/", gsub("/", "__", mot.names), ".rds")
-
+    
     # Check for existing files ----
     missing.files <- !file.exists(output.files) | cleanup.cache
-
+    
     # Map motifs ----
     if(any(missing.files))
     {
       print(paste0(sum(!missing.files), "/", length(pwm_log_odds), " motif files already existed!"))
-
+      
       # Call position ----
       parallel::mcmapply(function(mot, output.file)
       {
@@ -165,28 +178,29 @@ vl_motifPos <- function(sequences,
       mc.cores = max(c(1, data.table::getDTthreads()-1)))
     }
     print("All motif positions computed ;)")
-
+    
     # Post-processing ----
     pos <- data.table(motif= mot.names,
                       file= output.files)
     final <- pos[, {
       # Import
+      print(paste("Reading file:", file))
       .c <- readRDS(file)
       .c <- as.data.table(.c)
-
+      
       # Select positive strand motifs
       if(pos.strand)
         .c <- .c[strand=="+"]
-
+      
       # Add seqnames
       .c[, seqnames:= names(sequences)[group]]
-
+      
       # If specified, collapsed motifs that overlap >70%, ignore.strand
       if(collapse.overlapping && nrow(.c))
       {
         # Collapse
         coll <-  collapseBed(bed = .c, ignore.strand = TRUE)
-
+        
         # Re-split large regions into bins corresponding to 70% motif width
         mot.width <- ceiling(mean(.c$width)*0.7)
         coll$nBins <- floor(coll[, end-start+1]/mot.width)
@@ -201,30 +215,30 @@ vl_motifPos <- function(sequences,
           coll$coll.idx <- coll$line.idx <- coll$bin.idx <- NULL
         }
         coll$nBins <- NULL
-
+        
         # Compute width
         coll[, width:= end-start+1]
-
+        
         # Retrieve score
         coll$score <- .c[coll, max(score), .EACHI, on= c("seqnames", "start<=end", "end>=start")]$V1
-
+        
         # Overwrite current table
         .c <- coll
       }
-
+      
       # Simplify ir to list
       .c[, seqlvls:= seqnames]
       cols <- intersect(names(.c), c("start", "end", "strand", "width", "score"))
       .c <- .c[, .(mot.count= .N, ir= .(.SD)), seqlvls, .SDcols= cols]
-
+      
       # Add missing levels
       all <- data.table(seqlvls= names(sequences))
       res <- merge(all, .c, by= "seqlvls", all.x= TRUE, sort= FALSE)
-
+      
       # Return
       res
     }, motif]
-
+    
     # Save cache file
     saveRDS(final,
             final.file)
@@ -232,8 +246,8 @@ vl_motifPos <- function(sequences,
     message("All intermediate files exist -> importing final table.")
     final <- readRDS(final.file)
   }
-
-
+  
+  
   # Return ----
   return(final)
 }

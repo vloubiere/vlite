@@ -29,29 +29,33 @@
 randomRegionsBSgenome <- function(genome,
                                   widths,
                                   restrict.seqnames= NULL,
+                                  replace= T,
                                   no.overlaps= NULL,
                                   ignore.strand= TRUE)
 {
   # Checks ----
   if(!is.null(restrict.seqnames) && length(restrict.seqnames)==0)
     stop("restrict.seqnames should contain at least one seqname.")
-
+  
   # Retrieve chromosome sizes ----
   bed <- getBSgenomeSize(genome= genome)
-
+  
   # Restrict seqnames ----
   if(!is.null(restrict.seqnames)) {
     if(!all(restrict.seqnames %in% bed$seqnames))
       stop("All provided restrict.seqnames should exist in the provided genome.")
     bed <- bed[seqnames %in% restrict.seqnames]
   }
-
+  
   # Random sampling ----
-  rdm <- randomRegionsBed(bed= bed,
-                          widths= widths,
-                          no.overlaps= no.overlaps,
-                          ignore.strand= ignore.strand)
-
+  rdm <- randomRegionsBed(
+    bed= bed,
+    widths= widths,
+    replace= replace,
+    no.overlaps= no.overlaps,
+    ignore.strand= ignore.strand
+  )
+  
   # Return ----
   return(rdm)
 }

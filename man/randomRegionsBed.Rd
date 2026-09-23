@@ -7,6 +7,7 @@
 randomRegionsBed(
   bed,
   widths = rep(100, 1000),
+  replace = T,
   no.overlaps = NULL,
   ignore.strand = TRUE
 )

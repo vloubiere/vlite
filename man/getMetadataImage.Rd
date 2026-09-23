@@ -2,13 +2,17 @@
 % Please edit documentation in R/getMetadataImage.R
 \name{getMetadataImage}
 \alias{getMetadataImage}
-\title{Title}
+\title{Get image metadata}
 \usage{
-getMetadataImage(paths)
+getMetadataImage(paths, tmp.dir = tempdir(), cleanup.cache = FALSE)
 }
 \arguments{
 \item{paths}{A vector of file paths for which metadata should be extracted}
+
+\item{tmp.dir}{A temp dir where to save the metadata}
+
+\item{cleanup.cache}{Should the cache be cleaned up?}
 }
 \description{
-Title
+Get image metadata
 }

@@ -1,15 +1,18 @@
-#' Title
+#' Maximum project of an image.
 #'
-#' @param im 
-#' @param start 
-#' @param end 
-#' @param FUN 
+#' @param im Image to process.
+#' @param start The first z-section to be included in the max projection.
+#' @param end  The last z-section to be included in the max projection.
 #'
 #' @returns
 #' @export
 #'
 #' @examples
-maxProjectionImage <- function(im, start = 1, end = dim(im)[4], FUN = pmax) {
+maxProjectionImage <- function(
+    im,
+    start = 1,
+    end = dim(im)[4]
+) {
   stopifnot(inherits(im, "AnnotatedImage") | inherits(im, "array"))
   
   # If several z-sections
@@ -18,17 +21,17 @@ maxProjectionImage <- function(im, start = 1, end = dim(im)[4], FUN = pmax) {
     # For each channel
     for(i in seq_len(dim(im)[3])) {
       print(i)
-      # z sections as least
+      # Selected z sections as list
       .c <- lapply(seq.int(start, end), function(j) im[, , i, j])
-      # Save max in first z section
-      im[, , i, 1] <- do.call(FUN, .c)
+      # Compute pixel-wise max across selected z and store it in the 1st z slot
+      im[, , i, 1] <- do.call(pmax, .c)
     }
   }
   
-  # Drop 4th dimention
+  # Keep only first 1-section (max) for each color
   if(length(dim(im))==4)
     im <- im[, , , 1, drop = TRUE]
   
-  # Return first z section
+  # Return
   return(im)
 }

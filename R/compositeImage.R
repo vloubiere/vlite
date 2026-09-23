@@ -24,7 +24,7 @@ compositeImage <- function(im, red= NULL, green= NULL, blue= NULL, white= NULL) 
   # Assemble image ----
   comp <- if(is.empty) 
     EBImage::rgbImage(
-      red = matrix(0, nrow= nrow(im[,,1]), ncol= nrow(im[,,1])),
+      red = matrix(0, nrow= nrow(im[,,1]), ncol= ncol(im[,,1])),
     ) else 
       EBImage::rgbImage(
         red = if(is.null(red) & is.null(white)) NULL else Reduce(`+`, lapply(unlist(c(red, white)), function(i) im[, , i])),

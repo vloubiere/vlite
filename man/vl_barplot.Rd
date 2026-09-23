@@ -10,8 +10,10 @@ vl_barplot(
   ylim = NULL,
   names.arg = NULL,
   ylab = NA,
-  bar.height.FUN = function(x) round(x, 0.1),
-  bar.height.cex = 0.7,
+  show.bar.numbers = TRUE,
+  bar.numbers.FUN = function(x) round(x, 0.1),
+  bar.numbers.cex = 0.7,
+  bar.numbers.offset = 0.5,
   col = NULL,
   beside = FALSE,
   width = 0.8,
@@ -25,7 +27,8 @@ vl_barplot(
   sd.arrow.lwd = 0.5,
   sd.arrow.length = width/10,
   horiz = F,
-  add = F
+  add = F,
+  ...
 )
 }
 \arguments{
@@ -39,10 +42,16 @@ standard deviation will be added.}
 
 \item{names.arg}{A vector of names to be plotted below each bar or group of bars.}
 
-\item{bar.height.FUN}{A function specifying how to process bar height before plotting. 
+\item{show.bar.numbers}{Should bar numbers be shown? If set to TRUE, the height of the bar will be
+added, after applying the bar.numbers.FUN function. If a vector of matching length is provided, it will
+be plotted as is.}
+
+\item{bar.numbers.FUN}{A function specifying how to process bar height before plotting. 
 If set to NULL, no value is plotted.}
 
-\item{bar.height.cex}{Bar height cex.}
+\item{bar.numbers.cex}{Bar number labels cex.}
+
+\item{bar.numbers.offset}{Bar number labels offset. Default= .5.}
 
 \item{col}{Color used for bars.}
 
@@ -74,6 +83,8 @@ spaced and aligned on increasing integer indices.}
 \item{horiz}{Should the plot be horizontal? Default= F.}
 
 \item{add}{Should the plot be added to an existing plot? Default= F.}
+
+\item{...}{Additional arguments to be passed to barplot().}
 }
 \value{
 Plots a nice barplot with regularly spaced bars align on integers.

@@ -2,19 +2,17 @@
 % Please edit documentation in R/maxProjectionImage.R
 \name{maxProjectionImage}
 \alias{maxProjectionImage}
-\title{Title}
+\title{Maximum project of an image.}
 \usage{
-maxProjectionImage(im, start = 1, end = dim(im)[4], FUN = pmax)
+maxProjectionImage(im, start = 1, end = dim(im)[4])
 }
 \arguments{
-\item{im}{}
+\item{im}{Image to process.}
 
-\item{start}{}
+\item{start}{The first z-section to be included in the max projection.}
 
-\item{end}{}
-
-\item{FUN}{}
+\item{end}{The last z-section to be included in the max projection.}
 }
 \description{
-Title
+Maximum project of an image.
 }

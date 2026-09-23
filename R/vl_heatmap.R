@@ -392,10 +392,10 @@ vl_heatmap <- function(x,
               useRaster= useRaster,
               add= TRUE)
         if(show.grid) {
-          x <- seq(x.pos[1]-0.5, rev(x.pos)[1]+0.5)
-          segments(x,
+          x.g <- seq(x.pos[1]-0.5, rev(x.pos)[1]+0.5)
+          segments(x.g,
                    rev(y.pos)[1]+0.5,
-                   x,
+                   x.g,
                    y.pos[1]-0.5,
                    lwd= grid.lwd)
           y <- seq(y.pos[1]-0.5, rev(y.pos)[1]+0.5)
@@ -520,14 +520,19 @@ vl_heatmap <- function(x,
         # Adjust margin
         right.mar <- right.mar+line.width
       } else if(show.row.clusters=="left") {
-        # Plot on the left side
-        axis(
-          2,
+        # Plot clusters on the left side
+        addRepelAxis(
+          side= 2,
           at = rows[, mean(y.pos), cluster]$V1,
-          labels = rows[, paste0(cluster, " (n= ", formatC(.N, big.mark = ","), ")"), cluster]$V1,
-          tick = FALSE,
-          gap.axis= row.gap.axis
+          labels = rows[, paste0(cluster, " (n= ", formatC(.N, big.mark = ","), ")"), cluster]$V1 
         )
+        # axis(
+        #   2,
+        #   at = rows[, mean(y.pos), cluster]$V1,
+        #   labels = rows[, paste0(cluster, " (n= ", formatC(.N, big.mark = ","), ")"), cluster]$V1,
+        #   tick = FALSE,
+        #   gap.axis= row.gap.axis
+        # )
       }
     }
     

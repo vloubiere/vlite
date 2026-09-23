@@ -1,6 +1,8 @@
-#' Title
+#' Get image metadata
 #'
 #' @param paths A vector of file paths for which metadata should be extracted 
+#' @param tmp.dir A temp dir where to save the metadata
+#' @param cleanup.cache Should the cache be cleaned up?
 #'
 #' @returns
 #' @export
@@ -8,7 +10,8 @@
 #' @examples
 getMetadataImage <- function(
     paths,
-    tmp.dir= tempdir()
+    tmp.dir= tempdir(),
+    cleanup.cache = FALSE
 ) {
   # Checks ----
   stopifnot(all(grepl(".czi$|.lif$", paths)))
@@ -20,7 +23,7 @@ getMetadataImage <- function(
   # Check if file exists ----
   dir.create(tmp.dir, showWarnings = F, recursive = T)
   tmp <- vlite::vl_cache_file(input.list = list(dat= dat), tmp.dir = tmp.dir)
-  if(!file.exists(tmp)) {
+  if(cleanup.cache || !file.exists(tmp)) {
     
     # For each file ----
     meta <- dat[, {
@@ -55,9 +58,13 @@ getMetadataImage <- function(
       meta[, sizeY:= as.numeric(value[var=="sizeY"]), serie]
       meta[, sizeZ:= as.numeric(value[var=="sizeZ"]), serie]
       meta[, sizeC:= as.numeric(value[var=="sizeC"]), serie]
-      if(grepl(".czi", path)) { # Aptotome
+      if(grepl(".czi", path)) { # Apotome
         meta[, name:= gsub("(.*)-ApoTome.*", "\\1", basename(path))]
-        meta[, c("pixelX", "pixelY"):= tstrsplit(value[var=="ImageScaling|ImagePixelSize"], ",", type.convert = T)]
+        if("ImageScaling|ImagePixelSize" %in% meta$var) { # Old software
+          meta[, c("pixelX", "pixelY"):= tstrsplit(value[var=="ImageScaling|ImagePixelSize"], ",", type.convert = T)]
+        } else if("Scaling|AutoScaling|CameraPixelDistance" %in% meta$var){ # Software update
+          meta[, c("pixelX", "pixelY"):= tstrsplit(value[var=="Scaling|AutoScaling|CameraPixelDistance"], ",", type.convert = T)]
+        }
         meta[, objective:= as.numeric(value[var=="Information|Instrument|Objective|NominalMagnification"])]
         meta[, magnification:= as.numeric(value[var=="Scaling|AutoScaling|CameraAdapterMagnification"])]
         meta[, magnification:= magnification*objective]
@@ -86,6 +93,7 @@ getMetadataImage <- function(
   } else
     meta <- readRDS(tmp)
   
+  print(tmp)
   # Return
   return(meta)
 }

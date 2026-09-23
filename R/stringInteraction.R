@@ -96,7 +96,7 @@ stringInteraction <- function(STRINGdb,
   E <- as.data.table(E)
   E[IDs, from:= i.symbol, on= "from==STRING_id"]
   E[IDs, to:= symbol, on= "to==STRING_id"]
-  E <- E[, .(width= max(combined_score)), .(from, to)]
+  E <- E[, .(max.combined.score= max(combined_score), width= max(combined_score)), .(from, to)]
 
   # Checks and cutoffs
   E <- E[width>=score.cutoff]

@@ -6,6 +6,7 @@
 \usage{
 alluvial(
   x,
+  levels,
   bars.widths = 0.3,
   col = rainbow(12),
   xlab = "Categories",
@@ -28,6 +29,8 @@ alluvial(
 }
 \arguments{
 \item{x}{A data.table where each column represents a categorical variable and each row is an entry (see examples).}
+
+\item{levels}{If specified, levels will be ordered accordingly.}
 
 \item{bars.widths}{Numeric vector specifying the width of the vertical bars. If a single value is provided,
 it will be recycled for all columns. Default= 0.3}

@@ -5,17 +5,18 @@
 \title{A wrapper around the rCisTarget package that identify motif enriched in Dmel genes.}
 \usage{
 vl_iCisTarget.genes(
-  geneLists,
+  geneList,
   highlightTFs = NULL,
   NES.cutoff = 3,
   maxRank = 5000,
   aucMaxRank = 0.05,
   plot = T,
+  cluster.rows = F,
+  cluster.cols = F,
+  drop.empty = FALSE,
   legend.title = "NES",
   show.grid = T,
   show.numbers = T,
-  cluster.rows = F,
-  cluster.cols = F,
   motifRankings.feather =
     "/zssd/scratch/vincent.loubiere/motifs_db/iCisTarget/mc_v10_clust/gene_based/dm6_v10_clust.genes_vs_motifs.rankings.feather",
   motifAnnot.tbl =
@@ -26,7 +27,7 @@ vl_iCisTarget.genes(
 )
 }
 \arguments{
-\item{geneLists}{List of Dmel gene symbols.}
+\item{geneList}{A named list of Dmel gene symbols.}
 
 \item{highlightTFs}{If a character list of TF names is provided, the column TFinDB in the otuput table will indicate whether
 any of those TFs are included within the 'high-confidence' annotation (two asterisks, **) or 'low-confidence' annotation
@@ -40,6 +41,20 @@ Otherwise, all TFs will be used for all geneSets.}
 \item{aucMaxRank}{Threshold to calculate the AUC. In a simplified way, the AUC value represents the fraction of genes
 (within the top X genes in the ranking) that are included in the signature. Default= 0.05 (5% of the total number of
 genes in the rankings). Common values: 1-10%.}
+
+\item{plot}{Should the result be plotted?}
+
+\item{cluster.rows}{Should the rows of the resulting heatmap be clustered? Default= FALSE}
+
+\item{cluster.cols}{Should the columns of the resulting heatmap be clustered? Default= FALSE}
+
+\item{drop.empty}{Should sub-lists with no enrichment be dropped? Default= FALSE.}
+
+\item{legend.title}{Default= "NES".}
+
+\item{show.grid}{Should the grid be plotted? Default= TRUE.}
+
+\item{show.numbers}{Should the NES values be plotted? Default= TRUE.}
 
 \item{motifRankings.feather}{Path to the gene motifRankings .feather file. Default=
 "/zssd/scratch/vincent.loubiere/motifs_db/iCisTarget/mc_v10_clust/gene_based/dm6_v10_clust.genes_vs_motifs.rankings.feather".}

@@ -1,28 +1,42 @@
-#' Title
+#' Clip and rescale image intensities
 #'
-#' @param im Image to clip.
-#' @param channels Which channels should be clipped (by default, they all will).
-#' @param min.bg.sd The number of sd to be added to the mean value of the background peak 
-#' to define the minimum threshold. Default= 2.
-#' @param min.quantile If specificied, minimum cutoff will be computed based on quantiles. Default= NA.
-#' @param max.quantile The maximum quantile to which values will be clipped. Default= 0.99.
-#' @param min.value If specified, hard thresholding will be performed (instead of quantile based). Default= NULL.
-#' @param max.value If specified, hard thresholding will be performed (instead of quantile based). Default= NULL.
+#' Clips selected image channels between lower and upper intensity cutoffs,
+#' then linearly rescales the retained range to [0, 1]. Cutoffs can be
+#' supplied directly or estimated automatically using ?threshImage.
 #'
-#' @returns
+#' @param im Input image or numeric array, with channels stored along the third
+#'   dimension and, optionally, z-sections along the fourth dimension.
+#' @param channels Integer vector specifying the channels to process. By
+#'   default, all channels are processed.
+#' @param auto.bg.scaling Scaling factor applied to the upper boundary of the
+#' first background intensity peak to define the lower cutoff. A value of
+#' 1 uses the boundary directly, while values greater than 1 shift the
+#' cutoff toward higher intensities. Default= NULL, corresponding to Otsu thresholding.
+#' @param adjust.bandwidth Adjust the bandwidth used to compute density. Higher= smoother. Default= 1
+#' @param min.quantile Quantile used as the automatic lower cutoff. Mutually
+#'   exclusive with auto.bg.scaling. Default= NULL, corresponding to Otsu
+#'   thresholding.
+#' @param max.quantile Quantile used as the automatic upper cutoff. Default= 0.999.
+#' @param min.value Optional fixed lower cutoff, overriding its automatic
+#'   estimate. Default= NULL.
+#' @param max.value Optional fixed upper cutoff, overriding its automatic
+#'   estimate. Default= NULL.
+#'
+#' @return The image with selected channels clipped and rescaled to [0, 1].
+#'
 #' @export
-#'
-#' @examples
 clipImage <- function(
     im,
     channels= NULL,
-    min.bg.sd= 2,
-    min.quantile= NA,
-    max.quantile= 0.99,
+    auto.bg.scaling= NULL,
+    adjust.bandwidth= 1,
+    min.quantile= NULL,
+    max.quantile= 0.999,
     min.value= NULL,
     max.value= NULL
 ) {
   stopifnot(inherits(im, "AnnotatedImage") | inherits(im, "array"))
+  stopifnot(all(channels >= 1 & channels <= dim(im)[3]))
   
   # Select channels to process
   if(is.null(channels))
@@ -35,37 +49,24 @@ clipImage <- function(
       im[, , i, ] else
         im[, , i]
     
-    # Compute min clipping value based on density
-    min.cutoff <- if(is.null(min.value)) {
-      if(is.na(min.quantile)) {
-        # Density
-        d <- density(c(.c)) 
-        # Extract values from the first (bg) peak
-        deriv <- sign(diff(d$y)) == 1 # Derivative
-        r <- data.table::rleidv(deriv) # rle
-        bg <- d$x[1:max(which(r==2))] # bg values (within 1st peak)
-        # Compute threshold
-        mean(bg)+sd(bg)*min.bg.sd
-      } else {
-        quantile(as.numeric(.c), min.quantile)
-      }
-    } else
-      min.value
-
-    # Compute max clipping values
-    max.cutoff <- if(is.null(max.value))
-      quantile(as.numeric(.c), max.quantile) else
-        max.value
-    
-    # Print limits
-    print(
-      paste0(
-        "Clipping value for channel ", i, ": ",
-        formatC(min.cutoff, format = "e", digits = 1),
-        " / ",
-        formatC(max.cutoff, format = "e", digits = 1)
+    # Compute automatic clipping values
+    if(is.null(min.value) | is.null(max.value)) {
+      auto.thresh <- threshImage(
+        .c,
+        auto.bg.scaling = auto.bg.scaling,
+        adjust.bandwidth= adjust.bandwidth,
+        min.quantile= min.quantile,
+        max.quantile= max.quantile
       )
-    )
+    }
+    
+    # Retrieve clipping values
+    min.cutoff <- if(is.null(min.value))
+      auto.thresh[1] else
+        min.value
+    max.cutoff <- if(is.null(max.value))
+      auto.thresh[2] else
+        max.value
     
     # Clip
     if(max.cutoff>min.cutoff) {
